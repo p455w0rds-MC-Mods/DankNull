@@ -1,0 +1,97 @@
+buildscript {
+    repositories {
+        jcenter()
+		mavenLocal()
+        mavenCentral()
+        maven {
+            name = "forge"
+            url = "http://files.minecraftforge.net/maven"
+        }
+    }
+	dependencies {
+        classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
+    }
+}
+
+apply plugin: 'net.minecraftforge.gradle.forge'
+
+group = "p455w0rd.danknull"
+version = "1.12-" + getVersion("VERSION")
+archivesBaseName = "DankNull"
+sourceCompatibility = targetCompatibility = "1.8"
+
+minecraft {
+    version = "1.12-14.21.1.2407"
+	mappings = "stable_31"
+	runDir = "run"
+}
+
+repositories {
+	mavenCentral()
+	maven {
+		name = "progwml6"
+		url = "http://dvs1.progwml6.com/files/maven"
+	}
+	maven {
+		name = "ChickenBones"
+		url "http://chickenbones.net/maven"
+	}
+	maven {
+		name = "k-4u"
+        url "http://maven.k-4u.nl"
+    }
+	maven {
+		name = "tterrag"
+		url = "http://maven.tterrag.com"
+	}
+	maven {
+		name = "tehnut"
+		url = "http://tehnut.info/maven"
+	}
+	maven {
+        name = "CoFH Maven"
+        url = "http://maven.covers1624.net"
+    }
+}
+
+dependencies {
+	deobfCompile "mezz.jei:jei_1.12:+"
+	deobfCompile "codechicken:CodeChickenLib:1.12-3+:universal"
+	deobfCompile "cofh:RedstoneFlux:1.12-2.0.0.1:universal"
+	deobfCompile "mcjty.theoneprobe:TheOneProbe-1.12:1.12-1.4.15-8"
+	deobfCompile "mcp.mobius.waila:Hwyla:1.8.19-B33_1.12"
+}
+
+processResources {
+	inputs.property "version", project.version
+	inputs.property "mcversion", project.minecraft.version
+
+	from (sourceSets.main.resources.srcDirs) {
+		include "mcmod.info"
+		expand "version": project.version, "mcversion": project.minecraft.version
+	}
+		
+	from (sourceSets.main.resources.srcDirs) {
+		exclude "mcmod.info"
+	}
+}
+
+String getVersion(String type) {
+	String major = "0";
+	String revision = "0";
+	String patch = "0";
+	String prefix = "public static final String $type = \"";
+	File file = file("src/main/java/p455w0rd/danknull/init/ModGlobals.java")
+	file.eachLine { String s ->
+		s = s.trim();
+		if (s.startsWith(prefix)) {
+			s = s.substring(prefix.length(), s.length() - 2);
+			String[] pts = s.split("\\.");
+
+			major = pts[0];
+			revision = pts[1];
+			patch = pts[2];
+		}
+	}
+	return "$major.$revision.$patch";
+}
