@@ -44,7 +44,6 @@ import p455w0rd.danknull.api.IModelHolder;
 import p455w0rd.danknull.client.render.DankNullRenderer;
 import p455w0rd.danknull.client.render.PModelRegistryHelper;
 import p455w0rd.danknull.entity.EntityPFakePlayer;
-import p455w0rd.danknull.init.ModConfig.Options;
 import p455w0rd.danknull.init.ModGlobals;
 import p455w0rd.danknull.init.ModGuiHandler;
 import p455w0rd.danknull.init.ModGuiHandler.GUIType;
@@ -106,12 +105,7 @@ public class ItemDankNull extends Item implements IModelHolder {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public String getItemStackDisplayName(ItemStack stack) {
-		String str = I18n.translateToLocal(getUnlocalizedNameInefficiently(stack) + "_" + getDamage(stack) + ".name").trim();
-		if (Options.callItDevNull) {
-			String newStr = str.replace("dank", "dev");
-			str = newStr;
-		}
-		return str;
+		return I18n.translateToLocal(getUnlocalizedNameInefficiently(stack) + "_" + getDamage(stack) + ".name").trim();
 	}
 
 	@Override
