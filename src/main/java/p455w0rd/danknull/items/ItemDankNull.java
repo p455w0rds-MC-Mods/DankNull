@@ -45,7 +45,6 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import p455w0rd.danknull.api.IModelHolder;
 import p455w0rd.danknull.client.render.DankNullRenderer;
-import p455w0rd.danknull.client.render.PModelRegistryHelper;
 import p455w0rd.danknull.entity.EntityPFakePlayer;
 import p455w0rd.danknull.init.ModGlobals;
 import p455w0rd.danknull.init.ModGuiHandler;
@@ -98,11 +97,11 @@ public class ItemDankNull extends Item implements IModelHolder {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void initModel() {
-	    ModelResourceLocation loc = new ModelResourceLocation(getRegistryName(), "inventory");
+		ModelResourceLocation loc = new ModelResourceLocation(getRegistryName(), "inventory");
 		for (int i = 0; i < 6; i++) {
-		    ModelLoader.setCustomModelResourceLocation(this, i, loc);
+			ModelLoader.setCustomModelResourceLocation(this, i, loc);
 		}
-        ModelRegistryHelper.register(loc, DankNullRenderer.getInstance());
+		ModelRegistryHelper.register(loc, DankNullRenderer.getInstance());
 	}
 
 	@Override
@@ -174,8 +173,10 @@ public class ItemDankNull extends Item implements IModelHolder {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> subItems) {
-		for (int i = 0; i < 6; i++) {
-			subItems.add(new ItemStack(this, 1, i));
+		if (isInCreativeTab(tab)) {
+			for (int i = 0; i < 6; i++) {
+				subItems.add(new ItemStack(this, 1, i));
+			}
 		}
 	}
 

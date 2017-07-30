@@ -128,7 +128,6 @@ public class TESRDankNullDock extends TileEntitySpecialRenderer<TileDankNullDock
 		GlStateManager.pushMatrix();
 		GlStateManager.translate(x + 0.5, y + 0.45, z + 0.5);
 		GlStateManager.scale(0.55D, 0.55D, 0.55D);
-		DankNullRenderer.getInstance().renderItem(stack, TransformType.FIXED);
 		Minecraft.getMinecraft().getItemRenderer().renderItem(EasyMappings.player(), stack, ItemCameraTransforms.TransformType.NONE);
 		GlStateManager.translate(-x, -y, -z);
 		GlStateManager.popMatrix();

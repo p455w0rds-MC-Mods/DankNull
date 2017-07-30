@@ -97,6 +97,7 @@ public class GuiDankNull extends GuiModular {
 		String name = "/dank/null";
 		if (dankNull != null) {
 			name = I18n.format(DankNullUtils.getDankNull(player).getDisplayName(), new Object[0]).trim();
+			name = name.substring(0, 10);
 			//name = I18n.format(((ItemDankNull) DankNullUtils.getDankNull(player).getItem()).getUnlocalizedNameInefficiently(dankNull) + "_0.name", new Object[0]).trim();
 		}
 		mc.fontRenderer.drawString(name, 7, 6, DankNullUtils.getColor(dankNull.getItemDamage(), true), true);

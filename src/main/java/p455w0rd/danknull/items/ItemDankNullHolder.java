@@ -40,8 +40,10 @@ public class ItemDankNullHolder extends Item implements IModelHolder {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> subItems) {
-		for (int i = 0; i < 6; i++) {
-			subItems.add(new ItemStack(this, 1, i));
+		if (isInCreativeTab(tab)) {
+			for (int i = 0; i < 6; i++) {
+				subItems.add(new ItemStack(this, 1, i));
+			}
 		}
 	}
 }

@@ -15,6 +15,8 @@ import mezz.jei.api.ingredients.IIngredientBlacklist;
 import mezz.jei.api.ingredients.IModIngredientRegistration;
 import mezz.jei.api.recipe.IRecipeCategoryRegistration;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.oredict.OreDictionary;
+import p455w0rd.danknull.init.ModBlocks;
 import p455w0rd.danknull.init.ModIntegration.Mods;
 import p455w0rd.danknull.init.ModItems;
 
@@ -31,7 +33,7 @@ public class JEI implements IModPlugin {
 	public void register(@Nonnull IModRegistry registry) {
 		blacklist = registry.getJeiHelpers().getIngredientBlacklist();
 
-		//blacklistItem(new ItemStack(ModItems.DANK_NULL_HOLDER, 1, OreDictionary.WILDCARD_VALUE));
+		blacklistItem(new ItemStack(ModItems.DANK_NULL_HOLDER, 1, OreDictionary.WILDCARD_VALUE));
 
 		List<ItemStack> dankNulls = new ArrayList<ItemStack>();
 		dankNulls.addAll(Arrays.asList(new ItemStack(ModItems.DANK_NULL, 1, 0), new ItemStack(ModItems.DANK_NULL, 1, 1), new ItemStack(ModItems.DANK_NULL, 1, 2), new ItemStack(ModItems.DANK_NULL, 1, 3), new ItemStack(ModItems.DANK_NULL, 1, 4), new ItemStack(ModItems.DANK_NULL, 1, 5)));
@@ -43,7 +45,7 @@ public class JEI implements IModPlugin {
 		registry.addIngredientInfo(new ItemStack(ModItems.DANK_NULL, 1, 4), ItemStack.class, "jei.danknull.desc4");
 		registry.addIngredientInfo(new ItemStack(ModItems.DANK_NULL, 1, 5), ItemStack.class, "jei.danknull.desc5");
 
-		//registry.addIngredientInfo(new ItemStack(ModBlocks.DANKNULL_DOCK), ItemStack.class, "jei.danknull_dock.desc");
+		registry.addIngredientInfo(new ItemStack(ModBlocks.DANKNULL_DOCK), ItemStack.class, "jei.danknull_dock.desc");
 
 	}
 

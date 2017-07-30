@@ -56,6 +56,9 @@ public class DankNullRenderer implements IItemRenderer {
 
 	@Override
 	public void renderItem(ItemStack item, TransformType transformType) {
+		if ((item.getItem() instanceof ItemDankNullHolder)) {
+			return;
+		}
 		if ((item.getItem() instanceof ItemDankNull)) {
 			RenderManager rm = Minecraft.getMinecraft().getRenderManager();
 			if (rm == null) {
@@ -153,14 +156,14 @@ public class DankNullRenderer implements IItemRenderer {
 				String modID = registryName[0];
 				if (modID.equalsIgnoreCase("danknull") || modID.equalsIgnoreCase("minecraft")) {
 					if (containedStack.getItem() instanceof ItemBucket || containedStack.getItem() instanceof ItemBucketMilk) {
-						renderItem(containedStack, Minecraft.getMinecraft().getRenderItem().getItemModelWithOverrides(containedStack, EasyMappings.player().getEntityWorld(), EasyMappings.player()));
+						//renderItem(containedStack, Minecraft.getMinecraft().getRenderItem().getItemModelWithOverrides(containedStack, EasyMappings.player().getEntityWorld(), EasyMappings.player()));
 					}
 					else {
 						renderItem(containedStack, containedItemModel);
 					}
 				}
 				else {
-					renderItem(containedStack, Minecraft.getMinecraft().getRenderItem().getItemModelWithOverrides(containedStack, EasyMappings.player().getEntityWorld(), EasyMappings.player()));
+					//renderItem(containedStack, Minecraft.getMinecraft().getRenderItem().getItemModelWithOverrides(containedStack, EasyMappings.player().getEntityWorld(), EasyMappings.player()));
 				}
 				GlStateManager.popMatrix();
 
