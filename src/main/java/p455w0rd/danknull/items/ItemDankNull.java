@@ -1,5 +1,6 @@
 package p455w0rd.danknull.items;
 
+import codechicken.lib.model.ModelRegistryHelper;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBanner;
 import net.minecraft.block.BlockStairs;
@@ -7,6 +8,7 @@ import net.minecraft.block.BlockStandingSign;
 import net.minecraft.block.BlockWallSign;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
@@ -32,6 +34,7 @@ import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.GameType;
 import net.minecraft.world.World;
+import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -96,11 +99,11 @@ public class ItemDankNull extends Item implements IModelHolder {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void initModel() {
+	    ModelResourceLocation loc = new ModelResourceLocation(getRegistryName(), "inventory");
 		for (int i = 0; i < 6; i++) {
-			//ModelLoader.setCustomModelResourceLocation(this, i, new ModelResourceLocation(new ResourceLocation(ModGlobals.MODID, getRegistryName().toString() + "" + i), "inventory"));
-			PModelRegistryHelper.registerMetaRenderer(this, DankNullRenderer.getInstance(), i);
+		    ModelLoader.setCustomModelResourceLocation(this, i, loc);
 		}
-		//ModelRegistryHelper.registerItemRenderer(this, DankNullRenderer.getInstance());
+        ModelRegistryHelper.register(loc, DankNullRenderer.getInstance());
 	}
 
 	@Override
