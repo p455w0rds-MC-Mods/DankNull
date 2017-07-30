@@ -145,7 +145,7 @@ public class GuiDankNull extends GuiModular {
 		GlStateManager.disableLighting();
 		GlStateManager.disableDepth();
 		for (int i2 = 0; i2 < buttonList.size(); i2++) {
-			buttonList.get(i).func_191745_a(mc, mouseX, mouseY, 0f);
+			buttonList.get(i).drawButton(mc, mouseX, mouseY, 0f);
 		}
 		for (int j2 = 0; j2 < labelList.size(); j2++) {
 			labelList.get(j).drawLabel(mc, mouseX, mouseY);
@@ -285,12 +285,6 @@ public class GuiDankNull extends GuiModular {
 			}
 		}
 		super.handleMouseInput();
-	}
-
-	@Override
-	protected void mouseClicked(int mouseX, int mouseY, int button) {
-
-		super.mouseClicked(mouseX, mouseY, button);
 	}
 
 	private boolean isMouseHovering(Slot slot, int x, int y) {
