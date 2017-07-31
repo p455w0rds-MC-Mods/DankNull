@@ -171,10 +171,6 @@ public class ItemDankNull extends Item implements IModelHolder {
 		return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
 	}
 
-	private boolean isPlayerOnEdgeTryingToPlaceBlock(EntityPlayer player) {
-		return false;
-	}
-
 	private Block getBlockUnderPlayer(EntityPlayer player) {
 		int blockX = MathHelper.floor(player.posX);
 		int blockY = MathHelper.floor(player.getEntityBoundingBox().minY - 1);
