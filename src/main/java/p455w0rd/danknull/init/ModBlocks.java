@@ -3,6 +3,7 @@ package p455w0rd.danknull.init;
 import java.util.Arrays;
 
 import net.minecraft.block.Block;
+import net.minecraft.item.ItemBlock;
 import net.minecraft.util.NonNullList;
 import p455w0rd.danknull.api.IModelHolder;
 import p455w0rd.danknull.blocks.BlockDankNullDock;
@@ -19,6 +20,7 @@ public class ModBlocks {
 
 	public static void init() {
 		BLOCK_LIST.addAll(Arrays.asList(DANKNULL_DOCK));
+		ModItems.getList().add(new ItemBlock(DANKNULL_DOCK).setRegistryName(DANKNULL_DOCK.getRegistryName()));
 	}
 
 	public static void preInitModels() {

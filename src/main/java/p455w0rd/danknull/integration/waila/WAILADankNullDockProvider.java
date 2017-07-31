@@ -53,7 +53,7 @@ public class WAILADankNullDockProvider implements IWailaDataProvider {
 			currenttip.add("Right-click with empty hand");
 			currenttip.add("to change extraction mode");
 			ItemStack dockedDankNull = dankDock.getInventory().getDankNull();
-			if (!dockedDankNull.isEmpty()) {
+			if (dockedDankNull != null || !dockedDankNull.isEmpty()) {
 				currenttip.add(" ");
 				currenttip.add(dockedDankNull.getDisplayName() + " Docked");
 				ItemStack selectedStack = DankNullUtils.getSelectedStack(dankDock.getInventory());

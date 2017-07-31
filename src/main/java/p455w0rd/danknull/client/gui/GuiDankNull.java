@@ -96,7 +96,7 @@ public class GuiDankNull extends GuiModular {
 		String name = "/dank/null";
 		if (dankNull != null) {
 			name = I18n.format(DankNullUtils.getDankNull(player).getDisplayName(), new Object[0]).trim();
-			//name = I18n.format(((ItemDankNull) DankNullUtils.getDankNull(player).getItem()).getUnlocalizedNameInefficiently(dankNull) + "_0.name", new Object[0]).trim();
+			name = name.substring(0, 10);
 		}
 		mc.fontRenderer.drawString(name, 7, 6, DankNullUtils.getColor(dankNull.getItemDamage(), true), true);
 
@@ -284,12 +284,6 @@ public class GuiDankNull extends GuiModular {
 			}
 		}
 		super.handleMouseInput();
-	}
-
-	@Override
-	protected void mouseClicked(int mouseX, int mouseY, int button) {
-
-		super.mouseClicked(mouseX, mouseY, button);
 	}
 
 	private boolean isMouseHovering(Slot slot, int x, int y) {

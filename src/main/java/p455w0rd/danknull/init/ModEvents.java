@@ -78,7 +78,7 @@ public class ModEvents {
 			return;
 		}
 		ItemStack dankNull = DankNullUtils.getDankNullForStack(player, entityStack);
-		if (dankNull != null && dankNull != ItemStack.EMPTY) {
+		if (!dankNull.isEmpty()) {
 			InventoryDankNull inventory = DankNullUtils.getInventoryFromStack(dankNull);
 			if (inventory != null && (DankNullUtils.addFilteredStackToDankNull(inventory, entityStack))) {
 				entityStack.setCount(0);

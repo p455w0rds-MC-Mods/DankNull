@@ -29,6 +29,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.GameType;
 import net.minecraft.world.World;
@@ -44,7 +45,6 @@ import p455w0rd.danknull.api.IModelHolder;
 import p455w0rd.danknull.client.render.DankNullRenderer;
 import p455w0rd.danknull.client.render.PModelRegistryHelper;
 import p455w0rd.danknull.entity.EntityPFakePlayer;
-import p455w0rd.danknull.init.ModConfig.Options;
 import p455w0rd.danknull.init.ModGlobals;
 import p455w0rd.danknull.init.ModGuiHandler;
 import p455w0rd.danknull.init.ModGuiHandler.GUIType;
@@ -103,12 +103,7 @@ public class ItemDankNull extends Item implements IModelHolder {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public String getItemStackDisplayName(ItemStack stack) {
-		String str = I18n.translateToLocal(getUnlocalizedNameInefficiently(stack) + "_" + getDamage(stack) + ".name").trim();
-		if (Options.callItDevNull) {
-			String newStr = str.replace("dank", "dev");
-			str = newStr;
-		}
-		return str;
+		return I18n.translateToLocal(getUnlocalizedNameInefficiently(stack) + "_" + getDamage(stack) + ".name").trim();
 	}
 
 	@Override
@@ -204,12 +199,24 @@ public class ItemDankNull extends Item implements IModelHolder {
 		return false;
 	}
 
+	private Block getBlockUnderPlayer(EntityPlayer player) {
+		int blockX = MathHelper.floor(player.posX);
+		int blockY = MathHelper.floor(player.getEntityBoundingBox().minY - 1);
+		int blockZ = MathHelper.floor(player.posZ);
+		return player.getEntityWorld().getBlockState(new BlockPos(blockX, blockY, blockZ)).getBlock();
+	}
+
 	@Override
 	public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos posIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
 		if (worldIn.isRemote) {
-			return EnumActionResult.SUCCESS;
+			return EnumActionResult.PASS;
 		}
-		if (player.isSneaking()) {
+		RayTraceResult ray = player.rayTrace(100, 1.0F);
+		Block hitBlock = null;
+		if (ray != null) {
+			hitBlock = worldIn.getBlockState(ray.getBlockPos()).getBlock();
+		}
+		if (player.isSneaking() && getBlockUnderPlayer(player) != Blocks.AIR && hitBlock != null) {
 			ModGuiHandler.launchGui(GUIType.DANKNULL, player, worldIn, (int) player.posX, (int) player.posY, (int) player.posZ);
 			return EnumActionResult.SUCCESS;
 		}
@@ -262,7 +269,7 @@ public class ItemDankNull extends Item implements IModelHolder {
 					//ModNetworking.INSTANCE.sendTo(new PacketSyncDankNull(DankNullUtils.getInventory(stack).serializeNBT()), player);
 					//}
 				}
-				return result;
+				return EnumActionResult.PASS;
 			}
 			else if (selectedStack.getItem() instanceof ItemBucket) {
 				//TODO soon!
@@ -291,7 +298,7 @@ public class ItemDankNull extends Item implements IModelHolder {
 				else if (result == EnumActionResult.SUCCESS && !player.capabilities.isCreativeMode) {
 					DankNullUtils.decrSelectedStackSize(inventory, 1);
 				}
-				return result;
+				return EnumActionResult.PASS;
 			}
 		}
 		return EnumActionResult.PASS;

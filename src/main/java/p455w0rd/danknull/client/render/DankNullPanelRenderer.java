@@ -140,7 +140,7 @@ public class DankNullPanelRenderer implements IItemRenderer {
 
 	private IBakedModel getModel(@Nonnull ItemStack stack) {
 		String key = getKey(stack);
-		int meta = getMeta(stack);
+		int meta = stack.getItemDamage();
 		if (!modelCache.containsKey(key)) {
 			if (DankTextures.DANKNULL_PANELS == null) {
 				DankTextures.getInstance().registerIcons(RenderUtils.getBlocksTextureMap());
