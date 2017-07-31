@@ -31,6 +31,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.GameType;
 import net.minecraft.world.World;
@@ -170,6 +171,17 @@ public class ItemDankNull extends Item implements IModelHolder {
 		return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
 	}
 
+	private boolean isPlayerOnEdgeTryingToPlaceBlock(EntityPlayer player) {
+		return false;
+	}
+
+	private Block getBlockUnderPlayer(EntityPlayer player) {
+		int blockX = MathHelper.floor(player.posX);
+		int blockY = MathHelper.floor(player.getEntityBoundingBox().minY - 1);
+		int blockZ = MathHelper.floor(player.posZ);
+		return player.getEntityWorld().getBlockState(new BlockPos(blockX, blockY, blockZ)).getBlock();
+	}
+
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> subItems) {
@@ -210,7 +222,12 @@ public class ItemDankNull extends Item implements IModelHolder {
 		if (worldIn.isRemote) {
 			return EnumActionResult.SUCCESS;
 		}
-		if (player.isSneaking()) {
+		RayTraceResult ray = player.rayTrace(100, 1.0F);
+		Block hitBlock = null;
+		if (ray != null) {
+			hitBlock = worldIn.getBlockState(ray.getBlockPos()).getBlock();
+		}
+		if (player.isSneaking() && getBlockUnderPlayer(player) != Blocks.AIR && hitBlock != null) {
 			ModGuiHandler.launchGui(GUIType.DANKNULL, player, worldIn, (int) player.posX, (int) player.posY, (int) player.posZ);
 			return EnumActionResult.SUCCESS;
 		}
