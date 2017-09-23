@@ -32,6 +32,7 @@ import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.MathHelper;
 import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.GameType;
 import net.minecraft.world.World;
@@ -213,12 +214,19 @@ public class ItemDankNull extends Item implements IModelHolder {
 		return false;
 	}
 
+	public RayTraceResult rayTrace(EntityPlayer player, double blockReachDistance, float partialTicks) {
+		Vec3d vec3d = player.getPositionEyes(partialTicks);
+		Vec3d vec3d1 = player.getLook(partialTicks);
+		Vec3d vec3d2 = vec3d.addVector(vec3d1.x * blockReachDistance, vec3d1.y * blockReachDistance, vec3d1.z * blockReachDistance);
+		return player.world.rayTraceBlocks(vec3d, vec3d2, false, false, true);
+	}
+
 	@Override
 	public EnumActionResult onItemUse(EntityPlayer player, World worldIn, BlockPos posIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
 		if (worldIn.isRemote) {
 			return EnumActionResult.SUCCESS;
 		}
-		RayTraceResult ray = player.rayTrace(100, 1.0F);
+		RayTraceResult ray = rayTrace(player, 100, 1.0F);
 		Block hitBlock = null;
 		if (ray != null) {
 			hitBlock = worldIn.getBlockState(ray.getBlockPos()).getBlock();
