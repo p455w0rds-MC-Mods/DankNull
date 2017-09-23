@@ -94,10 +94,12 @@ public class GuiDankNull extends GuiModular {
 		int yOffset = 101 - ((20 * numRows) + numRows);
 		ItemStack dankNull = DankNullUtils.getDankNull(player);
 		String name = "/dank/null";
+		/*
 		if (dankNull != null) {
 			name = I18n.format(DankNullUtils.getDankNull(player).getDisplayName(), new Object[0]).trim();
 			name = name.substring(0, 10);
 		}
+		*/
 		mc.fontRenderer.drawString(name, 7, 6, DankNullUtils.getColor(dankNull.getItemDamage(), true), true);
 
 		mc.fontRenderer.drawString(I18n.format("container.inventory", new Object[0]), 7, ySize - yOffset, fontColor);
