@@ -21,7 +21,7 @@ archivesBaseName = "DankNull"
 sourceCompatibility = targetCompatibility = "1.8"
 
 minecraft {
-    version = "1.12-14.21.1.2407"
+    version = "1.12.1-14.22.1.2485"
 	mappings = "snapshot_20170624"
 	runDir = "run"
 }
@@ -59,7 +59,7 @@ dependencies {
 	deobfCompile "codechicken:CodeChickenLib:1.12-3+:universal"
 	deobfCompile "cofh:RedstoneFlux:1.12-2.0.0.1:universal"
 	deobfCompile "mcjty.theoneprobe:TheOneProbe-1.12:1.12-1.4.15-8"
-	deobfCompile "mcp.mobius.waila:Hwyla:1.8.19-B33_1.12"
+	deobfCompile "mcp.mobius.waila:Hwyla:1.8.20-B35_1.12"
 }
 
 processResources {
