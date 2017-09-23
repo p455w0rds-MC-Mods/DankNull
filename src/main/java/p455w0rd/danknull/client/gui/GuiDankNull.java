@@ -95,6 +95,7 @@ public class GuiDankNull extends GuiModular {
 		int yOffset = 101 - ((20 * numRows) + numRows);
 		ItemStack dankNull = DankNullUtils.getDankNull(player);
 		String name = "/dank/null";
+		/*
 		if (dankNull != null) {
 			name = I18n.format(DankNullUtils.getDankNull(player).getDisplayName(), new Object[0]).trim();
 			if (name != null && name.substring(0, 4).equals("/dank")) {
@@ -102,6 +103,7 @@ public class GuiDankNull extends GuiModular {
 			}
 			//name = I18n.format(((ItemDankNull) DankNullUtils.getDankNull(player).getItem()).getUnlocalizedNameInefficiently(dankNull) + "_0.name", new Object[0]).trim();
 		}
+		*/
 		mc.fontRenderer.drawString(name, 7, 6, DankNullUtils.getColor(dankNull.getItemDamage(), true), true);
 
 		mc.fontRenderer.drawString(I18n.format("container.inventory", new Object[0]), 7, ySize - yOffset, fontColor);
