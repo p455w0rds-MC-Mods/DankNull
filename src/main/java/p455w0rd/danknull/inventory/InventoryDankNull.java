@@ -2,7 +2,7 @@ package p455w0rd.danknull.inventory;
 
 import java.util.Iterator;
 
-import javax.annotation.Nullable;
+import javax.annotation.Nonnull;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
@@ -112,7 +112,7 @@ public class InventoryDankNull implements IInventory, Iterable<ItemStack> {
 	@Override
 	public ItemStack removeStackFromSlot(int index) {
 		ItemStack stack = getStackInSlot(index);
-		if (stack != null) {
+		if (!stack.isEmpty()) {
 			setInventorySlotContents(index, ItemStack.EMPTY);
 		}
 		return stack;
@@ -184,10 +184,10 @@ public class InventoryDankNull implements IInventory, Iterable<ItemStack> {
 	}
 
 	public ItemStack getDankNull() {
-		return dankNullStack != null ? dankNullStack : ItemStack.EMPTY;
+		return !dankNullStack.isEmpty() ? dankNullStack : ItemStack.EMPTY;
 	}
 
-	public static boolean isSameItem(@Nullable ItemStack left, @Nullable ItemStack right) {
+	public static boolean isSameItem(@Nonnull ItemStack left, @Nonnull ItemStack right) {
 		return (!left.isEmpty()) && (!right.isEmpty()) && (left.isItemEqual(right));
 	}
 
@@ -205,7 +205,7 @@ public class InventoryDankNull implements IInventory, Iterable<ItemStack> {
 	public void writeToNBT(NBTTagCompound itemTC) {
 		NBTTagList nbtTL = new NBTTagList();
 		for (int i = 0; i < getSizeInventory(); i++) {
-			if (getStackInSlot(i) != null) {
+			if (!getStackInSlot(i).isEmpty()) {
 				NBTTagCompound nbtTC = new NBTTagCompound();
 				nbtTC.setInteger(TAG_SLOT, i);
 				nbtTC.setInteger(TAG_COUNT, getStackInSlot(i).getCount() <= DankNullUtils.getDankNullMaxStackSize(this) ? getStackInSlot(i).getCount() : DankNullUtils.getDankNullMaxStackSize(this));

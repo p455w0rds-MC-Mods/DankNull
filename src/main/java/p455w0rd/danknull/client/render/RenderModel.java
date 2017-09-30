@@ -2,6 +2,8 @@ package p455w0rd.danknull.client.render;
 
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelPlayer;
@@ -24,15 +26,15 @@ import net.minecraftforge.client.model.pipeline.LightUtil;
  *
  */
 public class RenderModel {
-	public static void render(IBakedModel model, ItemStack stack) {
+	public static void render(IBakedModel model, @Nonnull ItemStack stack) {
 		render(model, -1, stack);
 	}
 
 	public static void render(IBakedModel model, int color) {
-		render(model, color, (ItemStack) null);
+		render(model, color, ItemStack.EMPTY);
 	}
 
-	public static void render(IBakedModel model, int color, ItemStack stack) {
+	public static void render(IBakedModel model, int color, @Nonnull ItemStack stack) {
 		Tessellator tessellator = Tessellator.getInstance();
 		VertexBuffer vertexbuffer = tessellator.getBuffer();
 		vertexbuffer.begin(7, DefaultVertexFormats.ITEM);
@@ -44,7 +46,7 @@ public class RenderModel {
 	}
 
 	public static void renderQuads(VertexBuffer renderer, List<BakedQuad> quads, int color, ItemStack stack) {
-		boolean flag = (color == -1) && (stack != null);
+		boolean flag = (color == -1) && (!stack.isEmpty());
 		int i = 0;
 		for (int j = quads.size(); i < j; i++) {
 			BakedQuad bakedquad = quads.get(i);

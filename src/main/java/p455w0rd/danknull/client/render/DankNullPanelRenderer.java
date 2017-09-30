@@ -51,7 +51,7 @@ public class DankNullPanelRenderer implements IItemRenderer {
 
 	@Override
 	public void renderItem(ItemStack stack, TransformType transformType) {
-		if (stack == null || !(stack.getItem() instanceof ItemDankNullPanel)) {
+		if (stack.isEmpty() || !(stack.getItem() instanceof ItemDankNullPanel)) {
 			return;
 		}
 
