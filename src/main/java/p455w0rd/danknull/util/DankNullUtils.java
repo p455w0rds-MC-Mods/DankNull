@@ -78,7 +78,7 @@ public class DankNullUtils {
 			ItemStack itemStack = playerInv.getStackInSlot(i);
 			if (!itemStack.isEmpty()) {
 				if ((itemStack.getItem() instanceof ItemDankNull)) {
-					if (isFiltered(getNewDankNullInventory(itemStack), stack) != null) {
+					if (!isFiltered(getNewDankNullInventory(itemStack), stack).isEmpty()) {
 						dankNullItem = itemStack;
 						break;
 					}
@@ -279,7 +279,7 @@ public class DankNullUtils {
 	public static int getSelectedStackSize(InventoryDankNull inventory) {
 		if (inventory != null && !inventory.getDankNull().isEmpty()) {
 			ItemStack selectedStack = getSelectedStack(inventory);
-			if (selectedStack != null) {
+			if (!selectedStack.isEmpty()) {
 				return selectedStack.getCount();
 			}
 		}
@@ -329,7 +329,7 @@ public class DankNullUtils {
 				}
 			}
 		}
-		return null;
+		return ItemStack.EMPTY;
 	}
 
 	public static DankNullItemHandler getHandler(ItemStack dankNull) {
@@ -405,7 +405,7 @@ public class DankNullUtils {
 	}
 
 	public static void decrDankNullStackSize(@Nonnull InventoryDankNull inventory, @Nonnull ItemStack stack, int amount) {
-		if (inventory == null || stack == null) {
+		if (inventory == null || stack.isEmpty()) {
 			return;
 		}
 		if (!isFiltered(inventory, stack).isEmpty()) {
@@ -439,15 +439,15 @@ public class DankNullUtils {
 		*/
 	}
 
-	public static InventoryDankNull getNewDankNullInventory(ItemStack stack) {
+	public static InventoryDankNull getNewDankNullInventory(@Nonnull ItemStack stack) {
 		return (stack.getItem() instanceof ItemDankNull) ? new InventoryDankNull(stack) : null;
 	}
 
-	public static InventoryDankNull getInventoryFromStack(ItemStack stack) {
+	public static InventoryDankNull getInventoryFromStack(@Nonnull ItemStack stack) {
 		return getNewDankNullInventory(stack);
 	}
 
-	public static int getDankNullMaxStackSize(ItemStack itemStackIn) {
+	public static int getDankNullMaxStackSize(@Nonnull ItemStack itemStackIn) {
 		int level = itemStackIn.getItemDamage() + 1;
 		if (level == 6) {
 			return Integer.MAX_VALUE;

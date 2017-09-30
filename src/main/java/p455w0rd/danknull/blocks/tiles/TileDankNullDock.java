@@ -43,23 +43,23 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 	public static final String TAG_NAME = "PWDock";
 	private static final String TAG_EXTRACTMODE = "ExtractMode";
 	private static final String TAG_SELECTEDSTACK = "SelectedStack";
-	private static ItemStack selectedStack = null;
+	private static ItemStack selectedStack = ItemStack.EMPTY;
 
 	private RedstoneMode redstoneMode = RedstoneMode.REQUIRED;
 	private ExtractionMode extractMode = ExtractionMode.SELECTED;
 	private boolean hasRedstoneSignal = false;
 	private ItemStack dankNullStack = ItemStack.EMPTY;
-	private NonNullList<ItemStack> slots;
+	private NonNullList<ItemStack> slots = NonNullList.create();
 	InventoryDankNull inventory;
 
 	@Override
 	public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
-		return (getStack() != null && capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && facing == EnumFacing.DOWN) || super.hasCapability(capability, facing);
+		return (!getStack().isEmpty() && capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && facing == EnumFacing.DOWN) || super.hasCapability(capability, facing);
 	}
 
 	@Override
 	public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
-		if (getStack() != null && capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && facing == EnumFacing.DOWN) {
+		if (!getStack().isEmpty() && capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && facing == EnumFacing.DOWN) {
 			return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(new SidedInvWrapper(this, facing));
 		}
 		return super.getCapability(capability, facing);
@@ -205,8 +205,8 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 		setRedstoneMode(RedstoneMode.values()[nbt.getInteger(TAG_REDSTONEMODE)]);
 		setRSSignal(nbt.getBoolean(TAG_HAS_REDSTONE_SIGNAL));
 		NBTTagCompound itemNBT = compound.getCompoundTag(TAG_ITEMSTACK);
-		ItemStack newStack = new ItemStack(itemNBT);
-		setStack(newStack == null ? ItemStack.EMPTY : newStack);
+		ItemStack newStack = itemNBT == null ? ItemStack.EMPTY : new ItemStack(itemNBT);
+		setStack(newStack);
 		setExtractionMode(ExtractionMode.values()[compound.getInteger(TAG_EXTRACTMODE)]);
 		if (compound.hasKey(TAG_SELECTEDSTACK) && getExtractionMode() == ExtractionMode.SELECTED) {
 			setSelectedStack(new ItemStack(compound.getCompoundTag(TAG_SELECTEDSTACK)));
@@ -221,7 +221,7 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 		compound.setInteger(TAG_REDSTONEMODE, redstoneMode.ordinal());
 		compound.setBoolean(TAG_HAS_REDSTONE_SIGNAL, hasRSSignal());
 		compound.setInteger(TAG_EXTRACTMODE, getExtractionMode().ordinal());
-		if (getSelectedStack() != null) {
+		if (!getSelectedStack().isEmpty()) {
 			NBTTagCompound selectedItemNBT = new NBTTagCompound();
 			getSelectedStack().writeToNBT(selectedItemNBT);
 			compound.setTag(TAG_SELECTEDSTACK, selectedItemNBT);
@@ -244,12 +244,12 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 
 	@Override
 	public ItemStack getStackInSlot(int index) {
-		return !getStack().isEmpty() ? getInventory().getStackInSlot(index) : null;
+		return !getStack().isEmpty() ? getInventory().getStackInSlot(index) : ItemStack.EMPTY;
 	}
 
 	@Override
 	public ItemStack decrStackSize(int index, int count) {
-		ItemStack ret = !getStack().isEmpty() ? getInventory().decrStackSize(index, count) : null;
+		ItemStack ret = !getStack().isEmpty() ? getInventory().decrStackSize(index, count) : ItemStack.EMPTY;
 		if (!getStackInSlot(index).isEmpty()) {
 			DankNullUtils.reArrangeStacks(getInventory());
 		}

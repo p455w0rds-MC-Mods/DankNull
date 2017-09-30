@@ -1,8 +1,5 @@
 package p455w0rd.danknull.init;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -37,7 +34,7 @@ public class ModEvents {
 	@SideOnly(Side.SERVER)
 	@SubscribeEvent
 	public void onPlayerLogin(PlayerLoggedInEvent e) {
-		Map<String, Object> configs = new HashMap<String, Object>();
+		//Map<String, Object> configs = new HashMap<String, Object>();
 		//ModNetworking.INSTANCE.sendTo(new PacketConfigSync(configs), (EntityPlayerMP) e.player);
 		EntityPFakePlayer.getFakePlayerForParent(e.player);
 	}
@@ -62,7 +59,9 @@ public class ModEvents {
 			for (int i = 0; i < e.craftMatrix.getSizeInventory(); ++i) {
 				if (!e.craftMatrix.getStackInSlot(i).isEmpty() && e.craftMatrix.getStackInSlot(i).getItem() instanceof ItemDankNull) {
 					NBTTagCompound oldCompound = e.craftMatrix.getStackInSlot(i).getTagCompound();
-					e.crafting.setTagCompound(oldCompound);
+					if (oldCompound != null) {
+						e.crafting.setTagCompound(oldCompound);
+					}
 					break;
 				}
 				ItemUtils.setItem(e.crafting, e.crafting.getItem());
@@ -74,11 +73,11 @@ public class ModEvents {
 	public void onItemPickUp(EntityItemPickupEvent e) {
 		EntityPlayer player = e.getEntityPlayer();
 		ItemStack entityStack = e.getItem().getItem();
-		if ((entityStack == null) || (player == null)) {
+		if ((entityStack.isEmpty()) || (player == null)) {
 			return;
 		}
 		ItemStack dankNull = DankNullUtils.getDankNullForStack(player, entityStack);
-		if (dankNull != null && dankNull != ItemStack.EMPTY) {
+		if (!dankNull.isEmpty()) {
 			InventoryDankNull inventory = DankNullUtils.getInventoryFromStack(dankNull);
 			if (inventory != null && (DankNullUtils.addFilteredStackToDankNull(inventory, entityStack))) {
 				entityStack.setCount(0);
@@ -91,11 +90,11 @@ public class ModEvents {
 	@SubscribeEvent
 	public void onMouseEvent(MouseEvent event) {
 		EntityPlayer player = EasyMappings.player();
-		ItemStack dankNullItem = null;
+		ItemStack dankNullItem = ItemStack.EMPTY;
 
 		dankNullItem = DankNullUtils.getDankNull(player);
 		InventoryDankNull inventory = DankNullUtils.getInventoryFromHeld(player);
-		if (dankNullItem == null || !DankNullUtils.isDankNull(dankNullItem)) {
+		if (dankNullItem.isEmpty() || !DankNullUtils.isDankNull(dankNullItem)) {
 			return;
 		}
 

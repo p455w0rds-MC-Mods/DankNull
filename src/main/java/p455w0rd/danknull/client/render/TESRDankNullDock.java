@@ -3,6 +3,8 @@ package p455w0rd.danknull.client.render;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+
 import com.google.common.collect.ImmutableMap;
 
 import codechicken.lib.render.CCModelState;
@@ -38,7 +40,7 @@ public class TESRDankNullDock extends TileEntitySpecialRenderer<TileDankNullDock
 	public static final ModelDankNullDock MODEL = new ModelDankNullDock();
 
 	@Override
-	public void renderItem(ItemStack stack, TransformType transformType) {
+	public void renderItem(@Nonnull ItemStack stack, TransformType transformType) {
 		if (Block.getBlockFromItem(stack.getItem()) == ModBlocks.DANKNULL_DOCK) {
 			GuiUtils.bindTexture(DankTextures.DOCK_TEXTURE);
 			GlStateManager.enableLighting();
@@ -54,14 +56,14 @@ public class TESRDankNullDock extends TileEntitySpecialRenderer<TileDankNullDock
 		}
 	}
 
-	public void renderDankNull(ItemStack stack) {
-		ItemStack dankNullStack = null;
+	public void renderDankNull(@Nonnull ItemStack stack) {
+		ItemStack dankNullStack = ItemStack.EMPTY;
 		if (stack.hasTagCompound() && stack.getTagCompound().hasKey("BlockEntityTag")) {
 			NBTTagCompound tag = stack.getTagCompound().getCompoundTag("BlockEntityTag");
 			if (tag != null && tag.hasKey(TileDankNullDock.TAG_ITEMSTACK)) {
 				dankNullStack = new ItemStack(tag.getCompoundTag(TileDankNullDock.TAG_ITEMSTACK));
 			}
-			if (dankNullStack != null) {
+			if (!dankNullStack.isEmpty()) {
 				GlStateManager.pushMatrix();
 				GlStateManager.translate(-0.5, -0.45, 0.5);
 				GlStateManager.rotate(180.0F, 1.0F, 0F, 0F);
@@ -125,12 +127,14 @@ public class TESRDankNullDock extends TileEntitySpecialRenderer<TileDankNullDock
 		}
 
 		ItemStack stack = te.getStack();
-		GlStateManager.pushMatrix();
-		GlStateManager.translate(x + 0.5, y + 0.45, z + 0.5);
-		GlStateManager.scale(0.55D, 0.55D, 0.55D);
-		Minecraft.getMinecraft().getItemRenderer().renderItem(EasyMappings.player(), stack, ItemCameraTransforms.TransformType.NONE);
-		GlStateManager.translate(-x, -y, -z);
-		GlStateManager.popMatrix();
+		if (!stack.isEmpty()) {
+			GlStateManager.pushMatrix();
+			GlStateManager.translate(x + 0.5, y + 0.45, z + 0.5);
+			GlStateManager.scale(0.55D, 0.55D, 0.55D);
+			Minecraft.getMinecraft().getItemRenderer().renderItem(EasyMappings.player(), stack, ItemCameraTransforms.TransformType.NONE);
+			GlStateManager.translate(-x, -y, -z);
+			GlStateManager.popMatrix();
+		}
 	}
 
 	@Override

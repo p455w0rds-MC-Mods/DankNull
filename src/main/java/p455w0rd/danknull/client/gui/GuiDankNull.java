@@ -227,7 +227,7 @@ public class GuiDankNull extends GuiModular {
 		ItemStack itemstack = draggedStack.isEmpty() ? inventoryplayer.getItemStack() : draggedStack;
 		if (!itemstack.isEmpty()) {
 			int j2 = 8;
-			int k2 = draggedStack == null ? 8 : 16;
+			int k2 = draggedStack.isEmpty() ? 8 : 16;
 			String s = null;
 			if ((!draggedStack.isEmpty()) && (isRightMouseClick)) {
 				itemstack = itemstack.copy();
@@ -321,16 +321,16 @@ public class GuiDankNull extends GuiModular {
 		GuiContainer gui = this;
 		int i = EasyMappings.slotPosX(slotIn);
 		int j = EasyMappings.slotPosY(slotIn);
-		ItemStack itemstack = slotIn.getStack() == null ? ItemStack.EMPTY : slotIn.getStack();
+		ItemStack itemstack = slotIn.getStack();
 		boolean flag = false;
 		boolean flag1 = (slotIn == MCPrivateUtils.getGuiClickedSlot(gui)) && (MCPrivateUtils.getGuiDraggedStack(gui) != null) && (!MCPrivateUtils.getGuiIsRightMouseClick(gui));
 		ItemStack itemstack1 = EasyMappings.player().inventory.getItemStack();
 		String s = null;
-		if ((slotIn == MCPrivateUtils.getGuiClickedSlot(gui)) && (MCPrivateUtils.getGuiDraggedStack(gui) != null) && (MCPrivateUtils.getGuiIsRightMouseClick(gui)) && (itemstack != null)) {
+		if ((slotIn == MCPrivateUtils.getGuiClickedSlot(gui)) && (MCPrivateUtils.getGuiDraggedStack(gui) != null) && (MCPrivateUtils.getGuiIsRightMouseClick(gui)) && (!itemstack.isEmpty())) {
 			itemstack = itemstack.copy();
 			itemstack.setCount(itemstack.getCount() / 2);
 		}
-		else if ((MCPrivateUtils.getGuiDragSplitting(gui)) && (MCPrivateUtils.getGuiDragSplittingSlots(gui).contains(slotIn)) && (itemstack1 != null)) {
+		else if ((MCPrivateUtils.getGuiDragSplitting(gui)) && (MCPrivateUtils.getGuiDragSplittingSlots(gui).contains(slotIn)) && (!itemstack1.isEmpty())) {
 			if (MCPrivateUtils.getGuiDragSplittingSlots(gui).size() == 1) {
 				return;
 			}
@@ -339,7 +339,7 @@ public class GuiDankNull extends GuiModular {
 		}
 		MCPrivateUtils.setGuiZLevel(gui, 100.0F);
 		MCPrivateUtils.setGuiScreenRendererZLevel(gui, 100.0F);
-		if (itemstack == ItemStack.EMPTY) {
+		if (itemstack.isEmpty()) {
 			TextureAtlasSprite textureatlassprite = slotIn.getBackgroundSprite();
 			if (textureatlassprite != null) {
 				GlStateManager.disableLighting();

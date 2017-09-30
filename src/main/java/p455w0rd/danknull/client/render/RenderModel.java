@@ -29,7 +29,7 @@ public class RenderModel {
 	}
 
 	public static void render(IBakedModel model, int color) {
-		render(model, color, (ItemStack) null);
+		render(model, color, ItemStack.EMPTY);
 	}
 
 	public static void render(IBakedModel model, int color, ItemStack stack) {
@@ -44,7 +44,7 @@ public class RenderModel {
 	}
 
 	public static void renderQuads(BufferBuilder renderer, List<BakedQuad> quads, int color, ItemStack stack) {
-		boolean flag = (color == -1) && (stack != null);
+		boolean flag = (color == -1) && (!stack.isEmpty());
 		int i = 0;
 		for (int j = quads.size(); i < j; i++) {
 			BakedQuad bakedquad = quads.get(i);

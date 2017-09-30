@@ -112,7 +112,7 @@ public class InventoryDankNull implements IInventory, Iterable<ItemStack> {
 	@Override
 	public ItemStack removeStackFromSlot(int index) {
 		ItemStack stack = getStackInSlot(index);
-		if (stack != null) {
+		if (!stack.isEmpty()) {
 			setInventorySlotContents(index, ItemStack.EMPTY);
 		}
 		return stack;
@@ -184,7 +184,7 @@ public class InventoryDankNull implements IInventory, Iterable<ItemStack> {
 	}
 
 	public ItemStack getDankNull() {
-		return dankNullStack != null ? dankNullStack : ItemStack.EMPTY;
+		return !dankNullStack.isEmpty() ? dankNullStack : ItemStack.EMPTY;
 	}
 
 	public static boolean isSameItem(@Nullable ItemStack left, @Nullable ItemStack right) {

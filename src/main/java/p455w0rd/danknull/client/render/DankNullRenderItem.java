@@ -22,10 +22,10 @@ import p455w0rdslib.util.ReadableNumberConverter;
 public class DankNullRenderItem extends RenderItem {
 
 	private boolean useLg = false;
-	ItemStack itemStack, dankNull;
+	ItemStack itemStack = ItemStack.EMPTY, dankNull = ItemStack.EMPTY;
 	ContainerDankNull container;
 
-	public DankNullRenderItem(TextureManager textureManager, ModelManager modelManager, ItemColors colors, ItemStack dankNull, boolean useLg, ContainerDankNull container) {
+	public DankNullRenderItem(TextureManager textureManager, ModelManager modelManager, ItemColors colors, @Nonnull ItemStack dankNull, boolean useLg, ContainerDankNull container) {
 		super(textureManager, modelManager, colors);
 		this.useLg = useLg;
 		this.dankNull = dankNull;
@@ -33,8 +33,8 @@ public class DankNullRenderItem extends RenderItem {
 	}
 
 	@Override
-	public void renderItemOverlayIntoGUI(FontRenderer fontRenderer, ItemStack is, int par4, int par5, String par6Str) {
-		if (is != null && dankNull != null) {
+	public void renderItemOverlayIntoGUI(FontRenderer fontRenderer, @Nonnull ItemStack is, int par4, int par5, String par6Str) {
+		if (!is.isEmpty() && !dankNull.isEmpty()) {
 			float scaleFactor = useLg ? 1.0F : 0.5F;
 			float inverseScaleFactor = 1.0F / scaleFactor;
 			int offset = useLg ? 0 : -1;

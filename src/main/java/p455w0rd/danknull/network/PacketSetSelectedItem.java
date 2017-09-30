@@ -44,7 +44,7 @@ public class PacketSetSelectedItem implements IMessage {
 
 		private void handle(PacketSetSelectedItem message, MessageContext ctx) {
 			EntityPlayerMP player = ctx.getServerHandler().player;
-			if (player != null && player.getHeldItemMainhand() != null && DankNullUtils.isDankNull(player.getHeldItemMainhand())) {
+			if (player != null && !player.getHeldItemMainhand().isEmpty() && DankNullUtils.isDankNull(player.getHeldItemMainhand())) {
 				InventoryDankNull inventory = new InventoryDankNull(player.getHeldItemMainhand());
 				DankNullUtils.setSelectedStackIndex(inventory, index, false);
 			}

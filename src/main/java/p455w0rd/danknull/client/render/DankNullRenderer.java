@@ -193,7 +193,7 @@ public class DankNullRenderer implements IItemRenderer {
 	}
 
 	public void renderItem(ItemStack stack, IBakedModel model) {
-		if (stack != null) {
+		if (!stack.isEmpty()) {
 			if (model.isBuiltInRenderer() && !(stack.getItem() instanceof ItemDankNull) && !(stack.getItem() instanceof ItemDankNullHolder)) {
 				Minecraft.getMinecraft().getItemRenderer().renderItem(EasyMappings.player(), stack, ItemCameraTransforms.TransformType.NONE);
 			}

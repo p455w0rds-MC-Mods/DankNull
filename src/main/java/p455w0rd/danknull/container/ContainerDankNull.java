@@ -49,11 +49,11 @@ public class ContainerDankNull extends Container {
 
 	@Override
 	public void addListener(IContainerListener listener) {
-		if (!(listener instanceof EntityPlayerMP)) {
-			super.addListener(listener);
-			return;
+		if (listener instanceof EntityPlayerMP) {
+			playerList.add((EntityPlayerMP) listener);
+			//return;
 		}
-		playerList.add((EntityPlayerMP) listener);
+		super.addListener(listener);
 	}
 
 	public void markDirty() {
@@ -77,7 +77,7 @@ public class ContainerDankNull extends Container {
 
 	private boolean addStack(ItemStack stack) {
 		boolean ret = false;
-		if (DankNullUtils.isFiltered(getDankNullInventory(), stack) != null) {
+		if (!DankNullUtils.isFiltered(getDankNullInventory(), stack).isEmpty()) {
 			ret = DankNullUtils.addFilteredStackToDankNull(getDankNullInventory(), stack);
 		}
 		else if (getNextAvailableSlot() >= 0) {
@@ -105,23 +105,28 @@ public class ContainerDankNull extends Container {
 		Slot clickSlot = inventorySlots.get(index);
 		if (clickSlot.getHasStack()) {
 			if (!isDankNullSlot(clickSlot)) {
-				if (getNextAvailableSlot() == -1 && DankNullUtils.isFiltered(getDankNullInventory(), clickSlot.getStack()) != null) {
-					if (!moveStackWithinInventory(clickSlot.getStack(), index)) {
-						return null;
+				if (getNextAvailableSlot() == -1 && !DankNullUtils.isFiltered(getDankNullInventory(), clickSlot.getStack()).isEmpty()) {
+					if (addStack(clickSlot.getStack())) {
+						clickSlot.putStack(ItemStack.EMPTY);
+						playerIn.inventory.markDirty();
+						DankNullUtils.setSelectedIndexApplicable(getDankNullInventory());
+					}
+					else if (!moveStackWithinInventory(clickSlot.getStack(), index)) {
+						return ItemStack.EMPTY;
 					}
 					//getDankNullInventory().serializeNBT();
 					return clickSlot.getStack();
 				}
-				if (addStack(clickSlot.getStack())) {
-					clickSlot.putStack(ItemStack.EMPTY);
-					playerIn.inventory.markDirty();
-					//DankNullUtils.setSelectedStackIndex(dankNullStack, 0);
-					//inventoryDankNull.markDirty();
-					//DankNullUtils.reArrangeStacks(getDankNull());
-					//arrangeSlots();
-					DankNullUtils.setSelectedIndexApplicable(getDankNullInventory());
-					//writeToNBT();
-					//getDankNullInventory().serializeNBT();
+				else {
+					if (addStack(clickSlot.getStack())) {
+						clickSlot.putStack(ItemStack.EMPTY);
+						playerIn.inventory.markDirty();
+						DankNullUtils.setSelectedIndexApplicable(getDankNullInventory());
+					}
+					else if (!moveStackWithinInventory(clickSlot.getStack(), index)) {
+						return ItemStack.EMPTY;
+					}
+					return clickSlot.getStack();
 				}
 			}
 			else {
@@ -163,6 +168,7 @@ public class ContainerDankNull extends Container {
 				//ModNetworking.INSTANCE.sendTo(new PacketSyncDankNull((NBTTagCompound) getDankNullInventory().serializeNBT()), player);
 			}
 		}
+		super.detectAndSendChanges();
 	}
 
 	private boolean isDankNullSlot(Slot slot) {
@@ -175,7 +181,7 @@ public class ContainerDankNull extends Container {
 				Slot possiblyOpenSlot = inventorySlots.get(i);
 				if (!possiblyOpenSlot.getHasStack()) {
 					possiblyOpenSlot.putStack(itemStackIn);
-					inventorySlots.get(index).putStack(null);
+					inventorySlots.get(index).putStack(ItemStack.EMPTY);
 					return true;
 				}
 			}
@@ -185,7 +191,7 @@ public class ContainerDankNull extends Container {
 				Slot possiblyOpenSlot = inventorySlots.get(i);
 				if (!possiblyOpenSlot.getHasStack()) {
 					possiblyOpenSlot.putStack(itemStackIn);
-					inventorySlots.get(index).putStack(null);
+					inventorySlots.get(index).putStack(ItemStack.EMPTY);
 					return true;
 				}
 			}
@@ -238,7 +244,7 @@ public class ContainerDankNull extends Container {
 		if (isDankNullSlot(s)) {
 			ItemStack thisStack = s.getStack();
 			if ((!thisStack.isEmpty()) && ((thisStack.getItem() instanceof ItemDankNull))) {
-				return null;
+				return ItemStack.EMPTY;
 			}
 			if (index == -1) {
 				markDirty();
@@ -287,7 +293,7 @@ public class ContainerDankNull extends Container {
 			}
 		}
 		//else if ((index != -1) && (index != -999)) {
-		else if (s.getStack() != null) {
+		else if (!s.getStack().isEmpty()) {
 			if (s.getStack().getItem() instanceof ItemDankNull) {
 				return ItemStack.EMPTY;
 			}
