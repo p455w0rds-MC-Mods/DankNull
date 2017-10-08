@@ -62,7 +62,7 @@ public class InventoryDankNull implements IInventory, Iterable<ItemStack> {
 				ItemStack itemstack = getStackInSlot(index);
 				setInventorySlotContents(index, ItemStack.EMPTY);
 				setSizeForSlot(index, 0);
-				markDirty();
+				DankNullUtils.reArrangeStacks(this);
 				return itemstack;
 			}
 			ItemStack itemstack1 = getStackInSlot(index).splitStack(amount);
@@ -70,7 +70,7 @@ public class InventoryDankNull implements IInventory, Iterable<ItemStack> {
 			if (getStackInSlot(index).getCount() == 0) {
 				setInventorySlotContents(index, ItemStack.EMPTY);
 			}
-			markDirty();
+			DankNullUtils.reArrangeStacks(this);
 			return itemstack1;
 		}
 		else {
@@ -115,6 +115,7 @@ public class InventoryDankNull implements IInventory, Iterable<ItemStack> {
 		if (!stack.isEmpty()) {
 			setInventorySlotContents(index, ItemStack.EMPTY);
 		}
+		DankNullUtils.reArrangeStacks(this);
 		return stack;
 	}
 

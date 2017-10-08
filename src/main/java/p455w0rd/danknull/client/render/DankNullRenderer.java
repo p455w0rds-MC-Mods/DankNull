@@ -199,6 +199,7 @@ public class DankNullRenderer implements IItemRenderer {
 			}
 			else {
 				RenderModel.render(model, stack);
+
 				if (stack.hasEffect()) {
 					if ((stack.getItem() instanceof ItemDankNull)) {
 						if (!Options.superShine) {

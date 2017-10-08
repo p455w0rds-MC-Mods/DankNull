@@ -2,6 +2,7 @@ package p455w0rd.danknull.client.render;
 
 import java.util.List;
 
+import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelPlayer;
@@ -15,7 +16,9 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.model.pipeline.LightUtil;
 
@@ -25,7 +28,17 @@ import net.minecraftforge.client.model.pipeline.LightUtil;
  */
 public class RenderModel {
 	public static void render(IBakedModel model, ItemStack stack) {
+		Item item = stack.getItem();
+		Block block = Block.getBlockFromItem(item);
+		boolean flag = block.getBlockLayer() == BlockRenderLayer.TRANSLUCENT;
+
+		if (flag) {
+			//GlStateManager.depthMask(false);
+		}
 		render(model, -1, stack);
+		if (flag) {
+			//GlStateManager.depthMask(true);
+		}
 	}
 
 	public static void render(IBakedModel model, int color) {
@@ -57,7 +70,7 @@ public class RenderModel {
 				}
 				k |= 0xFF000000;
 			}
-			LightUtil.renderQuadColor(renderer, bakedquad, k);
+			LightUtil.renderQuadColorSlow(renderer, bakedquad, k);
 		}
 	}
 

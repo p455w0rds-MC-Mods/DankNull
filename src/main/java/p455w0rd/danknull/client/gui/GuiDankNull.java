@@ -9,6 +9,7 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -29,7 +30,7 @@ import p455w0rd.danknull.client.render.DankNullRenderItem;
 import p455w0rd.danknull.container.ContainerDankNull;
 import p455w0rd.danknull.init.ModGlobals;
 import p455w0rd.danknull.inventory.InventoryDankNull;
-import p455w0rd.danknull.inventory.slot.DankNullSlot;
+import p455w0rd.danknull.inventory.slot.SlotDankNull;
 import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rdslib.client.gui.GuiModular;
 import p455w0rdslib.util.EasyMappings;
@@ -46,7 +47,7 @@ import p455w0rdslib.util.RenderUtils;
 public class GuiDankNull extends GuiModular {
 
 	private DankNullRenderItem pRenderItem;
-	private final List<DankNullSlot> slots = new LinkedList<DankNullSlot>();
+	private final List<SlotDankNull> slots = new LinkedList<SlotDankNull>();
 	private Slot theSlot;
 	private Slot returningStackDestSlot;
 	private long returningStackTime;
@@ -114,7 +115,7 @@ public class GuiDankNull extends GuiModular {
 		GlStateManager.enableLighting();
 	}
 
-	protected List<DankNullSlot> getSlots() {
+	protected List<SlotDankNull> getSlots() {
 		return slots;
 	}
 
@@ -172,7 +173,7 @@ public class GuiDankNull extends GuiModular {
 			Slot slot = inventorySlots.inventorySlots.get(i1);
 			int j1 = EasyMappings.slotPosX(slot);
 			int k1 = EasyMappings.slotPosY(slot);
-			if (slot instanceof DankNullSlot) {
+			if (slot instanceof SlotDankNull) {
 				drawDankNullSlot(slot);
 			}
 			else {
@@ -240,7 +241,7 @@ public class GuiDankNull extends GuiModular {
 					s = "" + TextFormatting.YELLOW + "0";
 				}
 			}
-			GuiUtils.drawItemStack(this, itemstack, mouseX - i - j2, mouseY - j - k2, s);
+			drawStack(itemstack, mouseX - i - j2, mouseY - j - k2, s);
 		}
 		if (!returningStack.isEmpty()) {
 			float f = (Minecraft.getSystemTime() - returningStackTime) / 100.0F;
@@ -253,13 +254,31 @@ public class GuiDankNull extends GuiModular {
 			int i3 = EasyMappings.slotPosY(returningStackDestSlot) - touchUpY;
 			int l1 = touchUpX + (int) (l2 * f);
 			int i2 = touchUpY + (int) (i3 * f);
-			GuiUtils.drawItemStack(this, returningStack, l1, i2, (String) null);
+			drawStack(returningStack, l1, i2, (String) null);
 		}
 		GlStateManager.popMatrix();
 		if (inventoryplayer.getItemStack().isEmpty() && (theSlot != null) && (theSlot.getHasStack())) {
-			ItemStack itemstack1 = (theSlot instanceof DankNullSlot) ? ((DankNullSlot) theSlot).getStack() : theSlot.getStack();
+			ItemStack itemstack1 = (theSlot instanceof SlotDankNull) ? ((SlotDankNull) theSlot).getStack() : theSlot.getStack();
 			renderToolTip(itemstack1, mouseX, mouseY);
 		}
+	}
+
+	private void drawStack(ItemStack stack, int x, int y, String altText) {
+		//GlStateManager.translate(0.0F, 0.0F, 32.0F);
+		MCPrivateUtils.setGuiZLevel(this, 200.0F);
+		MCPrivateUtils.setGuiScreenRendererZLevel(this, 200.0F);
+		FontRenderer font = null;
+		if (stack != null) {
+			font = stack.getItem().getFontRenderer(stack);
+		}
+		if (font == null) {
+			font = RenderUtils.getFontRenderer();
+		}
+		MCPrivateUtils.getGuiScreenRenderItem(this).renderItemAndEffectIntoGUI(stack, x, y);
+		MCPrivateUtils.getGuiScreenRenderItem(this).renderItemOverlayIntoGUI(font, stack, x, y, altText);
+		MCPrivateUtils.setGuiScreenRendererZLevel(this, 0.0F);
+		MCPrivateUtils.setGuiZLevel(this, 0.0F);
+		//GlStateManager.translate(0.0F, 0.0F, -32.0F);
 	}
 
 	@Override
@@ -308,7 +327,7 @@ public class GuiDankNull extends GuiModular {
 	public Slot getSlotAtPos(int x, int y) {
 		List<Slot> slots = inventorySlots.inventorySlots;
 		for (int i = 0; i < slots.size(); i++) {
-			if (slots.get(i) instanceof DankNullSlot) {
+			if (slots.get(i) instanceof SlotDankNull) {
 				if (isMouseHovering(slots.get(i), x, y)) {
 					return slots.get(i);
 				}
@@ -388,6 +407,10 @@ public class GuiDankNull extends GuiModular {
 			else {
 				list.set(i, TextFormatting.GRAY + list.get(i));
 			}
+		}
+		Slot s = getSlotAtPos(x, y);
+		if (s != null && s instanceof SlotDankNull && s.getHasStack() && s.getStack().getCount() > 1000) {
+			list.add(1, TextFormatting.GRAY + "" + TextFormatting.ITALIC + "Count: " + s.getStack().getCount());
 		}
 
 		net.minecraftforge.fml.client.config.GuiUtils.preItemToolTip(stack);

@@ -105,7 +105,7 @@ public class DankNullRenderItem extends RenderItem {
 	}
 
 	private String getToBeRenderedStackSize(long originalSize) {
-		if (useLg) {
+		if (!useLg) {
 			return ReadableNumberConverter.INSTANCE.toSlimReadableForm(originalSize);
 		}
 		return ReadableNumberConverter.INSTANCE.toWideReadableForm(originalSize);
