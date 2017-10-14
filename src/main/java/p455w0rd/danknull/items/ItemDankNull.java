@@ -66,7 +66,6 @@ public class ItemDankNull extends Item implements IModelHolder {
 	public ItemDankNull() {
 		setRegistryName("dank_null");
 		setUnlocalizedName("dank_null");
-		//GameRegistry.register(this);
 		ForgeRegistries.ITEMS.register(this);
 		setMaxStackSize(1);
 		setMaxDamage(0);
@@ -326,7 +325,7 @@ public class ItemDankNull extends Item implements IModelHolder {
 
 	@Override
 	public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
-		return super.shouldCauseReequipAnimation(oldStack, newStack, slotChanged);
+		return slotChanged;
 	}
 
 }

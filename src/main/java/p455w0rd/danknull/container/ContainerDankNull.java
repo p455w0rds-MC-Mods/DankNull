@@ -86,6 +86,9 @@ public class ContainerDankNull extends Container {
 
 	private boolean addStack(ItemStack stack) {
 		boolean ret = false;
+		if (stack.getItem() == ModItems.DANK_NULL) {
+			return false;
+		}
 		if (!DankNullUtils.isFiltered(getDankNullInventory(), stack).isEmpty()) {
 			ret = DankNullUtils.addFilteredStackToDankNull(getDankNullInventory(), stack);
 		}
@@ -236,8 +239,11 @@ public class ContainerDankNull extends Container {
 			return ItemStack.EMPTY;
 		}
 		if (isDankNullSlot(s)) {
+			if (heldStack.getItem() == ModItems.DANK_NULL) {
+				return ItemStack.EMPTY;
+			}
 			ItemStack thisStack = s.getStack();
-			if ((!thisStack.isEmpty()) && ((thisStack.getItem() == ModItems.DANK_NULL))) {
+			if (!thisStack.isEmpty() && (thisStack.getItem() == ModItems.DANK_NULL)) {
 				return ItemStack.EMPTY;
 			}
 			if (!heldStack.isEmpty()) {
@@ -282,7 +288,6 @@ public class ContainerDankNull extends Container {
 				}
 			}
 		}
-
 		ItemStack ret = super.slotClick(index, dragType, clickTypeIn, player);
 		return ret;
 

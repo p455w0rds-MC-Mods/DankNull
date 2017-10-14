@@ -11,8 +11,8 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import p455w0rd.danknull.container.ContainerDankNull;
+import p455w0rd.danknull.init.ModItems;
 import p455w0rd.danknull.inventory.InventoryDankNull;
-import p455w0rd.danknull.items.ItemDankNull;
 import p455w0rd.danknull.util.DankNullUtils;
 
 /**
@@ -63,7 +63,7 @@ public class SlotDankNull extends Slot {
 
 	@Override
 	public boolean isItemValid(ItemStack itemStackIn) {
-		return !(itemStackIn.getItem() instanceof ItemDankNull);
+		return !itemStackIn.isEmpty() && itemStackIn.getItem() != ModItems.DANK_NULL;
 	}
 
 	@Override
