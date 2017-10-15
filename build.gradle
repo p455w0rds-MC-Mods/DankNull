@@ -22,7 +22,7 @@ sourceCompatibility = targetCompatibility = "1.8"
 
 minecraft {
     version = "1.11.2-13.20.1.2393"
-	mappings = "snapshot_nodoc_20170626"
+	mappings = "stable_32"
 	runDir = "run"
 }
 
@@ -53,7 +53,7 @@ repositories {
 dependencies {
 	deobfCompile "mezz.jei:jei_1.11.2:+"
 	deobfCompile "codechicken:CodeChickenLib:1.11.2-3+:universal"
-	deobfCompile "mcjty.theoneprobe:TheOneProbe:1.1x-1.4.7-57"
+	deobfCompile "mcjty.theoneprobe:TheOneProbe:1.1x-1.4.18-58"
 	deobfCompile "com.github.mcjty:compatlayer:1.11.2-0.2.9"
 	deobfCompile "mcp.mobius.waila:Hwyla:1.8.17-B31_1.11"
 }

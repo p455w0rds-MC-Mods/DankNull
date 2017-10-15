@@ -66,12 +66,12 @@ public class ModRecipes {
 		ItemStack cyanPane = new ItemStack(Blocks.STAINED_GLASS_PANE, 1, 9);
 		ItemStack limePane = new ItemStack(Blocks.STAINED_GLASS_PANE, 1, 5);
 
-		ItemStack panel0 = new ItemStack(ModItems.PANEL_REDSTONE);
-		ItemStack panel1 = new ItemStack(ModItems.PANEL_LAPIS);
-		ItemStack panel2 = new ItemStack(ModItems.PANEL_IRON);
-		ItemStack panel3 = new ItemStack(ModItems.PANEL_GOLD);
-		ItemStack panel4 = new ItemStack(ModItems.PANEL_DIAMOND);
-		ItemStack panel5 = new ItemStack(ModItems.PANEL_EMERALD);
+		ItemStack panel0 = new ItemStack(ModItems.DANK_NULL_PANEL);
+		ItemStack panel1 = new ItemStack(ModItems.DANK_NULL_PANEL, 1, 1);
+		ItemStack panel2 = new ItemStack(ModItems.DANK_NULL_PANEL, 1, 2);
+		ItemStack panel3 = new ItemStack(ModItems.DANK_NULL_PANEL, 1, 3);
+		ItemStack panel4 = new ItemStack(ModItems.DANK_NULL_PANEL, 1, 4);
+		ItemStack panel5 = new ItemStack(ModItems.DANK_NULL_PANEL, 1, 5);
 
 		ItemStack dankNull0 = new ItemStack(ModItems.DANK_NULL, 1, 0);
 		ItemStack dankNull1 = new ItemStack(ModItems.DANK_NULL, 1, 1);
@@ -94,11 +94,11 @@ public class ModRecipes {
 		CRAFTING_RECIPES.add(dankNullDiamond = new ShapedOreRecipe(dankNull4, " a ", "aaa", " a ", 'a', panel4));
 		CRAFTING_RECIPES.add(dankNullEmerald = new ShapedOreRecipe(dankNull5, " a ", "aaa", " a ", 'a', panel5));
 
-		CRAFTING_RECIPES.add(upgradeDankNullToLapis = new ShapedOreRecipe(dankNull1, " a ", "aba", " a ", 'a', new ItemStack(ModItems.PANEL_LAPIS), 'b', dankNull0));
-		CRAFTING_RECIPES.add(upgradeDankNullToIron = new ShapedOreRecipe(dankNull2, " a ", "aba", " a ", 'a', new ItemStack(ModItems.PANEL_IRON), 'b', dankNull1));
-		CRAFTING_RECIPES.add(upgradeDankNullToGold = new ShapedOreRecipe(dankNull3, " a ", "aba", " a ", 'a', new ItemStack(ModItems.PANEL_GOLD), 'b', dankNull2));
-		CRAFTING_RECIPES.add(upgradeDankNullToDiamond = new ShapedOreRecipe(dankNull4, " a ", "aba", " a ", 'a', new ItemStack(ModItems.PANEL_DIAMOND), 'b', dankNull3));
-		CRAFTING_RECIPES.add(upgradeDankNullToEmerald = new ShapedOreRecipe(dankNull5, " a ", "aba", " a ", 'a', new ItemStack(ModItems.PANEL_EMERALD), 'b', dankNull4));
+		CRAFTING_RECIPES.add(upgradeDankNullToLapis = new ShapedOreRecipe(dankNull1, " a ", "aba", " a ", 'a', panel1, 'b', dankNull0));
+		CRAFTING_RECIPES.add(upgradeDankNullToIron = new ShapedOreRecipe(dankNull2, " a ", "aba", " a ", 'a', panel2, 'b', dankNull1));
+		CRAFTING_RECIPES.add(upgradeDankNullToGold = new ShapedOreRecipe(dankNull3, " a ", "aba", " a ", 'a', panel3, 'b', dankNull2));
+		CRAFTING_RECIPES.add(upgradeDankNullToDiamond = new ShapedOreRecipe(dankNull4, " a ", "aba", " a ", 'a', panel4, 'b', dankNull3));
+		CRAFTING_RECIPES.add(upgradeDankNullToEmerald = new ShapedOreRecipe(dankNull5, " a ", "aba", " a ", 'a', panel5, 'b', dankNull4));
 
 		CRAFTING_RECIPES.add(dankNullDock = new ShapedOreRecipe(new ItemStack(ModBlocks.DANKNULL_DOCK), "aba", "bcb", "aba", 'a', new ItemStack(Items.EMERALD), 'b', new ItemStack(Items.REDSTONE), 'c', new ItemStack(Blocks.OBSIDIAN)));
 

@@ -20,19 +20,14 @@ public class ModItems {
 
 	private static final NonNullList<Item> ITEM_LIST = NonNullList.<Item>create();
 
-	public static final ItemDankNull DANK_NULL = new ItemDankNull();
 	public static final ItemDankNullHolder DANK_NULL_HOLDER = new ItemDankNullHolder();
-	public static final ItemDankNullPanel PANEL_REDSTONE = new ItemDankNullPanel(0);
-	public static final ItemDankNullPanel PANEL_LAPIS = new ItemDankNullPanel(1);
-	public static final ItemDankNullPanel PANEL_IRON = new ItemDankNullPanel(2);
-	public static final ItemDankNullPanel PANEL_GOLD = new ItemDankNullPanel(3);
-	public static final ItemDankNullPanel PANEL_DIAMOND = new ItemDankNullPanel(4);
-	public static final ItemDankNullPanel PANEL_EMERALD = new ItemDankNullPanel(5);
+	public static final ItemDankNull DANK_NULL = new ItemDankNull();
+	public static final ItemDankNullPanel DANK_NULL_PANEL = new ItemDankNullPanel();
 
 	public static void init() {
 		long millis = System.currentTimeMillis() % 1000;
 		ModLogger.info("Registering Items");
-		ITEM_LIST.addAll(Arrays.asList(DANK_NULL, DANK_NULL_HOLDER, PANEL_REDSTONE, PANEL_LAPIS, PANEL_IRON, PANEL_GOLD, PANEL_DIAMOND, PANEL_EMERALD));
+		ITEM_LIST.addAll(Arrays.asList(DANK_NULL, DANK_NULL_HOLDER, DANK_NULL_PANEL));
 		ModLogger.info("Registering Items Complete In " + (int) ((System.currentTimeMillis() % 1000) - millis) + "ms");
 	}
 
@@ -40,10 +35,9 @@ public class ModItems {
 	public static void preInitModels() {
 		ModLogger.info("Init adding item models");
 		for (Item item : ITEM_LIST) {
-			if (item instanceof IModelHolder) {
+			if (item != null && item instanceof IModelHolder) {
 				((IModelHolder) item).initModel();
 			}
-			//
 			ModLogger.info("Registered Model for " + item.getItemStackDisplayName(new ItemStack(item)));
 		}
 		ModLogger.info("Finished adding item models");

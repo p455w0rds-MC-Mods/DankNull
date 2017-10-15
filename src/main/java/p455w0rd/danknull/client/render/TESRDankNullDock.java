@@ -87,7 +87,7 @@ public class TESRDankNullDock extends TileEntitySpecialRenderer<TileDankNullDock
 	}
 
 	@Override
-	public void func_180535_a(TileDankNullDock te, double x, double y, double z, float partialTicks, int destroyStage) {
+	public void renderTileEntityAt(TileDankNullDock te, double x, double y, double z, float partialTicks, int destroyStage) {
 
 		GlStateManager.enableDepth();
 		GlStateManager.depthFunc(515);

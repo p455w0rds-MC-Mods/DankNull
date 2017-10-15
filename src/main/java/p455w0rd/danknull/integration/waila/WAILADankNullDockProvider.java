@@ -16,6 +16,7 @@ import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock.ExtractionMode;
 import p455w0rd.danknull.init.ModBlocks;
 import p455w0rd.danknull.integration.WAILA;
+import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rd.danknull.util.DankNullUtils;
 
 /**
@@ -52,13 +53,16 @@ public class WAILADankNullDockProvider implements IWailaDataProvider {
 			currenttip.add(" ");
 			currenttip.add("Right-click with empty hand");
 			currenttip.add("to change extraction mode");
-			ItemStack dockedDankNull = dankDock.getInventory().getDankNull();
-			if (!dockedDankNull.isEmpty()) {
-				currenttip.add(" ");
-				currenttip.add(dockedDankNull.getDisplayName() + " Docked");
-				ItemStack selectedStack = DankNullUtils.getSelectedStack(dankDock.getInventory());
-				if (!selectedStack.isEmpty()) {
-					currenttip.add(selectedStack.getDisplayName() + " Selected");
+			InventoryDankNull dankDockInventory = dankDock.getInventory();
+			if (dankDockInventory != null) {
+				ItemStack dockedDankNull = dankDockInventory.getDankNull();
+				if (!dockedDankNull.isEmpty()) {
+					currenttip.add(" ");
+					currenttip.add(dockedDankNull.getDisplayName() + " Docked");
+					ItemStack selectedStack = DankNullUtils.getSelectedStack(dankDock.getInventory());
+					if (!selectedStack.isEmpty()) {
+						currenttip.add(selectedStack.getDisplayName() + " Selected");
+					}
 				}
 			}
 		}

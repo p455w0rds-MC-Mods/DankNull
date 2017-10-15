@@ -18,7 +18,7 @@ import p455w0rd.danknull.items.ItemDankNull;
  * @author p455w0rd
  *
  */
-public class DankNullSlot extends Slot {
+public class SlotDankNull extends Slot {
 
 	private Container myContainer = null;
 	protected String backgroundName = null;
@@ -26,7 +26,7 @@ public class DankNullSlot extends Slot {
 	protected Object backgroundMap;
 	public int slotNumber;
 
-	public DankNullSlot(InventoryDankNull inv, int idx, int x, int y) {
+	public SlotDankNull(InventoryDankNull inv, int idx, int x, int y) {
 		super(inv, idx, x, y);
 	}
 
@@ -81,7 +81,7 @@ public class DankNullSlot extends Slot {
 
 	@Override
 	public int getSlotStackLimit() {
-		return inventory.getInventoryStackLimit();
+		return Integer.MAX_VALUE;// inventory.getInventoryStackLimit();
 	}
 
 	@Override

@@ -29,7 +29,7 @@ public class InventoryDankNull implements IInventory, Iterable<ItemStack> {
 	private int size = 54;
 	private final NonNullList<ItemStack> STACKLIST;
 	private final int[] sizesArray;
-	private ItemStack dankNullStack;
+	private ItemStack dankNullStack = ItemStack.EMPTY;
 	private int numRows = 0;
 	private EntityPlayer player;
 

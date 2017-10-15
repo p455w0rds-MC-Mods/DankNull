@@ -166,7 +166,7 @@ public class NetServerHandlerFake extends NetHandlerPlayServer {
 	}
 
 	@Override
-	public void func_147360_c(final String string) {
+	public void disconnect(final String string) {
 
 	}
 

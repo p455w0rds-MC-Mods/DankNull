@@ -1,15 +1,17 @@
 package p455w0rd.danknull.items;
 
-import codechicken.lib.model.ModelRegistryHelper;
-import net.minecraft.client.resources.I18n;
+import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.item.EnumRarity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.NonNullList;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import p455w0rd.danknull.api.IModelHolder;
 import p455w0rd.danknull.client.render.DankNullPanelRenderer;
+import p455w0rd.danknull.client.render.PModelRegistryHelper;
 import p455w0rd.danknull.init.ModGlobals;
 
 /**
@@ -18,13 +20,12 @@ import p455w0rd.danknull.init.ModGlobals;
  */
 public class ItemDankNullPanel extends Item implements IModelHolder {
 
-	private int meta = 0;
-
-	public ItemDankNullPanel(int index) {
-		setRegistryName("dank_null_panel_" + index);
-		setUnlocalizedName("dank_null_panel_" + index);
+	public ItemDankNullPanel() {
+		setRegistryName("dank_null_panel");
+		setUnlocalizedName("dank_null_panel");
 		GameRegistry.register(this);
-		meta = index;
+		setMaxDamage(0);
+		setHasSubtypes(true);
 	}
 
 	@Override
@@ -35,19 +36,58 @@ public class ItemDankNullPanel extends Item implements IModelHolder {
 
 	@Override
 	@SideOnly(Side.CLIENT)
+	public void getSubItems(Item item, CreativeTabs tab, NonNullList<ItemStack> subItems) {
+		//if (isInCreativeTab(tab)) {
+		for (int i = 0; i < 6; i++) {
+			subItems.add(new ItemStack(item, 1, i));
+		}
+		//}
+	}
+
+	@Override
+	public boolean getHasSubtypes() {
+		return true;
+	}
+
+	@Override
+	public boolean isDamaged(ItemStack stack) {
+		return false;
+	}
+
+	@Override
+	public boolean isRepairable() {
+		return false;
+	}
+
+	@Override
+	public boolean showDurabilityBar(ItemStack stack) {
+		return false;
+	}
+
+	@Override
+	public boolean isDamageable() {
+		return false;
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
 	public String getItemStackDisplayName(ItemStack stack) {
-		return I18n.format(getUnlocalizedNameInefficiently(stack) + ".name").trim();
+		return I18n.translateToLocal(stack.getItem().getUnlocalizedName() + "_" + stack.getItemDamage() + ".name").trim();
 	}
 
 	@SideOnly(Side.CLIENT)
 	@Override
 	public void initModel() {
-		ModelRegistryHelper.registerItemRenderer(this, DankNullPanelRenderer.getInstance());
+		for (int i = 0; i < 6; i++) {
+			//	ModelLoader.setCustomModelResourceLocation(this, i, new ModelResourceLocation(new ResourceLocation(ModGlobals.MODID, getUnlocalizedName() + "_" + i), "inventory"));
+			PModelRegistryHelper.registerMetaRenderer(this, DankNullPanelRenderer.getInstance(), i);
+		}
+		//ModelRegistryHelper.registerItemRenderer(this, DankNullPanelRenderer.getInstance());
 	}
 
 	@Override
 	public EnumRarity getRarity(ItemStack stack) {
-		return ModGlobals.Rarities.getRarityFromMeta(meta);
+		return ModGlobals.Rarities.getRarityFromMeta(stack.getItemDamage());
 	}
 
 }

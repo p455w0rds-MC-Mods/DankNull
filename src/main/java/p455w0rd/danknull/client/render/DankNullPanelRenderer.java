@@ -71,10 +71,10 @@ public class DankNullPanelRenderer implements IItemRenderer {
 		RenderModel.render(model, stack);
 		if (stack.hasEffect()) {
 			if (Options.superShine) {
-				GlintEffectRenderer.apply2(model, DankNullUtils.getColor(getMeta(stack), false));
+				GlintEffectRenderer.apply2(model, DankNullUtils.getColor(stack.getMetadata(), false));
 			}
 			else {
-				GlintEffectRenderer.apply(model, getMeta(stack));
+				GlintEffectRenderer.apply(model, stack.getMetadata());
 			}
 		}
 
@@ -130,17 +130,12 @@ public class DankNullPanelRenderer implements IItemRenderer {
 	}
 
 	private String getKey(@Nonnull ItemStack stack) {
-		return stack.getItem().getRegistryName().getResourcePath();
-	}
-
-	private int getMeta(@Nonnull ItemStack stack) {
-		String key = getKey(stack);
-		return Integer.parseInt(key.substring(key.length() - 1));
+		return stack.getItem().getRegistryName().getResourcePath() + "_" + stack.getMetadata();
 	}
 
 	private IBakedModel getModel(@Nonnull ItemStack stack) {
 		String key = getKey(stack);
-		int meta = stack.getItemDamage();
+		int meta = stack.getMetadata();
 		if (!modelCache.containsKey(key)) {
 			if (DankTextures.DANKNULL_PANELS == null) {
 				DankTextures.getInstance().registerIcons(RenderUtils.getBlocksTextureMap());

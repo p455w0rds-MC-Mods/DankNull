@@ -4,6 +4,7 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
 import p455w0rd.danknull.network.PacketSetSelectedItem;
+import p455w0rd.danknull.network.PacketSyncDankNull;
 
 /**
  * @author p455w0rd
@@ -28,5 +29,6 @@ public class ModNetworking {
 	public static void init() {
 		//getInstance().registerMessage(PacketConfigSync.Handler.class, PacketConfigSync.class, nextID(), Side.CLIENT);
 		getInstance().registerMessage(PacketSetSelectedItem.Handler.class, PacketSetSelectedItem.class, nextID(), Side.SERVER);
+		getInstance().registerMessage(PacketSyncDankNull.Handler.class, PacketSyncDankNull.class, nextID(), Side.CLIENT);
 	}
 }
