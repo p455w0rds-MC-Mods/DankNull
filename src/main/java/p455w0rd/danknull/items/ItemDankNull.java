@@ -319,7 +319,7 @@ public class ItemDankNull extends Item implements IModelHolder {
 
 	@Override
 	public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
-		return slotChanged;
+		return !ItemStack.areItemStacksEqual(oldStack, newStack) || slotChanged;
 	}
 
 }
