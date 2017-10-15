@@ -21,6 +21,7 @@ import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
@@ -151,7 +152,7 @@ public class GuiDankNull extends GuiModular {
 		GlStateManager.disableLighting();
 		GlStateManager.disableDepth();
 		for (int i2 = 0; i2 < buttonList.size(); i2++) {
-			buttonList.get(i).drawButton(mc, mouseX, mouseY, 0f);
+			buttonList.get(i).drawButton(mc, mouseX, mouseY, 0);
 		}
 		for (int j2 = 0; j2 < labelList.size(); j2++) {
 			labelList.get(j).drawLabel(mc, mouseX, mouseY);
@@ -394,6 +395,24 @@ public class GuiDankNull extends GuiModular {
 		pointX -= i;
 		pointY -= j;
 		return (pointX >= rectX - 1) && (pointX < rectX + rectWidth + 1) && (pointY >= rectY - 1) && (pointY < rectY + rectHeight + 1);
+	}
+
+	@Override
+	protected void keyTyped(char typedChar, int keyCode) throws IOException {
+		if (keyCode == 1 || mc.gameSettings.keyBindInventory.isActiveAndMatches(keyCode)) {
+			mc.player.closeScreen();
+		}
+
+		//this.checkHotbarKeys(keyCode);
+
+		if (theSlot != null && theSlot.getHasStack()) {
+			if (mc.gameSettings.keyBindPickBlock.isActiveAndMatches(keyCode)) {
+				handleMouseClick(theSlot, theSlot.slotNumber, 0, ClickType.CLONE);
+			}
+			else if (mc.gameSettings.keyBindDrop.isActiveAndMatches(keyCode)) {
+				handleMouseClick(theSlot, theSlot.slotNumber, isCtrlKeyDown() && !(theSlot instanceof SlotDankNull) ? 1 : 0, ClickType.THROW);
+			}
+		}
 	}
 
 	@Override

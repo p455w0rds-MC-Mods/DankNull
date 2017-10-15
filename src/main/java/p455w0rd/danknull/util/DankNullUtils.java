@@ -240,7 +240,7 @@ public class DankNullUtils {
 			}
 			return numItems;
 		}
-	
+
 		public static NBTTagList getInventoryTagList(ItemStack itemStackIn) {
 			if (itemStackIn != null) {
 				if ((itemStackIn.hasTagCompound()) && (itemStackIn.getTagCompound().hasKey("danknull-inventory"))) {
@@ -249,8 +249,8 @@ public class DankNullUtils {
 			}
 			return null;
 		}
-	
-	
+
+
 			public static void decrStackSize(ItemStack dankNull, int index, int amount) {
 				if (dankNull == null) {
 					return;

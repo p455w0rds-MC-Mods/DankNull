@@ -21,10 +21,9 @@ public class ClientProxy extends CommonProxy {
 	public void preInit(FMLPreInitializationEvent e) {
 		super.preInit(e);
 		TextureUtils.addIconRegister(new DankTextures());
-
+		DankNullPanelRenderer.initialize();
 		ModBlocks.preInitModels();
 		ModItems.preInitModels();
-		DankNullPanelRenderer.initialize();
 		ModCreativeTab.init();
 	}
 

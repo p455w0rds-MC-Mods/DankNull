@@ -72,7 +72,7 @@ public class EntityPFakePlayer extends FakePlayer {
 			connection.sendPacket(new SPacketCombatEvent(getCombatTracker(), SPacketCombatEvent.Event.ENTITY_DIED, false));
 			EntityLivingBase entitylivingbase = getAttackingEntity();
 			if (entitylivingbase != null) {
-				entitylivingbase.awardKillScore(this, scoreValue, cause);
+				entitylivingbase.onItemPickup(this, scoreValue);
 			}
 			extinguish();
 			setFlag(0, false);

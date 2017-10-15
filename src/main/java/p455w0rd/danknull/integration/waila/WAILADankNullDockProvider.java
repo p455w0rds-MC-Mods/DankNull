@@ -55,7 +55,7 @@ public class WAILADankNullDockProvider implements IWailaDataProvider {
 			currenttip.add("to change extraction mode");
 			InventoryDankNull dankDockInventory = dankDock.getInventory();
 			if (dankDockInventory != null) {
-				ItemStack dockedDankNull = dankDock == null ? ItemStack.EMPTY : dankDockInventory.getDankNull();
+				ItemStack dockedDankNull = dankDockInventory.getDankNull();
 				if (!dockedDankNull.isEmpty()) {
 					currenttip.add(" ");
 					currenttip.add(dockedDankNull.getDisplayName() + " Docked");

@@ -1,7 +1,6 @@
 package p455w0rd.danknull.init;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.network.IGuiHandler;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
@@ -23,7 +22,6 @@ public class ModGuiHandler implements IGuiHandler {
 
 	@Override
 	public Object getServerGuiElement(int id, EntityPlayer player, World worldIn, int x, int y, int z) {
-		BlockPos pos = new BlockPos(x, y, z);
 		switch (GUIType.values()[id]) {
 		case DANKNULL:
 			return new ContainerDankNull(player, DankNullUtils.getNewDankNullInventory(player.getHeldItemMainhand()));
@@ -35,7 +33,6 @@ public class ModGuiHandler implements IGuiHandler {
 
 	@Override
 	public Object getClientGuiElement(int id, EntityPlayer player, World worldIn, int x, int y, int z) {
-		BlockPos pos = new BlockPos(x, y, z);
 		switch (GUIType.values()[id]) {
 		case DANKNULL:
 			return new GuiDankNull(new ContainerDankNull(player, DankNullUtils.getNewDankNullInventory(player.getHeldItemMainhand())), player);

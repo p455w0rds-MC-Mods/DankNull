@@ -32,8 +32,7 @@ public class ItemDankNullHolder extends Item implements IModelHolder {
 	@SideOnly(Side.CLIENT)
 	public void initModel() {
 		for (int i = 0; i < 6; i++) {
-			ModelResourceLocation loc = new ModelResourceLocation(new ResourceLocation(ModGlobals.MODID, "dank_null_" + i), "inventory");
-			ModelLoader.setCustomModelResourceLocation(this, i, loc);
+			ModelLoader.setCustomModelResourceLocation(this, i, new ModelResourceLocation(new ResourceLocation(ModGlobals.MODID, "dank_null_") + "" + i, "inventory"));
 		}
 	}
 

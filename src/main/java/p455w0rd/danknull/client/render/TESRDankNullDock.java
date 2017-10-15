@@ -121,7 +121,6 @@ public class TESRDankNullDock extends TileEntitySpecialRenderer<TileDankNullDock
 
 		if (destroyStage >= 0) {
 			GlStateManager.matrixMode(5890);
-			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 			GlStateManager.popMatrix();
 			GlStateManager.matrixMode(5888);
 		}
@@ -131,6 +130,7 @@ public class TESRDankNullDock extends TileEntitySpecialRenderer<TileDankNullDock
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(x + 0.5, y + 0.45, z + 0.5);
 			GlStateManager.scale(0.55D, 0.55D, 0.55D);
+			//DankNullRenderer.getInstance().renderItem(stack);
 			Minecraft.getMinecraft().getItemRenderer().renderItem(EasyMappings.player(), stack, ItemCameraTransforms.TransformType.NONE);
 			GlStateManager.translate(-x, -y, -z);
 			GlStateManager.popMatrix();

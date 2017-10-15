@@ -24,7 +24,7 @@ public class ModConfig {
 			CONFIG.load();
 		}
 
-		//Options.callItDevNull = CONFIG.getBoolean("CallItDevNull", CLIENT_CAT, false, "Call it a /dev/null in-game ");
+		Options.callItDevNull = CONFIG.getBoolean("CallItDevNull", CLIENT_CAT, false, "Call it a /dev/null in-game ");
 		Options.superShine = CONFIG.getBoolean("SuperShine", CLIENT_CAT, false, "Make items ultra shiny!");
 
 		if (CONFIG.hasChanged()) {
@@ -41,7 +41,7 @@ public class ModConfig {
 
 	public static class Options {
 
-		//public static boolean callItDevNull = false;
+		public static boolean callItDevNull = false;
 		public static boolean superShine = false;
 
 	}

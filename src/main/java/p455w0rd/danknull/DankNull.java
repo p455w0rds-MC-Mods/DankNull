@@ -20,6 +20,7 @@ public class DankNull {
 
 	@Mod.EventHandler
 	public void preInit(FMLPreInitializationEvent e) {
+		INSTANCE = this;
 		PROXY.preInit(e);
 	}
 

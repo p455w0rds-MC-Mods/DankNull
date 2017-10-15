@@ -35,24 +35,6 @@ public class GuiModConfig extends GuiConfig {
 			ConfigCategory categoryClient = config.getCategory(ModConfig.CLIENT_CAT);
 			configElements.addAll(new ConfigElement(categoryClient).getChildElements());
 		}
-		/**
-				if (Minecraft.getMinecraft().world != null) {
-					Configuration worldConfig = Config.getWorldConfig();
-					if (worldConfig != null) {
-						ConfigCategory categoryWorldConfig = worldConfig.getCategory(SessionData.getWorldUid());
-						configElements.addAll(new ConfigElement(categoryWorldConfig).getChildElements());
-					}
-				}
-		
-				LocalizedConfiguration config = Config.getConfig();
-				if (config != null) {
-					ConfigCategory categoryAdvanced = config.getCategory(Config.CATEGORY_ADVANCED);
-					configElements.addAll(new ConfigElement(categoryAdvanced).getChildElements());
-		
-					ConfigCategory categorySearch = config.getCategory(Config.CATEGORY_SEARCH);
-					configElements.add(new ConfigElement(categorySearch));
-				}
-		*/
 		return configElements;
 	}
 

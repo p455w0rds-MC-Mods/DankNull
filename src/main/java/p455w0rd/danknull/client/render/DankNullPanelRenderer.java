@@ -66,10 +66,10 @@ public class DankNullPanelRenderer implements IItemRenderer {
 		RenderModel.render(model, stack);
 		if (stack.hasEffect()) {
 			if (Options.superShine) {
-				GlintEffectRenderer.apply2(model, DankNullUtils.getColor(stack.getItemDamage(), false));
+				GlintEffectRenderer.apply2(model, DankNullUtils.getColor(stack.getMetadata(), false));
 			}
 			else {
-				GlintEffectRenderer.apply(model, stack.getItemDamage());
+				GlintEffectRenderer.apply(model, stack.getMetadata());
 			}
 		}
 
@@ -120,16 +120,16 @@ public class DankNullPanelRenderer implements IItemRenderer {
 	}
 
 	private String getKey(@Nonnull ItemStack stack) {
-		return stack.getItem().getRegistryName().getResourcePath() + "" + stack.getItemDamage();
+		return stack.getItem().getRegistryName().getResourcePath() + "_" + stack.getMetadata();
 	}
 
 	private IBakedModel getModel(@Nonnull ItemStack stack) {
 		String key = getKey(stack);
-		int meta = stack.getItemDamage();
-		if (DankTextures.DANKNULL_PANELS == null) {
-			DankTextures.getInstance().registerIcons(RenderUtils.getBlocksTextureMap());
-		}
+		int meta = stack.getMetadata();
 		if (!modelCache.containsKey(key)) {
+			if (DankTextures.DANKNULL_PANELS == null) {
+				DankTextures.getInstance().registerIcons(RenderUtils.getBlocksTextureMap());
+			}
 			List<BakedQuad> quads = ItemQuadBakery.bakeItem(DankTextures.DANKNULL_PANELS[meta]);
 			modelCache.put(key, new PerspectiveAwareBakedModel(quads, props));
 		}

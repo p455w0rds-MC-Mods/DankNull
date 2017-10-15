@@ -1,0 +1,10 @@
+[{
+    "modid": "danknull",
+    "name": "/dank/null",
+    "description": "Adds the /dank/null items from p455w0rd's Things 1.10.2 mod",
+    "version": "${version}",
+    "mcversion": "1.12",
+	"url": "",
+    "authorList": ["TheRealp455w0rd"],
+    "logoFile": ""
+}]

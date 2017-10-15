@@ -4,16 +4,15 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureMap;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import p455w0rd.danknull.container.ContainerDankNull;
-import p455w0rd.danknull.init.ModItems;
 import p455w0rd.danknull.inventory.InventoryDankNull;
-import p455w0rd.danknull.util.DankNullUtils;
+import p455w0rd.danknull.items.ItemDankNull;
 
 /**
  * @author p455w0rd
@@ -21,7 +20,7 @@ import p455w0rd.danknull.util.DankNullUtils;
  */
 public class SlotDankNull extends Slot {
 
-	private ContainerDankNull myContainer = null;
+	private Container myContainer = null;
 	protected String backgroundName = null;
 	protected ResourceLocation backgroundLocation = null;
 	protected Object backgroundMap;
@@ -32,38 +31,8 @@ public class SlotDankNull extends Slot {
 	}
 
 	@Override
-	public ItemStack onTake(EntityPlayer thePlayer, ItemStack thisStack) {
-		int max = thisStack.getMaxStackSize();
-		ItemStack newStack = thisStack.copy();
-
-		if (thisStack.getCount() >= max) {
-			newStack.setCount(max);
-		}
-		InventoryDankNull inv = (InventoryDankNull) inventory;
-		//if (dragType == 1) {
-		int returnSize = Math.min(newStack.getCount() / 2, newStack.getCount());
-		if (inv != null) {
-			DankNullUtils.decrDankNullStackSize(inv, thisStack, newStack.getCount() - returnSize);
-			newStack.setCount(returnSize + ((newStack.getCount() % 2 == 0) ? 0 : 1));
-		}
-		//}
-		/*
-		else if (dragType == 0) {
-		if (getDankNullInventory() != null) {
-			DankNullUtils.decrDankNullStackSize(getDankNullInventory(), thisStack, newStack.getCount());
-			if (inventorySlots.get(index).getHasStack() && inventorySlots.get(index).getStack().getCount() <= 0) {
-				inventorySlots.get(index).putStack(ItemStack.EMPTY);
-			}
-		}
-		}
-		*/
-		onSlotChanged();
-		return newStack;
-	}
-
-	@Override
 	public boolean isItemValid(ItemStack itemStackIn) {
-		return !itemStackIn.isEmpty() && itemStackIn.getItem() != ModItems.DANK_NULL;
+		return !(itemStackIn.getItem() instanceof ItemDankNull);
 	}
 
 	@Override
@@ -107,17 +76,7 @@ public class SlotDankNull extends Slot {
 	@Override
 	public void putStack(ItemStack stack) {
 		inventory.setInventorySlotContents(getSlotIndex(), stack);
-		if (inventory instanceof InventoryDankNull) {
-			DankNullUtils.reArrangeStacks((InventoryDankNull) inventory);
-		}
 		onSlotChanged();
-	}
-
-	@Override
-	public void onSlotChanged() {
-		if (getContainer() != null) {
-			getContainer().detectAndSendChanges();
-		}
 	}
 
 	@Override
@@ -159,11 +118,11 @@ public class SlotDankNull extends Slot {
 		return yPos;
 	}
 
-	public ContainerDankNull getContainer() {
+	public Container getContainer() {
 		return myContainer;
 	}
 
-	public void setContainer(ContainerDankNull myContainer) {
+	public void setContainer(Container myContainer) {
 		this.myContainer = myContainer;
 	}
 

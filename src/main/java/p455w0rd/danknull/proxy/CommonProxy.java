@@ -23,10 +23,11 @@ public class CommonProxy {
 		ModRecipes.init();
 		ModIntegration.preInit();
 		ModNetworking.init();
-		ModEvents.init();
 	}
 
 	public void init(FMLInitializationEvent e) {
+		ModEvents.init();
+		ModRecipes.init();
 		ModIntegration.init();
 	}
 

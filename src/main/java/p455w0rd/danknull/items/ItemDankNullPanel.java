@@ -25,6 +25,7 @@ public class ItemDankNullPanel extends Item implements IModelHolder {
 		setUnlocalizedName("dank_null_panel");
 		ForgeRegistries.ITEMS.register(this);
 		setMaxDamage(0);
+		setHasSubtypes(true);
 	}
 
 	@Override

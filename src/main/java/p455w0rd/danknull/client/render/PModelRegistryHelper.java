@@ -13,7 +13,7 @@ import net.minecraftforge.client.model.ModelLoader;
 public class PModelRegistryHelper extends ModelRegistryHelper {
 
 	public static void registerMetaRenderer(Item item, IItemRenderer renderer, int damage) {
-		final ModelResourceLocation modelLoc = new ModelResourceLocation(item.getRegistryName() + "_" + damage, "inventory");
+		final ModelResourceLocation modelLoc = new ModelResourceLocation(Item.REGISTRY.getNameForObject(item) + "" + damage + damage, "inventory");
 		ModelLoader.setCustomModelResourceLocation(item, damage, modelLoc);
 		register(modelLoc, renderer);
 	}

@@ -14,9 +14,11 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import p455w0rd.danknull.init.ModItems;
+import p455w0rd.danknull.init.ModNetworking;
 import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rd.danknull.inventory.slot.SlotDankNull;
 import p455w0rd.danknull.inventory.slot.SlotHotbar;
+import p455w0rd.danknull.network.PacketSyncDankNull;
 import p455w0rd.danknull.util.DankNullUtils;
 
 /**
@@ -59,16 +61,22 @@ public class ContainerDankNull extends Container {
 	@Override
 	public void addListener(IContainerListener listener) {
 		if (listener instanceof EntityPlayerMP) {
-			playerList.add((EntityPlayerMP) listener);
-			//return;
+			EntityPlayerMP l = (EntityPlayerMP) listener;
+			if (!playerList.contains(l)) {
+				playerList.add(l);
+				//detectAndSendChanges();
+			}
 		}
-		super.addListener(listener);
-	}
 
-	public void markDirty() {
-		for (EntityPlayerMP player : playerList) {
-			player.sendContainerToPlayer(this);
+		if (listeners.contains(listener)) {
+			throw new IllegalArgumentException("Listener already listening");
 		}
+		else {
+			listeners.add(listener);
+			//listener.sendAllContents(this, getInventory());
+			detectAndSendChanges();
+		}
+		//super.addListener(listener);
 	}
 
 	@Override
@@ -166,12 +174,13 @@ public class ContainerDankNull extends Container {
 
 	@Override
 	public void detectAndSendChanges() {
-		if (FMLCommonHandler.instance().getSide().isServer()) {
-			//for (EntityPlayerMP player : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers()) {
-			//ModNetworking.INSTANCE.sendTo(new PacketSyncDankNull((NBTTagCompound) getDankNullInventory().serializeNBT()), player);
-			//}
-		}
 		super.detectAndSendChanges();
+		if (FMLCommonHandler.instance().getSide().isServer()) {
+			for (EntityPlayerMP player : playerList) {
+				ModNetworking.getInstance().sendTo(new PacketSyncDankNull(getDankNullInventory()), player);
+			}
+		}
+		//
 	}
 
 	private boolean isDankNullSlot(Slot slot) {

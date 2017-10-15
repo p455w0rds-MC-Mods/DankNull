@@ -59,9 +59,7 @@ public class ModEvents {
 			for (int i = 0; i < e.craftMatrix.getSizeInventory(); ++i) {
 				if (!e.craftMatrix.getStackInSlot(i).isEmpty() && e.craftMatrix.getStackInSlot(i).getItem() instanceof ItemDankNull) {
 					NBTTagCompound oldCompound = e.craftMatrix.getStackInSlot(i).getTagCompound();
-					if (oldCompound != null) {
-						e.crafting.setTagCompound(oldCompound);
-					}
+					e.crafting.setTagCompound(oldCompound);
 					break;
 				}
 				ItemUtils.setItem(e.crafting, e.crafting.getItem());

@@ -16,9 +16,6 @@ item.dank_null_panel_3.name=Gold /dank/null Panel
 item.dank_null_panel_4.name=Diamond /dank/null Panel
 item.dank_null_panel_5.name=Emerald /dank/null Panel
 
-//Creative Tab
-itemGroup.danknull=/dank/null
-
 //Blocks
 tile.danknull_dock.name=/dank/null Docking Station
 
