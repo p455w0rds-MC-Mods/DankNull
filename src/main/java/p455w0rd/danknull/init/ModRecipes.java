@@ -18,6 +18,8 @@ import p455w0rdslib.util.RecipeUtils;
  */
 public class ModRecipes {
 
+	private static RecipeUtils recipeUtils = new RecipeUtils(ModGlobals.MODID, ModGlobals.NAME);
+
 	private static final ModRecipes INSTANCE = new ModRecipes();
 	private static boolean init = true;
 
@@ -84,27 +86,27 @@ public class ModRecipes {
 
 		ItemStack dankNullDockItem = new ItemStack(Item.getItemFromBlock(ModBlocks.DANKNULL_DOCK));
 
-		CRAFTING_RECIPES.add(panelRedstone = RecipeUtils.addOldShaped(panel0, "aca", "cbc", "aca", 'a', new ItemStack(Blocks.REDSTONE_BLOCK), 'b', redPane, 'c', coalBlock));
-		CRAFTING_RECIPES.add(panelLapis = RecipeUtils.addOldShaped(panel1, "aca", "cbc", "aca", 'a', new ItemStack(Blocks.LAPIS_BLOCK), 'b', bluePane, 'c', coalBlock));
-		CRAFTING_RECIPES.add(panelIron = RecipeUtils.addOldShaped(panel2, "aca", "cbc", "aca", 'a', new ItemStack(Blocks.IRON_BLOCK), 'b', whitePane, 'c', coalBlock));
-		CRAFTING_RECIPES.add(panelGold = RecipeUtils.addOldShaped(panel3, "aca", "cbc", "aca", 'a', new ItemStack(Blocks.GOLD_BLOCK), 'b', yellowPane, 'c', coalBlock));
-		CRAFTING_RECIPES.add(panelDiamond = RecipeUtils.addOldShaped(panel4, "aca", "cbc", "aca", 'a', new ItemStack(Blocks.DIAMOND_BLOCK), 'b', cyanPane, 'c', coalBlock));
-		CRAFTING_RECIPES.add(panelEmerald = RecipeUtils.addOldShaped(panel5, "aca", "cbc", "aca", 'a', new ItemStack(Blocks.EMERALD_BLOCK), 'b', limePane, 'c', coalBlock));
+		CRAFTING_RECIPES.add(panelRedstone = recipeUtils.addOldShaped(panel0, "aca", "cbc", "aca", 'a', new ItemStack(Blocks.REDSTONE_BLOCK), 'b', redPane, 'c', coalBlock));
+		CRAFTING_RECIPES.add(panelLapis = recipeUtils.addOldShaped(panel1, "aca", "cbc", "aca", 'a', new ItemStack(Blocks.LAPIS_BLOCK), 'b', bluePane, 'c', coalBlock));
+		CRAFTING_RECIPES.add(panelIron = recipeUtils.addOldShaped(panel2, "aca", "cbc", "aca", 'a', new ItemStack(Blocks.IRON_BLOCK), 'b', whitePane, 'c', coalBlock));
+		CRAFTING_RECIPES.add(panelGold = recipeUtils.addOldShaped(panel3, "aca", "cbc", "aca", 'a', new ItemStack(Blocks.GOLD_BLOCK), 'b', yellowPane, 'c', coalBlock));
+		CRAFTING_RECIPES.add(panelDiamond = recipeUtils.addOldShaped(panel4, "aca", "cbc", "aca", 'a', new ItemStack(Blocks.DIAMOND_BLOCK), 'b', cyanPane, 'c', coalBlock));
+		CRAFTING_RECIPES.add(panelEmerald = recipeUtils.addOldShaped(panel5, "aca", "cbc", "aca", 'a', new ItemStack(Blocks.EMERALD_BLOCK), 'b', limePane, 'c', coalBlock));
 
-		CRAFTING_RECIPES.add(dankNullRedstone = RecipeUtils.addOldShaped(dankNull0, " a ", "aaa", " a ", 'a', panel0));
-		CRAFTING_RECIPES.add(dankNullLapis = RecipeUtils.addOldShaped(dankNull1, " a ", "aaa", " a ", 'a', panel1));
-		CRAFTING_RECIPES.add(dankNullIron = RecipeUtils.addOldShaped(dankNull2, " a ", "aaa", " a ", 'a', panel2));
-		CRAFTING_RECIPES.add(dankNullGold = RecipeUtils.addOldShaped(dankNull3, " a ", "aaa", " a ", 'a', panel3));
-		CRAFTING_RECIPES.add(dankNullDiamond = RecipeUtils.addOldShaped(dankNull4, " a ", "aaa", " a ", 'a', panel4));
-		CRAFTING_RECIPES.add(dankNullEmerald = RecipeUtils.addOldShaped(dankNull5, " a ", "aaa", " a ", 'a', panel5));
+		CRAFTING_RECIPES.add(dankNullRedstone = recipeUtils.addOldShaped(dankNull0, " a ", "aaa", " a ", 'a', panel0));
+		CRAFTING_RECIPES.add(dankNullLapis = recipeUtils.addOldShaped(dankNull1, " a ", "aaa", " a ", 'a', panel1));
+		CRAFTING_RECIPES.add(dankNullIron = recipeUtils.addOldShaped(dankNull2, " a ", "aaa", " a ", 'a', panel2));
+		CRAFTING_RECIPES.add(dankNullGold = recipeUtils.addOldShaped(dankNull3, " a ", "aaa", " a ", 'a', panel3));
+		CRAFTING_RECIPES.add(dankNullDiamond = recipeUtils.addOldShaped(dankNull4, " a ", "aaa", " a ", 'a', panel4));
+		CRAFTING_RECIPES.add(dankNullEmerald = recipeUtils.addOldShaped(dankNull5, " a ", "aaa", " a ", 'a', panel5));
 
-		CRAFTING_RECIPES.add(upgradeDankNullToLapis = RecipeUtils.addOldShaped(dankNull1, " a ", "aba", " a ", 'a', panel1, 'b', dankNull0));
-		CRAFTING_RECIPES.add(upgradeDankNullToIron = RecipeUtils.addOldShaped(dankNull2, " a ", "aba", " a ", 'a', panel2, 'b', dankNull1));
-		CRAFTING_RECIPES.add(upgradeDankNullToGold = RecipeUtils.addOldShaped(dankNull3, " a ", "aba", " a ", 'a', panel3, 'b', dankNull2));
-		CRAFTING_RECIPES.add(upgradeDankNullToDiamond = RecipeUtils.addOldShaped(dankNull4, " a ", "aba", " a ", 'a', panel4, 'b', dankNull3));
-		CRAFTING_RECIPES.add(upgradeDankNullToEmerald = RecipeUtils.addOldShaped(dankNull5, " a ", "aba", " a ", 'a', panel5, 'b', dankNull4));
+		CRAFTING_RECIPES.add(upgradeDankNullToLapis = recipeUtils.addOldShaped(dankNull1, " a ", "aba", " a ", 'a', panel1, 'b', dankNull0));
+		CRAFTING_RECIPES.add(upgradeDankNullToIron = recipeUtils.addOldShaped(dankNull2, " a ", "aba", " a ", 'a', panel2, 'b', dankNull1));
+		CRAFTING_RECIPES.add(upgradeDankNullToGold = recipeUtils.addOldShaped(dankNull3, " a ", "aba", " a ", 'a', panel3, 'b', dankNull2));
+		CRAFTING_RECIPES.add(upgradeDankNullToDiamond = recipeUtils.addOldShaped(dankNull4, " a ", "aba", " a ", 'a', panel4, 'b', dankNull3));
+		CRAFTING_RECIPES.add(upgradeDankNullToEmerald = recipeUtils.addOldShaped(dankNull5, " a ", "aba", " a ", 'a', panel5, 'b', dankNull4));
 
-		CRAFTING_RECIPES.add(dankNullDock = RecipeUtils.addOldShaped(dankNullDockItem, "aba", "bcb", "aba", 'a', new ItemStack(Items.EMERALD), 'b', new ItemStack(Items.REDSTONE), 'c', new ItemStack(Blocks.OBSIDIAN)));
+		CRAFTING_RECIPES.add(dankNullDock = recipeUtils.addOldShaped(dankNullDockItem, "aba", "bcb", "aba", 'a', new ItemStack(Items.EMERALD), 'b', new ItemStack(Items.REDSTONE), 'c', new ItemStack(Blocks.OBSIDIAN)));
 
 		for (IRecipe recipe : CRAFTING_RECIPES) {
 			ForgeRegistries.RECIPES.register(recipe);
