@@ -1,5 +1,8 @@
 //dank/null US English Localizations
 
+//Creative Tab
+itemGroup.danknull=/dank/null
+
 //Items
 item.dank_null_0.name=/dank/null/
 item.dank_null_1.name=/dank/null/MK II

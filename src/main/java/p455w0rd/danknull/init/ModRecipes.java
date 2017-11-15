@@ -86,11 +86,11 @@ public class ModRecipes {
 
 		ItemStack dankNullDockItem = new ItemStack(Item.getItemFromBlock(ModBlocks.DANKNULL_DOCK));
 
-		CRAFTING_RECIPES.add(panelRedstone = recipeUtils.addOldShaped(panel0, "aca", "cbc", "aca", 'a', new ItemStack(Blocks.REDSTONE_BLOCK), 'b', redPane, 'c', coalBlock));
-		CRAFTING_RECIPES.add(panelLapis = recipeUtils.addOldShaped(panel1, "aca", "cbc", "aca", 'a', new ItemStack(Blocks.LAPIS_BLOCK), 'b', bluePane, 'c', coalBlock));
-		CRAFTING_RECIPES.add(panelIron = recipeUtils.addOldShaped(panel2, "aca", "cbc", "aca", 'a', new ItemStack(Blocks.IRON_BLOCK), 'b', whitePane, 'c', coalBlock));
-		CRAFTING_RECIPES.add(panelGold = recipeUtils.addOldShaped(panel3, "aca", "cbc", "aca", 'a', new ItemStack(Blocks.GOLD_BLOCK), 'b', yellowPane, 'c', coalBlock));
-		CRAFTING_RECIPES.add(panelDiamond = recipeUtils.addOldShaped(panel4, "aca", "cbc", "aca", 'a', new ItemStack(Blocks.DIAMOND_BLOCK), 'b', cyanPane, 'c', coalBlock));
+		CRAFTING_RECIPES.add(panelRedstone = recipeUtils.addOldShaped(panel0, "aca", "cbc", "aca", 'a', new ItemStack(Items.REDSTONE), 'b', redPane, 'c', coalBlock));
+		CRAFTING_RECIPES.add(panelLapis = recipeUtils.addOldShaped(panel1, "aca", "cbc", "aca", 'a', new ItemStack(Items.DYE, 1, 4), 'b', bluePane, 'c', coalBlock));
+		CRAFTING_RECIPES.add(panelIron = recipeUtils.addOldShaped(panel2, "aca", "cbc", "aca", 'a', new ItemStack(Items.IRON_INGOT), 'b', whitePane, 'c', coalBlock));
+		CRAFTING_RECIPES.add(panelGold = recipeUtils.addOldShaped(panel3, "aca", "cbc", "aca", 'a', new ItemStack(Items.GOLD_INGOT), 'b', yellowPane, 'c', coalBlock));
+		CRAFTING_RECIPES.add(panelDiamond = recipeUtils.addOldShaped(panel4, "aca", "cbc", "aca", 'a', new ItemStack(Items.DIAMOND), 'b', cyanPane, 'c', coalBlock));
 		CRAFTING_RECIPES.add(panelEmerald = recipeUtils.addOldShaped(panel5, "aca", "cbc", "aca", 'a', new ItemStack(Blocks.EMERALD_BLOCK), 'b', limePane, 'c', coalBlock));
 
 		CRAFTING_RECIPES.add(dankNullRedstone = recipeUtils.addOldShaped(dankNull0, " a ", "aaa", " a ", 'a', panel0));
