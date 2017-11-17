@@ -6,21 +6,28 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import net.minecraftforge.common.crafting.CraftingHelper;
+import net.minecraftforge.common.crafting.CraftingHelper.ShapedPrimer;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.items.CapabilityItemHandler;
+import p455w0rd.danknull.init.ModGlobals;
 import p455w0rd.danknull.init.ModNetworking;
 import p455w0rd.danknull.inventory.DankNullItemHandler;
 import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rd.danknull.items.ItemDankNull;
 import p455w0rd.danknull.network.PacketSetSelectedItem;
+import p455w0rd.danknull.recipes.RecipeDankNullUpgrade;
 import p455w0rdslib.util.ItemUtils;
 
 /**
@@ -534,4 +541,12 @@ public class DankNullUtils {
 	public static EnumActionResult placeBlock(@Nonnull IBlockState state, World world, BlockPos pos) {
 		return world.setBlockState(pos, state, 2) ? EnumActionResult.SUCCESS : EnumActionResult.FAIL;
 	}
+
+	public static IRecipe addDankNullUpgradeRecipe(String recipeName, Object... params) {
+		ShapedPrimer primer = CraftingHelper.parseShaped(params);
+		IRecipe recipe = new RecipeDankNullUpgrade(primer.input).setRegistryName(new ResourceLocation(ModGlobals.MODID, recipeName));
+		ForgeRegistries.RECIPES.register(recipe);
+		return recipe;
+	}
+
 }

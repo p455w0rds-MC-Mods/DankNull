@@ -10,6 +10,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rdslib.util.RecipeUtils;
 
 /**
@@ -100,11 +101,11 @@ public class ModRecipes {
 		CRAFTING_RECIPES.add(dankNullDiamond = recipeUtils.addOldShaped(dankNull4, " a ", "aaa", " a ", 'a', panel4));
 		CRAFTING_RECIPES.add(dankNullEmerald = recipeUtils.addOldShaped(dankNull5, " a ", "aaa", " a ", 'a', panel5));
 
-		CRAFTING_RECIPES.add(upgradeDankNullToLapis = recipeUtils.addOldShaped(dankNull1, " a ", "aba", " a ", 'a', panel1, 'b', dankNull0));
-		CRAFTING_RECIPES.add(upgradeDankNullToIron = recipeUtils.addOldShaped(dankNull2, " a ", "aba", " a ", 'a', panel2, 'b', dankNull1));
-		CRAFTING_RECIPES.add(upgradeDankNullToGold = recipeUtils.addOldShaped(dankNull3, " a ", "aba", " a ", 'a', panel3, 'b', dankNull2));
-		CRAFTING_RECIPES.add(upgradeDankNullToDiamond = recipeUtils.addOldShaped(dankNull4, " a ", "aba", " a ", 'a', panel4, 'b', dankNull3));
-		CRAFTING_RECIPES.add(upgradeDankNullToEmerald = recipeUtils.addOldShaped(dankNull5, " a ", "aba", " a ", 'a', panel5, 'b', dankNull4));
+		CRAFTING_RECIPES.add(upgradeDankNullToLapis = DankNullUtils.addDankNullUpgradeRecipe("redstoneToLapis", " a ", "aba", " a ", 'a', panel1, 'b', dankNull0));
+		CRAFTING_RECIPES.add(upgradeDankNullToIron = DankNullUtils.addDankNullUpgradeRecipe("lapisToIron", " a ", "aba", " a ", 'a', panel2, 'b', dankNull1));
+		CRAFTING_RECIPES.add(upgradeDankNullToGold = DankNullUtils.addDankNullUpgradeRecipe("ironToGold", " a ", "aba", " a ", 'a', panel3, 'b', dankNull2));
+		CRAFTING_RECIPES.add(upgradeDankNullToDiamond = DankNullUtils.addDankNullUpgradeRecipe("goldToDiamond", " a ", "aba", " a ", 'a', panel4, 'b', dankNull3));
+		CRAFTING_RECIPES.add(upgradeDankNullToEmerald = DankNullUtils.addDankNullUpgradeRecipe("diamondToEmerald", " a ", "aba", " a ", 'a', panel5, 'b', dankNull4));
 
 		CRAFTING_RECIPES.add(dankNullDock = recipeUtils.addOldShaped(dankNullDockItem, "aba", "bcb", "aba", 'a', new ItemStack(Items.EMERALD), 'b', new ItemStack(Items.REDSTONE), 'c', new ItemStack(Blocks.OBSIDIAN)));
 

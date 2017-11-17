@@ -54,7 +54,7 @@ public class DankNullPanelRenderer implements IItemRenderer {
 
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		GlStateManager.enableLighting();
-		GlStateManager.enableBlend();
+		GlStateManager.enableAlpha();
 		GlStateManager.enableRescaleNormal();
 		if (stack.isOnItemFrame()) {
 			GlStateManager.scale(1.25D, 1.25D, 1.25D);

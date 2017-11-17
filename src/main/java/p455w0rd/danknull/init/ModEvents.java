@@ -2,24 +2,20 @@ package p455w0rd.danknull.init;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.ItemCraftedEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import p455w0rd.danknull.client.render.DankTextures;
 import p455w0rd.danknull.entity.EntityPFakePlayer;
 import p455w0rd.danknull.inventory.InventoryDankNull;
-import p455w0rd.danknull.items.ItemDankNull;
 import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rdslib.util.EasyMappings;
-import p455w0rdslib.util.ItemUtils;
 
 /**
  * @author p455w0rd
@@ -50,20 +46,6 @@ public class ModEvents {
 	public void renderOverlayEvent(RenderGameOverlayEvent e) {
 		if ((ModGlobals.GUI_DANKNULL_ISOPEN) && ((e.getType() == RenderGameOverlayEvent.ElementType.HOTBAR) || (e.getType() == RenderGameOverlayEvent.ElementType.CROSSHAIRS) || (e.getType() == RenderGameOverlayEvent.ElementType.EXPERIENCE) || (e.getType() == RenderGameOverlayEvent.ElementType.FOOD) || (e.getType() == RenderGameOverlayEvent.ElementType.HEALTH) || (e.getType() == RenderGameOverlayEvent.ElementType.ARMOR))) {
 			e.setCanceled(true);
-		}
-	}
-
-	@SubscribeEvent
-	public void onCrafted(ItemCraftedEvent e) {
-		if (e.crafting.getItem() instanceof ItemDankNull) {
-			for (int i = 0; i < e.craftMatrix.getSizeInventory(); ++i) {
-				if (!e.craftMatrix.getStackInSlot(i).isEmpty() && e.craftMatrix.getStackInSlot(i).getItem() instanceof ItemDankNull) {
-					NBTTagCompound oldCompound = e.craftMatrix.getStackInSlot(i).getTagCompound();
-					e.crafting.setTagCompound(oldCompound);
-					break;
-				}
-				ItemUtils.setItem(e.crafting, e.crafting.getItem());
-			}
 		}
 	}
 

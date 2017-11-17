@@ -170,7 +170,6 @@ public class DankNullRenderer implements IItemRenderer {
 			}
 			GlStateManager.enableLighting();
 
-			//holderModel = ForgeHooksClient.handleCameraTransforms(holderModel, ItemCameraTransforms.TransformType.NONE, false);
 			renderItem(item, holderModel);
 
 			GlStateManager.disableLighting();

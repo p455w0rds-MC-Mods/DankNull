@@ -14,11 +14,14 @@ import mezz.jei.api.JEIPlugin;
 import mezz.jei.api.ingredients.IIngredientBlacklist;
 import mezz.jei.api.ingredients.IModIngredientRegistration;
 import mezz.jei.api.recipe.IRecipeCategoryRegistration;
+import mezz.jei.api.recipe.VanillaRecipeCategoryUid;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.OreDictionary;
 import p455w0rd.danknull.init.ModBlocks;
 import p455w0rd.danknull.init.ModIntegration.Mods;
 import p455w0rd.danknull.init.ModItems;
+import p455w0rd.danknull.integration.jei.DankNullUpgradeWrapper;
+import p455w0rd.danknull.recipes.RecipeDankNullUpgrade;
 
 /**
  * @author p455w0rd
@@ -46,6 +49,8 @@ public class JEI implements IModPlugin {
 		registry.addIngredientInfo(new ItemStack(ModItems.DANK_NULL, 1, 5), ItemStack.class, "jei.danknull.desc5");
 
 		registry.addIngredientInfo(new ItemStack(ModBlocks.DANKNULL_DOCK), ItemStack.class, "jei.danknull_dock.desc");
+
+		registry.handleRecipes(RecipeDankNullUpgrade.class, recipe -> new DankNullUpgradeWrapper(registry.getJeiHelpers(), recipe), VanillaRecipeCategoryUid.CRAFTING);
 
 	}
 
