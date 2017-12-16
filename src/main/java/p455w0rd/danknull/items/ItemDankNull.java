@@ -9,6 +9,7 @@ import net.minecraft.block.SoundType;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.EnumRarity;
 import net.minecraft.item.Item;
@@ -36,6 +37,7 @@ import net.minecraft.world.GameType;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.fluids.UniversalBucket;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.Side;
@@ -102,7 +104,6 @@ public class ItemDankNull extends Item implements IModelHolder {
 	}
 
 	@Override
-	@SideOnly(Side.CLIENT)
 	public String getItemStackDisplayName(ItemStack stack) {
 		return I18n.translateToLocal(getUnlocalizedNameInefficiently(stack) + "_" + getDamage(stack) + ".name").trim();
 	}
@@ -110,7 +111,7 @@ public class ItemDankNull extends Item implements IModelHolder {
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand hand) {
 		ItemStack stack = playerIn.getHeldItem(hand);
-		if (playerIn.isSneaking() && hand == EnumHand.MAIN_HAND) {
+		if (playerIn.isSneaking()) {
 			/*
 			}
 			for (int i = 0; i < 5; ++i) {
@@ -144,11 +145,11 @@ public class ItemDankNull extends Item implements IModelHolder {
 					return new ActionResult<ItemStack>(EnumActionResult.FAIL, stack);
 				}
 
-				EntityPFakePlayer fakePlayer = EntityPFakePlayer.getFakePlayerForParent(playerIn);
+				EntityPFakePlayer fakePlayer = EntityPFakePlayer.getFakePlayerForParent((EntityPlayerMP) playerIn);
 				if (fakePlayer.interactionManager.getGameType() != GameType.NOT_SET) {
 					fakePlayer.interactionManager.setGameType(GameType.NOT_SET);
 				}
-				fakePlayer.setHeldItem(EnumHand.MAIN_HAND, selectedStack);
+				fakePlayer.setHeldItem(hand, selectedStack);
 				fakePlayer.setItemInHand(selectedStack);
 				fakePlayer.posX = playerIn.posX;
 				fakePlayer.posY = playerIn.posY;
@@ -221,12 +222,15 @@ public class ItemDankNull extends Item implements IModelHolder {
 		if (worldIn.isRemote) {
 			return EnumActionResult.SUCCESS;
 		}
+		/*
 		RayTraceResult ray = rayTrace(player, 100, 1.0F);
 		Block hitBlock = null;
 		if (ray != null) {
 			hitBlock = worldIn.getBlockState(ray.getBlockPos()).getBlock();
 		}
-		if (player.isSneaking() && getBlockUnderPlayer(player) != Blocks.AIR && hitBlock != null) {
+		*/
+		Block blockUnderPlayer = getBlockUnderPlayer(player);
+		if (player.isSneaking() && blockUnderPlayer != Blocks.AIR) {
 			ModGuiHandler.launchGui(GUIType.DANKNULL, player, worldIn, (int) player.posX, (int) player.posY, (int) player.posZ);
 			return EnumActionResult.SUCCESS;
 		}
@@ -281,18 +285,18 @@ public class ItemDankNull extends Item implements IModelHolder {
 				}
 				return EnumActionResult.PASS;
 			}
-			else if (selectedStack.getItem() instanceof ItemBucket) {
+			else if (selectedStack.getItem() instanceof ItemBucket || selectedStack.getItem() instanceof UniversalBucket) {
 				//TODO soon!
 			}
 			else if ((selectedStack.getItem() instanceof ItemSnowball) || (selectedStack.getItem() instanceof ItemEnderPearl) || (selectedStack.getItem() instanceof ItemEgg)) {
 				//TODO soon!
 			}
 			else {
-				EntityPFakePlayer fakePlayer = EntityPFakePlayer.getFakePlayerForParent(player);
+				EntityPFakePlayer fakePlayer = EntityPFakePlayer.getFakePlayerForParent((EntityPlayerMP) player);
 				if (fakePlayer.interactionManager.getGameType() != GameType.NOT_SET) {
 					fakePlayer.interactionManager.setGameType(GameType.NOT_SET);
 				}
-				fakePlayer.setHeldItem(EnumHand.MAIN_HAND, selectedStack.copy());
+				fakePlayer.setHeldItem(hand, selectedStack.copy());
 				fakePlayer.setItemInHand(selectedStack.copy());
 				fakePlayer.posX = player.posX;
 				fakePlayer.posY = player.posY;
@@ -321,7 +325,7 @@ public class ItemDankNull extends Item implements IModelHolder {
 
 	@Override
 	public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
-		return !ItemStack.areItemStacksEqual(oldStack, newStack) || slotChanged;
+		return !oldStack.isItemEqual(newStack) || slotChanged;
 	}
 
 }

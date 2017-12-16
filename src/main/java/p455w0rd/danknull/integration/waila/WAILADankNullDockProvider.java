@@ -11,10 +11,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
-import p455w0rd.danknull.blocks.tiles.TileDankNullDock.ExtractionMode;
 import p455w0rd.danknull.init.ModBlocks;
+import p455w0rd.danknull.init.ModGlobals;
 import p455w0rd.danknull.integration.WAILA;
 import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rd.danknull.util.DankNullUtils;
@@ -48,27 +49,21 @@ public class WAILADankNullDockProvider implements IWailaDataProvider {
 		EntityPlayer player = accessor.getPlayer();
 		TileDankNullDock dankDock = (TileDankNullDock) accessor.getTileEntity();
 		currenttip.add(WAILA.toolTipEnclose);
-		if (player.isSneaking()) {
-			currenttip.add("Extraction Mode: " + (dankDock.getExtractionMode() == ExtractionMode.SELECTED ? "Only Selected Item" : "All Items") + " Extracted");
-			currenttip.add(" ");
-			currenttip.add("Right-click with empty hand");
-			currenttip.add("to change extraction mode");
-			InventoryDankNull dankDockInventory = dankDock.getInventory();
-			if (dankDockInventory != null) {
-				ItemStack dockedDankNull = dankDockInventory.getDankNull();
-				if (!dockedDankNull.isEmpty()) {
-					currenttip.add(" ");
-					currenttip.add(dockedDankNull.getDisplayName() + " Docked");
-					ItemStack selectedStack = DankNullUtils.getSelectedStack(dankDock.getInventory());
-					if (!selectedStack.isEmpty()) {
-						currenttip.add(selectedStack.getDisplayName() + " Selected");
-					}
+		String msg = dankDock.getStack().isEmpty() ? "Right-click with /dank/null" : "Right-click with empty hand to open GUI";
+		currenttip.add(msg);
+		InventoryDankNull dankDockInventory = dankDock.getInventory();
+		if (dankDockInventory != null) {
+			ItemStack dockedDankNull = dankDockInventory.getDankNull();
+			if (!dockedDankNull.isEmpty()) {
+				currenttip.add(" ");
+				currenttip.add(ModGlobals.Rarities.getRarityFromMeta(dockedDankNull.getItemDamage()).rarityColor + "" + dockedDankNull.getDisplayName() + "" + TextFormatting.GRAY + " Docked");
+				ItemStack selectedStack = DankNullUtils.getSelectedStack(dankDock.getInventory());
+				if (!selectedStack.isEmpty()) {
+					currenttip.add(selectedStack.getDisplayName() + " Selected");
 				}
 			}
 		}
-		else {
-			currenttip.add(WAILA.doSneak);
-		}
+
 		currenttip.add(WAILA.toolTipEnclose);
 		return currenttip;
 	}

@@ -4,6 +4,9 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
@@ -27,12 +30,17 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
+import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
 import p455w0rd.danknull.client.render.DankNullRenderItem;
 import p455w0rd.danknull.container.ContainerDankNull;
 import p455w0rd.danknull.init.ModGlobals;
+import p455w0rd.danknull.init.ModLogger;
+import p455w0rd.danknull.init.ModNetworking;
 import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rd.danknull.inventory.slot.SlotDankNull;
+import p455w0rd.danknull.network.PacketSyncDankNull;
 import p455w0rd.danknull.util.DankNullUtils;
+import p455w0rd.danknull.util.DankNullUtils.SlotExtractionMode;
 import p455w0rdslib.client.gui.GuiModular;
 import p455w0rdslib.util.EasyMappings;
 import p455w0rdslib.util.GuiUtils;
@@ -63,12 +71,17 @@ public class GuiDankNull extends GuiModular {
 	protected int xSize = 210;
 	protected int ySize = 140;
 	EntityPlayer player;
+	ItemStack dankNull;
 
 	public GuiDankNull(Container container, EntityPlayer player) {
+		this(container, player, null);
+	}
+
+	public GuiDankNull(Container container, EntityPlayer player, @Nullable TileDankNullDock te) {
 		super(container);
 		this.player = player;
-		ItemStack dankNull = DankNullUtils.getDankNull(player);
-		pRenderItem = new DankNullRenderItem(Minecraft.getMinecraft().renderEngine, Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getModelManager(), Minecraft.getMinecraft().getItemColors(), dankNull, false, (ContainerDankNull) container);
+		dankNull = te == null ? DankNullUtils.getDankNull(player) : te.getStack();
+		pRenderItem = new DankNullRenderItem(Minecraft.getMinecraft().renderEngine, Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getModelManager(), Minecraft.getMinecraft().getItemColors(), dankNull, false);
 		numRows = dankNull.getItemDamage();
 		setWidth(210);
 		setHeight(140 + (numRows * 20 + numRows + 1));
@@ -88,6 +101,14 @@ public class GuiDankNull extends GuiModular {
 		super.onGuiClosed();
 	}
 
+	public ItemStack getDankNull() {
+		return dankNull;
+	}
+
+	public void setDankNull(@Nonnull ItemStack stack) {
+		dankNull = stack;
+	}
+
 	@Override
 	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
@@ -95,7 +116,6 @@ public class GuiDankNull extends GuiModular {
 		GlStateManager.disableBlend();
 		int fontColor = 16777215;
 		int yOffset = 101 - ((20 * numRows) + numRows);
-		ItemStack dankNull = DankNullUtils.getDankNull(player);
 		String name = "/dank/null";
 		/*
 		if (dankNull != null) {
@@ -137,7 +157,7 @@ public class GuiDankNull extends GuiModular {
 	}
 
 	private InventoryDankNull getDankNullInventory() {
-		return ((ContainerDankNull) inventorySlots).getDankNullInventory();
+		return DankNullUtils.getNewDankNullInventory(getDankNull());
 	}
 
 	@Override
@@ -289,11 +309,10 @@ public class GuiDankNull extends GuiModular {
 		int button = Mouse.getEventButton();
 
 		if (Mouse.getEventButtonState()) {
-			//if (GuiScreen.isCtrlKeyDown()) {
-			if (GuiScreen.isAltKeyDown()) {
-				if (button == 0) {
-					Slot slot = getSlotAtPos(mouseX, mouseY);
-					if (slot != null && !slot.getStack().isEmpty()) {
+			if (button == 0) {
+				Slot slot = getSlotAtPos(mouseX, mouseY);
+				if (slot != null && !slot.getStack().isEmpty()) {
+					if (GuiScreen.isAltKeyDown()) {
 						if (!ItemUtils.areItemsEqual(DankNullUtils.getSelectedStack(getDankNullInventory()), slot.getStack())) {
 							int count = 0;
 							for (Slot slotHovered : inventorySlots.inventorySlots) {
@@ -305,8 +324,14 @@ public class GuiDankNull extends GuiModular {
 							}
 						}
 					}
+					else if (GuiScreen.isCtrlKeyDown()) {
+						DankNullUtils.cycleExtractionMode(getDankNull(), slot.getStack());
+						ModNetworking.getInstance().sendToServer(new PacketSyncDankNull(getDankNullInventory().getDankNull()));
+						//((ContainerDankNull) inventorySlots).setDankNullInventory(getDankNullInventory());
+						//setDankNull(((ContainerDankNull) inventorySlots).getDankNullInventory().getDankNull());
+						return;
+					}
 				}
-				//}
 			}
 		}
 		super.handleMouseInput();
@@ -428,12 +453,32 @@ public class GuiDankNull extends GuiModular {
 			}
 		}
 		Slot s = getSlotAtPos(x, y);
-		if (s != null && s instanceof SlotDankNull && s.getHasStack() && s.getStack().getCount() > 1000) {
-			list.add(1, TextFormatting.GRAY + "" + TextFormatting.ITALIC + "Count: " + s.getStack().getCount());
+		if (s != null && s instanceof SlotDankNull && s.getHasStack()) {
+			SlotExtractionMode mode = DankNullUtils.getExtractionModeForStack(getDankNull(), s.getStack());
+			if (s.getStack().getCount() > 1000) {
+				list.add(1, TextFormatting.GRAY + "" + TextFormatting.ITALIC + "Count: " + s.getStack().getCount());
+				list.add(2, "Extraction Mode: " + mode.getTooltip());
+				list.add(3, TextFormatting.GRAY + "" + TextFormatting.ITALIC + "  Ctrl+Click to change mode");
+				if (DankNullUtils.getSelectedStackIndex(getDankNullInventory()) != s.getSlotIndex()) {
+					list.add(4, TextFormatting.GRAY + "" + TextFormatting.ITALIC + "  Alt+Click to set as selected item");
+				}
+			}
+			else {
+				if (mode == null) {
+					ModLogger.warn("FUCK");
+				}
+				else {
+					list.add(1, "Extraction Mode: " + mode.getTooltip());
+				}
+				list.add(2, TextFormatting.GRAY + "" + TextFormatting.ITALIC + "  Ctrl+Click to change mode");
+				if (DankNullUtils.getSelectedStackIndex(getDankNullInventory()) != s.getSlotIndex()) {
+					list.add(3, TextFormatting.GRAY + "" + TextFormatting.ITALIC + "  Alt+Click to set as selected item");
+				}
+			}
 		}
 
 		net.minecraftforge.fml.client.config.GuiUtils.preItemToolTip(stack);
-		GuiUtils.drawToolTipWithBorderColor(this, list, x, y, DankNullUtils.getColor(DankNullUtils.getDankNull(player).getItemDamage(), true), DankNullUtils.getColor(DankNullUtils.getDankNull(player).getItemDamage(), false));
+		GuiUtils.drawToolTipWithBorderColor(this, list, x, y, DankNullUtils.getColor(dankNull.getItemDamage(), true), DankNullUtils.getColor(dankNull.getItemDamage(), false));
 		net.minecraftforge.fml.client.config.GuiUtils.postItemToolTip();
 	}
 

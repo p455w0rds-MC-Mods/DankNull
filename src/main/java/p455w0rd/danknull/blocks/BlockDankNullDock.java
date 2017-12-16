@@ -5,7 +5,6 @@ import javax.annotation.Nullable;
 import com.google.common.collect.Maps;
 
 import codechicken.lib.model.ModelRegistryHelper;
-import codechicken.lib.texture.TextureUtils;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -22,10 +21,8 @@ import net.minecraft.stats.StatList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
-import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelLoader;
@@ -34,10 +31,11 @@ import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
-import p455w0rd.danknull.blocks.tiles.TileDankNullDock.ExtractionMode;
 import p455w0rd.danknull.client.render.DankTextures;
 import p455w0rd.danknull.client.render.TESRDankNullDock;
 import p455w0rd.danknull.init.ModGlobals;
+import p455w0rd.danknull.init.ModGuiHandler;
+import p455w0rd.danknull.init.ModGuiHandler.GUIType;
 import p455w0rd.danknull.init.ModItems;
 import p455w0rd.danknull.util.DankNullUtils;
 
@@ -95,17 +93,17 @@ public class BlockDankNullDock extends BlockContainerBase {
 	@Override
 	public void initModel() {
 		ModelRegistryHelper.registerItemRenderer(Item.getItemFromBlock(this), new TESRDankNullDock());
-		setParticleTexture(this, DankTextures.DOCK_SPRITE);
+		setParticleTexture(this);
 		ClientRegistry.bindTileEntitySpecialRenderer(TileDankNullDock.class, new TESRDankNullDock());
 	}
 
 	@SideOnly(Side.CLIENT)
-	public static void setParticleTexture(Block block, final ResourceLocation tex) {
+	public static void setParticleTexture(Block block) {
 		final ModelResourceLocation modelLoc = new ModelResourceLocation(block.getRegistryName(), "particle");
 		ModelRegistryHelper.register(modelLoc, new BuiltInModel(ItemCameraTransforms.DEFAULT, ItemOverrideList.NONE) {
 			@Override
 			public TextureAtlasSprite getParticleTexture() {
-				return TextureUtils.getTexture(tex);
+				return DankTextures.DANKNULL_DOCK_SPRITE;
 			}
 		});
 		ModelLoader.setCustomStateMapper(block, blockIn -> Maps.toMap(blockIn.getBlockState().getValidStates(), input -> modelLoc));
@@ -133,17 +131,8 @@ public class BlockDankNullDock extends BlockContainerBase {
 			}
 			else if (player.getHeldItem(hand).isEmpty()) {
 				if (!player.isSneaking()) {
-					if (getTE(world, pos).getExtractionMode() == ExtractionMode.NORMAL) {
-						getTE(world, pos).setExtractionMode(ExtractionMode.SELECTED);
-						if (world.isRemote) {
-							player.sendMessage(new TextComponentString("Extraction mode: Only Selected Item Extracted"));
-						}
-					}
-					else {
-						getTE(world, pos).setExtractionMode(ExtractionMode.NORMAL);
-						if (world.isRemote) {
-							player.sendMessage(new TextComponentString("Extraction mode: All Items Extracted"));
-						}
+					if (!getTE(world, pos).getStack().isEmpty()) {
+						ModGuiHandler.launchGui(GUIType.DANKNULL_TE, player, world, pos.getX(), pos.getY(), pos.getZ());
 					}
 				}
 				else {

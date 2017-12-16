@@ -19,6 +19,7 @@ import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemBucket;
 import net.minecraft.item.ItemBucketMilk;
@@ -31,6 +32,7 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import p455w0rd.danknull.init.ModBlocks;
 import p455w0rd.danknull.init.ModConfig.Options;
 import p455w0rd.danknull.init.ModGlobals;
 import p455w0rd.danknull.init.ModItems;
@@ -49,9 +51,18 @@ public class DankNullRenderer implements IItemRenderer {
 
 	private static final DankNullRenderer INSTANCE = new DankNullRenderer();
 	boolean isGUI = false;
+	InventoryDankNull inventory;
 
 	public static DankNullRenderer getInstance() {
 		return INSTANCE;
+	}
+
+	private InventoryDankNull getDankNullInventory() {
+		return inventory;
+	}
+
+	public void setDankNullInventory(InventoryDankNull inv) {
+		inventory = inv;
 	}
 
 	@Override
@@ -69,9 +80,12 @@ public class DankNullRenderer implements IItemRenderer {
 				return;
 			}
 			int view = options.thirdPersonView;
-			InventoryDankNull inventory = DankNullUtils.getNewDankNullInventory(item);
+			//if (getDankNullInventory() == null) {// || Minecraft.getMinecraft().player.ticksExisted % 20 == 0) {
+			inventory = DankNullUtils.getNewDankNullInventory(item);
+			//}
 			int index = DankNullUtils.getSelectedStackIndex(inventory);
 			ItemStack containedStack = DankNullUtils.getItemByIndex(inventory, index);
+			//ItemStack containedStack = DankNullUtils.getSelectedStack(inventory);
 			int modelDamage = item.getItemDamage();
 			if (modelDamage > 5) {
 				modelDamage -= 6;
@@ -142,10 +156,23 @@ public class DankNullRenderer implements IItemRenderer {
 					GlStateManager.translate(-0.2D, -0.2D, -0.5D);
 				}
 				if (containedItemModel.isBuiltInRenderer()) {
-					GlStateManager.translate(0.0D, 0.0D, 0.0D);
+					if (containedStack.getItem() == Item.getItemFromBlock(ModBlocks.DANKNULL_DOCK)) {
+						GlStateManager.translate(0.0D, 1.0D, 0.0D);
 
-					GlStateManager.rotate(ModGlobals.TIME, 1.0F, ModGlobals.TIME, 1.0F);
-					GlStateManager.translate(-0.5D, 0.0D, -0.5D);
+						GlStateManager.rotate(ModGlobals.TIME, 1.0F, ModGlobals.TIME, 1.0F);
+						//GlStateManager.translate(0.0D, -5.0D, 0.0D);
+					}
+					else if (containedStack.getItem() == ModItems.DANK_NULL_PANEL) {
+						GlStateManager.translate(0.0D, 0.1D, 0.0D);
+
+						GlStateManager.rotate(ModGlobals.TIME, 1.0F, ModGlobals.TIME, 1.0F);
+					}
+					else {
+						GlStateManager.translate(0.0D, 0.0D, 0.0D);
+
+						GlStateManager.rotate(ModGlobals.TIME, 1.0F, ModGlobals.TIME, 1.0F);
+						GlStateManager.translate(-0.5D, 0.0D, -0.5D);
+					}
 				}
 				else {
 					GlStateManager.rotate(ModGlobals.TIME, 1.0F, 1.0F, 1.0F);
@@ -160,10 +187,11 @@ public class DankNullRenderer implements IItemRenderer {
 					}
 					else {
 						renderItem(containedStack, containedItemModel);
+						GlStateManager.enableBlend();
 					}
 				}
 				else {
-					//renderItem(containedStack, Minecraft.getMinecraft().getRenderItem().getItemModelWithOverrides(containedStack, EasyMappings.player().getEntityWorld(), EasyMappings.player()));
+					renderItem(containedStack, Minecraft.getMinecraft().getRenderItem().getItemModelWithOverrides(containedStack, EasyMappings.player().getEntityWorld(), EasyMappings.player()));
 				}
 				GlStateManager.popMatrix();
 

@@ -13,6 +13,7 @@ import net.minecraft.inventory.IContainerListener;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
 import p455w0rd.danknull.init.ModItems;
 import p455w0rd.danknull.init.ModNetworking;
 import p455w0rd.danknull.inventory.InventoryDankNull;
@@ -20,6 +21,7 @@ import p455w0rd.danknull.inventory.slot.SlotDankNull;
 import p455w0rd.danknull.inventory.slot.SlotHotbar;
 import p455w0rd.danknull.network.PacketSyncDankNull;
 import p455w0rd.danknull.util.DankNullUtils;
+import p455w0rd.danknull.util.TargetPos;
 
 /**
  * @author p455w0rd
@@ -29,6 +31,12 @@ public class ContainerDankNull extends Container {
 
 	InventoryDankNull inventoryDankNull;
 	private final Set<EntityPlayerMP> playerList = Sets.<EntityPlayerMP>newHashSet();
+	private TileDankNullDock te;
+
+	public ContainerDankNull(EntityPlayer player, TileDankNullDock tile) {
+		this(player, tile.getInventory());
+		te = tile;
+	}
 
 	public ContainerDankNull(EntityPlayer player, InventoryDankNull inv) {
 		inventoryDankNull = inv;
@@ -58,25 +66,28 @@ public class ContainerDankNull extends Container {
 		}
 	}
 
+	public TileDankNullDock getTileEntity() {
+		return te;
+	}
+
 	@Override
 	public void addListener(IContainerListener listener) {
 		if (listener instanceof EntityPlayerMP) {
 			EntityPlayerMP l = (EntityPlayerMP) listener;
 			if (!playerList.contains(l)) {
 				playerList.add(l);
-				//detectAndSendChanges();
+				detectAndSendChanges();
 			}
 		}
-
-		if (listeners.contains(listener)) {
-			throw new IllegalArgumentException("Listener already listening");
-		}
-		else {
-			listeners.add(listener);
-			//listener.sendAllContents(this, getInventory());
-			detectAndSendChanges();
-		}
-		//super.addListener(listener);
+		/*
+				if (listeners.contains(listener)) {
+					throw new IllegalArgumentException("Listener already listening");
+				}
+				else {
+					listeners.add(listener);
+					detectAndSendChanges();
+				}
+				*/
 	}
 
 	@Override
@@ -92,12 +103,16 @@ public class ContainerDankNull extends Container {
 		return inventoryDankNull;
 	}
 
+	public void setDankNullInventory(InventoryDankNull inv) {
+		inventoryDankNull = inv;
+	}
+
 	private boolean addStack(ItemStack stack) {
 		boolean ret = false;
 		if (stack.getItem() == ModItems.DANK_NULL) {
 			return false;
 		}
-		if (!DankNullUtils.isFiltered(getDankNullInventory(), stack).isEmpty()) {
+		if (DankNullUtils.isFiltered(getDankNullInventory(), stack)) {
 			ret = DankNullUtils.addFilteredStackToDankNull(getDankNullInventory(), stack);
 		}
 		else if (getNextAvailableSlot() >= 0) {
@@ -107,6 +122,7 @@ public class ContainerDankNull extends Container {
 		if (DankNullUtils.getSelectedStackIndex(getDankNullInventory()) == -1) {
 			DankNullUtils.setSelectedIndexApplicable(getDankNullInventory());
 		}
+		DankNullUtils.reArrangeStacks(getDankNullInventory());
 		return ret;
 	}
 
@@ -125,7 +141,7 @@ public class ContainerDankNull extends Container {
 		Slot clickSlot = inventorySlots.get(index);
 		if (clickSlot.getHasStack()) {
 			if (!isDankNullSlot(clickSlot)) {
-				if (getNextAvailableSlot() == -1 && !DankNullUtils.isFiltered(getDankNullInventory(), clickSlot.getStack()).isEmpty()) {
+				if (getNextAvailableSlot() == -1 && DankNullUtils.isFiltered(getDankNullInventory(), clickSlot.getStack())) {
 					if (addStack(clickSlot.getStack())) {
 						clickSlot.putStack(ItemStack.EMPTY);
 						playerIn.inventory.markDirty();
@@ -174,11 +190,34 @@ public class ContainerDankNull extends Container {
 
 	@Override
 	public void detectAndSendChanges() {
-		super.detectAndSendChanges();
+		//super.detectAndSendChanges();
 		if (FMLCommonHandler.instance().getSide().isServer()) {
-			for (EntityPlayerMP player : playerList) {
-				ModNetworking.getInstance().sendTo(new PacketSyncDankNull(getDankNullInventory()), player);
+			if (getTileEntity() == null) {
+				for (EntityPlayerMP player : playerList) {
+					//setDankNullInventory(DankNullUtils.getNewDankNullInventory(getDankNull()));
+					ModNetworking.getInstance().sendTo(new PacketSyncDankNull(getDankNullInventory()), player);
+				}
 			}
+			else {
+				ModNetworking.getInstance().sendToAllAround(new PacketSyncDankNull(getDankNullInventory(), getTileEntity().getPos()), new TargetPos(getTileEntity().getWorld().provider.getDimension(), getTileEntity().getPos(), 6.0D));
+				//ModNetworking.getInstance().sendTo(new PacketSyncDankNull(getDankNullInventory(), getTileEntity().getPos()), player);
+			}
+			/*
+			for (EntityPlayerMP player : playerList) {
+				for (int i = 0; i < inventorySlots.size(); ++i) {
+					ItemStack itemstack = inventorySlots.get(i).getStack();
+					ItemStack itemstack1 = inventoryItemStacks.get(i);
+					if (!ItemStack.areItemStacksEqual(itemstack1, itemstack)) {
+						boolean clientStackChanged = !ItemStack.areItemStacksEqualUsingNBTShareTag(itemstack1, itemstack);
+						itemstack1 = itemstack.isEmpty() ? ItemStack.EMPTY : itemstack.copy();
+						inventoryItemStacks.set(i, itemstack1);
+						if (clientStackChanged) {
+							player.sendSlotContents(this, i, itemstack1);
+						}
+					}
+				}
+			}
+			*/
 		}
 		//
 	}

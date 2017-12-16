@@ -2,6 +2,7 @@ package p455w0rd.danknull.init;
 
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Loader;
+import p455w0rd.danknull.integration.STG;
 import p455w0rd.danknull.integration.TOP;
 import p455w0rd.danknull.integration.WAILA;
 
@@ -30,10 +31,14 @@ public class ModIntegration {
 				ModLogger.info("Waila Integation: Disabled");
 			}
 		}
+		if (Mods.STG.isLoaded()) {
+			STG.registerFakePlayer();
+		}
 	}
 
 	public static enum Mods {
-			TOP("theoneprobe", "The One Probe"), WAILA("waila", "WAILA"), JEI("jei", "JEI");
+			TOP("theoneprobe", "The One Probe"), WAILA("waila", "WAILA"), JEI("jei", "JEI"),
+			STG("stg", "SwingThroughGrass");
 
 		private String modid, name;
 

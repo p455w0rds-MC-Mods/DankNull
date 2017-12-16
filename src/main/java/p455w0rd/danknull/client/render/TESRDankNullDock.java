@@ -43,15 +43,15 @@ public class TESRDankNullDock extends TileEntitySpecialRenderer<TileDankNullDock
 	public void renderItem(@Nonnull ItemStack stack, TransformType transformType) {
 		if (Block.getBlockFromItem(stack.getItem()) == ModBlocks.DANKNULL_DOCK) {
 			GuiUtils.bindTexture(DankTextures.DOCK_TEXTURE);
-			GlStateManager.enableLighting();
+			//GlStateManager.enableLighting();
 			GlStateManager.rotate(180, 0, 0, 180);
 			GlStateManager.translate(-0.5, -1.5, 0.5);
 			MODEL.render(0.0625F);
 			GlStateManager.translate(0.5, 1.5, -0.5);
-			GlStateManager.disableLighting();
-			GlStateManager.disableDepth();
-			GlStateManager.enableBlend();
-			GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
+			//GlStateManager.disableLighting();
+			//GlStateManager.disableDepth();
+			//GlStateManager.enableBlend();
+			//GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 			renderDankNull(stack);
 		}
 	}
@@ -73,7 +73,7 @@ public class TESRDankNullDock extends TileEntitySpecialRenderer<TileDankNullDock
 				GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
 				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 				Minecraft.getMinecraft().getItemRenderer().renderItem(EasyMappings.player(), dankNullStack, ItemCameraTransforms.TransformType.NONE);
-				GlStateManager.disableLighting();
+				//GlStateManager.disableLighting();
 				GlStateManager.disableBlend();
 				GlStateManager.disableDepth();
 
@@ -130,7 +130,7 @@ public class TESRDankNullDock extends TileEntitySpecialRenderer<TileDankNullDock
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(x + 0.5, y + 0.45, z + 0.5);
 			GlStateManager.scale(0.55D, 0.55D, 0.55D);
-			//DankNullRenderer.getInstance().renderItem(stack);
+			//DankNullRenderer.getInstance().renderItem(stack, TransformType.GUI);
 			Minecraft.getMinecraft().getItemRenderer().renderItem(EasyMappings.player(), stack, ItemCameraTransforms.TransformType.NONE);
 			GlStateManager.translate(-x, -y, -z);
 			GlStateManager.popMatrix();
@@ -159,7 +159,7 @@ public class TESRDankNullDock extends TileEntitySpecialRenderer<TileDankNullDock
 
 	@Override
 	public TextureAtlasSprite getParticleTexture() {
-		return Minecraft.getMinecraft().getTextureMapBlocks().getAtlasSprite(DankTextures.DOCK_SPRITE.toString());
+		return DankTextures.DANKNULL_DOCK_SPRITE;
 	}
 
 	@Override

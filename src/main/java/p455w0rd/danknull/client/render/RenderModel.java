@@ -53,7 +53,7 @@ public class RenderModel {
 			int k = color;
 			if ((flag) && (bakedquad.hasTintIndex())) {
 				ItemColors itemColors = Minecraft.getMinecraft().getItemColors();
-				k = itemColors.getColorFromItemstack(stack, bakedquad.getTintIndex());
+				k = itemColors.colorMultiplier(stack, bakedquad.getTintIndex());
 				if (EntityRenderer.anaglyphEnable) {
 					k = TextureUtil.anaglyphColor(k);
 				}

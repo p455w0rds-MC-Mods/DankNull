@@ -17,7 +17,6 @@ public class DankTextures implements IIconRegister {
 	private static final DankTextures INSTANCE = new DankTextures();
 
 	public static final ResourceLocation DOCK_TEXTURE = new ResourceLocation(ModGlobals.MODID, "textures/models/danknull_dock.png");
-	public static final ResourceLocation DOCK_SPRITE = new ResourceLocation(ModGlobals.MODID, "models/danknull_dock_sprite");
 
 	public static TextureAtlasSprite DANKNULL_PANEL_0;
 	public static TextureAtlasSprite DANKNULL_PANEL_1;
@@ -26,6 +25,8 @@ public class DankTextures implements IIconRegister {
 	public static TextureAtlasSprite DANKNULL_PANEL_4;
 	public static TextureAtlasSprite DANKNULL_PANEL_5;
 	public static TextureAtlasSprite[] DANKNULL_PANELS;
+
+	public static TextureAtlasSprite DANKNULL_DOCK_SPRITE;
 
 	public static DankTextures getInstance() {
 		return INSTANCE;
@@ -43,7 +44,7 @@ public class DankTextures implements IIconRegister {
 				DANKNULL_PANEL_4 = register(ITEMS + "dank_null_panel_4"),
 				DANKNULL_PANEL_5 = register(ITEMS + "dank_null_panel_5")
 		};
-
+		DANKNULL_DOCK_SPRITE = register(ModGlobals.MODID + ":models/danknull_dock_sprite");
 	}
 
 	private static TextureAtlasSprite register(String sprite) {

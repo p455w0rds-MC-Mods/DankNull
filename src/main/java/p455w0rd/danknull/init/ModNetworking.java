@@ -29,6 +29,8 @@ public class ModNetworking {
 	public static void init() {
 		//getInstance().registerMessage(PacketConfigSync.Handler.class, PacketConfigSync.class, nextID(), Side.CLIENT);
 		getInstance().registerMessage(PacketSetSelectedItem.Handler.class, PacketSetSelectedItem.class, nextID(), Side.SERVER);
+		//getInstance().registerMessage(PacketSetSlotExtractionMode.Handler.class, PacketSetSlotExtractionMode.class, nextID(), Side.SERVER);
 		getInstance().registerMessage(PacketSyncDankNull.Handler.class, PacketSyncDankNull.class, nextID(), Side.CLIENT);
+		getInstance().registerMessage(PacketSyncDankNull.Handler.class, PacketSyncDankNull.class, nextID(), Side.SERVER);
 	}
 }

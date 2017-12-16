@@ -23,7 +23,7 @@ public class ModBlocks {
 		ModItems.getList().add(new ItemBlock(DANKNULL_DOCK).setRegistryName(DANKNULL_DOCK.getRegistryName()));
 	}
 
-	public static void preInitModels() {
+	public static void registerModels() {
 		for (Block block : BLOCK_LIST) {
 			if (block instanceof IModelHolder) {
 				((IModelHolder) block).initModel();

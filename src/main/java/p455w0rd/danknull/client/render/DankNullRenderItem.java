@@ -12,7 +12,8 @@ import net.minecraft.client.renderer.color.ItemColors;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.item.ItemStack;
-import p455w0rd.danknull.container.ContainerDankNull;
+import p455w0rd.danknull.inventory.InventoryDankNull;
+import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rdslib.util.ReadableNumberConverter;
 
 /**
@@ -23,13 +24,11 @@ public class DankNullRenderItem extends RenderItem {
 
 	private boolean useLg = false;
 	ItemStack itemStack = ItemStack.EMPTY, dankNull = ItemStack.EMPTY;
-	ContainerDankNull container;
 
-	public DankNullRenderItem(TextureManager textureManager, ModelManager modelManager, ItemColors colors, @Nonnull ItemStack dankNull, boolean useLg, ContainerDankNull container) {
+	public DankNullRenderItem(TextureManager textureManager, ModelManager modelManager, ItemColors colors, @Nonnull ItemStack dankNull, boolean useLg) {
 		super(textureManager, modelManager, colors);
 		this.useLg = useLg;
 		this.dankNull = dankNull;
-		this.container = container;
 	}
 
 	@Override
@@ -60,14 +59,8 @@ public class DankNullRenderItem extends RenderItem {
 
 				GlStateManager.enableDepth();
 			}
-			int amount = 0;
-			amount = is.getCount();
-			if (container != null) {
-				//amount = container.getDankNullInventory().getSizeForSlot(DankNullUtils.getIndexForStack(container.getDankNullInventory(), is));
-			}
-			if (amount < 0 || amount > 127) {
-				//amount = (byte) amount & (0xff);
-			}
+			InventoryDankNull inv = DankNullUtils.getNewDankNullInventory(dankNull);
+			int amount = inv.getSizeForSlot(DankNullUtils.getIndexForStack(inv, is));
 			if (amount != 0) {
 				scaleFactor = 0.5F;
 				inverseScaleFactor = 1.0F / scaleFactor;

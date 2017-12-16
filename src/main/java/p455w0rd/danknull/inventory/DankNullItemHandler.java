@@ -15,7 +15,6 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandlerModifiable;
 import net.minecraftforge.items.ItemHandlerHelper;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
-import p455w0rd.danknull.blocks.tiles.TileDankNullDock.ExtractionMode;
 import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rdslib.util.ItemUtils;
 
@@ -122,13 +121,8 @@ public class DankNullItemHandler implements IItemHandlerModifiable, ICapabilityS
 	public ItemStack extractItem(int slot, int amount, boolean simulate) {
 		ItemStack ret = ItemStack.EMPTY;
 		if (getTile() != null) {
-			if (getTile().getExtractionMode() == ExtractionMode.NORMAL) {
+			if (ItemUtils.areItemsEqual(getStackInSlot(slot), getTile().getSelectedStack())) {
 				ret = doExtract(slot, amount, simulate);
-			}
-			else if (getTile().getExtractionMode() == ExtractionMode.SELECTED) {
-				if (ItemUtils.areItemsEqual(getStackInSlot(slot), getTile().getSelectedStack())) {
-					ret = doExtract(slot, amount, simulate);
-				}
 			}
 		}
 		else {

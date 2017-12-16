@@ -7,18 +7,20 @@ import com.google.common.collect.Maps;
 import com.mojang.authlib.GameProfile;
 
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.network.play.client.CPacketClientSettings;
 import net.minecraft.network.play.server.SPacketChangeGameState;
-import net.minecraft.network.play.server.SPacketCombatEvent;
+import net.minecraft.server.management.PlayerInteractionManager;
+import net.minecraft.stats.StatBase;
 import net.minecraft.util.DamageSource;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldServer;
-import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 
@@ -29,11 +31,11 @@ import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
  * @see <a href="https://github.com/CoFH/CoFHCore/blob/cebcf4af36f3edde04e13a06879b84cf539aa110/src/main/java/cofh/core/entity/CoFHFakePlayer.java">CoFHFakePlayer.java</a>
  *
  */
-public class EntityPFakePlayer extends FakePlayer {
+public class EntityPFakePlayer extends EntityPlayerMP {
 
 	public static Map<UUID, EntityPFakePlayer> REGISTRY = Maps.newHashMap();
 
-	public static EntityPFakePlayer getFakePlayerForParent(EntityPlayer player) {
+	public static EntityPFakePlayer getFakePlayerForParent(EntityPlayerMP player) {
 		if (!player.world.isRemote) {
 			if (!REGISTRY.containsKey(player.getUniqueID())) {
 				REGISTRY.put(player.getUniqueID(), new EntityPFakePlayer(player));
@@ -48,7 +50,7 @@ public class EntityPFakePlayer extends FakePlayer {
 	public EntityPlayer parent;
 
 	public EntityPFakePlayer(EntityPlayer parent) {
-		super((WorldServer) parent.world, new GameProfile(UUID.randomUUID(), "[/dank/null clone|" + parent.getDisplayNameString() + "]"));
+		super(FMLCommonHandler.instance().getMinecraftServerInstance(), (WorldServer) parent.world, new GameProfile(UUID.randomUUID(), "[/dank/null " + parent.getDisplayNameString() + " clone]"), new PlayerInteractionManager(parent.world));
 		this.parent = parent;
 		connection = new NetServerHandlerFake(FMLCommonHandler.instance().getMinecraftServerInstance(), this);
 		addedToChunk = false;
@@ -68,6 +70,7 @@ public class EntityPFakePlayer extends FakePlayer {
 
 	@Override
 	public void onDeath(DamageSource cause) {
+		/*
 		if (cause == DamageSource.OUT_OF_WORLD) {
 			connection.sendPacket(new SPacketCombatEvent(getCombatTracker(), SPacketCombatEvent.Event.ENTITY_DIED, false));
 			EntityLivingBase entitylivingbase = getAttackingEntity();
@@ -78,6 +81,7 @@ public class EntityPFakePlayer extends FakePlayer {
 			setFlag(0, false);
 			getCombatTracker().reset();
 		}
+		*/
 	}
 
 	@Override
@@ -86,7 +90,10 @@ public class EntityPFakePlayer extends FakePlayer {
 			return this;
 		}
 		ObfuscationReflectionHelper.setPrivateValue(EntityPlayerMP.class, this, true, "invulnerableDimensionChange", "field_184851_cj");
-
+		if (REGISTRY.get(parent.getEntityId()) != null) {
+			EntityPFakePlayer fakePlayer = REGISTRY.get(parent.getEntityId());
+			fakePlayer.getEntityWorld().provider.setDimension(dimensionIn);
+		}
 		if (dimension == 1 && dimensionIn == 1) {
 			world.removeEntity(this);
 
@@ -108,6 +115,52 @@ public class EntityPFakePlayer extends FakePlayer {
 	}
 
 	@Override
+	public Vec3d getPositionVector() {
+		return new Vec3d(0, 0, 0);
+	}
+
+	@Override
+	public boolean canUseCommand(int i, String s) {
+		return false;
+	}
+
+	@Override
+	public void sendStatusMessage(ITextComponent chatComponent, boolean actionBar) {
+	}
+
+	@Override
+	public void sendMessage(ITextComponent component) {
+	}
+
+	@Override
+	public void addStat(StatBase par1StatBase, int par2) {
+	}
+
+	@Override
+	public void openGui(Object mod, int modGuiId, World world, int x, int y, int z) {
+	}
+
+	@Override
+	public boolean isEntityInvulnerable(DamageSource source) {
+		return true;
+	}
+
+	@Override
+	public boolean canAttackPlayer(EntityPlayer player) {
+		return false;
+	}
+
+	@Override
+	public void onUpdate() {
+		return;
+	}
+
+	@Override
+	public void handleClientSettings(CPacketClientSettings pkt) {
+		return;
+	}
+
+	@Override
 	public double getDistanceSq(double x, double y, double z) {
 
 		return 0F;
@@ -122,7 +175,7 @@ public class EntityPFakePlayer extends FakePlayer {
 	@Override
 	public boolean isSneaking() {
 
-		return parent.isSneaking();
+		return parent != null && parent.isSneaking();
 	}
 
 	@Override

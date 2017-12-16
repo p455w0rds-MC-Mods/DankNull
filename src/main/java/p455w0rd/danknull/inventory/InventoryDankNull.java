@@ -32,6 +32,7 @@ public class InventoryDankNull implements IInventory, Iterable<ItemStack> {
 	private ItemStack dankNullStack = ItemStack.EMPTY;
 	private int numRows = 0;
 	private EntityPlayer player;
+	//private Map<ItemStack, SlotExtractionMode> extractionModes = Maps.<ItemStack, SlotExtractionMode>newHashMap();
 
 	public InventoryDankNull(ItemStack dankNull) {
 		dankNullStack = dankNull;
@@ -60,7 +61,7 @@ public class InventoryDankNull implements IInventory, Iterable<ItemStack> {
 		if (!getStackInSlot(index).isEmpty()) {
 			if (getStackInSlot(index).getCount() <= amount) {
 				ItemStack itemstack = getStackInSlot(index);
-				setInventorySlotContents(index, ItemStack.EMPTY);
+				STACKLIST.set(index, ItemStack.EMPTY);
 				setSizeForSlot(index, 0);
 				markDirty();
 				return itemstack;
@@ -68,7 +69,7 @@ public class InventoryDankNull implements IInventory, Iterable<ItemStack> {
 			ItemStack itemstack1 = getStackInSlot(index).splitStack(amount);
 			setSizeForSlot(index, getSizeForSlot(index) - amount);
 			if (getStackInSlot(index).getCount() == 0) {
-				setInventorySlotContents(index, ItemStack.EMPTY);
+				STACKLIST.set(index, ItemStack.EMPTY);
 			}
 			markDirty();
 			return itemstack1;
@@ -113,8 +114,9 @@ public class InventoryDankNull implements IInventory, Iterable<ItemStack> {
 	public ItemStack removeStackFromSlot(int index) {
 		ItemStack stack = getStackInSlot(index);
 		if (!stack.isEmpty()) {
-			setInventorySlotContents(index, ItemStack.EMPTY);
+			STACKLIST.set(index, ItemStack.EMPTY);
 		}
+		markDirty();
 		return stack;
 	}
 
@@ -162,7 +164,7 @@ public class InventoryDankNull implements IInventory, Iterable<ItemStack> {
 	}
 
 	public int getSizeForSlot(int index) {
-		return sizesArray[index];
+		return index >= 0 ? sizesArray[index] : 0;
 	}
 
 	public void setSizeForSlot(int index, int size) {
@@ -214,6 +216,7 @@ public class InventoryDankNull implements IInventory, Iterable<ItemStack> {
 			}
 		}
 		itemTC.setTag(getName(), nbtTL);
+		getDankNull().setTagCompound(itemTC);
 	}
 
 	public void readFromNBT(NBTTagCompound compound) {
@@ -227,7 +230,7 @@ public class InventoryDankNull implements IInventory, Iterable<ItemStack> {
 					stack.setCount(nbtTC.getInteger(TAG_COUNT));
 					setSizeForSlot(slot, nbtTC.getInteger(TAG_COUNT));
 				}
-				setInventorySlotContents(slot, stack);
+				STACKLIST.set(slot, stack);
 			}
 		}
 	}

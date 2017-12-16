@@ -32,7 +32,7 @@ public class ModItems {
 	}
 
 	@SideOnly(Side.CLIENT)
-	public static void preInitModels() {
+	public static void registerModels() {
 		ModLogger.info("Init adding item models");
 		for (Item item : ITEM_LIST) {
 			if (item != null && item instanceof IModelHolder) {
