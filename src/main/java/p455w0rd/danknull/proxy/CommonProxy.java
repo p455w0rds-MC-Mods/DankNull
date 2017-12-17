@@ -18,6 +18,7 @@ import p455w0rd.danknull.init.ModNetworking;
 public class CommonProxy {
 
 	public void preInit(FMLPreInitializationEvent e) {
+		ModEvents.init();
 		ModConfig.init();
 		ModBlocks.init();
 		ModItems.init();
@@ -26,7 +27,6 @@ public class CommonProxy {
 	}
 
 	public void init(FMLInitializationEvent e) {
-		ModEvents.init();
 		//ModRecipes.init();
 		ModIntegration.init();
 	}

@@ -59,7 +59,7 @@ public class ModEvents {
 
 	@SubscribeEvent
 	public void onRecipeRegistryReady(RegistryEvent.Register<IRecipe> event) {
-		event.getRegistry().registerAll((IRecipe[]) ModRecipes.getInstance().getRecipes().toArray());
+		event.getRegistry().registerAll(ModRecipes.getInstance().getArray());
 	}
 
 	@SideOnly(Side.CLIENT)

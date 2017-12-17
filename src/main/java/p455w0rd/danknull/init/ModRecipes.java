@@ -103,4 +103,12 @@ public class ModRecipes {
 		return CRAFTING_RECIPES;
 	}
 
+	public IRecipe[] getArray() {
+		IRecipe[] recipesArray = new IRecipe[getRecipes().size()];
+		for (int i = 0; i < getRecipes().size(); i++) {
+			recipesArray[i] = getRecipes().get(i);
+		}
+		return recipesArray;
+	}
+
 }

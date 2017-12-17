@@ -58,10 +58,6 @@ public class JEI implements IModPlugin {
 
 	public static IIngredientBlacklist blacklist;
 
-	@SuppressWarnings({
-			"rawtypes",
-			"unchecked"
-	})
 	@Override
 	public void register(@Nonnull IModRegistry registry) {
 		blacklist = registry.getJeiHelpers().getIngredientBlacklist();
