@@ -1,15 +1,19 @@
 package p455w0rd.danknull.init;
 
+import org.lwjgl.input.Mouse;
+
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
-import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.GuiScreenEvent.MouseInputEvent;
 import net.minecraftforge.client.event.ModelRegistryEvent;
 import net.minecraftforge.client.event.MouseEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent;
@@ -19,6 +23,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent;
 import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
@@ -26,10 +31,13 @@ import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
+import p455w0rd.danknull.client.gui.GuiDankNull;
 import p455w0rd.danknull.entity.EntityPFakePlayer;
 import p455w0rd.danknull.inventory.InventoryDankNull;
+import p455w0rd.danknull.network.PacketSyncDankNull;
 import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rdslib.util.EasyMappings;
+import p455w0rdslib.util.ItemUtils;
 
 /**
  * @author p455w0rd
@@ -125,7 +133,44 @@ public class ModEvents {
 	}
 
 	@SideOnly(Side.CLIENT)
-	@SubscribeEvent
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
+	public void onMouseEventCustom(MouseInputEvent event) {
+		//handle Ctrl/Alt+Clicking slots to cycle extraction mode
+		if (Mouse.getEventButtonState() && Mouse.getEventButton() == 0) {
+			Minecraft mc = Minecraft.getMinecraft();
+			if (mc.currentScreen instanceof GuiDankNull) {
+				GuiDankNull dankNullGui = (GuiDankNull) mc.currentScreen;
+				int width = dankNullGui.width;
+				int height = dankNullGui.height;
+				int mouseX = Mouse.getEventX() * width / mc.displayWidth;
+				int mouseY = height - Mouse.getEventY() * height / mc.displayHeight - 1;
+				Slot hoveredSlot = dankNullGui.getSlotAtPos(mouseX, mouseY);
+				if (hoveredSlot != null && hoveredSlot.getHasStack()) {
+					if (GuiScreen.isCtrlKeyDown()) {
+						DankNullUtils.cycleExtractionMode(dankNullGui.getDankNull(), hoveredSlot.getStack());
+						ModNetworking.getInstance().sendToServer(new PacketSyncDankNull(dankNullGui.getDankNullInventory().getDankNull()));
+						event.setCanceled(true);
+					}
+					else if (GuiScreen.isAltKeyDown()) {
+						if (!ItemUtils.areItemsEqual(DankNullUtils.getSelectedStack(dankNullGui.getDankNullInventory()), hoveredSlot.getStack())) {
+							int count = 0;
+							for (Slot slotHovered : dankNullGui.inventorySlots.inventorySlots) {
+								count++;
+								if (slotHovered.equals(hoveredSlot)) {
+									DankNullUtils.setSelectedStackIndex(dankNullGui.getDankNullInventory(), (count - 1) - 36);
+									event.setCanceled(true);
+									return;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	@SideOnly(Side.CLIENT)
+	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public void onMouseEvent(MouseEvent event) {
 		EntityPlayer player = EasyMappings.player();
 		ItemStack dankNullItem = ItemStack.EMPTY;
@@ -221,44 +266,37 @@ public class ModEvents {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void onPostRenderOverlay(RenderGameOverlayEvent.Post e) {
-		if (e.getType() == ElementType.SUBTITLES) {
+		if (e.getType() == ElementType.VIGNETTE) {
 			renderSelectedItem();
 		}
 	}
 
 	@SideOnly(Side.CLIENT)
 	public void renderSelectedItem() {
+		/*
 		Minecraft mc = Minecraft.getMinecraft();
 		mc.mcProfiler.startSection("dankNullSelectedItem");
 		ScaledResolution scaledRes = new ScaledResolution(mc);
 		if (remainingHighlightTicks > 0 && !highlightItemName.isEmpty()) {
-
 			int i = (scaledRes.getScaledWidth() - mc.fontRenderer.getStringWidth(highlightItemName)) / 2;
-			int j = scaledRes.getScaledHeight() - 47;
-
+			int j = scaledRes.getScaledHeight() - 75;
 			if (!mc.playerController.shouldDrawHUD()) {
-				j += 14;
+				j += 14 * 3;
 			}
-
 			int k = (int) (remainingHighlightTicks * 256.0F / 10.0F);
-
 			if (k > 255) {
 				k = 255;
 			}
-
 			if (k > 0) {
 				GlStateManager.pushMatrix();
-				//GlStateManager.enableBlend();
-				//GlStateManager.tryBlendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE, GlStateManager.DestFactor.ZERO);
-				GlStateManager.scale(1.0F, 1.0F, 1.0F);
-				//float i = (scaledRes.getScaledWidth() - (mc.fontRenderer.getStringWidth(highlightItemName) * 1.0F)) / 2;
 				mc.fontRenderer.drawStringWithShadow(highlightItemName, i, j, 16777215 + (k << 24));
-				//mc.fontRenderer.drawStringWithShadow(highlightItemName, i, j, 16777215);
-				//GlStateManager.disableBlend();
 				GlStateManager.popMatrix();
 			}
 		}
 		mc.mcProfiler.endSection();
+		*/
+		Minecraft mc = Minecraft.getMinecraft();
+		DankNullUtils.renderHUD(mc, new ScaledResolution(mc));
 	}
 
 }

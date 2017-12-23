@@ -9,6 +9,10 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.ScaledResolution;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
@@ -27,7 +31,6 @@ import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.common.crafting.CraftingHelper.ShapedPrimer;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.oredict.OreDictionary;
 import p455w0rd.danknull.DankNull;
@@ -41,7 +44,9 @@ import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rd.danknull.items.ItemDankNull;
 import p455w0rd.danknull.network.PacketSetSelectedItem;
 import p455w0rd.danknull.recipes.RecipeDankNullUpgrade;
+import p455w0rdslib.util.GuiUtils;
 import p455w0rdslib.util.ItemUtils;
+import p455w0rdslib.util.RenderUtils;
 
 /**
  * @author p455w0rd
@@ -292,7 +297,7 @@ public class DankNullUtils {
 			}
 			return numItems;
 		}
-	
+
 		public static NBTTagList getInventoryTagList(ItemStack itemStackIn) {
 			if (itemStackIn != null) {
 				if ((itemStackIn.hasTagCompound()) && (itemStackIn.getTagCompound().hasKey("danknull-inventory"))) {
@@ -301,8 +306,8 @@ public class DankNullUtils {
 			}
 			return null;
 		}
-	
-	
+
+
 			public static void decrStackSize(ItemStack dankNull, int index, int amount) {
 				if (dankNull == null) {
 					return;
@@ -585,7 +590,6 @@ public class DankNullUtils {
 	public static IRecipe addDankNullUpgradeRecipe(String recipeName, Object... params) {
 		ShapedPrimer primer = CraftingHelper.parseShaped(params);
 		IRecipe recipe = new RecipeDankNullUpgrade(primer.input).setRegistryName(new ResourceLocation(ModGlobals.MODID, recipeName));
-		ForgeRegistries.RECIPES.register(recipe);
 		return recipe;
 	}
 
@@ -670,6 +674,37 @@ public class DankNullUtils {
 				return;
 			}
 			DankNull.PROXY.getPlayer().sendMessage(new TextComponentString(getExtractionModeForStack(dankNull, stack).getMessage()));
+		}
+	}
+
+	public static void renderHUD(Minecraft mc, ScaledResolution scaledRes) {
+		if (!mc.playerController.shouldDrawHUD() && !mc.player.capabilities.isCreativeMode) {
+			return;
+		}
+		ItemStack currentItem = mc.player.inventory.getCurrentItem();
+		if (!currentItem.isEmpty() && currentItem.getItem() == ModItems.DANK_NULL) {
+			ItemStack selectedStack = DankNullUtils.getSelectedStack(DankNullUtils.getInventoryFromHeld(mc.player));
+			if (!selectedStack.isEmpty()) {
+				Minecraft.getMinecraft().renderEngine.bindTexture(new ResourceLocation(ModGlobals.MODID, "textures/gui/danknullscreen0.png"));
+				GuiUtils.drawTexturedModalRect(scaledRes.getScaledWidth() - 106, scaledRes.getScaledHeight() - 24, 0, 232, 106, 24, 0);
+				GlStateManager.pushMatrix();
+				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+				GlStateManager.scale(0.5F, 0.5F, 0.5F);
+				mc.fontRenderer.drawStringWithShadow(currentItem.getDisplayName(), ((scaledRes.getScaledWidth() * 2) - 212) + 55, (scaledRes.getScaledHeight() - 20) * 2, DankNullUtils.getColor(currentItem.getItemDamage(), false));
+				String selectedStackName = selectedStack.getDisplayName();
+				int itemNameWidth = mc.fontRenderer.getStringWidth(selectedStackName);
+				if (itemNameWidth >= 88) {
+					selectedStackName = selectedStackName.substring(0, 14).trim() + "...";
+				}
+				mc.fontRenderer.drawStringWithShadow("Selected Item: " + selectedStackName, ((scaledRes.getScaledWidth() * 2) - 212) + 45, (scaledRes.getScaledHeight() - 14) * 2, 16777215);
+				mc.fontRenderer.drawStringWithShadow("Count: " + selectedStack.getCount(), ((scaledRes.getScaledWidth() * 2) - 212) + 45, (scaledRes.getScaledHeight() - 9) * 2, 16777215);
+				RenderHelper.enableGUIStandardItemLighting();
+				GlStateManager.popMatrix();
+				GlStateManager.pushMatrix();
+				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+				RenderUtils.getRenderItem().renderItemAndEffectIntoGUI(currentItem, (scaledRes.getScaledWidth() - 106) + 5, scaledRes.getScaledHeight() - 20);
+				GlStateManager.popMatrix();
+			}
 		}
 	}
 

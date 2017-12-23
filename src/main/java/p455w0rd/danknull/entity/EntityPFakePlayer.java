@@ -89,7 +89,7 @@ public class EntityPFakePlayer extends EntityPlayerMP {
 		if (!net.minecraftforge.common.ForgeHooks.onTravelToDimension(this, dimensionIn)) {
 			return this;
 		}
-		ObfuscationReflectionHelper.setPrivateValue(EntityPlayerMP.class, this, true, "invulnerableDimensionChange", "field_184851_cj");
+		ObfuscationReflectionHelper.setPrivateValue(EntityPlayerMP.class, this, true, "invulnerableDimensionChange", "field_184851_cj", "cp");
 		if (REGISTRY.get(parent.getEntityId()) != null) {
 			EntityPFakePlayer fakePlayer = REGISTRY.get(parent.getEntityId());
 			fakePlayer.getEntityWorld().provider.setDimension(dimensionIn);

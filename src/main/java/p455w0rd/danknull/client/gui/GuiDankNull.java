@@ -14,7 +14,6 @@ import org.lwjgl.opengl.GL11;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -35,16 +34,13 @@ import p455w0rd.danknull.client.render.DankNullRenderItem;
 import p455w0rd.danknull.container.ContainerDankNull;
 import p455w0rd.danknull.init.ModGlobals;
 import p455w0rd.danknull.init.ModLogger;
-import p455w0rd.danknull.init.ModNetworking;
 import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rd.danknull.inventory.slot.SlotDankNull;
-import p455w0rd.danknull.network.PacketSyncDankNull;
 import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rd.danknull.util.DankNullUtils.SlotExtractionMode;
 import p455w0rdslib.client.gui.GuiModular;
 import p455w0rdslib.util.EasyMappings;
 import p455w0rdslib.util.GuiUtils;
-import p455w0rdslib.util.ItemUtils;
 import p455w0rdslib.util.MCPrivateUtils;
 import p455w0rdslib.util.MathUtils;
 import p455w0rdslib.util.RenderUtils;
@@ -156,7 +152,7 @@ public class GuiDankNull extends GuiModular {
 		drawGradientRect(x - 1, y + 16, x + 18, y + 17, selectedBoxColor, selectedBoxColor);
 	}
 
-	private InventoryDankNull getDankNullInventory() {
+	public InventoryDankNull getDankNullInventory() {
 		return DankNullUtils.getNewDankNullInventory(getDankNull());
 	}
 
@@ -307,7 +303,7 @@ public class GuiDankNull extends GuiModular {
 		int mouseX = Mouse.getEventX() * width / mc.displayWidth;
 		int mouseY = height - Mouse.getEventY() * height / mc.displayHeight - 1;
 		int button = Mouse.getEventButton();
-
+		/*
 		if (Mouse.getEventButtonState()) {
 			if (button == 0) {
 				Slot slot = getSlotAtPos(mouseX, mouseY);
@@ -334,6 +330,7 @@ public class GuiDankNull extends GuiModular {
 				}
 			}
 		}
+		*/
 		super.handleMouseInput();
 	}
 
