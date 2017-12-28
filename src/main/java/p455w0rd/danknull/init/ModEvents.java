@@ -25,7 +25,6 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent;
-import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
@@ -225,20 +224,23 @@ public class ModEvents {
 		}
 	}
 
+	/*
+	 * just leaving this here because it may be useful somewhere else down the line
+	 *
 	private int remainingHighlightTicks;
 	private String highlightItemName = "";
-
+	
 	public void setSelectedMessage(String msg) {
 		highlightItemName = msg;
 		remainingHighlightTicks = 160;
 	}
-
+	
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void onClientTick(PlayerTickEvent event) {
 		Minecraft mc = Minecraft.getMinecraft();
 		if (mc.player != null) {
-
+	
 			if (highlightItemName.isEmpty()) {
 				remainingHighlightTicks = 0;
 			}
@@ -249,41 +251,14 @@ public class ModEvents {
 			}
 		}
 	}
-
+	*/
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void onPostRenderOverlay(RenderGameOverlayEvent.Post e) {
 		if (e.getType() == ElementType.VIGNETTE) {
-			renderSelectedItem();
+			Minecraft mc = Minecraft.getMinecraft();
+			DankNullUtils.renderHUD(mc, new ScaledResolution(mc));
 		}
-	}
-
-	@SideOnly(Side.CLIENT)
-	public void renderSelectedItem() {
-		/*
-		Minecraft mc = Minecraft.getMinecraft();
-		mc.mcProfiler.startSection("dankNullSelectedItem");
-		ScaledResolution scaledRes = new ScaledResolution(mc);
-		if (remainingHighlightTicks > 0 && !highlightItemName.isEmpty()) {
-			int i = (scaledRes.getScaledWidth() - mc.fontRenderer.getStringWidth(highlightItemName)) / 2;
-			int j = scaledRes.getScaledHeight() - 75;
-			if (!mc.playerController.shouldDrawHUD()) {
-				j += 14 * 3;
-			}
-			int k = (int) (remainingHighlightTicks * 256.0F / 10.0F);
-			if (k > 255) {
-				k = 255;
-			}
-			if (k > 0) {
-				GlStateManager.pushMatrix();
-				mc.fontRenderer.drawStringWithShadow(highlightItemName, i, j, 16777215 + (k << 24));
-				GlStateManager.popMatrix();
-			}
-		}
-		mc.mcProfiler.endSection();
-		*/
-		Minecraft mc = Minecraft.getMinecraft();
-		DankNullUtils.renderHUD(mc, new ScaledResolution(mc));
 	}
 
 }

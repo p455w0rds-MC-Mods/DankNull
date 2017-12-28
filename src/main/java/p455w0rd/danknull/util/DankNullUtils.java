@@ -24,8 +24,6 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.TextComponentString;
-import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.common.crafting.CraftingHelper.ShapedPrimer;
@@ -33,8 +31,6 @@ import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.oredict.OreDictionary;
-import p455w0rd.danknull.DankNull;
-import p455w0rd.danknull.init.ModEvents;
 import p455w0rd.danknull.init.ModGlobals;
 import p455w0rd.danknull.init.ModItems;
 import p455w0rd.danknull.init.ModLogger;
@@ -235,23 +231,26 @@ public class DankNullUtils {
 				ModNetworking.INSTANCE.sendToServer(new PacketSetSelectedItem(newIndex));
 				setSelectedStackIndex(inventory, newIndex);
 			}
+			/*
 			if (player != null) {
 				displaySelectedMessage(inventory, player, newIndex);
 			}
+			*/
 		}
 	}
 
-	public static void displaySelectedMessage(InventoryDankNull inventory, EntityPlayer player, int index) {
-		if (!getItemByIndex(inventory, index).isEmpty()) {
-			reArrangeStacks(inventory);
+	/*
+		public static void displaySelectedMessage(InventoryDankNull inventory, EntityPlayer player, int index) {
+			if (!getItemByIndex(inventory, index).isEmpty()) {
+				reArrangeStacks(inventory);
+			}
+			String message = TextFormatting.YELLOW + "" + TextFormatting.ITALIC + "" + getItemByIndex(inventory, index).getDisplayName() + " Selected";
+			//player.sendMessage(new TextComponentString(message));
+			if (player.getEntityWorld().isRemote) {
+				ModEvents.getInstance().setSelectedMessage(message);
+			}
 		}
-		String message = TextFormatting.YELLOW + "" + TextFormatting.ITALIC + "" + getItemByIndex(inventory, index).getDisplayName() + " Selected";
-		//player.sendMessage(new TextComponentString(message));
-		if (player.getEntityWorld().isRemote) {
-			ModEvents.getInstance().setSelectedMessage(message);
-		}
-	}
-
+	*/
 	public static void setPreviousSelectedStack(InventoryDankNull inventory, EntityPlayer player) {
 		int currentIndex = getSelectedStackIndex(inventory);
 		int totalSize = getItemCount(inventory);
@@ -268,9 +267,11 @@ public class DankNullUtils {
 				ModNetworking.INSTANCE.sendToServer(new PacketSetSelectedItem(newIndex));
 				setSelectedStackIndex(inventory, newIndex);
 			}
+			/*
 			if (player != null) {
 				displaySelectedMessage(inventory, player, newIndex);
 			}
+			*/
 		}
 	}
 
@@ -297,7 +298,7 @@ public class DankNullUtils {
 			}
 			return numItems;
 		}
-
+	
 		public static NBTTagList getInventoryTagList(ItemStack itemStackIn) {
 			if (itemStackIn != null) {
 				if ((itemStackIn.hasTagCompound()) && (itemStackIn.getTagCompound().hasKey("danknull-inventory"))) {
@@ -306,8 +307,8 @@ public class DankNullUtils {
 			}
 			return null;
 		}
-
-
+	
+	
 			public static void decrStackSize(ItemStack dankNull, int index, int amount) {
 				if (dankNull == null) {
 					return;
@@ -673,7 +674,6 @@ public class DankNullUtils {
 				ModLogger.warn("no extraction mode found");
 				return;
 			}
-			DankNull.PROXY.getPlayer().sendMessage(new TextComponentString(getExtractionModeForStack(dankNull, stack).getMessage()));
 		}
 	}
 
