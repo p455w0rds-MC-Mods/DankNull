@@ -44,11 +44,13 @@ import p455w0rdslib.util.GuiUtils;
 import p455w0rdslib.util.MCPrivateUtils;
 import p455w0rdslib.util.MathUtils;
 import p455w0rdslib.util.RenderUtils;
+import yalter.mousetweaks.api.MouseTweaksIgnore;
 
 /**
  * @author p455w0rd
  *
  */
+@MouseTweaksIgnore
 public class GuiDankNull extends GuiModular {
 
 	private DankNullRenderItem pRenderItem;
@@ -68,6 +70,7 @@ public class GuiDankNull extends GuiModular {
 	protected int ySize = 140;
 	EntityPlayer player;
 	ItemStack dankNull;
+	TileDankNullDock dock;
 
 	public GuiDankNull(Container container, EntityPlayer player) {
 		this(container, player, null);
@@ -76,6 +79,9 @@ public class GuiDankNull extends GuiModular {
 	public GuiDankNull(Container container, EntityPlayer player, @Nullable TileDankNullDock te) {
 		super(container);
 		this.player = player;
+		if (te != null) {
+			dock = te;
+		}
 		dankNull = te == null ? DankNullUtils.getDankNull(player) : te.getStack();
 		pRenderItem = new DankNullRenderItem(Minecraft.getMinecraft().renderEngine, Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getModelManager(), Minecraft.getMinecraft().getItemColors(), dankNull, false);
 		numRows = dankNull.getItemDamage();
@@ -97,7 +103,14 @@ public class GuiDankNull extends GuiModular {
 		super.onGuiClosed();
 	}
 
+	public TileDankNullDock getDock() {
+		return dock;
+	}
+
 	public ItemStack getDankNull() {
+		if (dock != null) {
+			dankNull = dock.getStack();
+		}
 		return dankNull;
 	}
 
@@ -168,10 +181,10 @@ public class GuiDankNull extends GuiModular {
 		GlStateManager.disableLighting();
 		GlStateManager.disableDepth();
 		for (int i2 = 0; i2 < buttonList.size(); i2++) {
-			buttonList.get(i).drawButton(mc, mouseX, mouseY, 0);
+			buttonList.get(i2).drawButton(mc, mouseX, mouseY, 0);
 		}
 		for (int j2 = 0; j2 < labelList.size(); j2++) {
-			labelList.get(j).drawLabel(mc, mouseX, mouseY);
+			labelList.get(j2).drawLabel(mc, mouseX, mouseY);
 		}
 		RenderHelper.enableGUIStandardItemLighting();
 		GlStateManager.pushMatrix();

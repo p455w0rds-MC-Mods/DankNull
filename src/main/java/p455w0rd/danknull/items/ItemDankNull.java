@@ -122,62 +122,11 @@ public class ItemDankNull extends Item implements IModelHolder {
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand hand) {
 		ItemStack stack = playerIn.getHeldItem(hand);
-		if (playerIn.isSneaking()) {
-			/*
-			}
-			for (int i = 0; i < 5; ++i) {
-				RayTraceResult rayTrace = playerIn.rayTrace(i, 1.0F);
-				if (rayTrace != null) {
-					BlockPos pos = rayTrace.getBlockPos();
-					EnumFacing side = rayTrace.sideHit;
-					float hitX = (float) rayTrace.hitVec.xCoord;
-					float hitY = (float) rayTrace.hitVec.yCoord;
-					float hitZ = (float) rayTrace.hitVec.zCoord;
-					IBlockState state = worldIn.getBlockState(pos);
-					Block block = state.getBlock();
-					boolean flag = block.onBlockActivated(worldIn, pos, state, playerIn, hand, itemStackIn, side, hitX, hitY, hitZ);
-					if (rayTrace.getBlockPos() != null && (flag || block != Blocks.AIR || block instanceof ITileEntityProvider || (!flag && block.hasTileEntity(state)))) {
-					if (rayTrace.getBlockPos() != null && (block != Blocks.AIR || block instanceof ITileEntityProvider || block.hasTileEntity(state))) {
-						return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, itemStackIn);
-					}
-				}
-			}
-			*/
-			ModGuiHandler.launchGui(GUIType.DANKNULL, playerIn, worldIn, (int) playerIn.posX, (int) playerIn.posY, (int) playerIn.posZ);
-			return new ActionResult<ItemStack>(EnumActionResult.FAIL, stack);
-		}
-		else {
-			if (!worldIn.isRemote) {
-				InventoryDankNull inventory = new InventoryDankNull(stack);
-				ItemStack selectedStack = DankNullUtils.getSelectedStack(inventory);
-
-				if ((selectedStack.getItem() instanceof ItemSnowball) || (selectedStack.getItem() instanceof ItemEnderPearl) || (selectedStack.getItem() instanceof ItemEgg)) {
-					//TODO soon!
-					return new ActionResult<ItemStack>(EnumActionResult.FAIL, stack);
-				}
-				/*
-								EntityPFakePlayer fakePlayer = EntityPFakePlayer.getFakePlayerForParent((EntityPlayerMP) playerIn);
-								if (fakePlayer.interactionManager.getGameType() != GameType.NOT_SET) {
-									fakePlayer.interactionManager.setGameType(GameType.NOT_SET);
-								}
-								fakePlayer.setHeldItem(hand, selectedStack);
-								fakePlayer.setItemInHand(selectedStack);
-								fakePlayer.posX = playerIn.posX;
-								fakePlayer.posY = playerIn.posY;
-								fakePlayer.posZ = playerIn.posZ;
-								fakePlayer.setRotationYawHead(playerIn.rotationYawHead);
-								fakePlayer.rotationYaw = playerIn.rotationYaw;
-								fakePlayer.rotationPitch = playerIn.rotationPitch;
-								fakePlayer.eyeHeight = playerIn.eyeHeight;
-				
-								if (selectedStack.copy().getItem().onItemRightClick(worldIn, fakePlayer, hand).getType() == EnumActionResult.SUCCESS) {
-									DankNullUtils.decrSelectedStackSize(inventory, 0);
-								}
-								return new ActionResult<ItemStack>(EnumActionResult.FAIL, stack);
-								*/
-			}
-		}
-		return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
+		//if (!playerIn.isSneaking()) {
+		ModGuiHandler.launchGui(GUIType.DANKNULL, playerIn, worldIn, (int) playerIn.posX, (int) playerIn.posY, (int) playerIn.posZ);
+		return new ActionResult<ItemStack>(EnumActionResult.FAIL, stack);
+		//}
+		//return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
 	}
 
 	@Override
@@ -368,7 +317,7 @@ public class ItemDankNull extends Item implements IModelHolder {
 		/*
 		if (itemstack.getItem() instanceof ItemBlock && world.getBlockState(pos).getBlock().canPlaceBlockAt(world, pos)) {
 			Block block = Block.getBlockFromItem(itemstack.getItem());
-		
+
 			IBlockState state = block.getStateFromMeta(itemstack.getItemDamage());
 			block.onBlockAdded(world, pos, state);
 			//block.onBlockPlacedBy(world, pos, state, player, itemstack);
@@ -434,7 +383,7 @@ public class ItemDankNull extends Item implements IModelHolder {
 		BlockSlab doubleSlab = ReflectionHelper.getPrivateValue(ItemSlab.class, slab, "doubleSlab");
 		IBlockState iblockstate = worldIn.getBlockState(pos);
 		if (iblockstate.getBlock() == singleSlab) {
-			Comparable<?> comparable = slab.getBlock().getDefaultState().getValue(singleSlab.getVariantProperty());
+			Comparable<?> comparable = singleSlab.getTypeForItem(stack);//slab.getBlock().getDefaultState().getValue(singleSlab.getVariantProperty());
 			if (comparable == itemSlabType) {
 				IBlockState iblockstate1 = makeState(singleSlab.getVariantProperty(), comparable, slab);
 				AxisAlignedBB axisalignedbb = iblockstate1.getCollisionBoundingBox(worldIn, pos);

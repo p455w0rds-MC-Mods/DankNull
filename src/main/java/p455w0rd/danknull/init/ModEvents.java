@@ -6,7 +6,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
@@ -26,13 +25,11 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent;
-import net.minecraftforge.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent.PlayerTickEvent;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
 import p455w0rd.danknull.client.gui.GuiDankNull;
-import p455w0rd.danknull.entity.EntityPFakePlayer;
 import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rd.danknull.network.PacketSyncDankNull;
 import p455w0rd.danknull.util.DankNullUtils;
@@ -53,16 +50,6 @@ public class ModEvents {
 
 	public static ModEvents getInstance() {
 		return INSTANCE;
-	}
-
-	@SideOnly(Side.SERVER)
-	@SubscribeEvent
-	public void onPlayerLogin(PlayerLoggedInEvent e) {
-		//Map<String, Object> configs = new HashMap<String, Object>();
-		//ModNetworking.INSTANCE.sendTo(new PacketConfigSync(configs), (EntityPlayerMP) e.player);
-		if (e.player instanceof EntityPlayerMP) {
-			EntityPFakePlayer.getFakePlayerForParent((EntityPlayerMP) e.player);
-		}
 	}
 
 	@SubscribeEvent

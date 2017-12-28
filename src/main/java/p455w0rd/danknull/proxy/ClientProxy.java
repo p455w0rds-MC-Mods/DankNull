@@ -13,6 +13,7 @@ import p455w0rd.danknull.client.render.DankNullPanelRenderer;
 import p455w0rd.danknull.client.render.DankTextures;
 import p455w0rd.danknull.init.ModBlocks;
 import p455w0rd.danknull.init.ModCreativeTab;
+import p455w0rd.danknull.init.ModIntegration;
 import p455w0rd.danknull.init.ModItems;
 import p455w0rd.danknull.init.ModKeyBindings;
 import p455w0rd.danknull.init.ModRendering;
@@ -40,6 +41,7 @@ public class ClientProxy extends CommonProxy {
 	@Override
 	public void postInit(FMLPostInitializationEvent e) {
 		super.postInit(e);
+		ModIntegration.postInit();
 	}
 
 	@Override

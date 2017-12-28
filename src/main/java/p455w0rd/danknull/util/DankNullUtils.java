@@ -690,14 +690,15 @@ public class DankNullUtils {
 				GlStateManager.pushMatrix();
 				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 				GlStateManager.scale(0.5F, 0.5F, 0.5F);
-				mc.fontRenderer.drawStringWithShadow(currentItem.getDisplayName(), ((scaledRes.getScaledWidth() * 2) - 212) + 55, (scaledRes.getScaledHeight() - 20) * 2, DankNullUtils.getColor(currentItem.getItemDamage(), false));
+				mc.fontRenderer.drawStringWithShadow(currentItem.getDisplayName(), ((scaledRes.getScaledWidth() * 2) - 212) + 55, (scaledRes.getScaledHeight() - 24) * 2, DankNullUtils.getColor(currentItem.getItemDamage(), false));
 				String selectedStackName = selectedStack.getDisplayName();
 				int itemNameWidth = mc.fontRenderer.getStringWidth(selectedStackName);
 				if (itemNameWidth >= 88) {
 					selectedStackName = selectedStackName.substring(0, 14).trim() + "...";
 				}
-				mc.fontRenderer.drawStringWithShadow("Selected Item: " + selectedStackName, ((scaledRes.getScaledWidth() * 2) - 212) + 45, (scaledRes.getScaledHeight() - 14) * 2, 16777215);
-				mc.fontRenderer.drawStringWithShadow("Count: " + selectedStack.getCount(), ((scaledRes.getScaledWidth() * 2) - 212) + 45, (scaledRes.getScaledHeight() - 9) * 2, 16777215);
+				mc.fontRenderer.drawStringWithShadow("Selected Item: " + selectedStackName, ((scaledRes.getScaledWidth() * 2) - 212) + 45, (scaledRes.getScaledHeight() - 18) * 2, 16777215);
+				mc.fontRenderer.drawStringWithShadow("Count: " + selectedStack.getCount(), ((scaledRes.getScaledWidth() * 2) - 212) + 45, ((scaledRes.getScaledHeight() - 13) * 2) - 1, 16777215);
+				mc.fontRenderer.drawStringWithShadow(getExtractionModeForStack(currentItem, selectedStack).getTooltip(), ((scaledRes.getScaledWidth() * 2) - 212) + 45, ((scaledRes.getScaledHeight() - 8) * 2) - 1, 16777215);
 				RenderHelper.enableGUIStandardItemLighting();
 				GlStateManager.popMatrix();
 				GlStateManager.pushMatrix();

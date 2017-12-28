@@ -13,6 +13,7 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.util.Constants;
+import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
 import p455w0rd.danknull.items.ItemDankNull;
 import p455w0rd.danknull.util.DankNullUtils;
 
@@ -58,12 +59,33 @@ public class InventoryDankNull implements IInventory, Iterable<ItemStack> {
 
 	@Override
 	public ItemStack decrStackSize(int index, int amount) {
+		return decrStackSize(index, amount, null);
+	}
+
+	public ItemStack decrStackSize(int index, int amount, TileDankNullDock te) {
 		if (!getStackInSlot(index).isEmpty()) {
+			/*
+			if (te != null) {
+				int amountKept = DankNullUtils.getExtractionModeForStack(getDankNull(), getStackInSlot(index)).getNumberToKeep();
+				int amountAvailable = getStackInSlot(index).getCount();
+				int amountAllowed = amountAvailable < amountKept ? 0 : amountAvailable - amountKept;
+				if (amountAllowed <= 0) {
+					return getStackInSlot(index).copy();
+				}
+				amount = amountAllowed;
+			}
+			*/
 			if (getStackInSlot(index).getCount() <= amount) {
 				ItemStack itemstack = getStackInSlot(index);
 				STACKLIST.set(index, ItemStack.EMPTY);
 				setSizeForSlot(index, 0);
 				markDirty();
+				if (te != null) {
+					DankNullUtils.decrDankNullStackSize(this, itemstack, amount);
+					te.setStack(getDankNull());
+					te.setInventory(this);
+					te.markDirty();
+				}
 				return itemstack;
 			}
 			ItemStack itemstack1 = getStackInSlot(index).splitStack(amount);
@@ -72,6 +94,11 @@ public class InventoryDankNull implements IInventory, Iterable<ItemStack> {
 				STACKLIST.set(index, ItemStack.EMPTY);
 			}
 			markDirty();
+			if (te != null) {
+				te.setStack(getDankNull());
+				te.setInventory(this);
+				te.markDirty();
+			}
 			return itemstack1;
 		}
 		else {
@@ -81,8 +108,17 @@ public class InventoryDankNull implements IInventory, Iterable<ItemStack> {
 
 	@Override
 	public void setInventorySlotContents(int index, ItemStack itemStack) {
+		setInventorySlotContents(index, itemStack, null);
+	}
+
+	public void setInventorySlotContents(int index, ItemStack itemStack, TileDankNullDock te) {
 		STACKLIST.set(index, itemStack);
 		markDirty();
+		if (te != null) {
+			te.setStack(getDankNull());
+			te.setInventory(this);
+			te.markDirty();
+		}
 	}
 
 	@Override

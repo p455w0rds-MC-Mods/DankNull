@@ -28,7 +28,9 @@ import p455w0rd.danknull.api.IRedstoneControllable;
 import p455w0rd.danknull.api.ITOPBlockDisplayOverride;
 import p455w0rd.danknull.init.ModBlocks;
 import p455w0rd.danknull.init.ModGlobals;
+import p455w0rd.danknull.init.ModNetworking;
 import p455w0rd.danknull.inventory.InventoryDankNull;
+import p455w0rd.danknull.network.PacketSyncDankNull;
 import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rd.danknull.util.DankNullUtils.SlotExtractionMode;
 
@@ -103,7 +105,7 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 
 	public void setStack(@Nonnull ItemStack stack) {
 		dankNullStack = stack;
-		markDirty();
+		//markDirty();
 	}
 
 	public int slotCount() {
@@ -188,6 +190,9 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 			IBlockState state = getWorld().getBlockState(pos);
 			if (state != null) {
 				getWorld().notifyBlockUpdate(pos, state, state, 3);
+				if (!getStack().isEmpty()) {
+					ModNetworking.getInstance().sendToDimension(new PacketSyncDankNull(getStack(), getPos()), getWorld().provider.getDimension());
+				}
 			}
 		}
 	}
@@ -228,15 +233,22 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 
 	@Override
 	public ItemStack getStackInSlot(int index) {
-		return !getStack().isEmpty() ? getInventory().getStackInSlot(index) : ItemStack.EMPTY;
+		ItemStack stack = getInventory().getStackInSlot(index);
+		if (!stack.isEmpty()) {
+			int amountToBeKept = DankNullUtils.getExtractionModeForStack(getStack(), stack).getNumberToKeep();
+			if (stack.getCount() > amountToBeKept) {
+				ItemStack availableStack = stack.copy();
+				availableStack.setCount(stack.getCount() - amountToBeKept);
+				return availableStack;
+			}
+		}
+		return ItemStack.EMPTY;
 	}
 
 	@Override
 	public ItemStack decrStackSize(int index, int count) {
-		ItemStack ret = !getStack().isEmpty() ? getInventory().decrStackSize(index, count) : ItemStack.EMPTY;
-		//if (!getStackInSlot(index).isEmpty()) {
+		ItemStack ret = !getStack().isEmpty() ? getInventory().decrStackSize(index, count, this) : ItemStack.EMPTY;
 		DankNullUtils.reArrangeStacks(getInventory());
-		//}
 		return ret;
 	}
 
@@ -247,6 +259,10 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 
 	@Override
 	public void setInventorySlotContents(int index, ItemStack stack) {
+		if (!getStack().isEmpty()) {
+			getInventory().setInventorySlotContents(index, stack, this);
+			return;
+		}
 		getInventory().setInventorySlotContents(index, stack);
 	}
 
@@ -270,7 +286,7 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 
 	@Override
 	public boolean isItemValidForSlot(int index, ItemStack stack) {
-		return false;
+		return getInventory().isItemValidForSlot(index, stack);
 	}
 
 	@Override
@@ -321,14 +337,10 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 	@Override
 	public boolean canExtractItem(int index, ItemStack stack, EnumFacing direction) {
 		if (!getStack().isEmpty()) {
-			//if (getInventory().getStackInSlot(index).isItemEqual(stack)) {
+			ItemStack tmpStack = getStackInSlot(index);
 			if (DankNullUtils.getExtractionModeForStack(getStack(), stack) != SlotExtractionMode.KEEP_ALL) {
-				int numToKeep = DankNullUtils.getExtractionModeForStack(getStack(), stack).getNumberToKeep();
-				if (stack.getCount() > numToKeep) {
-					return true;
-				}
+				return true;
 			}
-			//}
 		}
 		return false;
 	}
