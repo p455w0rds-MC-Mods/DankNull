@@ -330,7 +330,7 @@ public class ItemDankNull extends Item implements IModelHolder {
 	}
 
 	public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, IBlockState newState, Block block) {
-		if (!world.setBlockState(pos, newState, 11)) {
+		if (!world.setBlockState(pos, newState, 3)) {
 			return false;
 		}
 
@@ -338,7 +338,7 @@ public class ItemDankNull extends Item implements IModelHolder {
 		if (state.getBlock() == block) {
 			ItemBlock.setTileEntityNBT(world, player, pos, stack);
 			block.onBlockPlacedBy(world, pos, state, player, stack);
-
+			world.notifyNeighborsOfStateChange(pos, block, true);
 			if (player instanceof EntityPlayerMP) {
 				CriteriaTriggers.PLACED_BLOCK.trigger((EntityPlayerMP) player, pos, stack);
 			}
@@ -353,7 +353,8 @@ public class ItemDankNull extends Item implements IModelHolder {
 		if (!itemstack.isEmpty() && player.canPlayerEdit(pos, facing, itemstack)) {
 			Comparable<?> comparable = singleSlab.getTypeForItem(itemstack);
 			IBlockState iblockstate = worldIn.getBlockState(pos);//block.getStateForPlacement(worldIn, pos, facing, hitX, hitY, hitZ, itemstack.getItemDamage(), player);
-			if (iblockstate.getBlock() == singleSlab) {
+			ItemStack blockAsStack = new ItemStack(Item.getItemFromBlock(iblockstate.getBlock()), 1, iblockstate.getBlock().getMetaFromState(iblockstate));
+			if (iblockstate.getBlock() == singleSlab && ((BlockSlab) iblockstate.getBlock()).getTypeForItem(blockAsStack) == comparable) {
 				IProperty<?> iproperty = singleSlab.getVariantProperty();
 				Comparable<?> comparable1 = iblockstate.getValue(iproperty);
 				BlockSlab.EnumBlockHalf blockslab$enumblockhalf = iblockstate.getValue(BlockSlab.HALF);
@@ -384,7 +385,8 @@ public class ItemDankNull extends Item implements IModelHolder {
 		IBlockState iblockstate = worldIn.getBlockState(pos);
 		if (iblockstate.getBlock() == singleSlab) {
 			Comparable<?> comparable = singleSlab.getTypeForItem(stack);//slab.getBlock().getDefaultState().getValue(singleSlab.getVariantProperty());
-			if (comparable == itemSlabType) {
+			ItemStack blockAsStack = new ItemStack(Item.getItemFromBlock(iblockstate.getBlock()), 1, iblockstate.getBlock().getMetaFromState(iblockstate));
+			if (comparable == itemSlabType && ((BlockSlab) iblockstate.getBlock()).getTypeForItem(blockAsStack) == comparable) {
 				IBlockState iblockstate1 = makeState(singleSlab.getVariantProperty(), comparable, slab);
 				AxisAlignedBB axisalignedbb = iblockstate1.getCollisionBoundingBox(worldIn, pos);
 				if (axisalignedbb != Block.NULL_AABB && worldIn.checkNoEntityCollision(axisalignedbb.offset(pos)) && worldIn.setBlockState(pos, iblockstate1, 11)) {
