@@ -16,7 +16,7 @@ public class ModGlobals {
 	public static final String CLIENT_PROXY = "p455w0rd.danknull.proxy.ClientProxy";
 	public static final String GUI_FACTORY = "p455w0rd.danknull.init.ModGuiFactory";
 	public static final String CONFIG_FILE = "config/DankNull.cfg";
-	public static final String DEPENDANCIES = "required-after:" + MODID_PWLIB + "@[2.0.22,);" + CodeChickenLib.MOD_VERSION_DEP + "after:stg;after:jei;after:waila;after:theoneprobe";
+	public static final String DEPENDANCIES = "required-after:" + MODID_PWLIB + "@[2.0.22,);" + CodeChickenLib.MOD_VERSION_DEP + "after:stg;after:jei;after:waila;after:theoneprobe;after:nei";
 
 	public static boolean GUI_DANKNULL_ISOPEN = false;
 	public static float TIME = 0.0F;
@@ -28,6 +28,7 @@ public class ModGlobals {
 		private static final EnumRarity GOLD = EnumHelper.addRarity("dn:gold", TextFormatting.YELLOW, "Gold");
 		private static final EnumRarity DIAMOND = EnumHelper.addRarity("dn:diamond", TextFormatting.AQUA, "Diamond");
 		private static final EnumRarity EMERALD = EnumHelper.addRarity("dn:emerald", TextFormatting.GREEN, "Emerald");
+		private static final EnumRarity CREATIVE = EnumHelper.addRarity("dn:creative", TextFormatting.LIGHT_PURPLE, "Creative");
 
 		private static final EnumRarity[] ARRAY = new EnumRarity[] {
 				REDSTONE,
@@ -35,7 +36,8 @@ public class ModGlobals {
 				IRON,
 				GOLD,
 				DIAMOND,
-				EMERALD
+				EMERALD,
+				CREATIVE
 		};
 
 		public static EnumRarity getRarityFromMeta(int meta) {

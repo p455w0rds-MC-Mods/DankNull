@@ -44,6 +44,9 @@ public class ContainerDankNull extends Container {
 		ItemStack dankNull = inv.getDankNull();
 		int lockedSlot = -1;
 		int numRows = dankNull.getItemDamage() + 1;
+		if (DankNullUtils.isCreativeDankNull(dankNull)) {
+			numRows--;
+		}
 		for (int i = 0; i < playerInv.getSizeInventory(); i++) {
 			ItemStack currStack = playerInv.getStackInSlot(i);
 			if (!currStack.isEmpty() && currStack == dankNull) {
@@ -168,14 +171,14 @@ public class ContainerDankNull extends Container {
 				ItemStack newStack = clickSlot.getStack().copy();
 				int realMaxStackSize = newStack.getMaxStackSize();
 				int currentStackSize = newStack.getCount();
-				if (currentStackSize > realMaxStackSize) {
+				if (currentStackSize > realMaxStackSize && !DankNullUtils.isCreativeDankNull(getDankNull())) {
 					newStack.setCount(realMaxStackSize);
 					if (moveStackToInventory(newStack)) {
 						DankNullUtils.decrDankNullStackSize(getDankNullInventory(), clickSlot.getStack(), realMaxStackSize);
 					}
 				}
 				else {
-					newStack.setCount(currentStackSize);
+					newStack.setCount(DankNullUtils.isCreativeDankNull(getDankNull()) ? newStack.getMaxStackSize() : currentStackSize);
 					if (moveStackToInventory(newStack)) {
 						DankNullUtils.decrDankNullStackSize(getDankNullInventory(), clickSlot.getStack(), currentStackSize);
 						clickSlot.putStack(ItemStack.EMPTY);

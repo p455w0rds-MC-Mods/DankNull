@@ -85,9 +85,12 @@ public class GuiDankNull extends GuiModular {
 		dankNull = te == null ? DankNullUtils.getDankNull(player) : te.getStack();
 		pRenderItem = new DankNullRenderItem(Minecraft.getMinecraft().renderEngine, Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getModelManager(), Minecraft.getMinecraft().getItemColors(), dankNull, false);
 		numRows = dankNull.getItemDamage();
+		if (DankNullUtils.isCreativeDankNull(dankNull)) {
+			numRows--;
+		}
 		setWidth(210);
 		setHeight(140 + (numRows * 20 + numRows + 1));
-		setBackgroundTexture(new ResourceLocation(ModGlobals.MODID, "textures/gui/danknullscreen" + numRows + ".png"));
+		setBackgroundTexture(new ResourceLocation(ModGlobals.MODID, "textures/gui/danknullscreen" + (numRows + (DankNullUtils.isCreativeDankNull(dankNull) ? 1 : 0)) + ".png"));
 	}
 
 	@Override
@@ -150,7 +153,7 @@ public class GuiDankNull extends GuiModular {
 	}
 
 	public void drawSelectionBox(int x) {
-		int selectedBoxColor = -1140916224;
+		int selectedBoxColor = getDankNull().getItemDamage() == 0 ? 0xFFFFFF00 : -1140916224;
 		drawGradientRect(x - 75, 4, x - 66, 5, selectedBoxColor, selectedBoxColor);
 		drawGradientRect(x - 75, 4, x - 74, 14, selectedBoxColor, selectedBoxColor);
 		drawGradientRect(x - 75, 13, x - 66, 14, selectedBoxColor, selectedBoxColor);
@@ -158,11 +161,11 @@ public class GuiDankNull extends GuiModular {
 	}
 
 	public void drawSelectionBox(int x, int y) {
-		int selectedBoxColor = -1140916224;
+		int selectedBoxColor = getDankNull().getItemDamage() == 0 ? 0xFFFFFF00 : -1140916224;
 		drawGradientRect(x - 1, y - 1, x + 16, y, selectedBoxColor, selectedBoxColor);
 		drawGradientRect(x - 1, y - 1, x, y + 17, selectedBoxColor, selectedBoxColor);
 		drawGradientRect(x + 16, y - 1, x + 17, y + 17, selectedBoxColor, selectedBoxColor);
-		drawGradientRect(x - 1, y + 16, x + 18, y + 17, selectedBoxColor, selectedBoxColor);
+		drawGradientRect(x - 1, y + 16, x + 17, y + 17, selectedBoxColor, selectedBoxColor);
 	}
 
 	public InventoryDankNull getDankNullInventory() {

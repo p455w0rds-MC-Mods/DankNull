@@ -38,6 +38,9 @@ public class InventoryDankNull implements IInventory, Iterable<ItemStack> {
 	public InventoryDankNull(ItemStack dankNull) {
 		dankNullStack = dankNull;
 		numRows = (dankNullStack.getItemDamage() + 1);
+		if (DankNullUtils.isCreativeDankNull(dankNull)) {
+			numRows--;
+		}
 		size = (numRows * 9);
 		STACKLIST = NonNullList.<ItemStack>withSize(size, ItemStack.EMPTY);
 		sizesArray = new int[size];
@@ -54,6 +57,11 @@ public class InventoryDankNull implements IInventory, Iterable<ItemStack> {
 
 	@Override
 	public ItemStack getStackInSlot(int index) {
+		if (DankNullUtils.isCreativeDankNull(getDankNull()) && index < getSizeInventory() && !STACKLIST.get(index).isEmpty()) {
+			ItemStack tmp = STACKLIST.get(index).copy();
+			tmp.setCount(Integer.MAX_VALUE);
+			return tmp;
+		}
 		return index < getSizeInventory() ? STACKLIST.get(index) : ItemStack.EMPTY;
 	}
 
@@ -64,6 +72,11 @@ public class InventoryDankNull implements IInventory, Iterable<ItemStack> {
 
 	public ItemStack decrStackSize(int index, int amount, TileDankNullDock te) {
 		if (!getStackInSlot(index).isEmpty()) {
+			if (DankNullUtils.isCreativeDankNull(getDankNull())) {
+				ItemStack tmp = getStackInSlot(index).copy();
+				tmp.setCount(Integer.MAX_VALUE);
+				return tmp;
+			}
 			/*
 			if (te != null) {
 				int amountKept = DankNullUtils.getExtractionModeForStack(getDankNull(), getStackInSlot(index)).getNumberToKeep();
@@ -200,10 +213,13 @@ public class InventoryDankNull implements IInventory, Iterable<ItemStack> {
 	}
 
 	public int getSizeForSlot(int index) {
-		return index >= 0 ? sizesArray[index] : 0;
+		return index >= 0 ? DankNullUtils.isCreativeDankNull(getDankNull()) ? Integer.MAX_VALUE : sizesArray[index] : 0;
 	}
 
 	public void setSizeForSlot(int index, int size) {
+		if (DankNullUtils.isCreativeDankNull(getDankNull())) {
+			size = Integer.MAX_VALUE;
+		}
 		sizesArray[index] = size < 0 ? 0 : size;
 	}
 

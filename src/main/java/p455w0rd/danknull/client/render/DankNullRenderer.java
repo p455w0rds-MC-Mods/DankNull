@@ -87,8 +87,8 @@ public class DankNullRenderer implements IItemRenderer {
 			ItemStack containedStack = DankNullUtils.getItemByIndex(inventory, index);
 			//ItemStack containedStack = DankNullUtils.getSelectedStack(inventory);
 			int modelDamage = item.getItemDamage();
-			if (modelDamage > 5) {
-				modelDamage -= 6;
+			if (modelDamage > 6) {
+				modelDamage -= 7;
 			}
 			IBakedModel holderModel = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel(new ItemStack(ModItems.DANK_NULL_HOLDER, 1, modelDamage));
 			if (!containedStack.isEmpty()) {

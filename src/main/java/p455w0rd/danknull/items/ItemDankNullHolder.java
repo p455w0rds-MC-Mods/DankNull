@@ -31,7 +31,7 @@ public class ItemDankNullHolder extends Item implements IModelHolder {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void initModel() {
-		for (int i = 0; i < 6; i++) {
+		for (int i = 0; i <= 6; i++) {
 			ModelLoader.setCustomModelResourceLocation(this, i, new ModelResourceLocation(new ResourceLocation(ModGlobals.MODID, "dank_null_") + "" + i, "inventory"));
 		}
 	}
@@ -40,7 +40,7 @@ public class ItemDankNullHolder extends Item implements IModelHolder {
 	@SideOnly(Side.CLIENT)
 	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> subItems) {
 		if (isInCreativeTab(tab)) {
-			for (int i = 0; i < 6; i++) {
+			for (int i = 0; i <= 6; i++) {
 				subItems.add(new ItemStack(this, 1, i));
 			}
 		}

@@ -156,19 +156,21 @@ public class PacketSyncDankNull implements IMessage {
 			InventoryDankNull inv = null;
 			if (player.openContainer instanceof ContainerDankNull) {
 				ContainerDankNull container = (ContainerDankNull) player.openContainer;
-				inv = DankNullUtils.getNewDankNullInventory(container.getDankNull());
-				//inv = container.getDankNullInventory();
-				for (int i = 0; i < message.itemStacks.size(); i++) {
-					message.itemStacks.get(i).setCount(message.stackSizes[i]);
-					//inv.setInventorySlotContents(i, message.itemStacks.get(i));
-					container.putStackInSlot(i + 36, message.itemStacks.get(i));
+				ItemStack dankNull = container.getDankNull();
+				if (!dankNull.isEmpty()) {
+					inv = DankNullUtils.getNewDankNullInventory(dankNull);
+					//inv = container.getDankNullInventory();
+					for (int i = 0; i < message.itemStacks.size(); i++) {
+						message.itemStacks.get(i).setCount(DankNullUtils.isCreativeDankNull(dankNull) ? Integer.MAX_VALUE : message.stackSizes[i]);
+						//inv.setInventorySlotContents(i, message.itemStacks.get(i));
+						container.putStackInSlot(i + 36, message.itemStacks.get(i));
+					}
+					if (!message.extractionModes.isEmpty()) {
+						DankNullUtils.setExtractionModes(inv.getDankNull(), message.extractionModes);
+					}
+					container.setDankNullInventory(inv);
+					//container.detectAndSendChanges();
 				}
-				if (!message.extractionModes.isEmpty()) {
-					DankNullUtils.setExtractionModes(inv.getDankNull(), message.extractionModes);
-				}
-				container.setDankNullInventory(inv);
-				//container.detectAndSendChanges();
-
 			}
 			if (message.pos != null) {
 				World world = player.getEntityWorld();
@@ -181,16 +183,18 @@ public class PacketSyncDankNull implements IMessage {
 					else {
 						inv = dankDock.getInventory();
 					}
-					dankDock.setStack(inv.getDankNull());
-					for (int i = 0; i < message.itemStacks.size(); i++) {
-						message.itemStacks.get(i).setCount(message.stackSizes[i]);
-						inv.setInventorySlotContents(i, message.itemStacks.get(i));
+					ItemStack dankNull = inv.getDankNull();
+					if (!dankNull.isEmpty()) {
+						dankDock.setStack(dankNull);
+						for (int i = 0; i < message.itemStacks.size(); i++) {
+							message.itemStacks.get(i).setCount(DankNullUtils.isCreativeDankNull(dankNull) ? Integer.MAX_VALUE : message.stackSizes[i]);
+							inv.setInventorySlotContents(i, message.itemStacks.get(i));
+						}
+						if (!message.extractionModes.isEmpty()) {
+							DankNullUtils.setExtractionModes(dankNull, message.extractionModes);
+						}
+						dankDock.setInventory(inv);
 					}
-					if (!message.extractionModes.isEmpty()) {
-						DankNullUtils.setExtractionModes(inv.getDankNull(), message.extractionModes);
-					}
-					dankDock.setInventory(inv);
-
 				}
 			}
 			if (side == Side.CLIENT && inv != null) {
@@ -200,8 +204,6 @@ public class PacketSyncDankNull implements IMessage {
 				}
 			}
 			if (side == Side.SERVER) {
-				//ModNetworking.getInstance().sendTo(message, (EntityPlayerMP) player);
-
 				player.openContainer.detectAndSendChanges();
 			}
 		}

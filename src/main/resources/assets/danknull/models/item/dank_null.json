@@ -4,7 +4,7 @@
     "textures": {
         "particle": "danknull:items/danknull/frame",
         "0": "danknull:items/danknull/frame",
-        "1": "danknull:items/danknull/glass_redstone"
+        "1": "danknull:items/danknull/glass_creative"
     },
     "elements": [
         {

@@ -45,7 +45,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fluids.UniversalBucket;
-import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.ReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
@@ -109,7 +108,7 @@ public class ItemDankNull extends Item implements IModelHolder {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void initModel() {
-		for (int i = 0; i < 6; i++) {
+		for (int i = 0; i <= 6; i++) {
 			PModelRegistryHelper.registerMetaRenderer(this, DankNullRenderer.getInstance(), i);
 		}
 	}
@@ -122,11 +121,11 @@ public class ItemDankNull extends Item implements IModelHolder {
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand hand) {
 		ItemStack stack = playerIn.getHeldItem(hand);
-		//if (!playerIn.isSneaking()) {
-		ModGuiHandler.launchGui(GUIType.DANKNULL, playerIn, worldIn, (int) playerIn.posX, (int) playerIn.posY, (int) playerIn.posZ);
+		if (playerIn.isSneaking()) {
+			ModGuiHandler.launchGui(GUIType.DANKNULL, playerIn, worldIn, (int) playerIn.posX, (int) playerIn.posY, (int) playerIn.posZ);
+			return new ActionResult<ItemStack>(EnumActionResult.FAIL, stack);
+		}
 		return new ActionResult<ItemStack>(EnumActionResult.FAIL, stack);
-		//}
-		//return new ActionResult<ItemStack>(EnumActionResult.SUCCESS, stack);
 	}
 
 	@Override
@@ -137,6 +136,7 @@ public class ItemDankNull extends Item implements IModelHolder {
 				subItems.add(new ItemStack(this, 1, i));
 			}
 		}
+		subItems.add(new ItemStack(this, 1, 6));
 	}
 
 	@Override
@@ -183,13 +183,6 @@ public class ItemDankNull extends Item implements IModelHolder {
 		if (world.isRemote) {
 			return EnumActionResult.SUCCESS;
 		}
-		/*
-		RayTraceResult ray = rayTrace(player, 100, 1.0F);
-		Block hitBlock = null;
-		if (ray != null) {
-			hitBlock = worldIn.getBlockState(ray.getBlockPos()).getBlock();
-		}
-		*/
 		Block blockUnderPlayer = getBlockUnderPlayer(player);
 		if (player.isSneaking() && blockUnderPlayer != Blocks.AIR) {
 			ModGuiHandler.launchGui(GUIType.DANKNULL, player, world, (int) player.posX, (int) player.posY, (int) player.posZ);
@@ -213,15 +206,11 @@ public class ItemDankNull extends Item implements IModelHolder {
 			pos = posIn.offset(facing);
 		}
 		if ((DankNullUtils.getSelectedStackSize(inventory) > 0) && (player.canPlayerEdit(posIn, facing, stack))) {
-			//pos = posIn.offset(facing);
-			//EnumActionResult result = selectedStack.copy().onItemUse(player, worldIn, pos.up(), hand, facing, hitX, hitY, hitZ);
 			Block selectedBlock = Block.getBlockFromItem(selectedStack.getItem());
 			int meta = selectedStack.getMetadata();
 			if (selectedBlock instanceof BlockStairs || selectedBlock instanceof BlockBanner) {
 				IBlockState newState = selectedBlock.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, meta, player);
 				EnumActionResult result = DankNullUtils.placeBlock(newState, world, pos);
-				//EnumActionResult result = EnumActionResult.SUCCESS;
-				//selectedBlock.onBlockPlacedBy(worldIn, pos, newState, player, selectedStack);
 				if (world.getTileEntity(pos) != null && world.getTileEntity(pos) instanceof TileEntityBanner) {
 					if (facing == EnumFacing.UP) {
 						int i = MathHelper.floor((player.rotationYaw + 180.0F) * 16.0F / 360.0F + 0.5D) & 15;
@@ -239,11 +228,6 @@ public class ItemDankNull extends Item implements IModelHolder {
 				if (!player.capabilities.isCreativeMode) {
 					DankNullUtils.decrSelectedStackSize(inventory, 1);
 				}
-				if (FMLCommonHandler.instance().getSide().isServer()) {
-					//for (EntityPlayerMP player : FMLCommonHandler.instance().getMinecraftServerInstance().getPlayerList().getPlayers()) {
-					//ModNetworking.INSTANCE.sendTo(new PacketSyncDankNull(DankNullUtils.getInventory(stack).serializeNBT()), player);
-					//}
-				}
 				return EnumActionResult.PASS;
 			}
 			else if (selectedStack.getItem() instanceof ItemBucket || selectedStack.getItem() instanceof UniversalBucket) {
@@ -252,29 +236,9 @@ public class ItemDankNull extends Item implements IModelHolder {
 			else if ((selectedStack.getItem() instanceof ItemSnowball) || (selectedStack.getItem() instanceof ItemEnderPearl) || (selectedStack.getItem() instanceof ItemEgg)) {
 				//TODO soon!
 			}
-			else {/*
-					EntityPFakePlayer fakePlayer = EntityPFakePlayer.getFakePlayerForParent((EntityPlayerMP) player);
-					if (fakePlayer.interactionManager.getGameType() != GameType.NOT_SET) {
-					fakePlayer.interactionManager.setGameType(GameType.NOT_SET);
-					}
-					fakePlayer.setHeldItem(hand, selectedStack.copy());
-					fakePlayer.setItemInHand(selectedStack.copy());
-					fakePlayer.posX = player.posX;
-					fakePlayer.posY = player.posY;
-					fakePlayer.posZ = player.posZ;
-					fakePlayer.setRotationYawHead(player.rotationYawHead);
-					fakePlayer.rotationYaw = player.rotationYaw;
-					fakePlayer.rotationPitch = player.rotationPitch;
-					fakePlayer.eyeHeight = player.eyeHeight;
-					*/
-				//EnumActionResult result = selectedStack.copy().onItemUse(fakePlayer, worldIn, posIn, hand, facing, hitX, hitY, hitZ);
-				//EnumActionResult result = selectedStack.copy().onItemUse(player, worldIn, posIn, hand, facing, hitX, hitY, hitZ);
-				//if (result == EnumActionResult.PASS) {
-				//result=selectedStack.copy().getItem().onItemRightClick(worldIn, fakePlayer, hand).getType();
+			else {
 				EnumActionResult result = placeItemIntoWorld(selectedStack.copy(), player, world, pos, facing, hitX, hitY, hitZ, hand);
-				//selectedStack.copy().getItem().onItemRightClick(worldIn, player, hand).getType();
-				//}
-				/*else*/ if (result == EnumActionResult.SUCCESS && !player.capabilities.isCreativeMode) {
+				if (result == EnumActionResult.SUCCESS && !player.capabilities.isCreativeMode && !DankNullUtils.isCreativeDankNull(stack)) {
 					DankNullUtils.decrSelectedStackSize(inventory, 1);
 				}
 				return EnumActionResult.PASS;
@@ -308,25 +272,11 @@ public class ItemDankNull extends Item implements IModelHolder {
 					iblockstate1 = world.getBlockState(pos);
 					SoundType soundtype = iblockstate1.getBlock().getSoundType(iblockstate1, world, pos, player);
 					world.playSound(player, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
-					//itemstack.shrink(1);
 				}
 				return EnumActionResult.SUCCESS;
 			}
 		}
 		return EnumActionResult.FAIL;
-		/*
-		if (itemstack.getItem() instanceof ItemBlock && world.getBlockState(pos).getBlock().canPlaceBlockAt(world, pos)) {
-			Block block = Block.getBlockFromItem(itemstack.getItem());
-
-			IBlockState state = block.getStateFromMeta(itemstack.getItemDamage());
-			block.onBlockAdded(world, pos, state);
-			//block.onBlockPlacedBy(world, pos, state, player, itemstack);
-			//world.setBlockState(pos, state, 3);
-			player.addStat(StatList.getObjectUseStats(itemstack.getItem()));
-			return EnumActionResult.SUCCESS;
-		}
-		return EnumActionResult.PASS;
-		*/
 	}
 
 	public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, IBlockState newState, Block block) {
@@ -343,7 +293,6 @@ public class ItemDankNull extends Item implements IModelHolder {
 				CriteriaTriggers.PLACED_BLOCK.trigger((EntityPlayerMP) player, pos, stack);
 			}
 		}
-
 		return true;
 	}
 
@@ -361,7 +310,7 @@ public class ItemDankNull extends Item implements IModelHolder {
 				if ((facing == EnumFacing.UP && blockslab$enumblockhalf == BlockSlab.EnumBlockHalf.BOTTOM || facing == EnumFacing.DOWN && blockslab$enumblockhalf == BlockSlab.EnumBlockHalf.TOP) && comparable1 == comparable) {
 					IBlockState iblockstate1 = makeState(iproperty, comparable1, slab);
 					AxisAlignedBB axisalignedbb = iblockstate1.getCollisionBoundingBox(worldIn, pos);
-					if (axisalignedbb != Block.NULL_AABB && worldIn.checkNoEntityCollision(axisalignedbb.offset(pos)) && worldIn.setBlockState(pos, iblockstate1, 11)) {
+					if (axisalignedbb != Block.NULL_AABB && worldIn.checkNoEntityCollision(axisalignedbb.offset(pos)) && worldIn.setBlockState(pos, iblockstate1, 3)) {
 						SoundType soundtype = doubleSlab.getSoundType(iblockstate1, worldIn, pos, player);
 						worldIn.playSound(player, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
 						if (player instanceof EntityPlayerMP) {
@@ -374,9 +323,9 @@ public class ItemDankNull extends Item implements IModelHolder {
 			}
 			return tryPlace(player, itemstack, worldIn, pos.offset(facing), comparable, slab) ? EnumActionResult.SUCCESS : placeItemIntoWorld(itemstack, player, worldIn, pos, facing, hitX, hitY, hitZ, hand, true);
 		}
-		else {
-			return EnumActionResult.FAIL;
-		}
+		//else {
+		return EnumActionResult.FAIL;
+		//}
 	}
 
 	private boolean tryPlace(EntityPlayer player, ItemStack stack, World worldIn, BlockPos pos, Object itemSlabType, ItemSlab slab) {
@@ -389,7 +338,7 @@ public class ItemDankNull extends Item implements IModelHolder {
 			if (comparable == itemSlabType && ((BlockSlab) iblockstate.getBlock()).getTypeForItem(blockAsStack) == comparable) {
 				IBlockState iblockstate1 = makeState(singleSlab.getVariantProperty(), comparable, slab);
 				AxisAlignedBB axisalignedbb = iblockstate1.getCollisionBoundingBox(worldIn, pos);
-				if (axisalignedbb != Block.NULL_AABB && worldIn.checkNoEntityCollision(axisalignedbb.offset(pos)) && worldIn.setBlockState(pos, iblockstate1, 11)) {
+				if (axisalignedbb != Block.NULL_AABB && worldIn.checkNoEntityCollision(axisalignedbb.offset(pos)) && worldIn.setBlockState(pos, iblockstate1, 3)) {
 					SoundType soundtype = doubleSlab.getSoundType(iblockstate1, worldIn, pos, player);
 					worldIn.playSound(player, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
 				}

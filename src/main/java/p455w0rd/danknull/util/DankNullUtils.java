@@ -52,6 +52,8 @@ import p455w0rdslib.util.RenderUtils;
  */
 public class DankNullUtils {
 
+	//private static final String TAG_CREATIVE_DANKNULL = "DNIsCreative";
+
 	@Nonnull
 	public static ItemStack getDankNull(EntityPlayer player) {
 		InventoryPlayer playerInv = player.inventory;
@@ -188,6 +190,20 @@ public class DankNullUtils {
 
 	public static boolean isDankNull(ItemStack stack) {
 		return stack.getItem() instanceof ItemDankNull;
+	}
+
+	public static ItemStack makeDankNullCreative(ItemStack dankNull) {
+		ItemStack creativeDankNull = dankNull.copy();
+		if (isDankNull(creativeDankNull) && !isCreativeDankNull(creativeDankNull)) {
+			if (creativeDankNull.getItemDamage() != 6) {
+				creativeDankNull.setItemDamage(6);
+			}
+		}
+		return creativeDankNull;
+	}
+
+	public static boolean isCreativeDankNull(ItemStack stack) {
+		return isDankNull(stack) && stack.getItemDamage() == 6;
 	}
 
 	public static void setSelectedStackIndex(InventoryDankNull inventory, int index) {
@@ -455,13 +471,18 @@ public class DankNullUtils {
 	public static boolean addFilteredStackToDankNull(InventoryDankNull inventory, ItemStack filteredStack) {
 		if (getIndexForStack(inventory, filteredStack) >= 0) {
 			ItemStack currentStack = getFilteredStack(inventory, filteredStack);
-			currentStack.grow(filteredStack.getCount());
-			if (currentStack.getCount() > DankNullUtils.getDankNullMaxStackSize(inventory)) {
-				currentStack.setCount(DankNullUtils.getDankNullMaxStackSize(inventory));
+			if (filteredStack.getCount() < Integer.MAX_VALUE) {
+				long currentSize = currentStack.getCount();
+				long maxDankNullStackSize = getDankNullMaxStackSize(inventory);
+				if (currentSize + filteredStack.getCount() > maxDankNullStackSize) {
+					currentStack.setCount((int) maxDankNullStackSize);
+				}
+				else {
+					currentStack.setCount((int) currentSize + filteredStack.getCount());
+				}
+				inventory.setInventorySlotContents(getIndexForStack(inventory, filteredStack), currentStack);
+				return true;
 			}
-			inventory.setInventorySlotContents(getIndexForStack(inventory, filteredStack), currentStack);
-			//getInventory(dankNull).serializeNBT();
-			return true;
 		}
 		return false;
 	}
@@ -517,7 +538,7 @@ public class DankNullUtils {
 
 	public static int getDankNullMaxStackSize(@Nonnull ItemStack itemStackIn) {
 		int level = itemStackIn.getItemDamage() + 1;
-		if (level == 6) {
+		if (level >= 6) {
 			return Integer.MAX_VALUE;
 		}
 		return level * (128 * level);
@@ -549,6 +570,8 @@ public class DankNullUtils {
 			return opaque ? 0xFF00FFFF : 0x9900FFFF;
 		case 5:
 			return opaque ? 0xFF17FF6D : 0x9917FF6D;
+		case 6:
+			return opaque ? 0xFF8F15D4 : 0xFF8F15D4;
 		}
 	}
 

@@ -48,7 +48,7 @@ public class GlintEffectRenderer {
 			RenderModel.render(model, -16751104);
 			break;
 		case 6:
-			RenderModel.render(model, 0xFFFF0000);
+			RenderModel.render(model, 0xFF8F15D4);
 			break;
 		case 7:
 			RenderModel.render(model, 0xFF0000FF);

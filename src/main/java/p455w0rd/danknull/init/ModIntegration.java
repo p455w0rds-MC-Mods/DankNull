@@ -41,7 +41,7 @@ public class ModIntegration {
 
 	public static enum Mods {
 			TOP("theoneprobe", "The One Probe"), WAILA("waila", "WAILA"), JEI("jei", "JEI"),
-			ITEMSCROLLER("itemscroller", "Item Scroller");
+			ITEMSCROLLER("itemscroller", "Item Scroller"), NEI("nei", "Not Enough Items");
 
 		private String modid, name;
 
