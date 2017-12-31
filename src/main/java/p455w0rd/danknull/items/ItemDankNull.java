@@ -121,7 +121,7 @@ public class ItemDankNull extends Item implements IModelHolder {
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand hand) {
 		ItemStack stack = playerIn.getHeldItem(hand);
-		if (playerIn.isSneaking()) {
+		if (playerIn.isSneaking() && getBlockUnderPlayer(playerIn) != Blocks.AIR) {
 			ModGuiHandler.launchGui(GUIType.DANKNULL, playerIn, worldIn, (int) playerIn.posX, (int) playerIn.posY, (int) playerIn.posZ);
 			return new ActionResult<ItemStack>(EnumActionResult.FAIL, stack);
 		}
