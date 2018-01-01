@@ -28,12 +28,12 @@ public class ModCreativeTab extends CreativeTabs {
 
 	@Override
 	public ItemStack getTabIconItem() {
-		return new ItemStack(ModItems.DANK_NULL, 1, 5);
+		return new ItemStack(ModItems.DANK_NULL, 1, 6);
 	}
 
 	@Override
 	public void displayAllRelevantItems(NonNullList<ItemStack> items) {
-		for (int i = 0; i < 6; i++) {
+		for (int i = 0; i <= 6; i++) {
 			items.add(new ItemStack(ModItems.DANK_NULL, 1, i));
 		}
 		for (Item item : ModItems.getList()) {
