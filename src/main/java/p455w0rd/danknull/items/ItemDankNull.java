@@ -270,7 +270,8 @@ public class ItemDankNull extends Item implements IModelHolder {
 				if (placeBlockAt(itemstack, player, world, pos, facing, hitX, hitY, hitZ, iblockstate1, block)) {
 					iblockstate1 = world.getBlockState(pos);
 					SoundType soundtype = iblockstate1.getBlock().getSoundType(iblockstate1, world, pos, player);
-					world.playSound(player, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
+					//world.playSound(player, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
+					world.playSound((EntityPlayer) null, player.getPosition(), soundtype.getPlaceSound(), SoundCategory.BLOCKS, 1.0F, 0.5F * ((world.rand.nextFloat() - world.rand.nextFloat()) * 0.7F + 2F));
 				}
 				return EnumActionResult.SUCCESS;
 			}
