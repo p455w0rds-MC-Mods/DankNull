@@ -56,7 +56,7 @@ repositories {
 
 dependencies {
 	deobfCompile "mezz.jei:jei_1.12.2:+"
-	deobfCompile "codechicken:CodeChickenLib:1.12-3.1.5.331:universal"
+	deobfCompile "codechicken:CodeChickenLib:1.12.2-3.1.5.331:universal"
 	deobfCompile "codechicken:NotEnoughItems:1.12.2-2.4.1.233:universal"
 	deobfCompile "cofh:RedstoneFlux:1.12-2.0.0.1:universal"
 	deobfCompile "mcjty.theoneprobe:TheOneProbe-1.12:1.12-1.4.15-8"

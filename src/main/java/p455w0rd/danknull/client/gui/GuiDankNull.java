@@ -32,6 +32,7 @@ import net.minecraft.util.text.TextFormatting;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
 import p455w0rd.danknull.client.render.DankNullRenderItem;
 import p455w0rd.danknull.container.ContainerDankNull;
+import p455w0rd.danknull.init.ModConfig.Options;
 import p455w0rd.danknull.init.ModGlobals;
 import p455w0rd.danknull.init.ModLogger;
 import p455w0rd.danknull.inventory.InventoryDankNull;
@@ -128,7 +129,7 @@ public class GuiDankNull extends GuiModular {
 		GlStateManager.disableBlend();
 		int fontColor = 16777215;
 		int yOffset = 101 - ((20 * numRows) + numRows);
-		String name = "/dank/null";
+		String name = "/d" + (Options.callItDevNull ? "ev" : "ank") + "/null";
 		/*
 		if (dankNull != null) {
 			name = I18n.format(DankNullUtils.getDankNull(player).getDisplayName(), new Object[0]).trim();
