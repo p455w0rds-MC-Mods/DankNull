@@ -15,6 +15,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
 import p455w0rd.danknull.init.ModBlocks;
+import p455w0rd.danknull.init.ModConfig.Options;
 import p455w0rd.danknull.init.ModGlobals;
 import p455w0rd.danknull.integration.WAILA;
 import p455w0rd.danknull.inventory.InventoryDankNull;
@@ -49,7 +50,8 @@ public class WAILADankNullDockProvider implements IWailaDataProvider {
 		EntityPlayer player = accessor.getPlayer();
 		TileDankNullDock dankDock = (TileDankNullDock) accessor.getTileEntity();
 		currenttip.add(WAILA.toolTipEnclose);
-		String msg = dankDock.getStack().isEmpty() ? "Right-click with /dank/null" : "Right-click with empty hand to open GUI";
+		String dankNull = "/d" + (Options.callItDevNull ? "ev" : "ank") + "/null";
+		String msg = DankNullUtils.translate("dn.right_click_with.desc") + (dankDock.getStack().isEmpty() ? " " + dankNull : " " + DankNullUtils.translate("dn.empty_hand_open.desc"));
 		currenttip.add(msg);
 		InventoryDankNull dankDockInventory = dankDock.getInventory();
 		if (dankDockInventory != null) {
@@ -59,7 +61,7 @@ public class WAILADankNullDockProvider implements IWailaDataProvider {
 				currenttip.add(ModGlobals.Rarities.getRarityFromMeta(dockedDankNull.getItemDamage()).rarityColor + "" + dockedDankNull.getDisplayName() + "" + TextFormatting.GRAY + " Docked");
 				ItemStack selectedStack = DankNullUtils.getSelectedStack(dankDock.getInventory());
 				if (!selectedStack.isEmpty()) {
-					currenttip.add(selectedStack.getDisplayName() + " Selected");
+					currenttip.add(selectedStack.getDisplayName() + " " + DankNullUtils.translate("dn.selected.desc"));
 				}
 			}
 		}

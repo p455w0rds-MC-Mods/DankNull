@@ -4,10 +4,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import mcjty.theoneprobe.Tools;
+import mcjty.theoneprobe.api.ElementAlignment;
 import mcjty.theoneprobe.api.IProbeHitData;
 import mcjty.theoneprobe.api.IProbeInfo;
 import mcjty.theoneprobe.api.ProbeMode;
 import mcjty.theoneprobe.api.TextStyleClass;
+import mcjty.theoneprobe.apiimpl.styles.LayoutStyle;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ISidedInventory;
@@ -27,6 +29,7 @@ import net.minecraftforge.items.wrapper.SidedInvWrapper;
 import p455w0rd.danknull.api.IRedstoneControllable;
 import p455w0rd.danknull.api.ITOPBlockDisplayOverride;
 import p455w0rd.danknull.init.ModBlocks;
+import p455w0rd.danknull.init.ModConfig.Options;
 import p455w0rd.danknull.init.ModGlobals;
 import p455w0rd.danknull.init.ModNetworking;
 import p455w0rd.danknull.inventory.InventoryDankNull;
@@ -40,8 +43,8 @@ import p455w0rd.danknull.util.DankNullUtils.SlotExtractionMode;
  */
 public class TileDankNullDock extends TileEntity implements IRedstoneControllable, ITOPBlockDisplayOverride, ISidedInventory {
 
-	private static final String TAG_REDSTONEMODE = "RedstoneMode";
-	private static final String TAG_HAS_REDSTONE_SIGNAL = "HasRSSignal";
+	//private static final String TAG_REDSTONEMODE = "RedstoneMode";
+	//private static final String TAG_HAS_REDSTONE_SIGNAL = "HasRSSignal";
 	public static final String TAG_ITEMSTACK = "DankNullStack";
 	public static final String TAG_NAME = "PWDock";
 	private static final String TAG_SELECTEDSTACK = "SelectedStack";
@@ -74,14 +77,22 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 			if (tile != null && tile instanceof TileDankNullDock) {
 				TileDankNullDock te = (TileDankNullDock) tile;
 				stack.setTagInfo("BlockEntityTag", te.writeToNBT(new NBTTagCompound()));
-				String msg = te.getStack().isEmpty() ? "Right-click with /dank/null" : "Right-click with empty hand to open GUI";
+				String dankNull = "/d" + (Options.callItDevNull ? "ev" : "ank") + "/null";
+				String msg = DankNullUtils.translate("dn.right_click_with.desc") + (te.getStack().isEmpty() ? " " + dankNull : " " + DankNullUtils.translate("dn.empty_hand_open.desc"));
 				ItemStack dockedDankNull = te.getStack().isEmpty() ? ItemStack.EMPTY : te.getStack();
-				IProbeInfo topTip = probeInfo.horizontal().item(stack).vertical().itemLabel(stack).text(msg);
+				IProbeInfo topTip = probeInfo.horizontal().item(stack).vertical().itemLabel(stack);
 				if (!dockedDankNull.isEmpty()) {
-					String dockedMsg = ModGlobals.Rarities.getRarityFromMeta(dockedDankNull.getItemDamage()).rarityColor + "" + dockedDankNull.getDisplayName() + "" + TextFormatting.WHITE + " Docked";
-					topTip.text("").text(dockedMsg);
+					String dockedMsg = ModGlobals.Rarities.getRarityFromMeta(dockedDankNull.getItemDamage()).rarityColor + "" + dockedDankNull.getDisplayName() + "" + TextFormatting.WHITE + " " + DankNullUtils.translate("dn.docked.desc");
+					topTip.text(dockedMsg);
+					ItemStack selectedStack = DankNullUtils.getSelectedStack(getInventory());
+					if (!selectedStack.isEmpty()) {
+						ItemStack tmpStack = selectedStack.copy();
+						tmpStack.setCount(1);
+						topTip.horizontal(new LayoutStyle().alignment(ElementAlignment.ALIGN_CENTER)).item(tmpStack).text(" " + DankNullUtils.translate("dn.selected.desc") + ", " + DankNullUtils.translate("dn.count.desc") + ": " + (DankNullUtils.isCreativeDankNull(dockedDankNull) ? DankNullUtils.translate("dn.infinite.desc") : selectedStack.getCount()));
+						topTip.text(DankNullUtils.translate("dn.extract_mode.desc") + ": " + DankNullUtils.getExtractionModeForStack(dockedDankNull, selectedStack).getTooltip());
+					}
 				}
-				topTip.text(TextStyleClass.MODNAME.toString() + Tools.getModName(state.getBlock()));
+				topTip.text(msg).text(TextStyleClass.MODNAME.toString() + Tools.getModName(state.getBlock()));
 				return true;
 			}
 		}
@@ -200,9 +211,9 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 	@Override
 	public void readFromNBT(NBTTagCompound compound) {
 		super.readFromNBT(compound);
-		NBTTagCompound nbt = compound.getCompoundTag(TAG_NAME);
-		setRedstoneMode(RedstoneMode.values()[nbt.getInteger(TAG_REDSTONEMODE)]);
-		setRSSignal(nbt.getBoolean(TAG_HAS_REDSTONE_SIGNAL));
+		//NBTTagCompound nbt = compound.getCompoundTag(TAG_NAME);
+		//setRedstoneMode(RedstoneMode.values()[nbt.getInteger(TAG_REDSTONEMODE)]);
+		//setRSSignal(nbt.getBoolean(TAG_HAS_REDSTONE_SIGNAL));
 		NBTTagCompound itemNBT = compound.getCompoundTag(TAG_ITEMSTACK);
 		ItemStack newStack = itemNBT == null ? ItemStack.EMPTY : new ItemStack(itemNBT);
 		setStack(newStack);
@@ -212,8 +223,8 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		compound = super.writeToNBT(compound);
 		NBTTagCompound itemNBT = new NBTTagCompound();
-		compound.setInteger(TAG_REDSTONEMODE, redstoneMode.ordinal());
-		compound.setBoolean(TAG_HAS_REDSTONE_SIGNAL, hasRSSignal());
+		//compound.setInteger(TAG_REDSTONEMODE, redstoneMode.ordinal());
+		//compound.setBoolean(TAG_HAS_REDSTONE_SIGNAL, hasRSSignal());
 		if (!getSelectedStack().isEmpty()) {
 			NBTTagCompound selectedItemNBT = new NBTTagCompound();
 			getSelectedStack().writeToNBT(selectedItemNBT);

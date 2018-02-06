@@ -34,7 +34,8 @@ import p455w0rd.danknull.client.render.DankNullRenderItem;
 import p455w0rd.danknull.container.ContainerDankNull;
 import p455w0rd.danknull.init.ModConfig.Options;
 import p455w0rd.danknull.init.ModGlobals;
-import p455w0rd.danknull.init.ModLogger;
+import p455w0rd.danknull.init.ModIntegration.Mods;
+import p455w0rd.danknull.integration.Chisel;
 import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rd.danknull.inventory.slot.SlotDankNull;
 import p455w0rd.danknull.util.DankNullUtils;
@@ -143,7 +144,7 @@ public class GuiDankNull extends GuiModular {
 
 		mc.fontRenderer.drawString(I18n.format("container.inventory", new Object[0]), 7, ySize - yOffset, fontColor);
 		if (DankNullUtils.getItemCount(getDankNullInventory()) > 0) {
-			mc.fontRenderer.drawString("=Selected", xSize - 64, 6, fontColor);
+			mc.fontRenderer.drawString("=" + DankNullUtils.translate("dn.selected.desc"), xSize - 64, 6, fontColor);
 		}
 		GlStateManager.enableBlend();
 		GlStateManager.enableLighting();
@@ -470,23 +471,52 @@ public class GuiDankNull extends GuiModular {
 		if (s != null && s instanceof SlotDankNull && s.getHasStack()) {
 			SlotExtractionMode mode = DankNullUtils.getExtractionModeForStack(getDankNull(), s.getStack());
 			if (s.getStack().getCount() > 1000) {
-				list.add(1, TextFormatting.GRAY + "" + TextFormatting.ITALIC + "Count: " + s.getStack().getCount());
-				list.add(2, "Extraction Mode: " + mode.getTooltip());
-				list.add(3, TextFormatting.GRAY + "" + TextFormatting.ITALIC + "  Ctrl+Click to change mode");
+				list.add(1, TextFormatting.GRAY + "" + TextFormatting.ITALIC + DankNullUtils.translate("dn.count.desc") + ": " + (DankNullUtils.isCreativeDankNull(getDankNull()) ? DankNullUtils.translate("dn.infinite.desc") : s.getStack().getCount()));
+				list.add(2, DankNullUtils.translate("dn.extract_mode.desc") + ": " + mode.getTooltip());
+				String oreDictMode = DankNullUtils.getOreDictModeForStack(getDankNull(), s.getStack()) ? DankNullUtils.translate("dn.enabled.desc") : DankNullUtils.translate("dn.disabled.desc");
+				boolean oreDicted = DankNullUtils.isItemOreDicted(s.getStack());
+				if (oreDicted) {
+					list.add(3, DankNullUtils.translate("dn.ore_dictionary.desc") + ": " + oreDictMode);
+				}
+				list.add(oreDicted ? 4 : 3, TextFormatting.GRAY + "" + TextFormatting.ITALIC + "  " + DankNullUtils.translate("dn.ctrl_click_change.desc"));
+				if (oreDicted) {
+					list.add(5, TextFormatting.GRAY + "" + TextFormatting.ITALIC + "  " + DankNullUtils.translate("dn.o_click_toggle.desc"));
+				}
 				if (DankNullUtils.getSelectedStackIndex(getDankNullInventory()) != s.getSlotIndex()) {
-					list.add(4, TextFormatting.GRAY + "" + TextFormatting.ITALIC + "  Alt+Click to set as selected item");
+					list.add(oreDicted ? 6 : 4, TextFormatting.GRAY + "" + TextFormatting.ITALIC + "  " + DankNullUtils.translate("dn.alt_click_set.desc"));
 				}
 			}
 			else {
-				if (mode == null) {
-					ModLogger.warn("FUCK");
+				if (mode != null) {
+					list.add(1, DankNullUtils.translate("dn.extract_mode.desc") + ": " + mode.getTooltip());
 				}
-				else {
-					list.add(1, "Extraction Mode: " + mode.getTooltip());
+				String oreDictMode = DankNullUtils.getOreDictModeForStack(getDankNull(), s.getStack()) ? DankNullUtils.translate("dn.enabled.desc") : DankNullUtils.translate("dn.disabled.desc");
+				boolean oreDicted = DankNullUtils.isItemOreDicted(s.getStack());
+				if (oreDicted) {
+					list.add(2, DankNullUtils.translate("dn.ore_dictionary.desc") + ": " + oreDictMode);
 				}
-				list.add(2, TextFormatting.GRAY + "" + TextFormatting.ITALIC + "  Ctrl+Click to change mode");
+				list.add(oreDicted ? 3 : 2, TextFormatting.GRAY + "" + TextFormatting.ITALIC + "  " + DankNullUtils.translate("dn.ctrl_click_change.desc"));
+				if (oreDicted) {
+					list.add(4, TextFormatting.GRAY + "" + TextFormatting.ITALIC + "  " + DankNullUtils.translate("dn.o_click_toggle.desc"));
+				}
 				if (DankNullUtils.getSelectedStackIndex(getDankNullInventory()) != s.getSlotIndex()) {
-					list.add(3, TextFormatting.GRAY + "" + TextFormatting.ITALIC + "  Alt+Click to set as selected item");
+					list.add(oreDicted ? 4 : 3, TextFormatting.GRAY + "" + TextFormatting.ITALIC + "  " + DankNullUtils.translate("dn.alt_click_set.desc"));
+				}
+			}
+			if (Mods.CHISEL.isLoaded()) {
+				int lineToRemove = -1;
+				if (Chisel.isBlockChiseled(stack)) {
+					String name = Chisel.getVariantName(stack);
+					for (int i = 0; i < list.size(); i++) {
+						if (list.get(i).contains(name)) {
+							lineToRemove = i;
+							break;
+						}
+					}
+					if (lineToRemove > -1) {
+						list.remove(lineToRemove);
+						list.add(1, TextFormatting.RESET + I18n.format("dn.chisel_varient.desc") + ": " + TextFormatting.GRAY + "" + TextFormatting.ITALIC + "" + name);
+					}
 				}
 			}
 		}

@@ -241,6 +241,7 @@ public class ItemDankNull extends Item implements IModelHolder {
 			}
 			else {
 				EnumActionResult result = placeItemIntoWorld(selectedStack.copy(), player, world, pos, facing, hitX, hitY, hitZ, hand);
+
 				if (result == EnumActionResult.SUCCESS && !player.capabilities.isCreativeMode && !DankNullUtils.isCreativeDankNull(stack)) {
 					DankNullUtils.decrSelectedStackSize(inventory, 1);
 				}
@@ -269,7 +270,7 @@ public class ItemDankNull extends Item implements IModelHolder {
 				pos = pos.offset(facing);
 			}
 			if (!itemstack.isEmpty() && player.canPlayerEdit(pos, facing, itemstack) && world.mayPlace(block, pos, false, facing, (Entity) null)) {
-				IBlockState iblockstate1 = block.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, itemstack.getMetadata(), player, hand);
+				IBlockState iblockstate1 = block.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, itemstack.getItemDamage(), player, hand);
 
 				if (placeBlockAt(itemstack, player, world, pos, facing, hitX, hitY, hitZ, iblockstate1, block)) {
 					iblockstate1 = world.getBlockState(pos);
@@ -284,15 +285,17 @@ public class ItemDankNull extends Item implements IModelHolder {
 	}
 
 	public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, IBlockState newState, Block block) {
+		ItemStack tmpStack = stack.copy();
+		tmpStack.setCount(1);
 		world.setBlockState(pos, newState, 3);
 		IBlockState state = world.getBlockState(pos);
 		//if (state.getBlock() == block) {
 		world.setBlockState(pos, newState, 3);
-		ItemBlock.setTileEntityNBT(world, player, pos, stack);
-		block.onBlockPlacedBy(world, pos, state, player, stack);
+		ItemBlock.setTileEntityNBT(world, player, pos, tmpStack);
+		block.onBlockPlacedBy(world, pos, state, player, tmpStack);
 		world.notifyNeighborsOfStateChange(pos, block, true);
 		if (player instanceof EntityPlayerMP) {
-			CriteriaTriggers.PLACED_BLOCK.trigger((EntityPlayerMP) player, pos, stack);
+			CriteriaTriggers.PLACED_BLOCK.trigger((EntityPlayerMP) player, pos, tmpStack);
 		}
 		return true;
 		//}

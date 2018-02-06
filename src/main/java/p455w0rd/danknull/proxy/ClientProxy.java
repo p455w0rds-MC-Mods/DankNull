@@ -60,6 +60,11 @@ public class ClientProxy extends CommonProxy {
 	}
 
 	@Override
+	public World getWorld(int dimension) {
+		return getWorld();
+	}
+
+	@Override
 	public GuiScreen getScreen() {
 		return Minecraft.getMinecraft().currentScreen;
 	}

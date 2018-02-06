@@ -13,10 +13,12 @@ public class ModKeyBindings {
 
 	private static KeyBinding nextItem;
 	private static KeyBinding previousItem;
+	private static KeyBinding openDankNull;
 
 	public static void register() {
 		ClientRegistry.registerKeyBinding(getNextItemKeyBind());
 		ClientRegistry.registerKeyBinding(getPreviousItemKeyBind());
+		ClientRegistry.registerKeyBinding(getOpenDankNullKeyBind());
 	}
 
 	public static KeyBinding getNextItemKeyBind() {
@@ -31,6 +33,13 @@ public class ModKeyBindings {
 			previousItem = new KeyBinding("key.previous_item.desc", Keyboard.CHAR_NONE, "key.categories.danknull");
 		}
 		return previousItem;
+	}
+
+	public static KeyBinding getOpenDankNullKeyBind() {
+		if (openDankNull == null) {
+			openDankNull = new KeyBinding("key.open_danknull.desc", Keyboard.CHAR_NONE, "key.categories.danknull");
+		}
+		return openDankNull;
 	}
 
 }

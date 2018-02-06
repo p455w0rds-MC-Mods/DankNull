@@ -11,6 +11,7 @@ import p455w0rd.danknull.DankNull;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
 import p455w0rd.danknull.client.gui.GuiDankNull;
 import p455w0rd.danknull.container.ContainerDankNull;
+import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rd.danknull.util.DankNullUtils;
 
 /**
@@ -34,6 +35,9 @@ public class ModGuiHandler implements IGuiHandler {
 			}
 			else if (player.getHeldItemOffhand().getItem() == ModItems.DANK_NULL) {
 				dankNull = player.getHeldItemOffhand();
+			}
+			if (dankNull == null) {
+				break;
 			}
 			return new ContainerDankNull(player, DankNullUtils.getNewDankNullInventory(dankNull));
 		case DANKNULL_TE:
@@ -61,7 +65,11 @@ public class ModGuiHandler implements IGuiHandler {
 			else if (player.getHeldItemOffhand().getItem() == ModItems.DANK_NULL) {
 				dankNull = player.getHeldItemOffhand();
 			}
-			return new GuiDankNull(new ContainerDankNull(player, DankNullUtils.getNewDankNullInventory(dankNull)), player);
+			if (dankNull.isEmpty()) {
+				break;
+			}
+			InventoryDankNull inv = DankNullUtils.getNewDankNullInventory(dankNull);
+			return new GuiDankNull(new ContainerDankNull(player, inv), player);
 		case DANKNULL_TE:
 			TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
 			if (te != null && te instanceof TileDankNullDock) {

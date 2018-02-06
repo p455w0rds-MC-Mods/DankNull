@@ -1,5 +1,6 @@
 package p455w0rd.danknull.init;
 
+import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import net.minecraft.client.Minecraft;
@@ -31,6 +32,7 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
 import p455w0rd.danknull.client.gui.GuiDankNull;
+import p455w0rd.danknull.init.ModGuiHandler.GUIType;
 import p455w0rd.danknull.init.ModIntegration.Mods;
 import p455w0rd.danknull.integration.NEI;
 import p455w0rd.danknull.inventory.InventoryDankNull;
@@ -108,7 +110,10 @@ public class ModEvents {
 		if (dankNullItem.isEmpty() || !DankNullUtils.isDankNull(dankNullItem)) {
 			return;
 		}
-
+		if (ModKeyBindings.getOpenDankNullKeyBind().isPressed()) {
+			BlockPos playerPos = player.getPosition();
+			ModGuiHandler.launchGui(GUIType.DANKNULL, player, Minecraft.getMinecraft().world, playerPos.getX(), playerPos.getY(), playerPos.getZ());
+		}
 		int currentIndex = DankNullUtils.getSelectedStackIndex(inventory);
 		int totalSize = DankNullUtils.getItemCount(inventory);
 		if ((currentIndex == -1) || (totalSize <= 1)) {
@@ -138,7 +143,8 @@ public class ModEvents {
 				if (hoveredSlot != null && hoveredSlot.getHasStack() && Mouse.isButtonDown(0)) {
 					if (GuiScreen.isCtrlKeyDown() && !GuiScreen.isAltKeyDown()) {
 						DankNullUtils.cycleExtractionMode(dankNullGui.getDankNull(), hoveredSlot.getStack());
-						ModNetworking.getInstance().sendToServer(new PacketSyncDankNull(dankNullGui.getDankNullInventory().getDankNull()));
+						ModNetworking.getInstance().sendToServer(new PacketSyncDankNull(dankNullGui.getDankNull()));
+						//dankNullGui.inventorySlots.detectAndSendChanges();
 						event.setCanceled(true);
 					}
 					else if (GuiScreen.isAltKeyDown() && !GuiScreen.isCtrlKeyDown()) {
@@ -147,11 +153,21 @@ public class ModEvents {
 							for (Slot slotHovered : dankNullGui.inventorySlots.inventorySlots) {
 								count++;
 								if (slotHovered.equals(hoveredSlot)) {
-									DankNullUtils.setSelectedStackIndex(dankNullGui.getDankNullInventory(), (count - 1) - 36);
+									if (dankNullGui.getDock() != null) {
+										DankNullUtils.setSelectedStackIndex(dankNullGui.getDankNullInventory(), (count - 1) - 36, dankNullGui.getDock().getWorld(), dankNullGui.getDock().getPos());
+									}
+									else {
+										DankNullUtils.setSelectedStackIndex(dankNullGui.getDankNullInventory(), (count - 1) - 36);
+									}
 									event.setCanceled(true);
 								}
 							}
 						}
+					}
+					else if (Keyboard.isKeyDown(Keyboard.KEY_O) && !GuiScreen.isAltKeyDown() && !GuiScreen.isCtrlKeyDown()) {
+						DankNullUtils.cycleOreDictModeForStack(dankNullGui.getDankNull(), hoveredSlot.getStack());
+						ModNetworking.getInstance().sendToServer(new PacketSyncDankNull(dankNullGui.getDankNull()));
+						event.setCanceled(true);
 					}
 				}
 			}
@@ -232,18 +248,18 @@ public class ModEvents {
 	 *
 	private int remainingHighlightTicks;
 	private String highlightItemName = "";
-
+	
 	public void setSelectedMessage(String msg) {
 		highlightItemName = msg;
 		remainingHighlightTicks = 160;
 	}
-
+	
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void onClientTick(PlayerTickEvent event) {
 		Minecraft mc = Minecraft.getMinecraft();
 		if (mc.player != null) {
-
+	
 			if (highlightItemName.isEmpty()) {
 				remainingHighlightTicks = 0;
 			}

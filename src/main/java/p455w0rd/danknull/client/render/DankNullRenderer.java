@@ -15,10 +15,12 @@ import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.block.model.ItemOverrideList;
+import net.minecraft.client.renderer.block.model.MultipartBakedModel;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.settings.GameSettings;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.Blocks;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemBucket;
@@ -92,7 +94,23 @@ public class DankNullRenderer implements IItemRenderer {
 			}
 			IBakedModel holderModel = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel(new ItemStack(ModItems.DANK_NULL_HOLDER, 1, modelDamage));
 			if (!containedStack.isEmpty()) {
-				IBakedModel containedItemModel = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel(containedStack);
+				IBakedModel containedItemModel = null;
+				if (Block.getBlockFromItem(containedStack.getItem()) != null && Block.getBlockFromItem(containedStack.getItem()) != Blocks.AIR) {
+					Block block = Block.getBlockFromItem(containedStack.getItem());
+					IBlockState state = block.getStateFromMeta(containedStack.getItemDamage());
+
+					//state = block.getActualState(state, Minecraft.getMinecraft().world, new BlockPos(0, 0, 0));
+					containedItemModel = Minecraft.getMinecraft().getBlockRendererDispatcher().getModelForState(state);
+					if (containedItemModel instanceof MultipartBakedModel) {
+						containedItemModel = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel(containedStack);
+					}
+					if (containedItemModel.getParticleTexture().getIconName().equalsIgnoreCase("missingno")) {
+						containedItemModel = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel(containedStack);
+					}
+				}
+				else {
+					containedItemModel = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel(containedStack);
+				}
 
 				GlStateManager.pushMatrix();
 				if (((containedStack.getItem() instanceof ItemBlock)) && (!(Block.getBlockFromItem(containedStack.getItem()) instanceof BlockTorch))) {

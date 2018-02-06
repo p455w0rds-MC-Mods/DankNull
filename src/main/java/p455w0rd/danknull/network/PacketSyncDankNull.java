@@ -38,8 +38,10 @@ public class PacketSyncDankNull implements IMessage {
 	private NonNullList<ItemStack> itemStacks;
 	private int[] stackSizes;
 	private Map<ItemStack, SlotExtractionMode> extractionModes = Maps.<ItemStack, SlotExtractionMode>newHashMap();
+	private Map<ItemStack, Boolean> oreDictModes = Maps.<ItemStack, Boolean>newHashMap();
 	private BlockPos pos = null;
 	private static final String TEMP_EXTRACT_TAG = "ExtractionMode";
+	private static final String TEMP_OREDICT_TAG = "OreDictMode";
 
 	@Override
 	public void fromBytes(ByteBuf buf) {
@@ -59,6 +61,14 @@ public class PacketSyncDankNull implements IMessage {
 				currentStack.setCount(1);
 				SlotExtractionMode mode = SlotExtractionMode.values()[currentStack.getTagCompound().getInteger(TEMP_EXTRACT_TAG)];
 				extractionModes.put(currentStack, mode);
+			}
+		}
+		int oreDictModesSize = buf.readInt();
+		if (oreDictModesSize > 0) {
+			for (int k = 0; k < oreDictModesSize; k++) {
+				ItemStack currentStack = ByteBufUtils.readItemStack(buf);
+				currentStack.setCount(1);
+				oreDictModes.put(currentStack, currentStack.getTagCompound().getBoolean(TEMP_OREDICT_TAG));
 			}
 		}
 		if (buf.readBoolean()) {
@@ -85,6 +95,16 @@ public class PacketSyncDankNull implements IMessage {
 					stack.setTagCompound(new NBTTagCompound());
 				}
 				stack.getTagCompound().setInteger(TEMP_EXTRACT_TAG, extractionModes.get(stack).ordinal());
+				ByteBufUtils.writeItemStack(buf, stack);
+			}
+		}
+		buf.writeInt(oreDictModes.size());
+		if (!oreDictModes.isEmpty()) {
+			for (ItemStack stack : oreDictModes.keySet()) {
+				if (!stack.hasTagCompound()) {
+					stack.setTagCompound(new NBTTagCompound());
+				}
+				stack.getTagCompound().setBoolean(TEMP_OREDICT_TAG, oreDictModes.get(stack));
 				ByteBufUtils.writeItemStack(buf, stack);
 			}
 		}
@@ -124,6 +144,9 @@ public class PacketSyncDankNull implements IMessage {
 		}
 		if (!DankNullUtils.getExtractionModes(inv.getDankNull()).isEmpty()) {
 			extractionModes = DankNullUtils.getExtractionModes(inv.getDankNull());
+		}
+		if (!DankNullUtils.getOreDictModes(inv.getDankNull()).isEmpty()) {
+			oreDictModes = DankNullUtils.getOreDictModes(inv.getDankNull());
 		}
 		if (posIn != null) {
 			pos = posIn;
@@ -168,7 +191,10 @@ public class PacketSyncDankNull implements IMessage {
 					if (!message.extractionModes.isEmpty()) {
 						DankNullUtils.setExtractionModes(inv.getDankNull(), message.extractionModes);
 					}
-					container.setDankNullInventory(inv);
+					if (!message.oreDictModes.isEmpty()) {
+						DankNullUtils.setOreDictModes(inv.getDankNull(), message.oreDictModes);
+					}
+					//container.setDankNullInventory(inv);
 					//container.detectAndSendChanges();
 				}
 			}
@@ -193,7 +219,10 @@ public class PacketSyncDankNull implements IMessage {
 						if (!message.extractionModes.isEmpty()) {
 							DankNullUtils.setExtractionModes(dankNull, message.extractionModes);
 						}
-						dankDock.setInventory(inv);
+						if (!message.oreDictModes.isEmpty()) {
+							DankNullUtils.setOreDictModes(inv.getDankNull(), message.oreDictModes);
+						}
+						//dankDock.setInventory(inv);
 					}
 				}
 			}

@@ -7,11 +7,13 @@ import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.BlockRenderLayer;
 import net.minecraft.util.EnumBlockRenderType;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelLoader;
@@ -19,6 +21,7 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import p455w0rd.danknull.api.IModelHolder;
+import p455w0rd.danknull.init.ModConfig.Options;
 
 /**
  * @author p455w0rd
@@ -33,9 +36,16 @@ public class BlockContainerBase extends BlockContainer implements IModelHolder {
 		setResistance(resistance);
 		setHardness(hardness);
 		ForgeRegistries.BLOCKS.register(this);
-		ItemBlock itemBlock = new ItemBlock(this);
-		itemBlock.setRegistryName(name);
-		ForgeRegistries.ITEMS.register(itemBlock);
+		ForgeRegistries.ITEMS.register(new ItemBlock(this) {
+			@Override
+			public String getItemStackDisplayName(ItemStack stack) {
+				String name = I18n.translateToLocal(getUnlocalizedName() + ".name").trim();
+				if (Options.callItDevNull) {
+					name = name.replace("/dank/", "/dev/");
+				}
+				return name;
+			}
+		}.setRegistryName(name));
 	}
 
 	public BlockContainerBase(Material materialIn, String name, float hardness, float resistance) {
@@ -45,9 +55,16 @@ public class BlockContainerBase extends BlockContainer implements IModelHolder {
 		setResistance(resistance);
 		setHardness(hardness);
 		ForgeRegistries.BLOCKS.register(this);
-		ItemBlock itemBlock = new ItemBlock(this);
-		itemBlock.setRegistryName(name);
-		ForgeRegistries.ITEMS.register(itemBlock);
+		ForgeRegistries.ITEMS.register(new ItemBlock(this) {
+			@Override
+			public String getItemStackDisplayName(ItemStack stack) {
+				String name = I18n.translateToLocal(getUnlocalizedName() + ".name").trim();
+				if (Options.callItDevNull) {
+					name = name.replace("/dank/", "/dev/");
+				}
+				return name;
+			}
+		}.setRegistryName(name));
 	}
 
 	@Override

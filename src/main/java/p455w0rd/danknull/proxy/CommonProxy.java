@@ -3,6 +3,7 @@ package p455w0rd.danknull.proxy;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.world.World;
+import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
@@ -45,6 +46,10 @@ public class CommonProxy {
 
 	public World getWorld() {
 		return null;
+	}
+
+	public World getWorld(int dimension) {
+		return FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(dimension);
 	}
 
 	public GuiScreen getScreen() {

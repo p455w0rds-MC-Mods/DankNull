@@ -118,9 +118,8 @@ public class ContainerDankNull extends Container {
 		if (DankNullUtils.isFiltered(getDankNullInventory(), stack)) {
 			ret = DankNullUtils.addFilteredStackToDankNull(getDankNullInventory(), stack);
 		}
-		else if (getNextAvailableSlot() >= 0) {
-			inventorySlots.get(getNextAvailableSlot()).putStack(stack);
-			ret = true;
+		else if (DankNullUtils.getNextAvailableSlot(this) >= 0) {
+			ret = DankNullUtils.addUnfiliteredFilteredStackToDankNull(this, stack);
 		}
 		if (DankNullUtils.getSelectedStackIndex(getDankNullInventory()) == -1) {
 			DankNullUtils.setSelectedIndexApplicable(getDankNullInventory());
@@ -129,22 +128,12 @@ public class ContainerDankNull extends Container {
 		return ret;
 	}
 
-	private int getNextAvailableSlot() {
-		for (int i = 36; i < inventorySlots.size(); i++) {
-			Slot s = inventorySlots.get(i);
-			if ((s != null) && (s.getStack().isEmpty())) {
-				return i;
-			}
-		}
-		return -1;
-	}
-
 	@Override
 	public ItemStack transferStackInSlot(EntityPlayer playerIn, int index) {
 		Slot clickSlot = inventorySlots.get(index);
 		if (clickSlot.getHasStack()) {
 			if (!isDankNullSlot(clickSlot)) {
-				if (getNextAvailableSlot() == -1 && DankNullUtils.isFiltered(getDankNullInventory(), clickSlot.getStack())) {
+				if (DankNullUtils.getNextAvailableSlot(this) == -1 && DankNullUtils.isFiltered(getDankNullInventory(), clickSlot.getStack())) {
 					if (addStack(clickSlot.getStack())) {
 						clickSlot.putStack(ItemStack.EMPTY);
 						playerIn.inventory.markDirty();
@@ -303,6 +292,9 @@ public class ContainerDankNull extends Container {
 					return heldStack;
 				}
 				else {
+					if (DankNullUtils.isCreativeDankNull(getDankNull())) {
+						return heldStack;
+					}
 					if (thisStack.getCount() <= thisStack.getMaxStackSize()) {
 						inventoryplayer.setItemStack(thisStack);
 						s.putStack(heldStack);
