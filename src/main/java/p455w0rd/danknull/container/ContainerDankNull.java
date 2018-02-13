@@ -170,7 +170,9 @@ public class ContainerDankNull extends Container {
 					newStack.setCount(DankNullUtils.isCreativeDankNull(getDankNull()) ? newStack.getMaxStackSize() : currentStackSize);
 					if (moveStackToInventory(newStack)) {
 						DankNullUtils.decrDankNullStackSize(getDankNullInventory(), clickSlot.getStack(), currentStackSize);
-						clickSlot.putStack(ItemStack.EMPTY);
+						if (!DankNullUtils.isCreativeDankNullLocked(getDankNull())) {
+							clickSlot.putStack(ItemStack.EMPTY);
+						}
 					}
 					DankNullUtils.reArrangeStacks(getDankNullInventory());
 				}

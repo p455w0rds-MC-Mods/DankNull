@@ -42,6 +42,7 @@ public class PacketSyncDankNull implements IMessage {
 	private BlockPos pos = null;
 	private static final String TEMP_EXTRACT_TAG = "ExtractionMode";
 	private static final String TEMP_OREDICT_TAG = "OreDictMode";
+	private boolean isLocked;
 
 	@Override
 	public void fromBytes(ByteBuf buf) {
@@ -77,6 +78,7 @@ public class PacketSyncDankNull implements IMessage {
 			int z = buf.readInt();
 			pos = new BlockPos(x, y, z);
 		}
+		isLocked = buf.readBoolean();
 	}
 
 	@Override
@@ -117,6 +119,7 @@ public class PacketSyncDankNull implements IMessage {
 		else {
 			buf.writeBoolean(false);
 		}
+		buf.writeBoolean(isLocked);
 	}
 
 	public PacketSyncDankNull() {
@@ -151,6 +154,7 @@ public class PacketSyncDankNull implements IMessage {
 		if (posIn != null) {
 			pos = posIn;
 		}
+		isLocked = DankNullUtils.isCreativeDankNullLocked(inv.getDankNull());
 	}
 
 	public static class Handler implements IMessageHandler<PacketSyncDankNull, IMessage> {
@@ -194,6 +198,9 @@ public class PacketSyncDankNull implements IMessage {
 					if (!message.oreDictModes.isEmpty()) {
 						DankNullUtils.setOreDictModes(inv.getDankNull(), message.oreDictModes);
 					}
+					if (DankNullUtils.isCreativeDankNull(inv.getDankNull())) {
+						DankNullUtils.setLocked(inv.getDankNull(), message.isLocked);
+					}
 					//container.setDankNullInventory(inv);
 					//container.detectAndSendChanges();
 				}
@@ -221,6 +228,9 @@ public class PacketSyncDankNull implements IMessage {
 						}
 						if (!message.oreDictModes.isEmpty()) {
 							DankNullUtils.setOreDictModes(inv.getDankNull(), message.oreDictModes);
+						}
+						if (DankNullUtils.isCreativeDankNull(inv.getDankNull())) {
+							DankNullUtils.setLocked(inv.getDankNull(), message.isLocked);
 						}
 						//dankDock.setInventory(inv);
 					}

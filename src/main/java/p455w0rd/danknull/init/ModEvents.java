@@ -7,6 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.init.SoundEvents;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
@@ -24,6 +25,7 @@ import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.WorldEvent;
+import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
@@ -94,6 +96,7 @@ public class ModEvents {
 			InventoryDankNull inventory = DankNullUtils.getInventoryFromStack(dankNull);
 			if (inventory != null && (DankNullUtils.addFilteredStackToDankNull(inventory, entityStack))) {
 				entityStack.setCount(0);
+				player.getEntityWorld().playSound((EntityPlayer) null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_ITEM_PICKUP, player.getSoundCategory(), 0.2F, ((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7F + 1.0F) * 2.0F);
 				return;
 			}
 		}
@@ -144,7 +147,6 @@ public class ModEvents {
 					if (GuiScreen.isCtrlKeyDown() && !GuiScreen.isAltKeyDown()) {
 						DankNullUtils.cycleExtractionMode(dankNullGui.getDankNull(), hoveredSlot.getStack());
 						ModNetworking.getInstance().sendToServer(new PacketSyncDankNull(dankNullGui.getDankNull()));
-						//dankNullGui.inventorySlots.detectAndSendChanges();
 						event.setCanceled(true);
 					}
 					else if (GuiScreen.isAltKeyDown() && !GuiScreen.isCtrlKeyDown()) {
@@ -165,9 +167,11 @@ public class ModEvents {
 						}
 					}
 					else if (Keyboard.isKeyDown(Keyboard.KEY_O) && !GuiScreen.isAltKeyDown() && !GuiScreen.isCtrlKeyDown()) {
-						DankNullUtils.cycleOreDictModeForStack(dankNullGui.getDankNull(), hoveredSlot.getStack());
-						ModNetworking.getInstance().sendToServer(new PacketSyncDankNull(dankNullGui.getDankNull()));
-						event.setCanceled(true);
+						if ((DankNullUtils.isOreDictBlacklistEnabled() && !DankNullUtils.isItemOreDictBlacklisted(hoveredSlot.getStack())) || (DankNullUtils.isOreDictWhitelistEnabled() && DankNullUtils.isItemOreDictWhitelisted(hoveredSlot.getStack())) || !DankNullUtils.isOreDictBlacklistEnabled() && !DankNullUtils.isOreDictWhitelistEnabled()) {
+							DankNullUtils.cycleOreDictModeForStack(dankNullGui.getDankNull(), hoveredSlot.getStack());
+							ModNetworking.getInstance().sendToServer(new PacketSyncDankNull(dankNullGui.getDankNull()));
+							event.setCanceled(true);
+						}
 					}
 				}
 			}
@@ -243,38 +247,10 @@ public class ModEvents {
 		}
 	}
 
-	/*
-	 * just leaving this here because it may be useful somewhere else down the line
-	 *
-	private int remainingHighlightTicks;
-	private String highlightItemName = "";
-	
-	public void setSelectedMessage(String msg) {
-		highlightItemName = msg;
-		remainingHighlightTicks = 160;
-	}
-	
-	@SubscribeEvent
-	@SideOnly(Side.CLIENT)
-	public void onClientTick(PlayerTickEvent event) {
-		Minecraft mc = Minecraft.getMinecraft();
-		if (mc.player != null) {
-	
-			if (highlightItemName.isEmpty()) {
-				remainingHighlightTicks = 0;
-			}
-			else if (!highlightItemName.isEmpty()) {
-				if (remainingHighlightTicks > 0) {
-					--remainingHighlightTicks;
-				}
-			}
-		}
-	}
-	*/
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public void onPostRenderOverlay(RenderGameOverlayEvent.Post e) {
-		if (e.getType() == ElementType.VIGNETTE) {
+		if (e.getType() == ElementType.HOTBAR) {
 			Minecraft mc = Minecraft.getMinecraft();
 			DankNullUtils.renderHUD(mc, new ScaledResolution(mc));
 		}
@@ -285,6 +261,13 @@ public class ModEvents {
 	public void onPlayerLoggedIn(WorldEvent.Load e) {
 		if (Mods.NEI.isLoaded() && FMLCommonHandler.instance().getSide().isClient()) {
 			NEI.init();
+		}
+	}
+
+	@SubscribeEvent
+	public void onConfigChange(ConfigChangedEvent.OnConfigChangedEvent e) {
+		if (e.getModID().equals(ModGlobals.MODID)) {
+			ModConfig.init();
 		}
 	}
 

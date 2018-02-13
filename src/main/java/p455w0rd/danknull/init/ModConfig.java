@@ -11,9 +11,8 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
-import net.minecraftforge.fml.client.event.ConfigChangedEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import net.minecraftforge.oredict.OreDictionary;
 
 /**
  * @author p455w0rd
@@ -25,10 +24,15 @@ public class ModConfig {
 
 	public static final String CLIENT_CAT = "General";
 	public static final String SERVER_CAT = "Server Rules";
+	public static final boolean DEBUG_RESET = false;
 
 	public static void init() {
 		if (CONFIG == null) {
-			CONFIG = new Configuration(new File(ModGlobals.CONFIG_FILE));
+			File configFile = new File(ModGlobals.CONFIG_FILE);
+			if (DEBUG_RESET) {
+				configFile.delete();
+			}
+			CONFIG = new Configuration(configFile);
 			MinecraftForge.EVENT_BUS.register(new ModConfig());
 			CONFIG.load();
 		}
@@ -37,15 +41,10 @@ public class ModConfig {
 		Options.superShine = CONFIG.getBoolean("SuperShine", CLIENT_CAT, false, "Make items ultra shiny!");
 		Options.creativeBlacklist = CONFIG.getString("CreativeBlacklist", SERVER_CAT, "", "A semicolon separated list of items that are not allowed to be placed into the creative /dank/null\nFormat: modid:name:meta (meta optional: modid:name is acceptable) - Example: minecraft:diamond;minecraft:coal:1").trim();
 		Options.creativeWhitelist = CONFIG.getString("CreativeWhitelist", SERVER_CAT, "", "A semicolon separated list of items that are allowed to be placed into the creative /dank/null\nSame format as Blacklist and whitelist superceeds blacklist.\nIf whitelist is non-empty, then ONLY whitelisted items can be added to the Creative /dank/null").trim();
+		Options.oreBlacklist = CONFIG.getString("OreDictBlacklist", SERVER_CAT, "", "A semicolon separated list of Ore Dictionary entries (strings) which WILL NOT be allowed to be used with /dank/null's Ore Dictionary functionality.");
+		Options.oreWhitelist = CONFIG.getString("OreDictWhitelist", SERVER_CAT, "", "A semicolon separated list of Ore Dictionary entries (strings) which WILL BE allowed to be used with /dank/null's Ore Dictionary functionality. Whitelist superceeds blacklist.\nIf whitelist is non-empty, then ONLY Ore Dictionary items matching the entries will\nbe able to take advantage of /dank/null's Ore Dictionary functionality.");
 		if (CONFIG.hasChanged()) {
 			CONFIG.save();
-		}
-	}
-
-	@SubscribeEvent
-	public void onConfigChange(ConfigChangedEvent.OnConfigChangedEvent e) {
-		if (e.getModID().equals(ModGlobals.MODID)) {
-			init();
 		}
 	}
 
@@ -56,11 +55,44 @@ public class ModConfig {
 		public static String creativeBlacklist = "";
 		public static String creativeWhitelist = "";
 		public static String oreBlacklist = "";
+		public static String oreWhitelist = "";
 		private static NonNullList<ItemStack> creativeItemBlacklist = null; // cache it..
 		private static NonNullList<ItemStack> creativeItemWhitelist = null;
+		private static List<String> oreStringBlacklist = Lists.<String>newArrayList();
+		private static List<String> oreStringWhitelist = Lists.<String>newArrayList();
+
+		public static List<String> getOreBlacklist() {
+			String[] tmpList = null;
+			if (oreStringBlacklist.isEmpty() && !oreBlacklist.isEmpty() && getOreWhitelist().size() == 0) {
+				tmpList = oreBlacklist.split(";");
+			}
+			if (tmpList != null) {
+				for (String string : tmpList) {
+					if (OreDictionary.doesOreNameExist(string)) {
+						oreStringBlacklist.add(string);
+					}
+				}
+			}
+			return oreStringBlacklist;
+		}
+
+		public static List<String> getOreWhitelist() {
+			String[] tmpList = null;
+			if (oreStringWhitelist.isEmpty() && !oreWhitelist.isEmpty()) {
+				tmpList = oreWhitelist.split(";");
+			}
+			if (tmpList != null) {
+				for (String string : tmpList) {
+					if (OreDictionary.doesOreNameExist(string)) {
+						oreStringWhitelist.add(string);
+					}
+				}
+			}
+			return oreStringWhitelist;
+		}
 
 		public static NonNullList<ItemStack> getCreativeBlacklistedItems() throws Exception {
-			if (creativeItemBlacklist == null) {
+			if (creativeItemBlacklist == null && getCreativeWhitelistedItems().isEmpty()) {
 				creativeItemBlacklist = NonNullList.<ItemStack>create();
 				if (!creativeBlacklist.isEmpty()) {
 					List<String> itemStringList = Lists.newArrayList(creativeBlacklist.split(";"));

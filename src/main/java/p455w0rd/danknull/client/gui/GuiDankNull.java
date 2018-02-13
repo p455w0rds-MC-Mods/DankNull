@@ -8,12 +8,14 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import org.apache.commons.lang3.tuple.Pair;
-import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
+
+import com.google.common.collect.Lists;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -35,9 +37,11 @@ import p455w0rd.danknull.container.ContainerDankNull;
 import p455w0rd.danknull.init.ModConfig.Options;
 import p455w0rd.danknull.init.ModGlobals;
 import p455w0rd.danknull.init.ModIntegration.Mods;
+import p455w0rd.danknull.init.ModNetworking;
 import p455w0rd.danknull.integration.Chisel;
 import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rd.danknull.inventory.slot.SlotDankNull;
+import p455w0rd.danknull.network.PacketSyncDankNull;
 import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rd.danknull.util.DankNullUtils.SlotExtractionMode;
 import p455w0rdslib.client.gui.GuiModular;
@@ -100,6 +104,27 @@ public class GuiDankNull extends GuiModular {
 		super.initGui();
 		ModGlobals.GUI_DANKNULL_ISOPEN = true;
 		xSize = 201;
+		if (Minecraft.getMinecraft().player.capabilities.isCreativeMode && DankNullUtils.isCreativeDankNull(getDankNull())) {
+			buttonList.clear();
+			buttonList.add(new GuiButton(0, getX() + (xSize / 2) - 25, getY() - 20, 50, 20, (DankNullUtils.isCreativeDankNullLocked(getDankNull()) ? "Unl" : "L") + "ock"));
+		}
+	}
+
+	@Override
+	protected void actionPerformed(final GuiButton btn) {
+		if (btn.id == 0) {
+			String lock = I18n.format("dn.lock.desc");
+			String unlock = I18n.format("dn.unlock.desc");
+			if (btn.displayString.equals(lock)) {
+				btn.displayString = unlock;
+				DankNullUtils.setLocked(getDankNull(), true);
+			}
+			else {
+				btn.displayString = lock;
+				DankNullUtils.setLocked(getDankNull(), false);
+			}
+			ModNetworking.getInstance().sendToServer(new PacketSyncDankNull(getDankNull()));
+		}
 	}
 
 	@Override
@@ -292,14 +317,13 @@ public class GuiDankNull extends GuiModular {
 			drawStack(returningStack, l1, i2, (String) null);
 		}
 		GlStateManager.popMatrix();
-		if (inventoryplayer.getItemStack().isEmpty() && (theSlot != null) && (theSlot.getHasStack())) {
+		if (inventoryplayer.getItemStack().isEmpty() && (theSlot != null)) {// && (theSlot.getHasStack())) {
 			ItemStack itemstack1 = (theSlot instanceof SlotDankNull) ? ((SlotDankNull) theSlot).getStack() : theSlot.getStack();
 			renderToolTip(itemstack1, mouseX, mouseY);
 		}
 	}
 
 	private void drawStack(ItemStack stack, int x, int y, String altText) {
-		//GlStateManager.translate(0.0F, 0.0F, 32.0F);
 		MCPrivateUtils.setGuiZLevel(this, 200.0F);
 		MCPrivateUtils.setGuiScreenRendererZLevel(this, 200.0F);
 		FontRenderer font = null;
@@ -313,43 +337,6 @@ public class GuiDankNull extends GuiModular {
 		MCPrivateUtils.getGuiScreenRenderItem(this).renderItemOverlayIntoGUI(font, stack, x, y, altText);
 		MCPrivateUtils.setGuiScreenRendererZLevel(this, 0.0F);
 		MCPrivateUtils.setGuiZLevel(this, 0.0F);
-		//GlStateManager.translate(0.0F, 0.0F, -32.0F);
-	}
-
-	@Override
-	public void handleMouseInput() throws IOException {
-		int mouseX = Mouse.getEventX() * width / mc.displayWidth;
-		int mouseY = height - Mouse.getEventY() * height / mc.displayHeight - 1;
-		int button = Mouse.getEventButton();
-		/*
-		if (Mouse.getEventButtonState()) {
-			if (button == 0) {
-				Slot slot = getSlotAtPos(mouseX, mouseY);
-				if (slot != null && !slot.getStack().isEmpty()) {
-					if (GuiScreen.isAltKeyDown()) {
-						if (!ItemUtils.areItemsEqual(DankNullUtils.getSelectedStack(getDankNullInventory()), slot.getStack())) {
-							int count = 0;
-							for (Slot slotHovered : inventorySlots.inventorySlots) {
-								count++;
-								if (slotHovered.equals(slot)) {
-									DankNullUtils.setSelectedStackIndex(getDankNullInventory(), (count - 1) - 36);
-									return;
-								}
-							}
-						}
-					}
-					else if (GuiScreen.isCtrlKeyDown()) {
-						DankNullUtils.cycleExtractionMode(getDankNull(), slot.getStack());
-						ModNetworking.getInstance().sendToServer(new PacketSyncDankNull(getDankNullInventory().getDankNull()));
-						//((ContainerDankNull) inventorySlots).setDankNullInventory(getDankNullInventory());
-						//setDankNull(((ContainerDankNull) inventorySlots).getDankNullInventory().getDankNull());
-						return;
-					}
-				}
-			}
-		}
-		*/
-		super.handleMouseInput();
 	}
 
 	private boolean isMouseHovering(Slot slot, int x, int y) {
@@ -457,7 +444,7 @@ public class GuiDankNull extends GuiModular {
 
 	@Override
 	protected void renderToolTip(ItemStack stack, int x, int y) {
-		List<String> list = stack.getTooltip(EasyMappings.player(), mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL);
+		List<String> list = stack.isEmpty() ? Lists.newArrayList() : stack.getTooltip(EasyMappings.player(), mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL);
 
 		for (int i = 0; i < list.size(); ++i) {
 			if (i == 0) {
@@ -469,38 +456,25 @@ public class GuiDankNull extends GuiModular {
 		}
 		Slot s = getSlotAtPos(x, y);
 		if (s != null && s instanceof SlotDankNull && s.getHasStack()) {
+			boolean showOreDictMessage = ((DankNullUtils.isOreDictBlacklistEnabled() && !DankNullUtils.isItemOreDictBlacklisted(s.getStack())) || (DankNullUtils.isOreDictWhitelistEnabled() && DankNullUtils.isItemOreDictWhitelisted(s.getStack())) || !DankNullUtils.isOreDictBlacklistEnabled() && !DankNullUtils.isOreDictWhitelistEnabled());
 			SlotExtractionMode mode = DankNullUtils.getExtractionModeForStack(getDankNull(), s.getStack());
-			if (s.getStack().getCount() > 1000) {
-				list.add(1, TextFormatting.GRAY + "" + TextFormatting.ITALIC + DankNullUtils.translate("dn.count.desc") + ": " + (DankNullUtils.isCreativeDankNull(getDankNull()) ? DankNullUtils.translate("dn.infinite.desc") : s.getStack().getCount()));
-				list.add(2, DankNullUtils.translate("dn.extract_mode.desc") + ": " + mode.getTooltip());
-				String oreDictMode = DankNullUtils.getOreDictModeForStack(getDankNull(), s.getStack()) ? DankNullUtils.translate("dn.enabled.desc") : DankNullUtils.translate("dn.disabled.desc");
-				boolean oreDicted = DankNullUtils.isItemOreDicted(s.getStack());
-				if (oreDicted) {
-					list.add(3, DankNullUtils.translate("dn.ore_dictionary.desc") + ": " + oreDictMode);
-				}
-				list.add(oreDicted ? 4 : 3, TextFormatting.GRAY + "" + TextFormatting.ITALIC + "  " + DankNullUtils.translate("dn.ctrl_click_change.desc"));
-				if (oreDicted) {
-					list.add(5, TextFormatting.GRAY + "" + TextFormatting.ITALIC + "  " + DankNullUtils.translate("dn.o_click_toggle.desc"));
-				}
-				if (DankNullUtils.getSelectedStackIndex(getDankNullInventory()) != s.getSlotIndex()) {
-					list.add(oreDicted ? 6 : 4, TextFormatting.GRAY + "" + TextFormatting.ITALIC + "  " + DankNullUtils.translate("dn.alt_click_set.desc"));
-				}
+
+			if (mode != null) {
+				list.add(1, DankNullUtils.translate("dn.extract_mode.desc") + ": " + mode.getTooltip());
 			}
-			else {
-				if (mode != null) {
-					list.add(1, DankNullUtils.translate("dn.extract_mode.desc") + ": " + mode.getTooltip());
-				}
+			list.add(2, TextFormatting.GRAY + "" + TextFormatting.ITALIC + "  " + DankNullUtils.translate("dn.ctrl_click_change.desc"));
+			if (DankNullUtils.getSelectedStackIndex(getDankNullInventory()) != s.getSlotIndex()) {
+				list.add(3, TextFormatting.GRAY + "" + TextFormatting.ITALIC + "  " + DankNullUtils.translate("dn.alt_click_set.desc"));
+			}
+
+			if (showOreDictMessage) {
 				String oreDictMode = DankNullUtils.getOreDictModeForStack(getDankNull(), s.getStack()) ? DankNullUtils.translate("dn.enabled.desc") : DankNullUtils.translate("dn.disabled.desc");
 				boolean oreDicted = DankNullUtils.isItemOreDicted(s.getStack());
 				if (oreDicted) {
 					list.add(2, DankNullUtils.translate("dn.ore_dictionary.desc") + ": " + oreDictMode);
 				}
-				list.add(oreDicted ? 3 : 2, TextFormatting.GRAY + "" + TextFormatting.ITALIC + "  " + DankNullUtils.translate("dn.ctrl_click_change.desc"));
 				if (oreDicted) {
 					list.add(4, TextFormatting.GRAY + "" + TextFormatting.ITALIC + "  " + DankNullUtils.translate("dn.o_click_toggle.desc"));
-				}
-				if (DankNullUtils.getSelectedStackIndex(getDankNullInventory()) != s.getSlotIndex()) {
-					list.add(oreDicted ? 4 : 3, TextFormatting.GRAY + "" + TextFormatting.ITALIC + "  " + DankNullUtils.translate("dn.alt_click_set.desc"));
 				}
 			}
 			if (Mods.CHISEL.isLoaded()) {
@@ -518,6 +492,9 @@ public class GuiDankNull extends GuiModular {
 						list.add(1, TextFormatting.RESET + I18n.format("dn.chisel_varient.desc") + ": " + TextFormatting.GRAY + "" + TextFormatting.ITALIC + "" + name);
 					}
 				}
+			}
+			if (s.getStack().getCount() > 1000) {
+				list.add(1, TextFormatting.GRAY + "" + TextFormatting.ITALIC + DankNullUtils.translate("dn.count.desc") + ": " + (DankNullUtils.isCreativeDankNull(getDankNull()) ? DankNullUtils.translate("dn.infinite.desc") : s.getStack().getCount()));
 			}
 		}
 
