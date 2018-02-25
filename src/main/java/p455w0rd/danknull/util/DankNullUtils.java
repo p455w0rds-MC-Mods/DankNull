@@ -50,7 +50,6 @@ import p455w0rd.danknull.items.ItemDankNull;
 import p455w0rd.danknull.network.PacketSetSelectedItem;
 import p455w0rd.danknull.recipes.RecipeDankNullUpgrade;
 import p455w0rdslib.util.GuiUtils;
-import p455w0rdslib.util.ItemUtils;
 import p455w0rdslib.util.RenderUtils;
 
 /**
@@ -383,7 +382,7 @@ public class DankNullUtils {
 		if (inventory != null) {
 			for (int i = 0; i < inventory.getSizeInventory(); i++) {
 				if (!inventory.getStackInSlot(i).isEmpty()) {
-					if (ItemUtils.areItemsEqual(inventory.getStackInSlot(i), filteredStack)) {
+					if (inventory.getStackInSlot(i).isItemEqual(filteredStack)) {
 						return true;
 					}
 				}
@@ -547,7 +546,7 @@ public class DankNullUtils {
 		if (isFiltered(inventory, filteredStack)) {
 			for (int i = 0; i < inventory.getSizeInventory(); i++) {
 				if (!inventory.getStackInSlot(i).isEmpty()) {
-					if (ItemUtils.areItemsEqual(inventory.getStackInSlot(i), filteredStack)) {
+					if (inventory.getStackInSlot(i).isItemEqual(filteredStack)) {
 						return i;
 					}
 				}

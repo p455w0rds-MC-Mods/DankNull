@@ -14,6 +14,7 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
@@ -60,7 +61,11 @@ public class PacketSyncDankNull implements IMessage {
 			for (int k = 0; k < extractionModesSize; k++) {
 				ItemStack currentStack = ByteBufUtils.readItemStack(buf);
 				currentStack.setCount(1);
-				SlotExtractionMode mode = SlotExtractionMode.values()[currentStack.getTagCompound().getInteger(TEMP_EXTRACT_TAG)];
+				int tmpExtractMode = 0;
+				if (currentStack.hasTagCompound() && currentStack.getTagCompound().hasKey(TEMP_EXTRACT_TAG, Constants.NBT.TAG_INT)) {
+					tmpExtractMode = currentStack.getTagCompound().getInteger(TEMP_EXTRACT_TAG);
+				}
+				SlotExtractionMode mode = SlotExtractionMode.values()[tmpExtractMode];
 				extractionModes.put(currentStack, mode);
 			}
 		}
@@ -69,7 +74,11 @@ public class PacketSyncDankNull implements IMessage {
 			for (int k = 0; k < oreDictModesSize; k++) {
 				ItemStack currentStack = ByteBufUtils.readItemStack(buf);
 				currentStack.setCount(1);
-				oreDictModes.put(currentStack, currentStack.getTagCompound().getBoolean(TEMP_OREDICT_TAG));
+				boolean tmoOreDictMode = false;
+				if (currentStack.hasTagCompound() && currentStack.getTagCompound().hasKey(TEMP_OREDICT_TAG)) {
+					tmoOreDictMode = currentStack.getTagCompound().getBoolean(TEMP_OREDICT_TAG);
+				}
+				oreDictModes.put(currentStack, tmoOreDictMode);
 			}
 		}
 		if (buf.readBoolean()) {
