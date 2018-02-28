@@ -1,0 +1,30 @@
+#PARSE_ESCAPES
+#/dank/null IT Italian Localizations
+
+//Items
+item.dank_null_0.name=/dank/null/
+item.dank_null_1.name=/dank/null/MK II
+item.dank_null_2.name=/dank/null/MK III
+item.dank_null_3.name=/dank/null/MK IV
+item.dank_null_4.name=/dank/null/MK V
+item.dank_null_5.name=/dank/null/MK VI
+item.dank_null_panel.name=Pannello RedStone 
+item.dank_null_panel_0.name=Pannello /dank/null di Pietrarossa
+item.dank_null_panel_1.name=Pannello /dank/null di Lapislazzuli
+item.dank_null_panel_2.name=Pannello /dank/null di Ferro
+item.dank_null_panel_3.name=Pannello /dank/null d'Oro
+item.dank_null_panel_4.name=Pannello /dank/null di Diamante 
+item.dank_null_panel_5.name=Pannello /dank/null di Smeraldo
+
+//Blocks
+tile.danknull_dock.name=Stazione di attacco per /dank/null
+
+//JEI INTEGRATION
+jei.danknull.desc=La /dank/null è un successore e una versione aggiornata del /dev/null/ della OpenBlocks.
+jei.danknull.desc0=\nLa §r /dank/null §4§ldi Pietrarossa (MK I) è la versione più bassa con 9 spazi e 2 pile di oggetti per ogni spazio.
+jei.danknull.desc1=\nLa §r /dank/null §9§ldi Lapislazzuli (MK II) è la seconda versione ed ha 18 spazi e 4 pile di oggetti per ogni spazio.
+jei.danknull.desc2=\nLa §r /dank/null §8§ldi Ferro (MK III) è la terza versione ed ha 27 spazi e 8 pile di oggetti per ogni spazio.
+jei.danknull.desc3=\nLa §r /dank/null §6§ld'Oro (MK IV) è la quarta versione ed ha 36 spazi e 16 pile di oggetti per ogni spazio.
+jei.danknull.desc4=\nLa §r /dank/null §b§l di Diamante (MK V) è la quinta versione ed ha 45 spazi e 32 pile di oggetti per ogni spazio.
+jei.danknull.desc5=\nLa §r /dank/null §2§ldi Smeraldo (MK VI) è la versione più alta ed ha 54 spazi e 2.14 miliardi di oggetti per ogni spazio.
+jei.danknull_dock.desc=-Tasto destro  con una /dank/null in mano per piazzarla in una stazione d'attacco\n-Gli oggetti possono solo essere estratti dalla /dank/null, non inseriti dal fondo.\n-La velocita è determinata dal blocco che sta prendendo.
