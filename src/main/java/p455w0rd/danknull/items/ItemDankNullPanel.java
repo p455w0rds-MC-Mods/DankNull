@@ -18,6 +18,7 @@ import p455w0rd.danknull.init.ModGlobals;
  * @author p455w0rd
  *
  */
+@SuppressWarnings("deprecation")
 public class ItemDankNullPanel extends Item implements IModelHolder {
 
 	public ItemDankNullPanel() {
@@ -79,10 +80,8 @@ public class ItemDankNullPanel extends Item implements IModelHolder {
 	@Override
 	public void initModel() {
 		for (int i = 0; i < 6; i++) {
-			//	ModelLoader.setCustomModelResourceLocation(this, i, new ModelResourceLocation(new ResourceLocation(ModGlobals.MODID, getUnlocalizedName() + "_" + i), "inventory"));
 			PModelRegistryHelper.registerMetaRenderer(this, DankNullPanelRenderer.getInstance(), i);
 		}
-		//ModelRegistryHelper.registerItemRenderer(this, DankNullPanelRenderer.getInstance());
 	}
 
 	@Override

@@ -105,7 +105,7 @@ public class DankNullRenderItem extends RenderItem {
 	}
 
 	public ItemStack getStack() {
-		return itemStack;
+		return itemStack == null ? ItemStack.EMPTY : itemStack;
 	}
 
 	public void setStack(@Nonnull ItemStack stack, boolean regularSlotStack) {

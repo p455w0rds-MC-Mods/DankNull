@@ -7,7 +7,6 @@ import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import p455w0rd.danknull.items.ItemDankNull;
-import p455w0rd.danknull.items.ItemDankNullHolder;
 import p455w0rd.danknull.items.ItemDankNullPanel;
 
 /**
@@ -37,7 +36,7 @@ public class ModCreativeTab extends CreativeTabs {
 			items.add(new ItemStack(ModItems.DANK_NULL, 1, i));
 		}
 		for (Item item : ModItems.getList()) {
-			if (!(item instanceof ItemDankNull) && !(item instanceof ItemDankNullHolder) && !(item instanceof ItemBlock) && !(item instanceof ItemDankNullPanel)) {
+			if (!(item instanceof ItemDankNull) && !(item instanceof ItemBlock) && !(item instanceof ItemDankNullPanel)) {
 				items.add(new ItemStack(item));
 			}
 		}

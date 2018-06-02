@@ -9,7 +9,6 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import p455w0rd.danknull.api.IModelHolder;
 import p455w0rd.danknull.items.ItemDankNull;
-import p455w0rd.danknull.items.ItemDankNullHolder;
 import p455w0rd.danknull.items.ItemDankNullPanel;
 
 /**
@@ -20,14 +19,13 @@ public class ModItems {
 
 	private static final NonNullList<Item> ITEM_LIST = NonNullList.<Item>create();
 
-	public static final ItemDankNullHolder DANK_NULL_HOLDER = new ItemDankNullHolder();
 	public static final ItemDankNull DANK_NULL = new ItemDankNull();
 	public static final ItemDankNullPanel DANK_NULL_PANEL = new ItemDankNullPanel();
 
 	public static void init() {
 		long millis = System.currentTimeMillis() % 1000;
 		ModLogger.info("Registering Items");
-		ITEM_LIST.addAll(Arrays.asList(DANK_NULL, DANK_NULL_HOLDER, DANK_NULL_PANEL));
+		ITEM_LIST.addAll(Arrays.asList(DANK_NULL, DANK_NULL_PANEL));
 		ModLogger.info("Registering Items Complete In " + (int) ((System.currentTimeMillis() % 1000) - millis) + "ms");
 	}
 

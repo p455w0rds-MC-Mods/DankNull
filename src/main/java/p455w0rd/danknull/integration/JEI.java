@@ -39,7 +39,7 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.ContainerWorkbench;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.oredict.OreDictionary;
+import p455w0rd.danknull.container.ContainerDankNull;
 import p455w0rd.danknull.init.ModBlocks;
 import p455w0rd.danknull.init.ModIntegration.Mods;
 import p455w0rd.danknull.init.ModItems;
@@ -62,7 +62,7 @@ public class JEI implements IModPlugin {
 	public void register(@Nonnull IModRegistry registry) {
 		blacklist = registry.getJeiHelpers().getIngredientBlacklist();
 
-		blacklistItem(new ItemStack(ModItems.DANK_NULL_HOLDER, 1, OreDictionary.WILDCARD_VALUE));
+		//blacklistItem(new ItemStack(ModItems.DANK_NULL_HOLDER, 1, OreDictionary.WILDCARD_VALUE));
 
 		List<ItemStack> dankNulls = new ArrayList<ItemStack>();
 		dankNulls.addAll(Arrays.asList(new ItemStack(ModItems.DANK_NULL, 1, 0), new ItemStack(ModItems.DANK_NULL, 1, 1), new ItemStack(ModItems.DANK_NULL, 1, 2), new ItemStack(ModItems.DANK_NULL, 1, 3), new ItemStack(ModItems.DANK_NULL, 1, 4), new ItemStack(ModItems.DANK_NULL, 1, 5)));
@@ -350,7 +350,7 @@ public class JEI implements IModPlugin {
 			// remove required recipe items
 			/*
 			int removedSets = removeSetsFromInventory(container, slotIdMap.values(), craftingSlots, inventorySlots, maxRemovedSets);
-			
+
 			if (removedSets == 0) {
 				return;
 			}
@@ -401,8 +401,9 @@ public class JEI implements IModPlugin {
 					}
 				}
 			}
-
-			container.detectAndSendChanges();
+			if (container instanceof ContainerDankNull) {
+				((ContainerDankNull) container).sync();
+			}
 		}
 
 		public static void setItems(EntityPlayer player, Map<Integer, ItemStack> recipe, boolean maxTransfer) {
@@ -486,9 +487,9 @@ public class JEI implements IModPlugin {
 				stack.setCount(1);
 				//slotMap.put(entry.getKey(), stack);
 			}
-			
+
 			int maxRemovedSets = maxTransfer ? 64 : 1;
-			
+
 			for (Map.Entry<Integer, ItemStack> entry : slotMap.entrySet()) {
 				ItemStack stack = entry.getValue();
 				if (stack.isStackable()) {
@@ -502,7 +503,7 @@ public class JEI implements IModPlugin {
 					maxRemovedSets = 1;
 				}
 			}
-			
+
 			boolean needsDankNull = false;
 			if (slotMap.isEmpty()) {
 				List<ItemStack> dankNulls = DankNullUtils.getAllDankNulls(player);
@@ -511,11 +512,11 @@ public class JEI implements IModPlugin {
 					maxRemovedSets++;
 				}
 			}
-			
+
 			if (maxRemovedSets <= 0) {
 				return;
 			}
-			
+
 			if (!removeSetsFromInventory(container, slotIdMap.values(), craftingSlots, inventorySlots)) {
 				return;
 			}

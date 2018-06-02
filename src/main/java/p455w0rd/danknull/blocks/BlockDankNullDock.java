@@ -23,6 +23,8 @@ import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelLoader;
@@ -34,9 +36,9 @@ import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
 import p455w0rd.danknull.client.render.DankTextures;
 import p455w0rd.danknull.client.render.TESRDankNullDock;
 import p455w0rd.danknull.init.ModGlobals;
-import p455w0rd.danknull.init.ModGuiHandler;
-import p455w0rd.danknull.init.ModGuiHandler.GUIType;
 import p455w0rd.danknull.init.ModItems;
+import p455w0rd.danknull.init.ModNetworking;
+import p455w0rd.danknull.network.PacketSetDankNullInDock;
 import p455w0rd.danknull.util.DankNullUtils;
 
 /**
@@ -122,42 +124,61 @@ public class BlockDankNullDock extends BlockContainerBase {
 
 	@Override
 	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-		if (getTE(world, pos) != null) {
-			if (!player.getHeldItem(hand).isEmpty() && getTE(world, pos).getStack().isEmpty() && player.getHeldItem(hand).getItem() == ModItems.DANK_NULL) {
-				getTE(world, pos).setStack(player.getHeldItem(hand));
-				getTE(world, pos).setSelectedStack(DankNullUtils.getSelectedStack(DankNullUtils.getInventoryFromHeld(player)));
+		if (world.isRemote) {
+			return false;
+		}
+		if (player.getServer().isBlockProtected(world, pos, player)) {
+			return false;
+		}
+		TileDankNullDock dankDock = getTE(world, pos);
+		if (dankDock != null) {
+			if (!player.getHeldItem(hand).isEmpty() && dankDock.getStack().isEmpty() && player.getHeldItem(hand).getItem() == ModItems.DANK_NULL) {
+				ItemStack dankNull = player.getHeldItem(hand);
+				dankDock.setStack(dankNull);
+				dankDock.setSelectedStack(DankNullUtils.getSelectedStack(DankNullUtils.getInventoryFromHeld(player)));
+				//if (!player.capabilities.isCreativeMode || (player.capabilities.isCreativeMode && !player.isSneaking())) {
 				player.setHeldItem(hand, ItemStack.EMPTY);
+				//}
+				//if (!world.isRemote) {
+				ModNetworking.getInstance().sendToDimension(new PacketSetDankNullInDock(dankDock, dankNull), world.provider.getDimension());
+				//}
+				dankDock.markDirty();
 				return true;
 			}
 			else if (player.getHeldItem(hand).isEmpty()) {
-				if (!player.isSneaking()) {
-					if (!getTE(world, pos).getStack().isEmpty()) {
-						ModGuiHandler.launchGui(GUIType.DANKNULL_TE, player, world, pos.getX(), pos.getY(), pos.getZ());
+				if (!player.isSneaking() && hand == EnumHand.MAIN_HAND) {
+					if (!dankDock.getStack().isEmpty()) {
+						//ModGuiHandler.launchGui(GUIType.DANKNULL_TE, player, world, pos.getX(), pos.getY(), pos.getZ());
+						player.sendMessage(new TextComponentString("GUI temporarily disabled - pull the /dank/null off to change settings"));
+						//return true;
 					}
 				}
-				else {
-					if (!getTE(world, pos).getStack().isEmpty()) {
-						player.setHeldItem(hand, getTE(world, pos).getStack());
-						getTE(world, pos).setStack(ItemStack.EMPTY);
-						getTE(world, pos).setSelectedStack(ItemStack.EMPTY);
-						getTE(world, pos).resetInventory();
-					}
-				}
-				return true;
 			}
 		}
 		return false;
 	}
 
 	@Override
+	public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player) {
+		return getItemBlockWithNBT(world.getTileEntity(pos));
+	}
+
+	@Override
 	public void harvestBlock(World worldIn, EntityPlayer player, BlockPos pos, IBlockState state, @Nullable TileEntity te, @Nullable ItemStack stack) {
 		player.addStat(StatList.getBlockStats(this));
 		player.addExhaustion(0.025F);
-		ItemStack itemstack = new ItemStack(this);
+		stack = getItemBlockWithNBT(te);
+		spawnAsEntity(worldIn, pos, stack);
+	}
+
+	private ItemStack getItemBlockWithNBT(@Nullable TileEntity te) {
+		ItemStack stack = new ItemStack(this);
 		NBTTagCompound nbttagcompound = new NBTTagCompound();
-		te.writeToNBT(nbttagcompound);
-		itemstack.setTagInfo("BlockEntityTag", nbttagcompound);
-		spawnAsEntity(worldIn, pos, itemstack);
+		if (te != null) {
+			te.writeToNBT(nbttagcompound);
+			stack.setTagInfo("BlockEntityTag", nbttagcompound);
+		}
+		return stack;
 	}
 
 }

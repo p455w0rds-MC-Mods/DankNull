@@ -2,6 +2,7 @@ package p455w0rd.danknull.items;
 
 import javax.annotation.Nonnull;
 
+import codechicken.lib.model.ModelRegistryHelper;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBanner;
@@ -12,6 +13,7 @@ import net.minecraft.block.BlockWallSign;
 import net.minecraft.block.SoundType;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.renderer.block.model.ModelResourceLocation;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
@@ -34,6 +36,7 @@ import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.SoundCategory;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
@@ -42,6 +45,7 @@ import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
+import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fluids.UniversalBucket;
@@ -53,7 +57,6 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import p455w0rd.danknull.api.IModelHolder;
 import p455w0rd.danknull.client.render.DankNullRenderer;
-import p455w0rd.danknull.client.render.PModelRegistryHelper;
 import p455w0rd.danknull.init.ModConfig.Options;
 import p455w0rd.danknull.init.ModGlobals;
 import p455w0rd.danknull.init.ModGuiHandler;
@@ -85,7 +88,6 @@ public class ItemDankNull extends Item implements IModelHolder {
 	@Override
 	public ICapabilityProvider initCapabilities(ItemStack stack, NBTTagCompound nbt) {
 		return new ICapabilityProvider() {
-
 			@Override
 			public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
 				return capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
@@ -97,7 +99,6 @@ public class ItemDankNull extends Item implements IModelHolder {
 			}
 
 		};
-
 	}
 
 	@Override
@@ -110,7 +111,10 @@ public class ItemDankNull extends Item implements IModelHolder {
 	@SideOnly(Side.CLIENT)
 	public void initModel() {
 		for (int i = 0; i <= 6; i++) {
-			PModelRegistryHelper.registerMetaRenderer(this, DankNullRenderer.getInstance(), i);
+			ResourceLocation regName = new ResourceLocation(getRegistryName().getResourceDomain(), getRegistryName().getResourcePath() + "_" + i);
+			ModelResourceLocation location = new ModelResourceLocation(regName, "inventory");
+			ModelLoader.setCustomModelResourceLocation(this, i, location);
+			ModelRegistryHelper.register(location, new DankNullRenderer(() -> new ModelResourceLocation(regName, "inventory")));
 		}
 	}
 
@@ -287,24 +291,28 @@ public class ItemDankNull extends Item implements IModelHolder {
 	public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, IBlockState newState, Block block) {
 		ItemStack tmpStack = stack.copy();
 		tmpStack.setCount(1);
+		if (tmpStack.getItem() instanceof ItemBlock) {
+			ItemBlock blockItem = (ItemBlock) tmpStack.getItem();
+			blockItem.placeBlockAt(stack, player, world, pos, side, hitX, hitY, hitZ, newState);
+			return true;
+		}
 		world.setBlockState(pos, newState, 3);
-		IBlockState state = world.getBlockState(pos);
+		//IBlockState state = world.getBlockState(pos);
 		//if (state.getBlock() == block) {
-		world.setBlockState(pos, newState, 3);
-		ItemBlock.setTileEntityNBT(world, player, pos, tmpStack);
-		block.onBlockPlacedBy(world, pos, state, player, tmpStack);
+		//world.setBlockState(pos, newState, 3);
+		//Block worldBlock = state.getBlock();
+		//ItemBlock.setTileEntityNBT(world, player, pos, tmpStack);
+		//block.onBlockPlacedBy(world, pos, newState, player, tmpStack);
 		world.notifyNeighborsOfStateChange(pos, block, true);
 		if (player instanceof EntityPlayerMP) {
 			CriteriaTriggers.PLACED_BLOCK.trigger((EntityPlayerMP) player, pos, tmpStack);
 		}
 		return true;
-		//}
-		//return true;
 	}
 
 	public EnumActionResult placeSlab(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ, ItemStack itemstack, ItemSlab slab) {
 		BlockSlab singleSlab = ReflectionHelper.getPrivateValue(ItemSlab.class, slab, "singleSlab");
-		BlockSlab doubleSlab = ReflectionHelper.getPrivateValue(ItemSlab.class, slab, "doubleSlab");
+		//BlockSlab doubleSlab = ReflectionHelper.getPrivateValue(ItemSlab.class, slab, "doubleSlab");
 		if (!itemstack.isEmpty() && player.canPlayerEdit(pos, facing, itemstack)) {
 			Comparable<?> comparable = singleSlab.getTypeForItem(itemstack);
 			IBlockState iblockstate = worldIn.getBlockState(pos);//block.getStateForPlacement(worldIn, pos, facing, hitX, hitY, hitZ, itemstack.getItemDamage(), player);

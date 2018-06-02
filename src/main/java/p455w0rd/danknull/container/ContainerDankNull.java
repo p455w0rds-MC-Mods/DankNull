@@ -19,9 +19,9 @@ import p455w0rd.danknull.init.ModNetworking;
 import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rd.danknull.inventory.slot.SlotDankNull;
 import p455w0rd.danknull.inventory.slot.SlotHotbar;
+import p455w0rd.danknull.network.PacketSyncDankDock;
 import p455w0rd.danknull.network.PacketSyncDankNull;
 import p455w0rd.danknull.util.DankNullUtils;
-import p455w0rd.danknull.util.TargetPos;
 
 /**
  * @author p455w0rd
@@ -34,7 +34,7 @@ public class ContainerDankNull extends Container {
 	private TileDankNullDock te;
 
 	public ContainerDankNull(EntityPlayer player, TileDankNullDock tile) {
-		this(player, tile.getInventory());
+		this(player, DankNullUtils.getNewDankNullInventory(tile.getStack()));
 		te = tile;
 	}
 
@@ -79,18 +79,9 @@ public class ContainerDankNull extends Container {
 			EntityPlayerMP l = (EntityPlayerMP) listener;
 			if (!playerList.contains(l)) {
 				playerList.add(l);
-				detectAndSendChanges();
+				sync();
 			}
 		}
-		/*
-				if (listeners.contains(listener)) {
-					throw new IllegalArgumentException("Listener already listening");
-				}
-				else {
-					listeners.add(listener);
-					detectAndSendChanges();
-				}
-				*/
 	}
 
 	@Override
@@ -179,12 +170,45 @@ public class ContainerDankNull extends Container {
 			}
 		}
 		//markDirty();
+		//sync();
 		return ItemStack.EMPTY;
 	}
 
 	@Override
 	public void detectAndSendChanges() {
+		for (int i = 0; i < inventorySlots.size(); ++i) {
+			ItemStack itemstack = inventorySlots.get(i).getStack();
+			ItemStack itemstack1 = inventoryItemStacks.get(i);
+
+			if (!ItemStack.areItemStacksEqual(itemstack1, itemstack)) {
+				boolean clientStackChanged = !ItemStack.areItemStacksEqualUsingNBTShareTag(itemstack1, itemstack);
+				if (clientStackChanged) {
+					sync();
+				}
+			}
+		}
 		//super.detectAndSendChanges();
+
+		/*
+		for (EntityPlayerMP player : playerList) {
+			for (int i = 0; i < inventorySlots.size(); ++i) {
+				ItemStack itemstack = inventorySlots.get(i).getStack();
+				ItemStack itemstack1 = inventoryItemStacks.get(i);
+				if (!ItemStack.areItemStacksEqual(itemstack1, itemstack)) {
+					boolean clientStackChanged = !ItemStack.areItemStacksEqualUsingNBTShareTag(itemstack1, itemstack);
+					itemstack1 = itemstack.isEmpty() ? ItemStack.EMPTY : itemstack.copy();
+					inventoryItemStacks.set(i, itemstack1);
+					if (clientStackChanged) {
+						player.sendSlotContents(this, i, itemstack1);
+					}
+				}
+			}
+		}
+		*/
+		//
+	}
+
+	public void sync() {
 		if (FMLCommonHandler.instance().getSide().isServer()) {
 			if (getTileEntity() == null) {
 				for (EntityPlayerMP player : playerList) {
@@ -193,27 +217,18 @@ public class ContainerDankNull extends Container {
 				}
 			}
 			else {
-				ModNetworking.getInstance().sendToAllAround(new PacketSyncDankNull(getDankNullInventory(), getTileEntity().getPos()), new TargetPos(getTileEntity().getWorld().provider.getDimension(), getTileEntity().getPos(), 6.0D));
+				ModNetworking.getInstance().sendToDimension(new PacketSyncDankDock(getDankNullInventory(), getTileEntity().getPos()), getTileEntity().getWorld().provider.getDimension());
 				//ModNetworking.getInstance().sendTo(new PacketSyncDankNull(getDankNullInventory(), getTileEntity().getPos()), player);
 			}
-			/*
-			for (EntityPlayerMP player : playerList) {
-				for (int i = 0; i < inventorySlots.size(); ++i) {
-					ItemStack itemstack = inventorySlots.get(i).getStack();
-					ItemStack itemstack1 = inventoryItemStacks.get(i);
-					if (!ItemStack.areItemStacksEqual(itemstack1, itemstack)) {
-						boolean clientStackChanged = !ItemStack.areItemStacksEqualUsingNBTShareTag(itemstack1, itemstack);
-						itemstack1 = itemstack.isEmpty() ? ItemStack.EMPTY : itemstack.copy();
-						inventoryItemStacks.set(i, itemstack1);
-						if (clientStackChanged) {
-							player.sendSlotContents(this, i, itemstack1);
-						}
-					}
-				}
-			}
-			*/
 		}
-		//
+		else {
+			if (getTileEntity() == null) {
+				ModNetworking.getInstance().sendToServer(new PacketSyncDankNull(getDankNullInventory()));
+			}
+			else {
+				ModNetworking.getInstance().sendToServer(new PacketSyncDankDock(getDankNullInventory(), getTileEntity().getPos()));
+			}
+		}
 	}
 
 	private boolean isDankNullSlot(Slot slot) {
@@ -274,23 +289,28 @@ public class ContainerDankNull extends Container {
 		InventoryPlayer inventoryplayer = player.inventory;
 		ItemStack heldStack = inventoryplayer.getItemStack();
 		if (index < 0) {
+			//sync();
 			return super.slotClick(index, dragType, clickTypeIn, player);
 		}
 		Slot s = inventorySlots.get(index);
 		if (s.getStack() == inventoryDankNull.getDankNull()) {
+			//sync();
 			return ItemStack.EMPTY;
 		}
 		if (isDankNullSlot(s)) {
 			if (heldStack.getItem() == ModItems.DANK_NULL) {
+				//sync();
 				return ItemStack.EMPTY;
 			}
 			ItemStack thisStack = s.getStack();
 			if (!thisStack.isEmpty() && (thisStack.getItem() == ModItems.DANK_NULL)) {
+				//sync();
 				return ItemStack.EMPTY;
 			}
 			if (!heldStack.isEmpty()) {
 				if (addStack(heldStack)) {
 					inventoryplayer.setItemStack(ItemStack.EMPTY);
+					//sync();
 					return heldStack;
 				}
 				else {
@@ -301,6 +321,7 @@ public class ContainerDankNull extends Container {
 						inventoryplayer.setItemStack(thisStack);
 						s.putStack(heldStack);
 					}
+					//sync();
 					return ItemStack.EMPTY;
 				}
 			}
@@ -329,12 +350,16 @@ public class ContainerDankNull extends Container {
 					}
 					inventoryplayer.setItemStack(newStack);
 					DankNullUtils.reArrangeStacks(getDankNullInventory());
-					return newStack;
+					//sync();
+					return ItemStack.EMPTY;
 				}
 			}
 		}
 		ItemStack ret = super.slotClick(index, dragType, clickTypeIn, player);
-		return ret;
+		if (player instanceof EntityPlayerMP) {
+			//sync();
+		}
+		return ItemStack.EMPTY;
 
 	}
 

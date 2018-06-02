@@ -33,7 +33,7 @@ import p455w0rd.danknull.init.ModConfig.Options;
 import p455w0rd.danknull.init.ModGlobals;
 import p455w0rd.danknull.init.ModNetworking;
 import p455w0rd.danknull.inventory.InventoryDankNull;
-import p455w0rd.danknull.network.PacketSyncDankNull;
+import p455w0rd.danknull.network.PacketSyncDankDock;
 import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rd.danknull.util.DankNullUtils.SlotExtractionMode;
 
@@ -55,6 +55,7 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 	private ItemStack dankNullStack = ItemStack.EMPTY;
 	private NonNullList<ItemStack> slots = NonNullList.create();
 	InventoryDankNull inventory;
+	private boolean shouldUpdate = true;
 
 	@Override
 	public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
@@ -111,12 +112,13 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 	}
 
 	public void resetInventory() {
-		inventory = null;
+		setStack(ItemStack.EMPTY);
+		setInventory(null);
+		setSelectedStack(ItemStack.EMPTY);
 	}
 
 	public void setStack(@Nonnull ItemStack stack) {
 		dankNullStack = stack;
-		//markDirty();
 	}
 
 	public int slotCount() {
@@ -129,6 +131,8 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 
 	public void setSelectedStack(ItemStack stack) {
 		selectedStack = stack;
+		shouldUpdate = true;
+		markDirty();
 	}
 
 	public ItemStack getStack() {
@@ -175,7 +179,7 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 
 	@Override
 	public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newSate) {
-		return oldState.getBlock() != newSate.getBlock();
+		return oldState.getBlock() != newSate.getBlock() || shouldUpdate();
 	}
 
 	@Override
@@ -194,17 +198,24 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 		readFromNBT(pkt.getNbtCompound());
 	}
 
+	public boolean shouldUpdate() {
+		return shouldUpdate;
+	}
+
 	@Override
 	public void markDirty() {
 		super.markDirty();
-		if (getWorld() != null) {
+		if (shouldUpdate()) {
 			IBlockState state = getWorld().getBlockState(pos);
-			if (state != null) {
-				getWorld().notifyBlockUpdate(pos, state, state, 3);
+			if (getWorld() != null && !getWorld().isRemote) {
 				if (!getStack().isEmpty()) {
-					ModNetworking.getInstance().sendToDimension(new PacketSyncDankNull(getStack(), getPos()), getWorld().provider.getDimension());
+					ModNetworking.getInstance().sendToDimension(new PacketSyncDankDock(getStack(), getPos()), getWorld().provider.getDimension());
 				}
 			}
+			if (state != null) {
+				getWorld().notifyBlockUpdate(pos, state, state, 3);
+			}
+			shouldUpdate = false;
 		}
 	}
 
@@ -260,6 +271,7 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 	public ItemStack decrStackSize(int index, int count) {
 		ItemStack ret = !getStack().isEmpty() ? getInventory().decrStackSize(index, count, this) : ItemStack.EMPTY;
 		DankNullUtils.reArrangeStacks(getInventory());
+		shouldUpdate = true;
 		return ret;
 	}
 
@@ -275,6 +287,7 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 			return;
 		}
 		getInventory().setInventorySlotContents(index, stack);
+		shouldUpdate = true;
 	}
 
 	@Override

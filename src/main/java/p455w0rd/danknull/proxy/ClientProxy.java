@@ -16,7 +16,6 @@ import p455w0rd.danknull.init.ModCreativeTab;
 import p455w0rd.danknull.init.ModIntegration;
 import p455w0rd.danknull.init.ModItems;
 import p455w0rd.danknull.init.ModKeyBindings;
-import p455w0rd.danknull.init.ModRendering;
 import p455w0rdslib.util.EasyMappings;
 
 public class ClientProxy extends CommonProxy {
@@ -35,7 +34,6 @@ public class ClientProxy extends CommonProxy {
 	@Override
 	public void init(FMLInitializationEvent e) {
 		super.init(e);
-		ModRendering.init();
 	}
 
 	@Override

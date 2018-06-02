@@ -36,8 +36,11 @@ public class ModGuiHandler implements IGuiHandler {
 			else if (player.getHeldItemOffhand().getItem() == ModItems.DANK_NULL) {
 				dankNull = player.getHeldItemOffhand();
 			}
-			if (dankNull == null) {
-				break;
+			if (dankNull.isEmpty()) {
+				dankNull = DankNullUtils.getDankNull(player);
+				if (dankNull.isEmpty()) {
+					break;
+				}
 			}
 			return new ContainerDankNull(player, DankNullUtils.getNewDankNullInventory(dankNull));
 		case DANKNULL_TE:
@@ -66,7 +69,10 @@ public class ModGuiHandler implements IGuiHandler {
 				dankNull = player.getHeldItemOffhand();
 			}
 			if (dankNull.isEmpty()) {
-				break;
+				dankNull = DankNullUtils.getDankNull(player);
+				if (dankNull.isEmpty()) {
+					break;
+				}
 			}
 			InventoryDankNull inv = DankNullUtils.getNewDankNullInventory(dankNull);
 			return new GuiDankNull(new ContainerDankNull(player, inv), player);

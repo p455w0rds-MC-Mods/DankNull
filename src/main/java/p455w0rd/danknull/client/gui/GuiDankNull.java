@@ -139,7 +139,8 @@ public class GuiDankNull extends GuiModular {
 
 	public ItemStack getDankNull() {
 		if (dock != null) {
-			dankNull = dock.getStack();
+			dock = (TileDankNullDock) mc.world.getTileEntity(dock.getPos());
+			//dankNull = dock.getStack();
 		}
 		return dankNull;
 	}
@@ -255,7 +256,6 @@ public class GuiDankNull extends GuiModular {
 
 			if ((DankNullUtils.getItemCount(getDankNullInventory()) > 0) && (DankNullUtils.getSelectedStackIndex(getDankNullInventory()) == i1 - 36)) {
 				GlStateManager.disableLighting();
-
 				int index = DankNullUtils.getSelectedStackIndex(getDankNullInventory());
 				if (index != -1) {
 					if (getSlotByIndex(index) != null && getSlotByIndex(index).getHasStack()) {
@@ -440,6 +440,12 @@ public class GuiDankNull extends GuiModular {
 				handleMouseClick(theSlot, theSlot.slotNumber, isCtrlKeyDown() && !(theSlot instanceof SlotDankNull) ? 1 : 0, ClickType.THROW);
 			}
 		}
+	}
+
+	@Override
+	protected void mouseReleased(int mouseX, int mouseY, int state) {
+		super.mouseReleased(mouseX, mouseY, state);
+		((ContainerDankNull) inventorySlots).sync();
 	}
 
 	@Override

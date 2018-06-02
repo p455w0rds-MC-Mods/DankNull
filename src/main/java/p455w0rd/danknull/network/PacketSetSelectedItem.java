@@ -3,6 +3,7 @@ package p455w0rd.danknull.network;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraftforge.fml.common.FMLCommonHandler;
@@ -10,7 +11,10 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
+import p455w0rd.danknull.container.ContainerDankNull;
 import p455w0rd.danknull.init.ModItems;
+import p455w0rd.danknull.init.ModNetworking;
+import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rd.danknull.util.DankNullUtils;
 
 /**
@@ -70,6 +74,7 @@ public class PacketSetSelectedItem implements IMessage {
 
 		private void handle(PacketSetSelectedItem message, MessageContext ctx) {
 			EntityPlayerMP player = ctx.getServerHandler().player;
+			MinecraftServer server = player.getServer();
 			ItemStack dankNull = ItemStack.EMPTY;
 			if (player != null) {
 				if (message.pos == null) {
@@ -88,7 +93,25 @@ public class PacketSetSelectedItem implements IMessage {
 						}
 					}
 				}
-				DankNullUtils.setSelectedStackIndex(DankNullUtils.getNewDankNullInventory(dankNull), message.index, player.getEntityWorld(), message.pos);
+				InventoryDankNull inv = DankNullUtils.getNewDankNullInventory(dankNull);
+				DankNullUtils.setSelectedStackIndex(inv, message.index, player.getEntityWorld(), message.pos);
+
+				if (server != null) {
+					for (EntityPlayerMP playerMP : server.getPlayerList().getPlayers()) {
+						if (!playerMP.getUniqueID().equals(player.getUniqueID()) && playerMP.openContainer instanceof ContainerDankNull) {
+							ContainerDankNull dankContainer = (ContainerDankNull) playerMP.openContainer;
+							TileDankNullDock tile = dankContainer.getTileEntity();
+							if (tile != null && tile.getPos().equals(message.pos)) {
+								//tile.setStack(dankNull);
+								//tile.setInventory(DankNullUtils.getNewDankNullInventory(dankNull));
+								//tile.setSelectedStack(inv.getStackInSlot(message.index));
+								//tile.markDirty();
+								ModNetworking.getInstance().sendTo(new PacketSyncDankDock(tile.getInventory(), tile.getPos()), playerMP);
+							}
+						}
+					}
+				}
+
 			}
 		}
 	}
