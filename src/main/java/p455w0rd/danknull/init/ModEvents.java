@@ -221,7 +221,9 @@ public class ModEvents {
 				}
 				ItemStack stackToSelect = state.getBlock().getPickBlock(state, target, world, target.getBlockPos(), player);
 				if (!stackToSelect.isEmpty() && (DankNullUtils.isFiltered(inventory, stackToSelect) || DankNullUtils.isFilteredOreDict(inventory, stackToSelect))) {
-					DankNullUtils.setSelectedStackIndex(inventory, DankNullUtils.getIndexForStack(inventory, stackToSelect));
+					int newIndex = DankNullUtils.getIndexForStack(inventory, stackToSelect);
+					DankNullUtils.setSelectedStackIndex(inventory, newIndex);
+					ModNetworking.getInstance().sendToServer(new PacketSetSelectedItem(newIndex));
 					event.setCanceled(true);
 				}
 			}
