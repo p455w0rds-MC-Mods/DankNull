@@ -1,0 +1,71 @@
+//dank/null IT Italian Localizations
+
+//Creative Tab
+itemGroup.danknull=/dank/null
+
+//Items
+item.dank_null_0.name=/dank/null/
+item.dank_null_1.name=/dank/null/MK II
+item.dank_null_2.name=/dank/null/MK III
+item.dank_null_3.name=/dank/null/MK IV
+item.dank_null_4.name=/dank/null/MK V
+item.dank_null_5.name=/dank/null/MK VI
+item.dank_null_6.name=/dank/null/Creativa
+item.dank_null_panel.name=Pannello /dank/null di Pietrarossa
+item.dank_null_panel_0.name=Pannello /dank/null di Pietrarossa
+item.dank_null_panel_1.name=Pannello /dank/null Panel di Lapislazzuli
+item.dank_null_panel_2.name=Pannello /dank/null Panel di Ferro
+item.dank_null_panel_3.name=Pannello /dank/null Panel di Oro
+item.dank_null_panel_4.name=Pannello /dank/null Panel di Diamante
+item.dank_null_panel_5.name=Pannello /dank/null Panel di Smeraldo
+
+//Blocks
+tile.danknull_dock.name=Stazione di attacco per /dank/null
+
+//JEI INTEGRATION
+jei.danknull.desc=La /dank/null è un successore spirituale e una versione aggiornata della /dev/null nella OpenBlocks.
+jei.danknull.desc0=\nLa §r /dank/null §4§ldi Pietrarossa (MK I) è la versione più bassa con 9 spazi e 2 pile di oggetti per ogni spazio.
+jei.danknull.desc1=\nLa §r /dank/null §9§ldi Lapislazzuli (MK II) è la seconda versione ed ha 18 spazi e 4 pile di oggetti per ogni spazio.
+jei.danknull.desc2=\nLa §r /dank/null §8§ldi Ferro (MK III) è la terza versione ed ha 27 spazi e 8 pile di oggetti per ogni spazio.
+jei.danknull.desc3=\nLa §r /dank/null §6§ld'Oro (MK IV) è la quarta versione ed ha 36 spazi e 16 pile di oggetti per ogni spazio.
+jei.danknull.desc4=\nLa §r /dank/null §b§l di Diamante (MK V) è la quinta versione ed ha 45 spazi e 32 pile di oggetti per ogni spazio.
+jei.danknull.desc5=\nLa §r /dank/null §2§ldi Smeraldo (MK VI) è la versione più alta ed ha 54 spazi e 2.14 miliardi di oggetti per ogni spazio.
+jei.danknull_dock.desc=-Tasto destro  con una /dank/null in mano per piazzarla in una stazione d'attacco\n-Gli oggetti possono solo essere estratti dalla /dank/null, non inseriti dal fondo.\n-La velocita è determinata dal blocco che sta prendendo.
+
+//KeyBindings
+key.categories.danknull=/dank/null
+key.next_item.desc=Cicla all'oggetto successivo nella /dank/null
+key.previous_item.desc=Cicla all'oggetto precedente nella /dank/null
+key.open_danknull.desc=Apri la /dank/null più vicina
+
+//Misc
+dn.selected_item.desc=Oggetto Selezionato
+dn.count.desc=Conto
+dn.extract.desc=Estrai
+dn.place.desc=Piazza
+dn.extract_mode.desc=Modalità di Estrazione
+dn.placement_mode.desc=Modalità di costruzione
+dn.infinite.desc=Infinito
+dn.no_open_keybind.desc=Nessuna scorciatoia da tastiera impostata
+dn.open_with.desc=Apri con
+dn.ore_dictionary.desc=Ore Dictionary
+dn.enabled.desc=Attivato
+dn.disabled.desc=Disattivato
+dn.not_oredicted.desc=Oggetto senza Ore Dictionary
+dn.ctrl_click_change.desc=Ctrl+Click per cambiare la modalità di Estrazione
+dn.o_click_toggle.desc=O+Click per modificare la modalità di OreDict
+dn.p_click_toggle.desc=P+Click per modificare la modalità di Costruzione
+dn.alt_click_set.desc=Alt+Click per impostare come oggetto selezionato
+dn.selected.desc=Selezionato
+dn.will.desc=è
+dn.from_slot.desc=da questo slot
+dn.do.desc=Fa
+dn.not_extract.desc=non estrarre
+dn.extract_all_but.desc=estrai tutto eccetto
+dn.extract_all.desc=estrai tutto
+dn.right_click_with.desc=Click-Destro con
+dn.empty_hand_open.desc=mano vuota per aprire la GUI
+dn.docked.desc=Ancorata
+dn.chisel_varient.desc=Variante
+dn.lock.desc=Blocco
+dn.unlock.desc=Sblocco
