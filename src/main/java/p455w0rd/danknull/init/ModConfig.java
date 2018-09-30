@@ -9,7 +9,6 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.oredict.OreDictionary;
@@ -26,6 +25,12 @@ public class ModConfig {
 	public static final String SERVER_CAT = "Server Rules";
 	public static final boolean DEBUG_RESET = false;
 
+	public static final String CONST_CREATIVE_BLACKLIST = "CreativeBlacklist";
+	public static final String CONST_CREATIVE_WHITELIST = "CreativeWhitelist";
+	public static final String CONST_OREDICT_BLACKLIST = "OreDictBlacklist";
+	public static final String CONST_OREDICT_WHITELIST = "OreDictWhitelist";
+	public static final String CONST_DISABLE_OREDICT = "DisableOreDictMode";
+
 	public static void init() {
 		if (CONFIG == null) {
 			File configFile = new File(ModGlobals.CONFIG_FILE);
@@ -33,16 +38,17 @@ public class ModConfig {
 				configFile.delete();
 			}
 			CONFIG = new Configuration(configFile);
-			MinecraftForge.EVENT_BUS.register(new ModConfig());
 			CONFIG.load();
 		}
 
 		Options.callItDevNull = CONFIG.getBoolean("CallItDevNull", CLIENT_CAT, false, "Call it a /dev/null in-game ");
 		Options.superShine = CONFIG.getBoolean("SuperShine", CLIENT_CAT, false, "Make items ultra shiny!");
-		Options.creativeBlacklist = CONFIG.getString("CreativeBlacklist", SERVER_CAT, "", "A semicolon separated list of items that are not allowed to be placed into the creative /dank/null\nFormat: modid:name:meta (meta optional: modid:name is acceptable) - Example: minecraft:diamond;minecraft:coal:1").trim();
-		Options.creativeWhitelist = CONFIG.getString("CreativeWhitelist", SERVER_CAT, "", "A semicolon separated list of items that are allowed to be placed into the creative /dank/null\nSame format as Blacklist and whitelist superceeds blacklist.\nIf whitelist is non-empty, then ONLY whitelisted items can be added to the Creative /dank/null").trim();
-		Options.oreBlacklist = CONFIG.getString("OreDictBlacklist", SERVER_CAT, "", "A semicolon separated list of Ore Dictionary entries (strings) which WILL NOT be allowed to be used with /dank/null's Ore Dictionary functionality.");
-		Options.oreWhitelist = CONFIG.getString("OreDictWhitelist", SERVER_CAT, "", "A semicolon separated list of Ore Dictionary entries (strings) which WILL BE allowed to be used with /dank/null's Ore Dictionary functionality. Whitelist superceeds blacklist.\nIf whitelist is non-empty, then ONLY Ore Dictionary items matching the entries will\nbe able to take advantage of /dank/null's Ore Dictionary functionality.");
+		Options.creativeBlacklist = CONFIG.getString(CONST_CREATIVE_BLACKLIST, SERVER_CAT, "", "A semicolon separated list of items that are not allowed to be placed into the creative /dank/null\nFormat: modid:name:meta (meta optional: modid:name is acceptable) - Example: minecraft:diamond;minecraft:coal:1").trim();
+		Options.creativeWhitelist = CONFIG.getString(CONST_CREATIVE_WHITELIST, SERVER_CAT, "", "A semicolon separated list of items that are allowed to be placed into the creative /dank/null\nSame format as Blacklist and whitelist superceeds blacklist.\nIf whitelist is non-empty, then ONLY whitelisted items can be added to the Creative /dank/null").trim();
+		Options.oreBlacklist = CONFIG.getString(CONST_OREDICT_BLACKLIST, SERVER_CAT, "", "A semicolon separated list of Ore Dictionary entries (strings) which WILL NOT be allowed to be used with /dank/null's Ore Dictionary functionality.");
+		Options.oreWhitelist = CONFIG.getString(CONST_OREDICT_WHITELIST, SERVER_CAT, "", "A semicolon separated list of Ore Dictionary entries (strings) which WILL BE allowed to be used with /dank/null's Ore Dictionary functionality. Whitelist superceeds blacklist.\nIf whitelist is non-empty, then ONLY Ore Dictionary items matching the entries will\nbe able to take advantage of /dank/null's Ore Dictionary functionality.");
+		Options.disableOreDictMode = CONFIG.getBoolean(CONST_DISABLE_OREDICT, SERVER_CAT, false, "If set to true, then Ore Dictionary Mode will not be available (overrides Ore Dictionary White/Black lists)");
+
 		if (CONFIG.hasChanged()) {
 			CONFIG.save();
 		}
@@ -60,6 +66,7 @@ public class ModConfig {
 		private static NonNullList<ItemStack> creativeItemWhitelist = null;
 		private static List<String> oreStringBlacklist = Lists.<String>newArrayList();
 		private static List<String> oreStringWhitelist = Lists.<String>newArrayList();
+		public static boolean disableOreDictMode = false;
 
 		public static List<String> getOreBlacklist() {
 			String[] tmpList = null;

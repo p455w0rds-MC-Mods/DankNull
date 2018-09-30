@@ -14,6 +14,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import p455w0rd.danknull.DankNull;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
+import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rd.danknull.util.DankNullUtils;
 
 /**
@@ -58,8 +59,10 @@ public class PacketSetDankNullInDock implements IMessage {
 				TileEntity te = world.getTileEntity(message.pos);
 				if (te != null && te instanceof TileDankNullDock) {
 					TileDankNullDock dankDock = (TileDankNullDock) te;
-					dankDock.setStack(message.dankNull);
-					dankDock.setSelectedStack(DankNullUtils.getSelectedStack(DankNullUtils.getNewDankNullInventory(message.dankNull)));
+					InventoryDankNull inv = DankNullUtils.getNewDankNullInventory(message.dankNull);
+					dankDock.setInventory(inv);
+					//world.updateComparatorOutputLevel(message.pos, te.getBlockType());
+					dankDock.markDirty();
 				}
 			});
 			return null;

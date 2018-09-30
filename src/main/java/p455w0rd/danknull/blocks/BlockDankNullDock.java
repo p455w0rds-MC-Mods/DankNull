@@ -21,10 +21,10 @@ import net.minecraft.stats.StatList;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.EnumHand;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.math.AxisAlignedBB;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.text.TextComponentString;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelLoader;
@@ -51,7 +51,7 @@ public class BlockDankNullDock extends BlockContainerBase {
 
 	public BlockDankNullDock() {
 		super(Material.IRON, NAME, 10.0F, 6000000.0F);
-		GameRegistry.registerTileEntity(TileDankNullDock.class, ModGlobals.MODID + ":" + NAME);
+		GameRegistry.registerTileEntity(TileDankNullDock.class, new ResourceLocation(ModGlobals.MODID, NAME));
 		setLightOpacity(255);
 		useNeighborBrightness = true;
 	}
@@ -119,7 +119,7 @@ public class BlockDankNullDock extends BlockContainerBase {
 	}
 
 	private boolean isEmpty(IBlockAccess world, BlockPos pos) {
-		return getTE(world, pos) != null && getTE(world, pos).getStack().isEmpty();
+		return getTE(world, pos) != null && getTE(world, pos).getDankNull().isEmpty();
 	}
 
 	@Override
@@ -132,27 +132,26 @@ public class BlockDankNullDock extends BlockContainerBase {
 		}
 		TileDankNullDock dankDock = getTE(world, pos);
 		if (dankDock != null) {
-			if (!player.getHeldItem(hand).isEmpty() && dankDock.getStack().isEmpty() && player.getHeldItem(hand).getItem() == ModItems.DANK_NULL) {
+			if (!player.getHeldItem(hand).isEmpty() && dankDock.getDankNull().isEmpty() && player.getHeldItem(hand).getItem() == ModItems.DANK_NULL) {
 				ItemStack dankNull = player.getHeldItem(hand);
-				dankDock.setStack(dankNull);
-				dankDock.setSelectedStack(DankNullUtils.getSelectedStack(DankNullUtils.getInventoryFromHeld(player)));
+				//dankDock.setDankNull(dankNull);
+				dankDock.setInventory(DankNullUtils.getNewDankNullInventory(dankNull));
 				//if (!player.capabilities.isCreativeMode || (player.capabilities.isCreativeMode && !player.isSneaking())) {
 				player.setHeldItem(hand, ItemStack.EMPTY);
 				//}
 				//if (!world.isRemote) {
 				ModNetworking.getInstance().sendToDimension(new PacketSetDankNullInDock(dankDock, dankNull), world.provider.getDimension());
 				//}
-				dankDock.markDirty();
+				//dankDock.markDirty();
 				return true;
 			}
-			else if (player.getHeldItem(hand).isEmpty()) {
-				if (!player.isSneaking() && hand == EnumHand.MAIN_HAND) {
-					if (!dankDock.getStack().isEmpty()) {
-						//ModGuiHandler.launchGui(GUIType.DANKNULL_TE, player, world, pos.getX(), pos.getY(), pos.getZ());
-						player.sendMessage(new TextComponentString("GUI temporarily disabled - pull the /dank/null off to change settings"));
-						//return true;
-					}
+			else //if (player.getHeldItem(hand).isEmpty()) {
+			if (!player.isSneaking() && hand == EnumHand.MAIN_HAND) {
+				if (!dankDock.getDankNull().isEmpty()) {
+					//ModGuiHandler.launchGui(GUIType.DANKNULL_TE, player, world, pos.getX(), pos.getY(), pos.getZ());
+					//return true;
 				}
+				//}
 			}
 		}
 		return false;

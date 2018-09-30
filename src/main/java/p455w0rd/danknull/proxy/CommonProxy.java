@@ -1,7 +1,7 @@
 package p455w0rd.danknull.proxy;
 
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
@@ -10,7 +10,6 @@ import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
 import p455w0rd.danknull.init.ModBlocks;
 import p455w0rd.danknull.init.ModConfig;
-import p455w0rd.danknull.init.ModEvents;
 import p455w0rd.danknull.init.ModGuiHandler;
 import p455w0rd.danknull.init.ModIntegration;
 import p455w0rd.danknull.init.ModItems;
@@ -19,7 +18,6 @@ import p455w0rd.danknull.init.ModNetworking;
 public class CommonProxy {
 
 	public void preInit(FMLPreInitializationEvent e) {
-		ModEvents.init();
 		ModConfig.init();
 		ModBlocks.init();
 		ModItems.init();
@@ -28,7 +26,6 @@ public class CommonProxy {
 	}
 
 	public void init(FMLInitializationEvent e) {
-		//ModRecipes.init();
 		ModIntegration.init();
 	}
 
@@ -52,8 +49,8 @@ public class CommonProxy {
 		return FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(dimension);
 	}
 
-	public GuiScreen getScreen() {
-		return null;
+	public void setGUIDankNull(ItemStack dankNull) {
+
 	}
 
 }

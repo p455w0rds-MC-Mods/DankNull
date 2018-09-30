@@ -125,7 +125,7 @@ public class TESRDankNullDock extends TileEntitySpecialRenderer<TileDankNullDock
 			GlStateManager.matrixMode(5888);
 		}
 
-		ItemStack stack = te.getStack();
+		ItemStack stack = te.getDankNull();
 		if (!stack.isEmpty()) {
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(x + 0.5, y + 0.45, z + 0.5);
@@ -178,11 +178,11 @@ public class TESRDankNullDock extends TileEntitySpecialRenderer<TileDankNullDock
 			ImmutableMap.Builder<TransformType, TRSRTransformation> defaultBlockBuilder = ImmutableMap.builder();
 			defaultBlockBuilder.put(TransformType.GUI, TransformUtils.create(0, 0, 0, 30, 225, 0, 0.625f));
 			defaultBlockBuilder.put(TransformType.GROUND, TransformUtils.create(0, 3, 0, 0, 0, 0, 0.25f));
-			defaultBlockBuilder.put(TransformType.FIXED, TransformUtils.create(0, 0, 5, 90, 0, 0, 0.75f));
-			defaultBlockBuilder.put(TransformType.THIRD_PERSON_RIGHT_HAND, TransformUtils.create(0, 2.5f, 3f, 75, 45, 0, 0.375f));
-			defaultBlockBuilder.put(TransformType.THIRD_PERSON_LEFT_HAND, TransformUtils.flipLeft(TransformUtils.create(0, 2.5f, 3F, 75, 45, 0, 0.375f)));
-			defaultBlockBuilder.put(TransformType.FIRST_PERSON_RIGHT_HAND, TransformUtils.create(0, 4f, 0, 0, 45, 0, 0.4f));
-			defaultBlockBuilder.put(TransformType.FIRST_PERSON_LEFT_HAND, TransformUtils.create(0, 4f, 0, 0, 225, 0, 0.4f));
+			defaultBlockBuilder.put(TransformType.FIXED, TransformUtils.create(0, 0, -5.1f, 90, 0, 0, -0.75f));
+			defaultBlockBuilder.put(TransformType.THIRD_PERSON_RIGHT_HAND, TransformUtils.create(0f, 2.5f, 2.5f, 75, 45, 0, 0.375f));
+			defaultBlockBuilder.put(TransformType.THIRD_PERSON_LEFT_HAND, TransformUtils.flipLeft(TransformUtils.create(0, 2.5f, 2.5F, 75, 45, 0, 0.375f)));
+			defaultBlockBuilder.put(TransformType.FIRST_PERSON_RIGHT_HAND, TransformUtils.create(0, 4f, 0, 0, 45, 2f, 0.4f));
+			defaultBlockBuilder.put(TransformType.FIRST_PERSON_LEFT_HAND, TransformUtils.flipLeft(TransformUtils.create(0, 4f, 0, 0, 45, 2f, 0.4f)));//TransformUtils.create(0, 4f, 0, 0, 225, 0, 0.4f));
 			return new CCModelState(defaultBlockBuilder.build());
 		}
 
@@ -190,7 +190,7 @@ public class TESRDankNullDock extends TileEntitySpecialRenderer<TileDankNullDock
 
 	@Override
 	public IModelState getTransforms() {
-		return TransformUtils.DEFAULT_BLOCK;
+		return DankNullDockTransforms.block();
 	}
 
 }

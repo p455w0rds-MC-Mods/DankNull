@@ -1,7 +1,9 @@
 package p455w0rd.danknull.client.render;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 import codechicken.lib.model.bakedmodels.WrappedItemModel;
@@ -18,7 +20,6 @@ import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.block.model.ItemOverrideList;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.client.renderer.block.model.MultipartBakedModel;
 import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.settings.GameSettings;
@@ -52,24 +53,24 @@ import p455w0rdslib.util.EasyMappings;
 @SideOnly(Side.CLIENT)
 public class DankNullRenderer extends WrappedItemModel implements IItemRenderer {
 
+	private static Map<ItemStack, InventoryDankNull> INV_CACHE = new HashMap<>();
+
 	public DankNullRenderer(Supplier<ModelResourceLocation> wrappedModel) {
 		super(wrappedModel);
 	}
 
 	//private static final DankNullRenderer INSTANCE = new DankNullRenderer();
 	boolean isGUI = false;
-	InventoryDankNull inventory;
 
 	//public static DankNullRenderer getInstance() {
 	//	return INSTANCE;
 	//}
 
-	private InventoryDankNull getDankNullInventory() {
-		return inventory;
-	}
-
-	public void setDankNullInventory(InventoryDankNull inv) {
-		inventory = inv;
+	private InventoryDankNull getDankNullInventory(ItemStack stack) {
+		if (!INV_CACHE.containsKey(stack)) {
+			INV_CACHE.put(stack, DankNullUtils.getNewDankNullInventory(stack));
+		}
+		return INV_CACHE.get(stack);
 	}
 
 	@Override
@@ -84,8 +85,8 @@ public class DankNullRenderer extends WrappedItemModel implements IItemRenderer 
 				return;
 			}
 			int view = options.thirdPersonView;
-			//if (getDankNullInventory() == null) {// || Minecraft.getMinecraft().player.ticksExisted % 20 == 0) {
-			inventory = DankNullUtils.getNewDankNullInventory(item);
+			//if (Minecraft.getMinecraft().player.ticksExisted % 20 == 0) {
+			InventoryDankNull inventory = getDankNullInventory(item);
 			//}
 			int index = DankNullUtils.getSelectedStackIndex(inventory);
 			ItemStack containedStack = DankNullUtils.getItemByIndex(inventory, index);
@@ -99,19 +100,19 @@ public class DankNullRenderer extends WrappedItemModel implements IItemRenderer 
 			if (!containedStack.isEmpty()) {
 				IBakedModel containedItemModel = null;
 				if (Block.getBlockFromItem(containedStack.getItem()) != null && Block.getBlockFromItem(containedStack.getItem()) != Blocks.AIR) {
-					Block block = Block.getBlockFromItem(containedStack.getItem());
-					IBlockState state = block.getStateFromMeta(containedStack.getItemDamage());
+					//Block block = Block.getBlockFromItem(containedStack.getItem());
+					//IBlockState state = block.getStateFromMeta(containedStack.getItemDamage());
 
 					//state = block.getActualState(state, Minecraft.getMinecraft().world, new BlockPos(0, 0, 0));
-					containedItemModel = Minecraft.getMinecraft().getBlockRendererDispatcher().getModelForState(state);
-					if (containedItemModel != null) {
+					//containedItemModel = Minecraft.getMinecraft().getBlockRendererDispatcher().getModelForState(state);
+					/*if (containedItemModel != null) {
 						if (containedItemModel instanceof MultipartBakedModel) {
 							containedItemModel = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel(containedStack);
 						}
 						if (containedItemModel.getParticleTexture() != null && containedItemModel.getParticleTexture().getIconName().equalsIgnoreCase("missingno")) {
 							containedItemModel = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel(containedStack);
 						}
-					}
+					}*/
 				}
 				if (containedItemModel == null) {
 					containedItemModel = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel(containedStack);
@@ -207,7 +208,7 @@ public class DankNullRenderer extends WrappedItemModel implements IItemRenderer 
 				String modID = registryName[0];
 				if (modID.equalsIgnoreCase("danknull") || modID.equalsIgnoreCase("minecraft")) {
 					if (containedStack.getItem() instanceof ItemBucket || containedStack.getItem() instanceof ItemBucketMilk) {
-						//renderItem(containedStack, Minecraft.getMinecraft().getRenderItem().getItemModelWithOverrides(containedStack, EasyMappings.player().getEntityWorld(), EasyMappings.player()));
+						renderItem(containedStack, Minecraft.getMinecraft().getRenderItem().getItemModelWithOverrides(containedStack, EasyMappings.player().getEntityWorld(), EasyMappings.player()));
 					}
 					else {
 						renderItem(containedStack, containedItemModel);

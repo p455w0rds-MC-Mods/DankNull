@@ -67,10 +67,7 @@ public class InventoryDankNull implements IInventory, Iterable<ItemStack> {
 
 	@Override
 	public ItemStack decrStackSize(int index, int amount) {
-		return decrStackSize(index, amount, null);
-	}
 
-	public ItemStack decrStackSize(int index, int amount, TileDankNullDock te) {
 		if (!getStackInSlot(index).isEmpty()) {
 			if (DankNullUtils.isCreativeDankNull(getDankNull())) {
 				ItemStack tmp = getStackInSlot(index).copy();
@@ -93,12 +90,9 @@ public class InventoryDankNull implements IInventory, Iterable<ItemStack> {
 				STACKLIST.set(index, ItemStack.EMPTY);
 				setSizeForSlot(index, 0);
 				markDirty();
-				if (te != null) {
-					DankNullUtils.decrDankNullStackSize(this, itemstack, amount);
-					te.setStack(getDankNull());
-					te.setInventory(this);
-					te.markDirty();
-				}
+				//if (te != null) {
+				//DankNullUtils.decrDankNullStackSize(this, itemstack, amount);
+				//}
 				return itemstack;
 			}
 			ItemStack itemstack1 = getStackInSlot(index).splitStack(amount);
@@ -107,11 +101,6 @@ public class InventoryDankNull implements IInventory, Iterable<ItemStack> {
 				STACKLIST.set(index, ItemStack.EMPTY);
 			}
 			markDirty();
-			if (te != null) {
-				te.setStack(getDankNull());
-				te.setInventory(this);
-				te.markDirty();
-			}
 			return itemstack1;
 		}
 		else {
@@ -128,7 +117,7 @@ public class InventoryDankNull implements IInventory, Iterable<ItemStack> {
 		STACKLIST.set(index, itemStack);
 		markDirty();
 		if (te != null) {
-			te.setStack(getDankNull());
+			//te.setDankNull(getDankNull());
 			te.setInventory(this);
 			te.markDirty();
 		}

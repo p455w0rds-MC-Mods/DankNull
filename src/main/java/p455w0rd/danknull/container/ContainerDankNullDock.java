@@ -1,5 +1,7 @@
 package p455w0rd.danknull.container;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
@@ -12,7 +14,8 @@ import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IContainerListener;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.relauncher.Side;
+import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
 import p455w0rd.danknull.init.ModItems;
 import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rd.danknull.inventory.slot.SlotDankNull;
@@ -23,15 +26,20 @@ import p455w0rd.danknull.util.DankNullUtils;
  * @author p455w0rd
  *
  */
-public class ContainerDankNull extends Container {
+public class ContainerDankNullDock extends Container {
 
 	InventoryDankNull inventoryDankNull;
 	private final Set<EntityPlayerMP> playerList = Sets.<EntityPlayerMP>newHashSet();
+	private List<SlotDankNull> dankNullSlots = new ArrayList<SlotDankNull>();
+	private TileDankNullDock tile;
+	Side side;
 
-	public ContainerDankNull(EntityPlayer player, InventoryDankNull inv) {
-		inventoryDankNull = inv;
+	public ContainerDankNullDock(EntityPlayer player, TileDankNullDock tile) {
+		side = player.getEntityWorld().isRemote ? Side.CLIENT : Side.SERVER;
+		this.tile = tile;
+		inventoryDankNull = tile.getInventory();
 		InventoryPlayer playerInv = player.inventory;
-		ItemStack dankNull = inv.getDankNull();
+		ItemStack dankNull = tile.getDankNull();
 		int lockedSlot = -1;
 		int numRows = dankNull.getItemDamage() + 1;
 		if (DankNullUtils.isCreativeDankNull(dankNull)) {
@@ -54,9 +62,15 @@ public class ContainerDankNull extends Container {
 		}
 		for (int i = 0; i < numRows; i++) {
 			for (int j = 0; j < 9; j++) {
-				addSlotToContainer(new SlotDankNull(inventoryDankNull, j + i * 9, j * 20 + (9 + j), 19 + i + i * 20));
+				SlotDankNull s = new SlotDankNull(inventoryDankNull, j + i * 9, j * 20 + (9 + j), 19 + i + i * 20);
+				addSlotToContainer(s);
+				dankNullSlots.add(s);
 			}
 		}
+	}
+
+	public TileDankNullDock getDankNullTile() {
+		return tile;
 	}
 
 	@Override
@@ -67,12 +81,15 @@ public class ContainerDankNull extends Container {
 				playerList.add(l);
 			}
 		}
-		//sync();
 	}
 
 	@Override
 	public boolean canInteractWith(EntityPlayer playerIn) {
 		return true;
+	}
+
+	public List<SlotDankNull> getDankNullSlots() {
+		return dankNullSlots;
 	}
 
 	public ItemStack getDankNull() {
@@ -161,17 +178,13 @@ public class ContainerDankNull extends Container {
 
 	@Override
 	public void detectAndSendChanges() {
-		for (int i = 0; i < inventorySlots.size(); ++i) {
-			ItemStack itemstack = inventorySlots.get(i).getStack();
-			ItemStack itemstack1 = inventoryItemStacks.get(i);
-
-			if (!ItemStack.areItemStacksEqual(itemstack1, itemstack)) {
-				boolean clientStackChanged = !ItemStack.areItemStacksEqualUsingNBTShareTag(itemstack1, itemstack);
-				if (clientStackChanged) {
-					//sync();
-				}
+		if (side.isServer()) {
+			for (EntityPlayerMP player : playerList) {
+				//ModNetworking.getInstance().sendTo(new PacketSyncDankNullDock(getDankNullTile(), getDankNullInventory().getDankNull()), player);
 			}
+			return;
 		}
+		//ModNetworking.getInstance().sendToServer(new PacketSyncDankNullDock(getDankNullTile(), getDankNullInventory().getDankNull()));
 		//super.detectAndSendChanges();
 
 		/*
@@ -191,17 +204,6 @@ public class ContainerDankNull extends Container {
 		}
 		*/
 		//
-	}
-
-	public void sync() {
-		if (FMLCommonHandler.instance().getSide().isServer()) {
-			for (EntityPlayerMP player : playerList) {
-				//ModNetworking.getInstance().sendTo(new PacketSyncDankNullDock(getDankNullInventory()), player);
-			}
-		}
-		else {
-			//ModNetworking.getInstance().sendToServer(new PacketSyncDankNull(getDankNullInventory()));
-		}
 	}
 
 	private boolean isDankNullSlot(Slot slot) {
@@ -277,13 +279,13 @@ public class ContainerDankNull extends Container {
 			}
 			ItemStack thisStack = s.getStack();
 			if (!thisStack.isEmpty() && (thisStack.getItem() == ModItems.DANK_NULL)) {
-				//sync();
+				detectAndSendChanges();
 				return ItemStack.EMPTY;
 			}
 			if (!heldStack.isEmpty()) {
 				if (addStack(heldStack)) {
 					inventoryplayer.setItemStack(ItemStack.EMPTY);
-					//sync();
+					detectAndSendChanges();
 					return heldStack;
 				}
 				else {
@@ -294,7 +296,7 @@ public class ContainerDankNull extends Container {
 						inventoryplayer.setItemStack(thisStack);
 						s.putStack(heldStack);
 					}
-					//sync();
+					detectAndSendChanges();
 					return ItemStack.EMPTY;
 				}
 			}
@@ -323,15 +325,12 @@ public class ContainerDankNull extends Container {
 					}
 					inventoryplayer.setItemStack(newStack);
 					DankNullUtils.reArrangeStacks(getDankNullInventory());
-					//sync();
+					detectAndSendChanges();
 					return ItemStack.EMPTY;
 				}
 			}
 		}
 		super.slotClick(index, dragType, clickTypeIn, player);
-		if (player instanceof EntityPlayerMP) {
-			//sync();
-		}
 		return ItemStack.EMPTY;
 
 	}

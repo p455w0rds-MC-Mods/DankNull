@@ -16,14 +16,15 @@ buildscript {
 apply plugin: 'net.minecraftforge.gradle.forge'
 
 group = "p455w0rd.danknull"
-version = "1.12-" + getVersion("VERSION")
+version = "1.12-" + getVersion()
 archivesBaseName = "DankNull"
 sourceCompatibility = targetCompatibility = "1.8"
 
 minecraft {
-    version = "1.12.2-14.23.1.2577"
+    version = "1.12.2-14.23.4.2760"
 	mappings = "snapshot_20171003"
 	runDir = "run"
+	useDepAts = true
 }
 
 repositories {
@@ -37,7 +38,7 @@ repositories {
 		url "http://chickenbones.net/maven"
 	}
 	maven {
-		name = "k-4u"
+		name = "k-4unl"
         url "http://maven.k-4u.nl"
     }
 	maven {
@@ -49,18 +50,32 @@ repositories {
 		url = "http://tehnut.info/maven"
 	}
 	maven {
-        name = "CoFH Maven"
+        name = "CoFH"
         url = "http://maven.covers1624.net"
     }
+	maven {
+		name = "LatvianModder"
+		url = "https://maven.latmod.com"
+	}
 }
 
 dependencies {
 	deobfCompile "mezz.jei:jei_1.12.2:+"
-	deobfCompile "codechicken:CodeChickenLib:1.12.2-3.1.5.331:universal"
-	deobfCompile "codechicken:NotEnoughItems:1.12.2-2.4.1.233:universal"
-	deobfCompile "cofh:RedstoneFlux:1.12-2.0.0.1:universal"
-	deobfCompile "mcjty.theoneprobe:TheOneProbe-1.12:1.12-1.4.15-8"
-	deobfCompile "mcp.mobius.waila:Hwyla:1.8.20-B35_1.12"
+	deobfCompile "codechicken:CodeChickenLib:1.12.2-3.2.1.351:universal"
+	deobfCompile "codechicken:NotEnoughItems:1.12.2-2.4.1.238:universal"
+	deobfCompile "cofh:RedstoneFlux:1.12-2.0.2.4:universal"
+	deobfCompile "cofh:ThermalDynamics:1.12.2-2+:universal"
+	deobfCompile "cofh:ThermalFoundation:1.12.2-2+:universal"
+	deobfCompile "cofh:ThermalExpansion:1.12.2-5+:universal"
+	deobfCompile "cofh:CoFHCore:1.12.2-4+:universal"
+	deobfCompile "cofh:CoFHWorld:1.12.2-1+:universal"
+	deobfCompile "mcjty.theoneprobe:TheOneProbe-1.12:1.12-1.4.23-16"
+	deobfCompile "mcp.mobius.waila:Hwyla:1.8.26-B41_1.12.2"
+	deobfCompile "team.chisel:Chisel:MC1.12.2-0.2.1.34"
+	deobfCompile "team.chisel.ctm:CTM:MC1.12.2-0.3.2.18"
+	deobfCompile "com.feed_the_beast.mods:FTBLib:5+"
+	deobfCompile "com.feed_the_beast.mods:FTBUtilities:5+"
+	deobfCompile "com.enderio.core:EnderCore:1.12.2-0.5.37"
 }
 
 processResources {
@@ -75,13 +90,15 @@ processResources {
 	from (sourceSets.main.resources.srcDirs) {
 		exclude "mcmod.info"
 	}
+	
+	rename '(.+_at.cfg)', 'META-INF/$1'
 }
 
-String getVersion(String type) {
+String getVersion() {
 	String major = "0";
 	String revision = "0";
 	String patch = "0";
-	String prefix = "public static final String $type = \"";
+	String prefix = "public static final String VERSION = \"";
 	File file = file("src/main/java/p455w0rd/danknull/init/ModGlobals.java")
 	file.eachLine { String s ->
 		s = s.trim();

@@ -1,9 +1,13 @@
 package p455w0rd.danknull.util;
 
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
+import java.util.WeakHashMap;
 
 import javax.annotation.Nonnull;
+
+import org.apache.commons.lang3.tuple.Pair;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -14,13 +18,13 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumActionResult;
 import net.minecraft.util.EnumHand;
 import net.minecraft.util.NonNullList;
@@ -38,6 +42,8 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.oredict.OreDictionary;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
 import p455w0rd.danknull.container.ContainerDankNull;
+import p455w0rd.danknull.container.ContainerDankNullDock;
+import p455w0rd.danknull.init.ModConfig;
 import p455w0rd.danknull.init.ModConfig.Options;
 import p455w0rd.danknull.init.ModGlobals;
 import p455w0rd.danknull.init.ModItems;
@@ -47,6 +53,7 @@ import p455w0rd.danknull.init.ModNetworking;
 import p455w0rd.danknull.inventory.DankNullItemHandler;
 import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rd.danknull.items.ItemDankNull;
+import p455w0rd.danknull.network.PacketConfigSync;
 import p455w0rd.danknull.network.PacketSetSelectedItem;
 import p455w0rd.danknull.recipes.RecipeDankNullUpgrade;
 import p455w0rdslib.util.GuiUtils;
@@ -59,6 +66,7 @@ import p455w0rdslib.util.RenderUtils;
 public class DankNullUtils {
 
 	public static final String TAG_EXTRACTION_MODES = "ExtractionModes";
+	public static final String TAG_PLACEMENT_MODES = "PlacementModes";
 	private static final String TAG_OREDICT_MODES = "OreDictModes";
 	private static final String TAG_LOCKED = "Locked";
 
@@ -98,6 +106,36 @@ public class DankNullUtils {
 			}
 		}
 		return dankNullItem;
+	}
+
+	@Nonnull
+	public static Pair<Integer, ItemStack> getSyncableDankNull(EntityPlayer player) {
+		InventoryPlayer playerInv = player.inventory;
+		ItemStack dankNullItem = ItemStack.EMPTY;
+		int slot = -1;
+		if ((player.getHeldItemMainhand().getItem() instanceof ItemDankNull)) {
+			slot = playerInv.currentItem;
+			dankNullItem = player.getHeldItem(EnumHand.MAIN_HAND);
+		}
+		else if ((!player.getHeldItemOffhand().isEmpty()) && ((player.getHeldItemOffhand().getItem() instanceof ItemDankNull))) {
+			slot = 40;
+			dankNullItem = player.getHeldItem(EnumHand.OFF_HAND);
+		}
+		if (dankNullItem.isEmpty()) {
+			int invSize = playerInv.getSizeInventory();
+			if (invSize <= 0) {
+				return Pair.of(-1, ItemStack.EMPTY);
+			}
+			for (int i = 0; i < invSize; i++) {
+				ItemStack itemStack = playerInv.getStackInSlot(i);
+				if (!itemStack.isEmpty() && (itemStack.getItem() instanceof ItemDankNull)) {
+					slot = i;
+					dankNullItem = itemStack;
+					break;
+				}
+			}
+		}
+		return Pair.of(slot, dankNullItem);
 	}
 
 	public static List<ItemStack> getAllDankNulls(EntityPlayer player) {
@@ -236,10 +274,15 @@ public class DankNullUtils {
 
 	public static void setSelectedStackIndex(InventoryDankNull inventory, int index) {
 		if (inventory != null && !inventory.getDankNull().isEmpty()) {
-			setSelectedStackIndex(inventory, index, null, null);
+			ItemStack dankNull = inventory.getDankNull();
+			if (!dankNull.hasTagCompound()) {
+				dankNull.setTagCompound(new NBTTagCompound());
+			}
+			dankNull.getTagCompound().setInteger("selectedIndex", index);
 		}
 	}
 
+	/*
 	public static void setSelectedStackIndex(InventoryDankNull inventory, int index, World world, BlockPos dockPos) {
 		if (inventory != null && !inventory.getDankNull().isEmpty()) {
 			ItemStack dankNull = inventory.getDankNull();
@@ -251,13 +294,15 @@ public class DankNullUtils {
 				TileEntity te = world.getTileEntity(dockPos);
 				if (te instanceof TileDankNullDock) {
 					TileDankNullDock dankDock = (TileDankNullDock) te;
-					dankDock.setInventory(getNewDankNullInventory(dankNull));
 					dankDock.setStack(dankNull);
-					//dankDock.markDirty();
+					VanillaPacketDispatcher.dispatchTEToNearbyPlayers(dankDock);
+					dankDock.markDirty();
+					world.notifyBlockUpdate(dockPos, world.getBlockState(dockPos), world.getBlockState(dockPos), 3);
 				}
 			}
 		}
 	}
+	*/
 
 	public static void setNextSelectedStack(InventoryDankNull inventory) {
 		if (inventory != null && !inventory.getDankNull().isEmpty()) {
@@ -493,7 +538,30 @@ public class DankNullUtils {
 		return false;
 	}
 
+	//TODO remove when these classes get merged
+	public static boolean addUnfiliteredFilteredStackToDankNull(ContainerDankNullDock container, ItemStack stack) {
+		if (container.getDankNullInventory() != null && canStackBeAdded(container.getDankNullInventory(), stack)) {
+			container.inventorySlots.get(getNextAvailableSlot(container)).putStack(stack);
+			return true;
+		}
+		return false;
+	}
+
 	public static int getNextAvailableSlot(ContainerDankNull container) {
+		if (isCreativeDankNull(container.getDankNull()) && isCreativeDankNullLocked(container.getDankNull())) {
+			return -1;
+		}
+		for (int i = 36; i < container.inventorySlots.size(); i++) {
+			Slot s = container.inventorySlots.get(i);
+			if ((s != null) && (s.getStack().isEmpty())) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	//TODO remove when these classes get merged
+	public static int getNextAvailableSlot(ContainerDankNullDock container) {
 		if (isCreativeDankNull(container.getDankNull()) && isCreativeDankNullLocked(container.getDankNull())) {
 			return -1;
 		}
@@ -686,9 +754,12 @@ public class DankNullUtils {
 		return recipe;
 	}
 
+	// ======
+	// OreDict Mode
+	// ======
 	public static Map<ItemStack, Boolean> getOreDictModes(ItemStack dankNull) {
 		Map<ItemStack, Boolean> modes = Maps.<ItemStack, Boolean>newHashMap();
-		if (dankNull.hasTagCompound() && dankNull.getTagCompound().hasKey(TAG_OREDICT_MODES, Constants.NBT.TAG_LIST)) {
+		if (!Options.disableOreDictMode && dankNull.hasTagCompound() && dankNull.getTagCompound().hasKey(TAG_OREDICT_MODES, Constants.NBT.TAG_LIST)) {
 			NBTTagList extractionList = dankNull.getTagCompound().getTagList(TAG_OREDICT_MODES, Constants.NBT.TAG_COMPOUND);
 			for (int i = 0; i < extractionList.tagCount(); i++) {
 				NBTTagCompound tempNBT = extractionList.getCompoundTagAt(i);
@@ -699,7 +770,7 @@ public class DankNullUtils {
 	}
 
 	public static void setOreDictModes(ItemStack dankNull, Map<ItemStack, Boolean> modes) {
-		if (modes.isEmpty()) {
+		if (Options.disableOreDictMode || modes.isEmpty()) {
 			return;
 		}
 		if (!dankNull.hasTagCompound()) {
@@ -720,11 +791,13 @@ public class DankNullUtils {
 	}
 
 	public static boolean getOreDictModeForStack(ItemStack dankNull, ItemStack stack) {
-		Map<ItemStack, Boolean> modes = getOreDictModes(dankNull);
-		if (!modes.isEmpty()) {
-			for (ItemStack currentStack : modes.keySet()) {
-				if (areStacksEqual(currentStack, stack)) {
-					return modes.get(currentStack);
+		if (!Options.disableOreDictMode) {
+			Map<ItemStack, Boolean> modes = getOreDictModes(dankNull);
+			if (!modes.isEmpty()) {
+				for (ItemStack currentStack : modes.keySet()) {
+					if (areStacksEqual(currentStack, stack)) {
+						return modes.get(currentStack);
+					}
 				}
 			}
 		}
@@ -750,6 +823,14 @@ public class DankNullUtils {
 		}
 		setOreDictModes(dankNull, currentModes);
 	}
+
+	public static void cycleOreDictModeForStack(ItemStack dankNull, ItemStack stack) {
+		setOreDictModeForStack(dankNull, stack, !getOreDictModeForStack(dankNull, stack));
+	}
+
+	// ======
+	// Extraction Mode
+	// ======
 
 	public static Map<ItemStack, SlotExtractionMode> getExtractionModes(ItemStack dankNull) {
 		Map<ItemStack, SlotExtractionMode> modes = Maps.<ItemStack, SlotExtractionMode>newHashMap();
@@ -814,10 +895,6 @@ public class DankNullUtils {
 		setExtractionModes(dankNull, currentModes);
 	}
 
-	public static void cycleOreDictModeForStack(ItemStack dankNull, ItemStack stack) {
-		setOreDictModeForStack(dankNull, stack, !getOreDictModeForStack(dankNull, stack));
-	}
-
 	public static void cycleExtractionMode(ItemStack dankNull, ItemStack stack) {
 		SlotExtractionMode current = getExtractionModeForStack(dankNull, stack);
 		if (current.ordinal() >= SlotExtractionMode.values().length - 1) {
@@ -828,6 +905,89 @@ public class DankNullUtils {
 		}
 		if (FMLCommonHandler.instance().getSide().isClient()) {
 			if (getExtractionModeForStack(dankNull, stack) == null) {
+				ModLogger.warn("no extraction mode found");
+				return;
+			}
+		}
+	}
+
+	// ======
+	// Placement Mode
+	// ======
+
+	public static Map<ItemStack, SlotExtractionMode> getPlacementModes(ItemStack dankNull) {
+		Map<ItemStack, SlotExtractionMode> modes = Maps.<ItemStack, SlotExtractionMode>newHashMap();
+		if (dankNull.hasTagCompound() && dankNull.getTagCompound().hasKey(TAG_PLACEMENT_MODES, Constants.NBT.TAG_LIST)) {
+			NBTTagList extractionList = dankNull.getTagCompound().getTagList(TAG_PLACEMENT_MODES, Constants.NBT.TAG_COMPOUND);
+			for (int i = 0; i < extractionList.tagCount(); i++) {
+				NBTTagCompound tempNBT = extractionList.getCompoundTagAt(i);
+				modes.put(new ItemStack(tempNBT.getCompoundTag("Stack")), SlotExtractionMode.values()[tempNBT.getInteger("Mode")]);
+			}
+		}
+		return modes;
+	}
+
+	public static void setPlacementModes(ItemStack dankNull, Map<ItemStack, SlotExtractionMode> modes) {
+		if (modes.isEmpty()) {
+			return;
+		}
+		if (!dankNull.hasTagCompound()) {
+			dankNull.setTagCompound(new NBTTagCompound());
+		}
+		NBTTagCompound dankNullNBT = dankNull.getTagCompound();
+		NBTTagList extractionList = new NBTTagList();
+		for (ItemStack stack : modes.keySet()) {
+			NBTTagCompound tempNBT = new NBTTagCompound();
+			if (stack.getCount() != 1) {
+				stack.setCount(1);
+			}
+			tempNBT.setTag("Stack", stack.serializeNBT());
+			tempNBT.setInteger("Mode", modes.get(stack).ordinal());
+			extractionList.appendTag(tempNBT);
+		}
+		dankNullNBT.setTag(TAG_PLACEMENT_MODES, extractionList);
+	}
+
+	public static SlotExtractionMode getPlacementModeForStack(ItemStack dankNull, ItemStack stack) {
+		Map<ItemStack, SlotExtractionMode> modes = getPlacementModes(dankNull);
+		if (!modes.isEmpty()) {
+			for (ItemStack currentStack : modes.keySet()) {
+				if (areStacksEqual(stack, currentStack)) {
+					return modes.get(currentStack);
+				}
+			}
+		}
+		return SlotExtractionMode.KEEP_1;
+	}
+
+	public static void setPlacementModeForStack(ItemStack dankNull, ItemStack stack, SlotExtractionMode mode) {
+		if (!dankNull.hasTagCompound()) {
+			dankNull.setTagCompound(new NBTTagCompound());
+		}
+		boolean alreadyAdded = false;
+		Map<ItemStack, SlotExtractionMode> currentModes = getPlacementModes(dankNull);
+		for (ItemStack currentStack : currentModes.keySet()) {
+			if (areStacksEqual(stack, currentStack)) {
+				currentModes.put(currentStack, mode);
+				alreadyAdded = true;
+			}
+		}
+		if (!alreadyAdded) {
+			currentModes.put(stack, mode);
+		}
+		setPlacementModes(dankNull, currentModes);
+	}
+
+	public static void cyclePlacementMode(ItemStack dankNull, ItemStack stack) {
+		SlotExtractionMode current = getPlacementModeForStack(dankNull, stack);
+		if (current.ordinal() >= SlotExtractionMode.values().length - 1) {
+			setPlacementModeForStack(dankNull, stack, SlotExtractionMode.values()[0]);
+		}
+		else {
+			setPlacementModeForStack(dankNull, stack, SlotExtractionMode.values()[current.ordinal() + 1]);
+		}
+		if (FMLCommonHandler.instance().getSide().isClient()) {
+			if (getPlacementModeForStack(dankNull, stack) == null) {
 				ModLogger.warn("no extraction mode found");
 				return;
 			}
@@ -849,19 +1009,22 @@ public class DankNullUtils {
 				Minecraft.getMinecraft().renderEngine.bindTexture(new ResourceLocation(ModGlobals.MODID, "textures/gui/danknullscreen0.png"));
 				GlStateManager.enableBlend();
 				GlStateManager.enableAlpha();
-				GuiUtils.drawTexturedModalRect(scaledRes.getScaledWidth() - 106, scaledRes.getScaledHeight() - 37, 0, 219, 106, 37, 0);
+				GuiUtils.drawTexturedModalRect(scaledRes.getScaledWidth() - 106, scaledRes.getScaledHeight() - 45, 0, 210, 106, 45, 0);
 				GlStateManager.pushMatrix();
 				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 				GlStateManager.scale(0.5F, 0.5F, 0.5F);
-				mc.fontRenderer.drawStringWithShadow(currentItem.getDisplayName(), ((scaledRes.getScaledWidth() * 2) - 212) + 55, (scaledRes.getScaledHeight() * 2) - 73, DankNullUtils.getColor(currentItem.getItemDamage(), true));
+				mc.fontRenderer.drawStringWithShadow(currentItem.getDisplayName(), ((scaledRes.getScaledWidth() * 2) - 212) + 55, (scaledRes.getScaledHeight() * 2) - 83, DankNullUtils.getColor(currentItem.getItemDamage(), true));
 				String selectedStackName = selectedStack.getDisplayName();
 				int itemNameWidth = mc.fontRenderer.getStringWidth(selectedStackName);
 				if (itemNameWidth >= 88) {
 					selectedStackName = selectedStackName.substring(0, 14).trim() + "...";
 				}
-				mc.fontRenderer.drawStringWithShadow(translate("dn.selected_item.desc") + ": " + selectedStackName, ((scaledRes.getScaledWidth() * 2) - 212) + 45, (scaledRes.getScaledHeight() * 2) - 62, 16777215);
-				mc.fontRenderer.drawStringWithShadow(translate("dn.count.desc") + ": " + (isCreativeDankNull(currentItem) ? "Infinite" : selectedStack.getCount()), ((scaledRes.getScaledWidth() * 2) - 212) + 45, (scaledRes.getScaledHeight() * 2) - 51, 16777215);
+				SlotExtractionMode placementMode = DankNullUtils.getPlacementModeForStack(currentItem, selectedStack);
+				mc.fontRenderer.drawStringWithShadow(translate("dn.selected_item.desc") + ": " + selectedStackName, ((scaledRes.getScaledWidth() * 2) - 212) + 45, (scaledRes.getScaledHeight() * 2) - 72, 16777215);
+				mc.fontRenderer.drawStringWithShadow(translate("dn.count.desc") + ": " + (isCreativeDankNull(currentItem) ? "Infinite" : selectedStack.getCount()), ((scaledRes.getScaledWidth() * 2) - 212) + 45, (scaledRes.getScaledHeight() * 2) - 61, 16777215);
+				mc.fontRenderer.drawStringWithShadow(translate("dn.place.desc") + ": " + placementMode.getTooltip().replace(DankNullUtils.translate("dn.extract.desc").toLowerCase(Locale.ENGLISH), DankNullUtils.translate("dn.place.desc").toLowerCase(Locale.ENGLISH)).replace(DankNullUtils.translate("dn.extract.desc"), DankNullUtils.translate("dn.place.desc")), ((scaledRes.getScaledWidth() * 2) - 212) + 45, (scaledRes.getScaledHeight() * 2) - 50, 16777215);
 				mc.fontRenderer.drawStringWithShadow(translate("dn.extract.desc") + ": " + getExtractionModeForStack(currentItem, selectedStack).getTooltip(), ((scaledRes.getScaledWidth() * 2) - 212) + 45, (scaledRes.getScaledHeight() * 2) - 40, 16777215);
+
 				String keyBind = ModKeyBindings.getOpenDankNullKeyBind().getDisplayName();
 				mc.fontRenderer.drawStringWithShadow(keyBind.equalsIgnoreCase("none") ? translate("dn.no_open_keybind.desc") : translate("dn.open_with.desc") + " " + keyBind, ((scaledRes.getScaledWidth() * 2) - 212) + 45, (scaledRes.getScaledHeight() * 2) - 29, 16777215);
 				String oreDictMode = translate("dn.ore_dictionary.desc") + ": " + (getOreDictModeForStack(currentItem, selectedStack) ? translate("dn.enabled.desc") : translate("dn.disabled.desc"));
@@ -886,8 +1049,8 @@ public class DankNullUtils {
 	}
 
 	public static void emptyDankNullDock(@Nonnull TileDankNullDock dock) {
-		if (dock != null && dock.getWorld().getTileEntity(dock.getPos()) != null) {
-			dock.resetInventory();
+		if (dock != null && dock.getWorld() != null) {
+			dock.setInventory(null);
 		}
 	}
 
@@ -900,12 +1063,23 @@ public class DankNullUtils {
 	}
 
 	public static ItemStack convertToOreDictedStack(ItemStack toBeConverted, ItemStack toConvertTo) {
-		if (!isItemOreDicted(toBeConverted) || !isItemOreDicted(toConvertTo)) {
+		if (!isItemOreDicted(toBeConverted) || !isItemOreDicted(toConvertTo) || Options.disableOreDictMode) {
 			return ItemStack.EMPTY;
 		}
 		ItemStack newStack = toConvertTo.copy();
 		newStack.setCount(toBeConverted.getCount());
 		return newStack;
+	}
+
+	@SideOnly(Side.SERVER)
+	public static void sendConfigsToClient(EntityPlayerMP player) {
+		Map<String, Object> map = new WeakHashMap<String, Object>();
+		map.put(ModConfig.CONST_CREATIVE_BLACKLIST, Options.creativeBlacklist);
+		map.put(ModConfig.CONST_CREATIVE_WHITELIST, Options.creativeWhitelist);
+		map.put(ModConfig.CONST_OREDICT_BLACKLIST, Options.oreBlacklist);
+		map.put(ModConfig.CONST_OREDICT_WHITELIST, Options.oreWhitelist);
+		map.put(ModConfig.CONST_DISABLE_OREDICT, Options.disableOreDictMode);
+		ModNetworking.getInstance().sendTo(new PacketConfigSync(map), player);
 	}
 
 	public static enum SlotExtractionMode {

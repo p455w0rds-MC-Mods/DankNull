@@ -5,7 +5,6 @@ import java.util.List;
 import mcp.mobius.waila.api.IWailaConfigHandler;
 import mcp.mobius.waila.api.IWailaDataAccessor;
 import mcp.mobius.waila.api.IWailaDataProvider;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -47,21 +46,22 @@ public class WAILADankNullDockProvider implements IWailaDataProvider {
 
 	@Override
 	public List<String> getWailaBody(ItemStack itemStack, List<String> currenttip, IWailaDataAccessor accessor, IWailaConfigHandler config) {
-		EntityPlayer player = accessor.getPlayer();
 		TileDankNullDock dankDock = (TileDankNullDock) accessor.getTileEntity();
 		currenttip.add(WAILA.toolTipEnclose);
 		String dankNull = "/d" + (Options.callItDevNull ? "ev" : "ank") + "/null";
-		String msg = DankNullUtils.translate("dn.right_click_with.desc") + (dankDock.getStack().isEmpty() ? " " + dankNull : " " + DankNullUtils.translate("dn.empty_hand_open.desc"));
-		currenttip.add(msg);
+		String msg = DankNullUtils.translate("dn.right_click_with.desc") + (dankDock.getDankNull().isEmpty() ? " " + dankNull : " " + DankNullUtils.translate("dn.empty_hand_open.desc"));
+		//currenttip.add(msg);
 		InventoryDankNull dankDockInventory = dankDock.getInventory();
 		if (dankDockInventory != null) {
 			ItemStack dockedDankNull = dankDockInventory.getDankNull();
 			if (!dockedDankNull.isEmpty()) {
-				currenttip.add(" ");
+				//currenttip.add(" ");
 				currenttip.add(ModGlobals.Rarities.getRarityFromMeta(dockedDankNull.getItemDamage()).rarityColor + "" + dockedDankNull.getDisplayName() + "" + TextFormatting.GRAY + " Docked");
 				ItemStack selectedStack = DankNullUtils.getSelectedStack(dankDock.getInventory());
 				if (!selectedStack.isEmpty()) {
 					currenttip.add(selectedStack.getDisplayName() + " " + DankNullUtils.translate("dn.selected.desc"));
+					currenttip.add(DankNullUtils.translate("dn.count.desc") + ": " + (DankNullUtils.isCreativeDankNull(dockedDankNull) ? DankNullUtils.translate("dn.infinite.desc") : selectedStack.getCount()));
+					currenttip.add(DankNullUtils.translate("dn.extract_mode.desc") + ": " + DankNullUtils.getExtractionModeForStack(dockedDankNull, selectedStack).getTooltip());
 				}
 			}
 		}

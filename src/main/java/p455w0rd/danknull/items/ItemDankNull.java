@@ -63,14 +63,14 @@ import p455w0rd.danknull.init.ModGuiHandler;
 import p455w0rd.danknull.init.ModGuiHandler.GUIType;
 import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rd.danknull.util.DankNullUtils;
+import p455w0rd.danknull.util.DankNullUtils.SlotExtractionMode;
 
 /**
  * @author p455w0rd
  *
  */
 @SuppressWarnings({
-		"unchecked",
-		"deprecation"
+		"unchecked", "deprecation"
 })
 public class ItemDankNull extends Item implements IModelHolder {
 
@@ -172,11 +172,11 @@ public class ItemDankNull extends Item implements IModelHolder {
 		return false;
 	}
 
-	private Block getBlockUnderPlayer(EntityPlayer player) {
+	private IBlockState getBlockUnderPlayer(EntityPlayer player) {
 		int blockX = MathHelper.floor(player.posX);
 		int blockY = MathHelper.floor(player.getEntityBoundingBox().minY - 0.5);
 		int blockZ = MathHelper.floor(player.posZ);
-		return player.getEntityWorld().getBlockState(new BlockPos(blockX, blockY, blockZ)).getBlock();
+		return player.getEntityWorld().getBlockState(new BlockPos(blockX, blockY, blockZ));
 	}
 
 	public RayTraceResult rayTrace(EntityPlayer player, double blockReachDistance, float partialTicks) {
@@ -191,14 +191,26 @@ public class ItemDankNull extends Item implements IModelHolder {
 		if (world.isRemote) {
 			return EnumActionResult.SUCCESS;
 		}
-		Block blockUnderPlayer = getBlockUnderPlayer(player);
-		if (player.isSneaking() && blockUnderPlayer != Blocks.AIR) {
-			//ModGuiHandler.launchGui(GUIType.DANKNULL, player, world, (int) player.posX, (int) player.posY, (int) player.posZ);
-			//return EnumActionResult.SUCCESS;
-		}
 		ItemStack stack = player.getHeldItem(hand);
 		InventoryDankNull inventory = new InventoryDankNull(stack);
 		ItemStack selectedStack = DankNullUtils.getSelectedStack(inventory);
+		Block selectedBlock = Block.getBlockFromItem(selectedStack.getItem());
+		boolean isSelectedStackABlock = selectedBlock != null && selectedBlock != Blocks.AIR;
+		Block blockUnderPlayer = getBlockUnderPlayer(player).getBlock();
+		if (player.isSneaking() && (blockUnderPlayer != Blocks.AIR && (isSelectedStackABlock && blockUnderPlayer != selectedBlock))) {
+			ModGuiHandler.launchGui(GUIType.DANKNULL, player, world, (int) player.posX, (int) player.posY, (int) player.posZ);
+			return EnumActionResult.SUCCESS;
+		}
+		SlotExtractionMode placementMode = DankNullUtils.getPlacementModeForStack(stack, selectedStack);
+		if (placementMode != null) {
+			if (placementMode != SlotExtractionMode.KEEP_NONE) {
+				int count = DankNullUtils.getSelectedStackSize(inventory);
+				int amountToKeep = placementMode.getNumberToKeep();
+				if (count <= amountToKeep && !player.capabilities.isCreativeMode) {
+					return EnumActionResult.FAIL;
+				}
+			}
+		}
 		IBlockState state = world.getBlockState(posIn);
 		Block block = state.getBlock();
 		BlockPos pos = posIn;
@@ -209,11 +221,10 @@ public class ItemDankNull extends Item implements IModelHolder {
 		if (!block.isReplaceable(world, posIn) && (block == Blocks.SNOW_LAYER)) {
 			facing = EnumFacing.UP;
 		}
-		else if (!block.isReplaceable(world, posIn)) {
+		else if (!block.isReplaceable(world, posIn) && (selectedBlock != null && !selectedBlock.isFullBlock(selectedBlock.getStateFromMeta(selectedStack.getMetadata())))) {
 			pos = pos.offset(facing);
 		}
 		if ((DankNullUtils.getSelectedStackSize(inventory) > 0) && (player.canPlayerEdit(posIn, facing, stack))) {
-			Block selectedBlock = Block.getBlockFromItem(selectedStack.getItem());
 			int meta = selectedStack.getMetadata();
 			if (selectedBlock instanceof BlockStairs || selectedBlock instanceof BlockBanner) {
 				IBlockState newState = selectedBlock.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, meta, player);

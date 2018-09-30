@@ -30,7 +30,7 @@ import mezz.jei.api.recipe.VanillaRecipeCategoryUid;
 import mezz.jei.api.recipe.transfer.IRecipeTransferError;
 import mezz.jei.api.recipe.transfer.IRecipeTransferHandler;
 import mezz.jei.api.recipe.transfer.IRecipeTransferHandlerHelper;
-import mezz.jei.config.SessionData;
+import mezz.jei.config.ServerInfo;
 import mezz.jei.startup.StackHelper;
 import mezz.jei.util.Log;
 import mezz.jei.util.Translator;
@@ -166,7 +166,7 @@ public class JEI implements IModPlugin {
 
 		@Override
 		public IRecipeTransferError transferRecipe(ContainerWorkbench container, IRecipeLayout recipeLayout, EntityPlayer player, boolean maxTransfer, boolean doTransfer) {
-			if (!SessionData.isJeiOnServer()) {
+			if (!ServerInfo.isJeiOnServer()) {
 				String tooltipMessage = Translator.translateToLocal("jei.tooltip.error.recipe.transfer.no.server");
 				return handlerHelper.createUserErrorWithTooltip(tooltipMessage);
 			}
@@ -350,7 +350,7 @@ public class JEI implements IModPlugin {
 			// remove required recipe items
 			/*
 			int removedSets = removeSetsFromInventory(container, slotIdMap.values(), craftingSlots, inventorySlots, maxRemovedSets);
-
+			
 			if (removedSets == 0) {
 				return;
 			}
@@ -487,9 +487,9 @@ public class JEI implements IModPlugin {
 				stack.setCount(1);
 				//slotMap.put(entry.getKey(), stack);
 			}
-
+			
 			int maxRemovedSets = maxTransfer ? 64 : 1;
-
+			
 			for (Map.Entry<Integer, ItemStack> entry : slotMap.entrySet()) {
 				ItemStack stack = entry.getValue();
 				if (stack.isStackable()) {
@@ -503,7 +503,7 @@ public class JEI implements IModPlugin {
 					maxRemovedSets = 1;
 				}
 			}
-
+			
 			boolean needsDankNull = false;
 			if (slotMap.isEmpty()) {
 				List<ItemStack> dankNulls = DankNullUtils.getAllDankNulls(player);
@@ -512,11 +512,11 @@ public class JEI implements IModPlugin {
 					maxRemovedSets++;
 				}
 			}
-
+			
 			if (maxRemovedSets <= 0) {
 				return;
 			}
-
+			
 			if (!removeSetsFromInventory(container, slotIdMap.values(), craftingSlots, inventorySlots)) {
 				return;
 			}

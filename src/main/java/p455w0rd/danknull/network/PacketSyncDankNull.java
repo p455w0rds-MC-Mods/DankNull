@@ -1,29 +1,18 @@
 package p455w0rd.danknull.network;
 
-import java.util.Map;
-
-import javax.annotation.Nonnull;
-
-import com.google.common.collect.Maps;
+import org.apache.commons.lang3.tuple.Pair;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.NonNullList;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
-import p455w0rd.danknull.DankNull;
-import p455w0rd.danknull.client.gui.GuiDankNull;
-import p455w0rd.danknull.container.ContainerDankNull;
 import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rd.danknull.util.DankNullUtils;
-import p455w0rd.danknull.util.DankNullUtils.SlotExtractionMode;
 import p455w0rdslib.util.EasyMappings;
 
 /**
@@ -32,81 +21,30 @@ import p455w0rdslib.util.EasyMappings;
  */
 public class PacketSyncDankNull implements IMessage {
 
-	private NonNullList<ItemStack> itemStacks;
 	private int[] stackSizes;
-	private Map<ItemStack, SlotExtractionMode> extractionModes = Maps.<ItemStack, SlotExtractionMode>newHashMap();
-	private Map<ItemStack, Boolean> oreDictModes = Maps.<ItemStack, Boolean>newHashMap();
-	private static final String TEMP_EXTRACT_TAG = "ExtractionMode";
-	private static final String TEMP_OREDICT_TAG = "OreDictMode";
+	private int slot;
+	private ItemStack dankNull;
 	private boolean isLocked;
 
 	@Override
 	public void fromBytes(ByteBuf buf) {
-		int i = buf.readShort();
-		itemStacks = NonNullList.<ItemStack>withSize(i, ItemStack.EMPTY);
-		stackSizes = new int[i];
-		for (int j = 0; j < i; ++j) {
-			itemStacks.set(j, ByteBufUtils.readItemStack(buf));
-		}
-		for (int j = 0; j < i; ++j) {
-			stackSizes[j] = buf.readInt();
-		}
-		int extractionModesSize = buf.readInt();
-		if (extractionModesSize > 0) {
-			for (int k = 0; k < extractionModesSize; k++) {
-				ItemStack currentStack = ByteBufUtils.readItemStack(buf);
-				currentStack.setCount(1);
-				int tmpExtractMode = 0;
-				if (currentStack.hasTagCompound() && currentStack.getTagCompound().hasKey(TEMP_EXTRACT_TAG, Constants.NBT.TAG_INT)) {
-					tmpExtractMode = currentStack.getTagCompound().getInteger(TEMP_EXTRACT_TAG);
-				}
-				SlotExtractionMode mode = SlotExtractionMode.values()[tmpExtractMode];
-				extractionModes.put(currentStack, mode);
-			}
-		}
-		int oreDictModesSize = buf.readInt();
-		if (oreDictModesSize > 0) {
-			for (int k = 0; k < oreDictModesSize; k++) {
-				ItemStack currentStack = ByteBufUtils.readItemStack(buf);
-				currentStack.setCount(1);
-				boolean tmoOreDictMode = false;
-				if (currentStack.hasTagCompound() && currentStack.getTagCompound().hasKey(TEMP_OREDICT_TAG)) {
-					tmoOreDictMode = currentStack.getTagCompound().getBoolean(TEMP_OREDICT_TAG);
-				}
-				oreDictModes.put(currentStack, tmoOreDictMode);
-			}
+		slot = buf.readInt();
+		dankNull = ByteBufUtils.readItemStack(buf);
+		stackSizes = new int[buf.readInt()];
+		for (int i = 0; i < stackSizes.length - 1; i++) {
+			stackSizes[i] = buf.readInt();
 		}
 		isLocked = buf.readBoolean();
 	}
 
 	@Override
 	public void toBytes(ByteBuf buf) {
-		buf.writeShort(itemStacks.size());
-		for (ItemStack itemstack : itemStacks) {
-			ByteBufUtils.writeItemStack(buf, itemstack);
-		}
-		for (int i = 0; i < itemStacks.size(); i++) {
-			buf.writeInt(stackSizes[i]);
-		}
-		buf.writeInt(extractionModes.size());
-		if (!extractionModes.isEmpty()) {
-			for (ItemStack stack : extractionModes.keySet()) {
-				if (!stack.hasTagCompound()) {
-					stack.setTagCompound(new NBTTagCompound());
-				}
-				stack.getTagCompound().setInteger(TEMP_EXTRACT_TAG, extractionModes.get(stack).ordinal());
-				ByteBufUtils.writeItemStack(buf, stack);
-			}
-		}
-		buf.writeInt(oreDictModes.size());
-		if (!oreDictModes.isEmpty()) {
-			for (ItemStack stack : oreDictModes.keySet()) {
-				if (!stack.hasTagCompound()) {
-					stack.setTagCompound(new NBTTagCompound());
-				}
-				stack.getTagCompound().setBoolean(TEMP_OREDICT_TAG, oreDictModes.get(stack));
-				ByteBufUtils.writeItemStack(buf, stack);
-			}
+		buf.writeInt(slot);
+		ByteBufUtils.writeItemStack(buf, dankNull);
+		InventoryDankNull inv = DankNullUtils.getNewDankNullInventory(dankNull);
+		buf.writeInt(inv.getSizeInventory());
+		for (int i = 0; i < inv.getSizeInventory(); i++) {
+			buf.writeInt(DankNullUtils.getNewDankNullInventory(dankNull).getSizeForSlot(i));
 		}
 		buf.writeBoolean(isLocked);
 	}
@@ -114,25 +52,14 @@ public class PacketSyncDankNull implements IMessage {
 	public PacketSyncDankNull() {
 	}
 
-	public PacketSyncDankNull(@Nonnull ItemStack dankNullIn) {
-		this(DankNullUtils.getNewDankNullInventory(dankNullIn));
+	public PacketSyncDankNull(Pair<Integer, ItemStack> syncedDankNull) {
+		this(syncedDankNull.getLeft(), syncedDankNull.getRight());
 	}
 
-	public PacketSyncDankNull(@Nonnull InventoryDankNull inv) {
-		itemStacks = NonNullList.<ItemStack>withSize(inv.getStacks().size(), ItemStack.EMPTY);
-		stackSizes = new int[inv.getStacks().size()];
-		for (int i = 0; i < itemStacks.size(); i++) {
-			ItemStack itemstack = inv.getStacks().get(i);
-			itemStacks.set(i, itemstack.copy());
-			stackSizes[i] = itemstack.getCount();
-		}
-		if (!DankNullUtils.getExtractionModes(inv.getDankNull()).isEmpty()) {
-			extractionModes = DankNullUtils.getExtractionModes(inv.getDankNull());
-		}
-		if (!DankNullUtils.getOreDictModes(inv.getDankNull()).isEmpty()) {
-			oreDictModes = DankNullUtils.getOreDictModes(inv.getDankNull());
-		}
-		isLocked = DankNullUtils.isCreativeDankNullLocked(inv.getDankNull());
+	public PacketSyncDankNull(int slot, ItemStack stack) {
+		this.slot = slot;
+		dankNull = stack;
+		isLocked = DankNullUtils.isCreativeDankNullLocked(stack);
 	}
 
 	public static class Handler implements IMessageHandler<PacketSyncDankNull, IMessage> {
@@ -158,41 +85,16 @@ public class PacketSyncDankNull implements IMessage {
 		}
 
 		private void handle(PacketSyncDankNull message, EntityPlayer player, Side side) {
-			InventoryDankNull inv = null;
-			if (player.openContainer instanceof ContainerDankNull) {
-				ContainerDankNull container = (ContainerDankNull) player.openContainer;
-				ItemStack dankNull = container.getDankNull();
-				if (!dankNull.isEmpty()) {
-					inv = DankNullUtils.getNewDankNullInventory(dankNull);
-					//inv = container.getDankNullInventory();
-					for (int i = 0; i < message.itemStacks.size(); i++) {
-						message.itemStacks.get(i).setCount(DankNullUtils.isCreativeDankNull(dankNull) ? Integer.MAX_VALUE : message.stackSizes[i]);
-						//inv.setInventorySlotContents(i, message.itemStacks.get(i));
-						container.putStackInSlot(i + 36, message.itemStacks.get(i));
-					}
-					if (!message.extractionModes.isEmpty()) {
-						DankNullUtils.setExtractionModes(inv.getDankNull(), message.extractionModes);
-					}
-					if (!message.oreDictModes.isEmpty()) {
-						DankNullUtils.setOreDictModes(inv.getDankNull(), message.oreDictModes);
-					}
-					if (DankNullUtils.isCreativeDankNull(inv.getDankNull())) {
-						DankNullUtils.setLocked(inv.getDankNull(), message.isLocked);
-					}
-					//container.setDankNullInventory(inv);
-					//container.detectAndSendChanges();
-					if (side == Side.CLIENT && inv != null) {
-						if (DankNull.PROXY.getScreen() != null && DankNull.PROXY.getScreen() instanceof GuiDankNull) {
-							GuiDankNull screen = (GuiDankNull) DankNull.PROXY.getScreen();
-							screen.setDankNull(inv.getDankNull());
-						}
-					}
-					if (side == Side.SERVER) {
-						//container.sync();
-					}
-				}
+			ItemStack stack = message.dankNull;
+			/*
+			InventoryDankNull inv = DankNullUtils.getNewDankNullInventory(stack);
+			int[] sizes = message.stackSizes;
+			for (int i = 0; i < sizes.length; i++) {
+				inv.setSizeForSlot(i, sizes[i]);
 			}
-
+			*/
+			player.inventory.setInventorySlotContents(message.slot, stack);
+			DankNullUtils.setLocked(stack, message.isLocked);
 		}
 	}
 
