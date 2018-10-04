@@ -3,7 +3,6 @@ package p455w0rd.danknull.util;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.WeakHashMap;
 
 import javax.annotation.Nonnull;
 
@@ -1073,7 +1072,7 @@ public class DankNullUtils {
 
 	@SideOnly(Side.SERVER)
 	public static void sendConfigsToClient(EntityPlayerMP player) {
-		Map<String, Object> map = new WeakHashMap<String, Object>();
+		WeakHashMapSerializable<String, Object> map = new WeakHashMapSerializable<String, Object>();
 		map.put(ModConfig.CONST_CREATIVE_BLACKLIST, Options.creativeBlacklist);
 		map.put(ModConfig.CONST_CREATIVE_WHITELIST, Options.creativeWhitelist);
 		map.put(ModConfig.CONST_OREDICT_BLACKLIST, Options.oreBlacklist);

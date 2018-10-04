@@ -1,17 +1,18 @@
 package p455w0rd.danknull.init;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 import com.google.common.collect.Lists;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.NonNullList;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.oredict.OreDictionary;
+import p455w0rd.danknull.util.NonNullListSerializable;
 
 /**
  * @author p455w0rd
@@ -62,11 +63,11 @@ public class ModConfig {
 		public static String creativeWhitelist = "";
 		public static String oreBlacklist = "";
 		public static String oreWhitelist = "";
-		private static NonNullList<ItemStack> creativeItemBlacklist = null; // cache it..
-		private static NonNullList<ItemStack> creativeItemWhitelist = null;
-		private static List<String> oreStringBlacklist = Lists.<String>newArrayList();
-		private static List<String> oreStringWhitelist = Lists.<String>newArrayList();
-		public static boolean disableOreDictMode = false;
+		private static NonNullListSerializable<ItemStack> creativeItemBlacklist = null; // cache it..
+		private static NonNullListSerializable<ItemStack> creativeItemWhitelist = null;
+		private static ArrayList<String> oreStringBlacklist = Lists.<String>newArrayList();
+		private static ArrayList<String> oreStringWhitelist = Lists.<String>newArrayList();
+		public static Boolean disableOreDictMode = false;
 
 		public static List<String> getOreBlacklist() {
 			String[] tmpList = null;
@@ -98,9 +99,9 @@ public class ModConfig {
 			return oreStringWhitelist;
 		}
 
-		public static NonNullList<ItemStack> getCreativeBlacklistedItems() throws Exception {
+		public static NonNullListSerializable<ItemStack> getCreativeBlacklistedItems() throws Exception {
 			if (creativeItemBlacklist == null && getCreativeWhitelistedItems().isEmpty()) {
-				creativeItemBlacklist = NonNullList.<ItemStack>create();
+				creativeItemBlacklist = (NonNullListSerializable<ItemStack>) NonNullListSerializable.<ItemStack>create();
 				if (!creativeBlacklist.isEmpty()) {
 					List<String> itemStringList = Lists.newArrayList(creativeBlacklist.split(";"));
 					for (String itemString : itemStringList) {
@@ -145,9 +146,9 @@ public class ModConfig {
 			return creativeItemBlacklist;
 		}
 
-		public static NonNullList<ItemStack> getCreativeWhitelistedItems() throws Exception {
+		public static NonNullListSerializable<ItemStack> getCreativeWhitelistedItems() throws Exception {
 			if (creativeItemWhitelist == null) {
-				creativeItemWhitelist = NonNullList.<ItemStack>create();
+				creativeItemWhitelist = (NonNullListSerializable<ItemStack>) NonNullListSerializable.<ItemStack>create();
 				if (!creativeWhitelist.isEmpty()) {
 					List<String> itemStringList = Lists.newArrayList(creativeWhitelist.split(";"));
 					for (String itemString : itemStringList) {

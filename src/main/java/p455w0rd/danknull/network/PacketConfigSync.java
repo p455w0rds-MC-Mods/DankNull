@@ -2,7 +2,6 @@ package p455w0rd.danknull.network;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.Map;
@@ -23,7 +22,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
  */
 public class PacketConfigSync implements IMessage {
 
-	public Map<String, Object> values;
+	public transient Map<String, Object> values;
 
 	public PacketConfigSync() {
 	}
@@ -62,7 +61,7 @@ public class PacketConfigSync implements IMessage {
 			objStream.writeObject(values);
 			objStream.close();
 		}
-		catch (IOException e) {
+		catch (Exception e) {
 			Throwables.propagate(e);
 		}
 		buf.writeShort(obj.size());
@@ -72,12 +71,7 @@ public class PacketConfigSync implements IMessage {
 	public static class Handler implements IMessageHandler<PacketConfigSync, IMessage> {
 		@Override
 		public IMessage onMessage(final PacketConfigSync message, final MessageContext ctx) {
-			FMLCommonHandler.instance().getWorldThread(ctx.netHandler).addScheduledTask(new Runnable() {
-				@Override
-				public void run() {
-					handle(message, ctx);
-				}
-			});
+			FMLCommonHandler.instance().getWorldThread(ctx.netHandler).addScheduledTask(() -> handle(message, ctx));
 			return null;
 		}
 
