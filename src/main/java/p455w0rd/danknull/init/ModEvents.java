@@ -18,12 +18,9 @@ import net.minecraft.util.EnumHand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.world.World;
+import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.event.GuiScreenEvent.MouseInputEvent;
-import net.minecraftforge.client.event.ModelRegistryEvent;
-import net.minecraftforge.client.event.MouseEvent;
-import net.minecraftforge.client.event.RenderGameOverlayEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
-import net.minecraftforge.client.event.TextureStitchEvent;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -40,17 +37,10 @@ import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
 import p455w0rd.danknull.client.gui.GuiDankNull;
-import p455w0rd.danknull.client.gui.GuiDankNullDock;
-import p455w0rd.danknull.init.ModConfig.Options;
 import p455w0rd.danknull.init.ModIntegration.Mods;
 import p455w0rd.danknull.integration.NEI;
 import p455w0rd.danknull.inventory.InventoryDankNull;
-import p455w0rd.danknull.network.PacketEmptyDock;
-import p455w0rd.danknull.network.PacketOpenDankGui;
-import p455w0rd.danknull.network.PacketSetSelectedItem;
-import p455w0rd.danknull.network.PacketSetSelectedItemDock;
-import p455w0rd.danknull.network.PacketSyncDankNull;
-import p455w0rd.danknull.network.PacketSyncDankNullDock;
+import p455w0rd.danknull.network.*;
 import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rdslib.util.EasyMappings;
 import p455w0rdslib.util.ItemUtils;
@@ -198,49 +188,49 @@ public class ModEvents {
 					event.setCanceled(true);
 				}
 			}
-
-			else if (mc.currentScreen instanceof GuiDankNullDock) {
-				GuiDankNullDock dankNullGui = (GuiDankNullDock) mc.currentScreen;
-				int width = dankNullGui.width;
-				int height = dankNullGui.height;
-				int mouseX = Mouse.getEventX() * width / mc.displayWidth;
-				int mouseY = height - Mouse.getEventY() * height / mc.displayHeight - 1;
-				Slot hoveredSlot = dankNullGui.getSlotAtPos(mouseX, mouseY);
-				if (hoveredSlot != null && hoveredSlot.getHasStack() && Mouse.isButtonDown(0)) {
-					if (GuiScreen.isCtrlKeyDown() && !GuiScreen.isAltKeyDown()) {
-						DankNullUtils.cycleExtractionMode(dankNullGui.getDankNull(), hoveredSlot.getStack());
-						ModNetworking.getInstance().sendToServer(new PacketSyncDankNullDock(dankNullGui.getDock(), dankNullGui.getDock().getDankNull()));
-						event.setCanceled(true);
-					}
-					else if (GuiScreen.isAltKeyDown() && !GuiScreen.isCtrlKeyDown()) {
-						if (!ItemUtils.areItemsEqual(DankNullUtils.getSelectedStack(dankNullGui.getDankNullInventory()), hoveredSlot.getStack())) {
-							int count = 0;
-							for (Slot slotHovered : dankNullGui.inventorySlots.inventorySlots) {
-								count++;
-								if (slotHovered.equals(hoveredSlot)) {
-									int index = (count - 1) - 36;
-									DankNullUtils.setSelectedStackIndex(dankNullGui.getDankNullInventory(), index);
-									ModNetworking.getInstance().sendToServer(new PacketSetSelectedItemDock(index, dankNullGui.getDock().getPos()));
+			/*
+						else if (mc.currentScreen instanceof GuiDankNullDock) {
+							GuiDankNullDock dankNullGui = (GuiDankNullDock) mc.currentScreen;
+							int width = dankNullGui.width;
+							int height = dankNullGui.height;
+							int mouseX = Mouse.getEventX() * width / mc.displayWidth;
+							int mouseY = height - Mouse.getEventY() * height / mc.displayHeight - 1;
+							Slot hoveredSlot = dankNullGui.getSlotAtPos(mouseX, mouseY);
+							if (hoveredSlot != null && hoveredSlot.getHasStack() && Mouse.isButtonDown(0)) {
+								if (GuiScreen.isCtrlKeyDown() && !GuiScreen.isAltKeyDown()) {
+									DankNullUtils.cycleExtractionMode(dankNullGui.getDankNull(), hoveredSlot.getStack());
+									ModNetworking.getInstance().sendToServer(new PacketSyncDankNullDock(dankNullGui.getDock(), dankNullGui.getDock().getDankNull()));
+									event.setCanceled(true);
+								}
+								else if (GuiScreen.isAltKeyDown() && !GuiScreen.isCtrlKeyDown()) {
+									if (!ItemUtils.areItemsEqual(DankNullUtils.getSelectedStack(dankNullGui.getDankNullInventory()), hoveredSlot.getStack())) {
+										int count = 0;
+										for (Slot slotHovered : dankNullGui.inventorySlots.inventorySlots) {
+											count++;
+											if (slotHovered.equals(hoveredSlot)) {
+												int index = (count - 1) - 36;
+												DankNullUtils.setSelectedStackIndex(dankNullGui.getDankNullInventory(), index);
+												ModNetworking.getInstance().sendToServer(new PacketSetSelectedItemDock(index, dankNullGui.getDock().getPos()));
+												event.setCanceled(true);
+											}
+										}
+									}
+								}
+								else if (!Options.disableOreDictMode && Keyboard.isKeyDown(Keyboard.KEY_O) && !GuiScreen.isAltKeyDown() && !GuiScreen.isCtrlKeyDown()) {
+									if ((DankNullUtils.isOreDictBlacklistEnabled() && !DankNullUtils.isItemOreDictBlacklisted(hoveredSlot.getStack())) || (DankNullUtils.isOreDictWhitelistEnabled() && DankNullUtils.isItemOreDictWhitelisted(hoveredSlot.getStack())) || !DankNullUtils.isOreDictBlacklistEnabled() && !DankNullUtils.isOreDictWhitelistEnabled()) {
+										DankNullUtils.cycleOreDictModeForStack(dankNullGui.getDankNull(), hoveredSlot.getStack());
+										ModNetworking.getInstance().sendToServer(new PacketSyncDankNullDock(dankNullGui.getDock(), dankNullGui.getDock().getDankNull()));
+										event.setCanceled(true);
+									}
+								}
+								else if (Keyboard.isKeyDown(Keyboard.KEY_P) && !GuiScreen.isAltKeyDown() && !GuiScreen.isCtrlKeyDown()) {
+									DankNullUtils.cyclePlacementMode(dankNullGui.getDankNull(), hoveredSlot.getStack());
+									ModNetworking.getInstance().sendToServer(new PacketSyncDankNullDock(dankNullGui.getDock(), dankNullGui.getDock().getDankNull()));
 									event.setCanceled(true);
 								}
 							}
 						}
-					}
-					else if (!Options.disableOreDictMode && Keyboard.isKeyDown(Keyboard.KEY_O) && !GuiScreen.isAltKeyDown() && !GuiScreen.isCtrlKeyDown()) {
-						if ((DankNullUtils.isOreDictBlacklistEnabled() && !DankNullUtils.isItemOreDictBlacklisted(hoveredSlot.getStack())) || (DankNullUtils.isOreDictWhitelistEnabled() && DankNullUtils.isItemOreDictWhitelisted(hoveredSlot.getStack())) || !DankNullUtils.isOreDictBlacklistEnabled() && !DankNullUtils.isOreDictWhitelistEnabled()) {
-							DankNullUtils.cycleOreDictModeForStack(dankNullGui.getDankNull(), hoveredSlot.getStack());
-							ModNetworking.getInstance().sendToServer(new PacketSyncDankNullDock(dankNullGui.getDock(), dankNullGui.getDock().getDankNull()));
-							event.setCanceled(true);
-						}
-					}
-					else if (Keyboard.isKeyDown(Keyboard.KEY_P) && !GuiScreen.isAltKeyDown() && !GuiScreen.isCtrlKeyDown()) {
-						DankNullUtils.cyclePlacementMode(dankNullGui.getDankNull(), hoveredSlot.getStack());
-						ModNetworking.getInstance().sendToServer(new PacketSyncDankNullDock(dankNullGui.getDock(), dankNullGui.getDock().getDankNull()));
-						event.setCanceled(true);
-					}
-				}
-			}
-
+			*/
 		}
 	}
 

@@ -4,19 +4,16 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.entity.player.InventoryPlayer;
-import net.minecraft.inventory.ClickType;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.IContainerListener;
-import net.minecraft.inventory.Slot;
+import net.minecraft.entity.player.*;
+import net.minecraft.inventory.*;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import p455w0rd.danknull.init.ModItems;
+import p455w0rd.danknull.init.ModNetworking;
 import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rd.danknull.inventory.slot.SlotDankNull;
 import p455w0rd.danknull.inventory.slot.SlotHotbar;
+import p455w0rd.danknull.network.PacketSyncDankNull;
 import p455w0rd.danknull.util.DankNullUtils;
 
 /**
@@ -27,9 +24,13 @@ public class ContainerDankNull extends Container {
 
 	InventoryDankNull inventoryDankNull;
 	private final Set<EntityPlayerMP> playerList = Sets.<EntityPlayerMP>newHashSet();
+	private final EntityPlayer player;
+	private final int playerInvSlot;
 
-	public ContainerDankNull(EntityPlayer player, InventoryDankNull inv) {
+	public ContainerDankNull(EntityPlayer player, int slot, InventoryDankNull inv) {
 		inventoryDankNull = inv;
+		this.player = player;
+		playerInvSlot = slot;
 		InventoryPlayer playerInv = player.inventory;
 		ItemStack dankNull = inv.getDankNull();
 		int lockedSlot = -1;
@@ -59,6 +60,15 @@ public class ContainerDankNull extends Container {
 		}
 	}
 
+	public EntityPlayer getPlayer() {
+		return player;
+	}
+
+	public int getPlayerInvSlot() {
+		return playerInvSlot;
+	}
+
+	/*
 	@Override
 	public void addListener(IContainerListener listener) {
 		if (listener instanceof EntityPlayerMP) {
@@ -69,6 +79,7 @@ public class ContainerDankNull extends Container {
 		}
 		//sync();
 	}
+	*/
 
 	@Override
 	public boolean canInteractWith(EntityPlayer playerIn) {
@@ -164,7 +175,6 @@ public class ContainerDankNull extends Container {
 		for (int i = 0; i < inventorySlots.size(); ++i) {
 			ItemStack itemstack = inventorySlots.get(i).getStack();
 			ItemStack itemstack1 = inventoryItemStacks.get(i);
-
 			if (!ItemStack.areItemStacksEqual(itemstack1, itemstack)) {
 				boolean clientStackChanged = !ItemStack.areItemStacksEqualUsingNBTShareTag(itemstack1, itemstack);
 				if (clientStackChanged) {
@@ -200,6 +210,7 @@ public class ContainerDankNull extends Container {
 			}
 		}
 		else {
+			ModNetworking.getInstance().sendToServer(new PacketSyncDankNull(getPlayerInvSlot(), getDankNullInventory().getDankNull()));
 			//ModNetworking.getInstance().sendToServer(new PacketSyncDankNull(getDankNullInventory()));
 		}
 	}
@@ -283,7 +294,7 @@ public class ContainerDankNull extends Container {
 			if (!heldStack.isEmpty()) {
 				if (addStack(heldStack)) {
 					inventoryplayer.setItemStack(ItemStack.EMPTY);
-					//sync();
+					sync();
 					return heldStack;
 				}
 				else {
@@ -294,7 +305,7 @@ public class ContainerDankNull extends Container {
 						inventoryplayer.setItemStack(thisStack);
 						s.putStack(heldStack);
 					}
-					//sync();
+					sync();
 					return ItemStack.EMPTY;
 				}
 			}
@@ -323,7 +334,7 @@ public class ContainerDankNull extends Container {
 					}
 					inventoryplayer.setItemStack(newStack);
 					DankNullUtils.reArrangeStacks(getDankNullInventory());
-					//sync();
+					sync();
 					return ItemStack.EMPTY;
 				}
 			}

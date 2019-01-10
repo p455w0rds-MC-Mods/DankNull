@@ -1,5 +1,7 @@
 package p455w0rd.danknull.init;
 
+import org.apache.commons.lang3.tuple.Pair;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
@@ -31,6 +33,7 @@ public class ModGuiHandler implements IGuiHandler {
 	public Object getServerGuiElement(int id, EntityPlayer player, World world, int x, int y, int z) {
 		switch (GUIType.VALUES[id]) {
 		case DANKNULL:
+			/*
 			ItemStack dankNull = ItemStack.EMPTY;
 			if (player.getHeldItemMainhand().getItem() == ModItems.DANK_NULL) {
 				dankNull = player.getHeldItemMainhand();
@@ -44,7 +47,9 @@ public class ModGuiHandler implements IGuiHandler {
 					break;
 				}
 			}
-			return new ContainerDankNull(player, DankNullUtils.getNewDankNullInventory(dankNull));
+			*/
+			Pair<Integer, ItemStack> dn = DankNullUtils.getSyncableDankNull(player);
+			return new ContainerDankNull(player, dn.getLeft(), DankNullUtils.getNewDankNullInventory(dn.getRight()));
 		case DANKNULL_TE:
 			TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
 			if (te != null && te instanceof TileDankNullDock) {
@@ -63,6 +68,7 @@ public class ModGuiHandler implements IGuiHandler {
 	public Object getClientGuiElement(int id, EntityPlayer player, World world, int x, int y, int z) {
 		switch (GUIType.VALUES[id]) {
 		case DANKNULL:
+			/*
 			ItemStack dankNull = ItemStack.EMPTY;
 			if (player.getHeldItemMainhand().getItem() == ModItems.DANK_NULL) {
 				dankNull = player.getHeldItemMainhand();
@@ -76,8 +82,10 @@ public class ModGuiHandler implements IGuiHandler {
 					break;
 				}
 			}
-			InventoryDankNull inv = DankNullUtils.getNewDankNullInventory(dankNull);
-			return new GuiDankNull(new ContainerDankNull(player, inv), player);
+			*/
+			Pair<Integer, ItemStack> dn = DankNullUtils.getSyncableDankNull(player);
+			InventoryDankNull inv = DankNullUtils.getNewDankNullInventory(dn.getRight());
+			return new GuiDankNull(new ContainerDankNull(player, dn.getLeft(), inv), player);
 		case DANKNULL_TE:
 			TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
 			if (te != null && te instanceof TileDankNullDock) {

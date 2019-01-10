@@ -33,7 +33,6 @@ public class InventoryDankNull implements IInventory, Iterable<ItemStack> {
 	private ItemStack dankNullStack = ItemStack.EMPTY;
 	private int numRows = 0;
 	private EntityPlayer player;
-	//private Map<ItemStack, SlotExtractionMode> extractionModes = Maps.<ItemStack, SlotExtractionMode>newHashMap();
 
 	public InventoryDankNull(ItemStack dankNull) {
 		dankNullStack = dankNull;
