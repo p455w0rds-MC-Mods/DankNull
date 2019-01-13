@@ -341,7 +341,7 @@ public class ContainerDankNull extends Container {
 		}
 		super.slotClick(index, dragType, clickTypeIn, player);
 		if (player instanceof EntityPlayerMP) {
-			//sync();
+			sync();
 		}
 		return ItemStack.EMPTY;
 

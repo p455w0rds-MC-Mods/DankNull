@@ -1,48 +1,30 @@
 package p455w0rd.danknull.items;
 
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.List;
+import java.util.Locale;
+
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import codechicken.lib.model.ModelRegistryHelper;
 import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.block.Block;
-import net.minecraft.block.BlockBanner;
-import net.minecraft.block.BlockSlab;
-import net.minecraft.block.BlockStairs;
-import net.minecraft.block.BlockStandingSign;
-import net.minecraft.block.BlockWallSign;
-import net.minecraft.block.SoundType;
+import net.minecraft.block.*;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
-import net.minecraft.item.EnumRarity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
-import net.minecraft.item.ItemBlockSpecial;
-import net.minecraft.item.ItemBucket;
-import net.minecraft.item.ItemEgg;
-import net.minecraft.item.ItemEnderPearl;
-import net.minecraft.item.ItemSlab;
-import net.minecraft.item.ItemSnowball;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.*;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntityBanner;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.MathHelper;
-import net.minecraft.util.math.RayTraceResult;
-import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.*;
+import net.minecraft.util.math.*;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelLoader;
@@ -50,9 +32,7 @@ import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fluids.UniversalBucket;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.fml.relauncher.ReflectionHelper;
-import net.minecraftforge.fml.relauncher.Side;
-import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.fml.relauncher.*;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import p455w0rd.danknull.api.IModelHolder;
@@ -103,6 +83,23 @@ public class ItemDankNull extends Item implements IModelHolder {
 
 	@Override
 	@SideOnly(Side.CLIENT)
+	public void addInformation(ItemStack stack, @Nullable World worldIn, List<String> tooltip, ITooltipFlag flagIn) {
+		int numSlots = DankNullUtils.getSlotCount(stack);
+		String numPerSlot = "0";
+		if (DankNullUtils.isCreativeDankNull(stack)) {
+			numSlots -= 9;
+			numPerSlot = I18n.translateToLocal("dn.infinity");
+		}
+		else {
+			DecimalFormat df = new DecimalFormat("###,###.###", new DecimalFormatSymbols(Locale.US));
+			numPerSlot = I18n.translateToLocal("dn.upto") + " " + df.format(Double.valueOf(DankNullUtils.getDankNullMaxStackSize(stack)));
+		}
+		tooltip.add(I18n.translateToLocalFormatted("dn.numslots", numSlots));
+		tooltip.add(I18n.translateToLocalFormatted("dn.num_per_slot", numPerSlot));
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
 	public boolean hasEffect(ItemStack stack) {
 		return true;
 	}
@@ -130,7 +127,7 @@ public class ItemDankNull extends Item implements IModelHolder {
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand hand) {
 		ItemStack stack = playerIn.getHeldItem(hand);
-		if (playerIn.isSneaking() && getBlockUnderPlayer(playerIn) != Blocks.AIR) {
+		if (playerIn.isSneaking() && (Options.ignoreEdgeDetection || getBlockUnderPlayer(playerIn) != Blocks.AIR)) {
 			ModGuiHandler.launchGui(GUIType.DANKNULL, playerIn, worldIn, (int) playerIn.posX, (int) playerIn.posY, (int) playerIn.posZ);
 			return new ActionResult<ItemStack>(EnumActionResult.FAIL, stack);
 		}
@@ -188,16 +185,13 @@ public class ItemDankNull extends Item implements IModelHolder {
 
 	@Override
 	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos posIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
-		if (world.isRemote) {
-			return EnumActionResult.SUCCESS;
-		}
 		ItemStack stack = player.getHeldItem(hand);
 		InventoryDankNull inventory = new InventoryDankNull(stack);
 		ItemStack selectedStack = DankNullUtils.getSelectedStack(inventory);
 		Block selectedBlock = Block.getBlockFromItem(selectedStack.getItem());
 		boolean isSelectedStackABlock = selectedBlock != null && selectedBlock != Blocks.AIR;
 		Block blockUnderPlayer = getBlockUnderPlayer(player).getBlock();
-		if (player.isSneaking() && (blockUnderPlayer != Blocks.AIR && (isSelectedStackABlock && blockUnderPlayer != selectedBlock))) {
+		if (player.isSneaking() && (Options.ignoreEdgeDetection || (blockUnderPlayer != Blocks.AIR && (isSelectedStackABlock && blockUnderPlayer != selectedBlock)))) {
 			ModGuiHandler.launchGui(GUIType.DANKNULL, player, world, (int) player.posX, (int) player.posY, (int) player.posZ);
 			return EnumActionResult.SUCCESS;
 		}
