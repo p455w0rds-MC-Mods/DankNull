@@ -33,9 +33,24 @@ public class ModGlobals {
 				REDSTONE, LAPIS, IRON, GOLD, DIAMOND, EMERALD, CREATIVE
 		};
 
-		public static EnumRarity getRarityFromMeta(int meta) {
+		public static EnumRarity getRarityFromMeta(final int meta) {
 			return meta >= ARRAY.length ? ARRAY[0] : ARRAY[meta];
 		}
+
+	}
+
+	public static class NBT {
+
+		public static final String SLOT_KEY = "Slot";
+		public static final String ITEMS_KEY = "Items";
+		public static final String DEMAGNETIZE_KEY = "PreventRemoteMovement";
+		public static final String EXTRACTION_MODES_KEY = "ExtractionModes";
+		public static final String PLACEMENT_MODES_KEY = "PlacementModes";
+		public static final String OREDICT_MODES_KEY = "OreDictModes";
+		public static final String LOCKED_KEY = "Locked";
+		public static final String SELECTEDINDEX_KEY = "selectedIndex";
+		public static final String STACK_KEY = "Stack";
+		public static final String MODE_KEY = "Mode";
 
 	}
 

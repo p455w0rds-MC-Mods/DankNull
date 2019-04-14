@@ -25,6 +25,9 @@ minecraft {
 	mappings = "snapshot_20171003"
 	runDir = "run"
 	useDepAts = true
+	clientJvmArgs += "-Dfml.coreMods.load=com.elytradev.mini.MiniCoremod,team.chisel.ctm.client.asm.CTMCorePlugin"
+    serverJvmArgs += "-Dfml.coreMods.load=com.elytradev.mini.MiniCoremod"
+    serverJvmArgs += "-Dfml.queryResult=confirm"
 }
 
 repositories {
@@ -106,7 +109,9 @@ processResources {
 
 jar {
 	manifest {
-	    attributes 'FMLAT': 'danknull_at.cfg'
+		attributes {
+			'FMLAT': 'danknull_at.cfg'
+		}
 	}
 }
 

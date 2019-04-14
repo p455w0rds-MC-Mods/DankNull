@@ -1,11 +1,7 @@
 package p455w0rd.danknull.client.gui;
 
 import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Locale;
-
-import javax.annotation.Nonnull;
+import java.util.*;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.opengl.GL11;
@@ -14,22 +10,16 @@ import com.google.common.collect.Lists;
 
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.FontRenderer;
-import net.minecraft.client.gui.Gui;
-import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.*;
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.inventory.ClickType;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.Slot;
+import net.minecraft.inventory.*;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
@@ -46,10 +36,7 @@ import p455w0rd.danknull.network.PacketSyncDankNull;
 import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rd.danknull.util.DankNullUtils.SlotExtractionMode;
 import p455w0rdslib.client.gui.GuiModular;
-import p455w0rdslib.util.EasyMappings;
-import p455w0rdslib.util.GuiUtils;
-import p455w0rdslib.util.MathUtils;
-import p455w0rdslib.util.RenderUtils;
+import p455w0rdslib.util.*;
 import yalter.mousetweaks.api.MouseTweaksIgnore;
 
 /**
@@ -59,8 +46,8 @@ import yalter.mousetweaks.api.MouseTweaksIgnore;
 @MouseTweaksIgnore
 public class GuiDankNull extends GuiModular {
 
-	private DankNullRenderItem pRenderItem;
-	private final List<SlotDankNull> slots = new LinkedList<SlotDankNull>();
+	private final DankNullRenderItem pRenderItem;
+	private final List<SlotDankNull> slots = new LinkedList<>();
 	private Slot theSlot;
 	private Slot returningStackDestSlot;
 	private long returningStackTime;
@@ -71,20 +58,22 @@ public class GuiDankNull extends GuiModular {
 	protected int xSize = 210;
 	protected int ySize = 140;
 	EntityPlayer player;
-	ItemStack dankNull;
-	InventoryDankNull inventory = null;
+	ContainerDankNull container;
+	//ItemStack dankNull;
+	//InventoryDankNull inventory = null;
 
-	public GuiDankNull(Container container, EntityPlayer player) {
+	public GuiDankNull(final ContainerDankNull container, final EntityPlayer player) {
 		super(container);
+		this.container = container;
 		this.player = player;
-		dankNull = DankNullUtils.getDankNull(player);
+		final ItemStack dankNull = DankNullUtils.getDankNullFromPlayerInvSlot(container.getPlayerInvSlot(), player);
 		pRenderItem = new DankNullRenderItem(Minecraft.getMinecraft().renderEngine, Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getModelManager(), Minecraft.getMinecraft().getItemColors(), dankNull, false);
 		numRows = dankNull.getItemDamage();
 		if (DankNullUtils.isCreativeDankNull(dankNull)) {
 			numRows--;
 		}
 		setWidth(210);
-		setHeight(140 + (numRows * 20 + numRows + 1));
+		setHeight(140 + numRows * 20 + numRows + 1);
 		setBackgroundTexture(new ResourceLocation(ModGlobals.MODID, "textures/gui/danknullscreen" + (numRows + (DankNullUtils.isCreativeDankNull(dankNull) ? 1 : 0)) + ".png"));
 	}
 
@@ -95,15 +84,15 @@ public class GuiDankNull extends GuiModular {
 		xSize = 201;
 		if (Minecraft.getMinecraft().player.capabilities.isCreativeMode && DankNullUtils.isCreativeDankNull(getDankNull())) {
 			buttonList.clear();
-			buttonList.add(new GuiButton(0, getX() + (xSize / 2) - 25, getY() - 20, 50, 20, (DankNullUtils.isCreativeDankNullLocked(getDankNull()) ? "Unl" : "L") + "ock"));
+			buttonList.add(new GuiButton(0, getX() + xSize / 2 - 25, getY() - 20, 50, 20, (DankNullUtils.isCreativeDankNullLocked(getDankNull()) ? "Unl" : "L") + "ock"));
 		}
 	}
 
 	@Override
 	protected void actionPerformed(final GuiButton btn) {
 		if (btn.id == 0) {
-			String lock = I18n.format("dn.lock.desc");
-			String unlock = I18n.format("dn.unlock.desc");
+			final String lock = I18n.format("dn.lock.desc");
+			final String unlock = I18n.format("dn.unlock.desc");
 			if (btn.displayString.equals(lock)) {
 				btn.displayString = unlock;
 				DankNullUtils.setLocked(getDankNull(), true);
@@ -112,7 +101,7 @@ public class GuiDankNull extends GuiModular {
 				btn.displayString = lock;
 				DankNullUtils.setLocked(getDankNull(), false);
 			}
-			ModNetworking.getInstance().sendToServer(new PacketSyncDankNull(DankNullUtils.getSyncableDankNull(mc.player)));
+			ModNetworking.getInstance().sendToServer(new PacketSyncDankNull(container.getPlayerInvSlot(), getDankNullInventory().serializeNBT()));
 		}
 	}
 
@@ -123,22 +112,18 @@ public class GuiDankNull extends GuiModular {
 	}
 
 	public ItemStack getDankNull() {
-		return dankNull;
-	}
-
-	public void setDankNull(@Nonnull ItemStack stack) {
-		dankNull = stack;
+		return container.getDankNull();
 	}
 
 	@Override
-	protected void drawGuiContainerForegroundLayer(int mouseX, int mouseY) {
+	protected void drawGuiContainerForegroundLayer(final int mouseX, final int mouseY) {
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		GlStateManager.disableLighting();
 		GlStateManager.disableBlend();
-		int fontColor = 16777215;
-		int yOffset = 101 - ((20 * numRows) + numRows);
-		String name = "/d" + (Options.callItDevNull ? "ev" : "ank") + "/null";
-		mc.fontRenderer.drawString(name, 7, 6, DankNullUtils.getColor(dankNull.getItemDamage(), true), true);
+		final int fontColor = 16777215;
+		final int yOffset = 101 - (20 * numRows + numRows);
+		final String name = "/d" + (Options.callItDevNull ? "ev" : "ank") + "/null";
+		mc.fontRenderer.drawString(name, 7, 6, DankNullUtils.getColor(getDankNull().getItemDamage(), true), true);
 		mc.fontRenderer.drawString(I18n.format("container.inventory", new Object[0]), 7, ySize - yOffset, fontColor);
 		if (DankNullUtils.getItemCount(getDankNullInventory()) > 0) {
 			mc.fontRenderer.drawString("=" + DankNullUtils.translate("dn.selected.desc"), xSize - 64, 6, fontColor);
@@ -151,16 +136,16 @@ public class GuiDankNull extends GuiModular {
 		return slots;
 	}
 
-	public void drawSelectionBox(int x) {
-		int selectedBoxColor = getDankNull().getItemDamage() == 0 ? 0xFFFFFF00 : -1140916224;
+	public void drawSelectionBox(final int x) {
+		final int selectedBoxColor = getDankNull().getItemDamage() == 0 ? 0xFFFFFF00 : -1140916224;
 		drawGradientRect(x - 75, 4, x - 66, 5, selectedBoxColor, selectedBoxColor);
 		drawGradientRect(x - 75, 4, x - 74, 14, selectedBoxColor, selectedBoxColor);
 		drawGradientRect(x - 75, 13, x - 66, 14, selectedBoxColor, selectedBoxColor);
 		drawGradientRect(x - 66, 4, x - 65, 14, selectedBoxColor, selectedBoxColor);
 	}
 
-	public void drawSelectionBox(int x, int y) {
-		int selectedBoxColor = getDankNull().getItemDamage() == 0 ? 0xFFFFFF00 : -1140916224;
+	public void drawSelectionBox(final int x, final int y) {
+		final int selectedBoxColor = getDankNull().getItemDamage() == 0 ? 0xFFFFFF00 : -1140916224;
 		drawGradientRect(x - 1, y - 1, x + 16, y, selectedBoxColor, selectedBoxColor);
 		drawGradientRect(x - 1, y - 1, x, y + 17, selectedBoxColor, selectedBoxColor);
 		drawGradientRect(x + 16, y - 1, x + 17, y + 17, selectedBoxColor, selectedBoxColor);
@@ -168,18 +153,15 @@ public class GuiDankNull extends GuiModular {
 	}
 
 	public InventoryDankNull getDankNullInventory() {
-		if (inventory == null) {
-			inventory = DankNullUtils.getNewDankNullInventory(getDankNull());
-		}
-		return inventory;
+		return container.getDankNullInventory();
 	}
 
 	@Override
-	public void drawScreen(int mouseX, int mouseY, float partialTicks) {
+	public void drawScreen(final int mouseX, final int mouseY, final float partialTicks) {
 
 		drawDefaultBackground();
-		int i = guiLeft;
-		int j = guiTop;
+		final int i = guiLeft;
+		final int j = guiTop;
 		drawGuiContainerBackgroundLayer(partialTicks, mouseX, mouseY);
 
 		GlStateManager.disableRescaleNormal();
@@ -201,14 +183,14 @@ public class GuiDankNull extends GuiModular {
 			drawSelectionBox(xSize);
 		}
 		theSlot = null;
-		int k = 240;
-		int l = 240;
+		final int k = 240;
+		final int l = 240;
 		OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, k, l);
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		for (int i1 = 0; i1 < inventorySlots.inventorySlots.size(); i1++) {
-			Slot slot = inventorySlots.inventorySlots.get(i1);
-			int j1 = EasyMappings.slotPosX(slot);
-			int k1 = EasyMappings.slotPosY(slot);
+			final Slot slot = inventorySlots.inventorySlots.get(i1);
+			final int j1 = EasyMappings.slotPosX(slot);
+			final int k1 = EasyMappings.slotPosY(slot);
 			if (slot instanceof SlotDankNull) {
 				drawDankNullSlot(slot);
 			}
@@ -230,10 +212,10 @@ public class GuiDankNull extends GuiModular {
 				GlStateManager.enableBlend();
 			}
 
-			if (!getDankNullInventory().isEmpty() && (DankNullUtils.getSelectedStackIndex(getDankNullInventory()) == i1 - 36)) {
+			if (!getDankNullInventory().isEmpty() && DankNullUtils.getSelectedStackIndex(getDankNullInventory()) == i1 - 36) {
 
 				GlStateManager.disableLighting();
-				int index = DankNullUtils.getSelectedStackIndex(getDankNullInventory());
+				final int index = DankNullUtils.getSelectedStackIndex(getDankNullInventory());
 				if (index != -1) {
 					if (getSlotByIndex(index) != null && getSlotByIndex(index).getHasStack()) {
 						drawSelectionBox(j1, k1);
@@ -263,17 +245,17 @@ public class GuiDankNull extends GuiModular {
 
 		drawGuiContainerForegroundLayer(mouseX, mouseY);
 
-		InventoryPlayer inventoryplayer = EasyMappings.player().inventory;
+		final InventoryPlayer inventoryplayer = EasyMappings.player().inventory;
 		ItemStack itemstack = draggedStack.isEmpty() ? inventoryplayer.getItemStack() : draggedStack;
 		if (!itemstack.isEmpty()) {
-			int j2 = 8;
-			int k2 = draggedStack.isEmpty() ? 8 : 16;
+			final int j2 = 8;
+			final int k2 = draggedStack.isEmpty() ? 8 : 16;
 			String s = null;
-			if ((!draggedStack.isEmpty()) && (isRightMouseClick)) {
+			if (!draggedStack.isEmpty() && isRightMouseClick) {
 				itemstack = itemstack.copy();
 				itemstack.setCount(MathUtils.ceil(itemstack.getCount() / 2.0F));
 			}
-			else if ((dragSplitting) && (dragSplittingSlots.size() > 1)) {
+			else if (dragSplitting && dragSplittingSlots.size() > 1) {
 				itemstack = itemstack.copy();
 				itemstack.setCount(dragSplittingRemnant);
 				if (itemstack.getCount() == 0) {
@@ -289,20 +271,20 @@ public class GuiDankNull extends GuiModular {
 				returningStack = ItemStack.EMPTY;
 			}
 
-			int l2 = EasyMappings.slotPosX(returningStackDestSlot) - touchUpX;
-			int i3 = EasyMappings.slotPosY(returningStackDestSlot) - touchUpY;
-			int l1 = touchUpX + (int) (l2 * f);
-			int i2 = touchUpY + (int) (i3 * f);
+			final int l2 = EasyMappings.slotPosX(returningStackDestSlot) - touchUpX;
+			final int i3 = EasyMappings.slotPosY(returningStackDestSlot) - touchUpY;
+			final int l1 = touchUpX + (int) (l2 * f);
+			final int i2 = touchUpY + (int) (i3 * f);
 			drawStack(returningStack, l1, i2, (String) null);
 		}
 		GlStateManager.popMatrix();
-		if (inventoryplayer.getItemStack().isEmpty() && (theSlot != null)) {// && (theSlot.getHasStack())) {
-			ItemStack itemstack1 = (theSlot instanceof SlotDankNull) ? ((SlotDankNull) theSlot).getStack() : theSlot.getStack();
+		if (inventoryplayer.getItemStack().isEmpty() && theSlot != null) {// && (theSlot.getHasStack())) {
+			final ItemStack itemstack1 = theSlot instanceof SlotDankNull ? ((SlotDankNull) theSlot).getStack() : theSlot.getStack();
 			renderToolTip(itemstack1, mouseX, mouseY);
 		}
 	}
 
-	private void drawStack(ItemStack stack, int x, int y, String altText) {
+	private void drawStack(final ItemStack stack, final int x, final int y, final String altText) {
 		zLevel = 200.0F;
 		itemRender.zLevel = 200.0F;
 		FontRenderer font = null;
@@ -318,21 +300,21 @@ public class GuiDankNull extends GuiModular {
 		zLevel = 0.0F;
 	}
 
-	private boolean isMouseHovering(Slot slot, int x, int y) {
+	private boolean isMouseHovering(final Slot slot, final int x, final int y) {
 		return isPointInRegion(slot.xPos, slot.yPos, 16, 16, x, y);
 	}
 
-	public Pair<Integer, Integer> getPosFromSlot(Slot slot) {
+	public Pair<Integer, Integer> getPosFromSlot(final Slot slot) {
 		return Pair.of(slot.xPos, slot.yPos);
 	}
 
-	public Slot getSlotByIndex(int index) {
-		List<Slot> slots = ((ContainerDankNull) inventorySlots).inventorySlots;
+	public Slot getSlotByIndex(final int index) {
+		final List<Slot> slots = ((ContainerDankNull) inventorySlots).inventorySlots;
 		return slots.get(index + 36);
 	}
 
-	public Slot getSlotAtPos(int x, int y) {
-		List<Slot> slots = inventorySlots.inventorySlots;
+	public Slot getSlotAtPos(final int x, final int y) {
+		final List<Slot> slots = inventorySlots.inventorySlots;
 		for (int i = 0; i < slots.size(); i++) {
 			if (slots.get(i) instanceof SlotDankNull) {
 				if (isMouseHovering(slots.get(i), x, y)) {
@@ -344,14 +326,14 @@ public class GuiDankNull extends GuiModular {
 	}
 
 	public void updateDragSplitting() {
-		ItemStack itemstack = EasyMappings.player().inventory.getItemStack();
+		final ItemStack itemstack = EasyMappings.player().inventory.getItemStack();
 
 		if (itemstack != null && dragSplitting) {
 			dragSplittingRemnant = itemstack.getCount();
 
-			for (Slot slot : dragSplittingSlots) {
-				ItemStack itemstack1 = itemstack.copy();
-				int i = slot.getStack() == null ? 0 : slot.getStack().getCount();
+			for (final Slot slot : dragSplittingSlots) {
+				final ItemStack itemstack1 = itemstack.copy();
+				final int i = slot.getStack() == null ? 0 : slot.getStack().getCount();
 				Container.computeStackSize(dragSplittingSlots, dragSplittingLimit, itemstack1, i);
 
 				if (itemstack1.getCount() > itemstack1.getMaxStackSize()) {
@@ -367,21 +349,21 @@ public class GuiDankNull extends GuiModular {
 		}
 	}
 
-	private void drawDankNullSlot(Slot slotIn) {
+	private void drawDankNullSlot(final Slot slotIn) {
 
-		GuiContainer gui = this;
-		int i = EasyMappings.slotPosX(slotIn);
-		int j = EasyMappings.slotPosY(slotIn);
+		final GuiContainer gui = this;
+		final int i = EasyMappings.slotPosX(slotIn);
+		final int j = EasyMappings.slotPosY(slotIn);
 		ItemStack itemstack = slotIn.getStack();
-		boolean flag = false;
-		boolean flag1 = (slotIn == clickedSlot) && (draggedStack != null) && (!isRightMouseClick);
-		ItemStack itemstack1 = EasyMappings.player().inventory.getItemStack();
-		String s = null;
-		if ((slotIn == clickedSlot) && (draggedStack != null) && (isRightMouseClick) && (!itemstack.isEmpty())) {
+		final boolean flag = false;
+		boolean flag1 = slotIn == clickedSlot && draggedStack != null && !isRightMouseClick;
+		final ItemStack itemstack1 = EasyMappings.player().inventory.getItemStack();
+		final String s = null;
+		if (slotIn == clickedSlot && draggedStack != null && isRightMouseClick && !itemstack.isEmpty()) {
 			itemstack = itemstack.copy();
 			itemstack.setCount(itemstack.getCount() / 2);
 		}
-		else if ((dragSplitting) && (dragSplittingSlots.contains(slotIn)) && (!itemstack1.isEmpty())) {
+		else if (dragSplitting && dragSplittingSlots.contains(slotIn) && !itemstack1.isEmpty()) {
 			if (dragSplittingSlots.size() == 1) {
 				return;
 			}
@@ -391,7 +373,7 @@ public class GuiDankNull extends GuiModular {
 		zLevel = 100.0F;
 		itemRender.zLevel = 100.0F;
 		if (itemstack.isEmpty()) {
-			TextureAtlasSprite textureatlassprite = slotIn.getBackgroundSprite();
+			final TextureAtlasSprite textureatlassprite = slotIn.getBackgroundSprite();
 			if (textureatlassprite != null) {
 				GlStateManager.disableLighting();
 				GuiUtils.bindTexture(slotIn.getBackgroundLocation());
@@ -414,22 +396,22 @@ public class GuiDankNull extends GuiModular {
 
 	@Override
 	public void updateScreen() {
-		if ((!EasyMappings.player().isEntityAlive()) || (EasyMappings.player().isDead)) {
+		if (!EasyMappings.player().isEntityAlive() || EasyMappings.player().isDead) {
 			EasyMappings.player().closeScreen();
 		}
 	}
 
 	@Override
-	protected boolean isPointInRegion(int rectX, int rectY, int rectWidth, int rectHeight, int pointX, int pointY) {
-		int i = guiLeft;
-		int j = guiTop;
+	protected boolean isPointInRegion(final int rectX, final int rectY, final int rectWidth, final int rectHeight, int pointX, int pointY) {
+		final int i = guiLeft;
+		final int j = guiTop;
 		pointX -= i;
 		pointY -= j;
-		return (pointX >= rectX - 1) && (pointX < rectX + rectWidth + 1) && (pointY >= rectY - 1) && (pointY < rectY + rectHeight + 1);
+		return pointX >= rectX - 1 && pointX < rectX + rectWidth + 1 && pointY >= rectY - 1 && pointY < rectY + rectHeight + 1;
 	}
 
 	@Override
-	protected void keyTyped(char typedChar, int keyCode) throws IOException {
+	protected void keyTyped(final char typedChar, final int keyCode) throws IOException {
 		if (keyCode == 1 || mc.gameSettings.keyBindInventory.isActiveAndMatches(keyCode)) {
 			mc.player.closeScreen();
 		}
@@ -447,14 +429,14 @@ public class GuiDankNull extends GuiModular {
 	}
 
 	@Override
-	protected void mouseReleased(int mouseX, int mouseY, int state) {
+	protected void mouseReleased(final int mouseX, final int mouseY, final int state) {
 		super.mouseReleased(mouseX, mouseY, state);
-		((ContainerDankNull) inventorySlots).sync();
+		//TODO ((ContainerDankNull) inventorySlots).sync();
 	}
 
 	@Override
-	protected void renderToolTip(ItemStack stack, int x, int y) {
-		List<String> list = stack.isEmpty() ? Lists.newArrayList() : stack.getTooltip(EasyMappings.player(), mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL);
+	protected void renderToolTip(final ItemStack stack, final int x, final int y) {
+		final List<String> list = stack.isEmpty() ? Lists.newArrayList() : stack.getTooltip(EasyMappings.player(), mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL);
 
 		for (int i = 0; i < list.size(); ++i) {
 			if (i == 0) {
@@ -464,14 +446,14 @@ public class GuiDankNull extends GuiModular {
 				list.set(i, TextFormatting.GRAY + list.get(i));
 			}
 		}
-		Slot s = getSlotAtPos(x, y);
+		final Slot s = getSlotAtPos(x, y);
 		if (s != null && s instanceof SlotDankNull && s.getHasStack()) {
-			boolean showOreDictMessage = ((DankNullUtils.isOreDictBlacklistEnabled() && !DankNullUtils.isItemOreDictBlacklisted(s.getStack())) || (DankNullUtils.isOreDictWhitelistEnabled() && DankNullUtils.isItemOreDictWhitelisted(s.getStack())) || !DankNullUtils.isOreDictBlacklistEnabled() && !DankNullUtils.isOreDictWhitelistEnabled());
-			SlotExtractionMode extractMode = DankNullUtils.getExtractionModeForStack(getDankNull(), s.getStack());
-			SlotExtractionMode placementMode = DankNullUtils.getPlacementModeForStack(getDankNull(), s.getStack());
+			final boolean showOreDictMessage = DankNullUtils.isOreDictBlacklistEnabled() && !DankNullUtils.isItemOreDictBlacklisted(s.getStack()) || DankNullUtils.isOreDictWhitelistEnabled() && DankNullUtils.isItemOreDictWhitelisted(s.getStack()) || !DankNullUtils.isOreDictBlacklistEnabled() && !DankNullUtils.isOreDictWhitelistEnabled();
+			final SlotExtractionMode extractMode = DankNullUtils.getExtractionModeForStack(getDankNull(), s.getStack());
+			final SlotExtractionMode placementMode = DankNullUtils.getPlacementModeForStack(getDankNull(), s.getStack());
 
-			Block selectedBlock = Block.getBlockFromItem(stack.getItem());
-			boolean isSelectedStackABlock = selectedBlock != null && selectedBlock != Blocks.AIR;
+			final Block selectedBlock = Block.getBlockFromItem(stack.getItem());
+			final boolean isSelectedStackABlock = selectedBlock != null && selectedBlock != Blocks.AIR;
 			if (extractMode != null) {
 				list.add(1, DankNullUtils.translate("dn.extract_mode.desc") + ": " + extractMode.getTooltip());
 			}
@@ -487,8 +469,8 @@ public class GuiDankNull extends GuiModular {
 				list.add(1, DankNullUtils.translate("dn.placement_mode.desc") + ": " + placementMode.getTooltip().replace(DankNullUtils.translate("dn.extract.desc").toLowerCase(Locale.ENGLISH), DankNullUtils.translate("dn.place.desc").toLowerCase(Locale.ENGLISH)).replace(DankNullUtils.translate("dn.extract.desc"), DankNullUtils.translate("dn.place.desc")));
 			}
 			if (showOreDictMessage) {
-				String oreDictMode = DankNullUtils.getOreDictModeForStack(getDankNull(), s.getStack()) ? DankNullUtils.translate("dn.enabled.desc") : DankNullUtils.translate("dn.disabled.desc");
-				boolean oreDicted = DankNullUtils.isItemOreDicted(s.getStack());
+				final String oreDictMode = DankNullUtils.getOreDictModeForStack(getDankNull(), s.getStack()) ? DankNullUtils.translate("dn.enabled.desc") : DankNullUtils.translate("dn.disabled.desc");
+				final boolean oreDicted = DankNullUtils.isItemOreDicted(s.getStack());
 				if (oreDicted) {
 					list.add(2, DankNullUtils.translate("dn.ore_dictionary.desc") + ": " + oreDictMode);
 				}
@@ -499,7 +481,7 @@ public class GuiDankNull extends GuiModular {
 			if (Mods.CHISEL.isLoaded()) {
 				int lineToRemove = -1;
 				if (Chisel.isBlockChiseled(stack)) {
-					String name = Chisel.getVariantName(stack);
+					final String name = Chisel.getVariantName(stack);
 					for (int i = 0; i < list.size(); i++) {
 						if (list.get(i).contains(name)) {
 							lineToRemove = i;
@@ -518,7 +500,7 @@ public class GuiDankNull extends GuiModular {
 		}
 
 		net.minecraftforge.fml.client.config.GuiUtils.preItemToolTip(stack);
-		GuiUtils.drawToolTipWithBorderColor(this, list, x, y, DankNullUtils.getColor(dankNull.getItemDamage(), true), DankNullUtils.getColor(dankNull.getItemDamage(), false));
+		GuiUtils.drawToolTipWithBorderColor(this, list, x, y, DankNullUtils.getColor(getDankNull().getItemDamage(), true), DankNullUtils.getColor(getDankNull().getItemDamage(), false));
 		net.minecraftforge.fml.client.config.GuiUtils.postItemToolTip();
 	}
 

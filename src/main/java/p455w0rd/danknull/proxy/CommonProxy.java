@@ -1,23 +1,14 @@
 package p455w0rd.danknull.proxy;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.event.FMLInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
-import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
-import p455w0rd.danknull.init.ModBlocks;
-import p455w0rd.danknull.init.ModConfig;
-import p455w0rd.danknull.init.ModGuiHandler;
-import p455w0rd.danknull.init.ModIntegration;
-import p455w0rd.danknull.init.ModItems;
-import p455w0rd.danknull.init.ModNetworking;
+import net.minecraftforge.fml.common.event.*;
+import p455w0rd.danknull.init.*;
 
 public class CommonProxy {
 
-	public void preInit(FMLPreInitializationEvent e) {
+	public void preInit(final FMLPreInitializationEvent e) {
 		ModConfig.init();
 		ModBlocks.init();
 		ModItems.init();
@@ -25,15 +16,15 @@ public class CommonProxy {
 		ModNetworking.init();
 	}
 
-	public void init(FMLInitializationEvent e) {
+	public void init(final FMLInitializationEvent e) {
 		ModIntegration.init();
 	}
 
-	public void postInit(FMLPostInitializationEvent e) {
+	public void postInit(final FMLPostInitializationEvent e) {
 		ModGuiHandler.init();
 	}
 
-	public void serverStarting(FMLServerStartingEvent e) {
+	public void serverStarting(final FMLServerStartingEvent e) {
 
 	}
 
@@ -45,12 +36,8 @@ public class CommonProxy {
 		return null;
 	}
 
-	public World getWorld(int dimension) {
+	public World getWorld(final int dimension) {
 		return FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(dimension);
-	}
-
-	public void setGUIDankNull(ItemStack dankNull) {
-
 	}
 
 }
