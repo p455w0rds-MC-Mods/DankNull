@@ -1,25 +1,9 @@
 package p455w0rd.danknull.integration;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-
 import mezz.jei.JustEnoughItems;
-import mezz.jei.api.IJeiRuntime;
-import mezz.jei.api.IModPlugin;
-import mezz.jei.api.IModRegistry;
-import mezz.jei.api.ISubtypeRegistry;
-import mezz.jei.api.JEIPlugin;
+import mezz.jei.api.*;
 import mezz.jei.api.gui.IGuiIngredient;
 import mezz.jei.api.gui.IGuiItemStackGroup;
 import mezz.jei.api.gui.IRecipeLayout;
@@ -46,8 +30,13 @@ import p455w0rd.danknull.init.ModItems;
 import p455w0rd.danknull.integration.jei.DankNullUpgradeWrapper;
 import p455w0rd.danknull.integration.jei.PacketVanllaRecipeTransfer;
 import p455w0rd.danknull.inventory.InventoryDankNull;
+import p455w0rd.danknull.inventory.PlayerSlot;
 import p455w0rd.danknull.recipes.RecipeDankNullUpgrade;
 import p455w0rd.danknull.util.DankNullUtils;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.*;
 
 /**
  * @author p455w0rd
@@ -336,8 +325,8 @@ public class JEI implements IModPlugin {
 
 			boolean needsDankNull = false;
 			if (slotMap.isEmpty()) {
-				List<ItemStack> dankNulls = DankNullUtils.getAllDankNulls(player);
-				for (ItemStack dankNull : dankNulls) {
+				List<PlayerSlot> dankNulls = DankNullUtils.getAllDankNulls(player);
+				for (PlayerSlot slot : dankNulls) {
 					needsDankNull = true;
 					maxRemovedSets++;
 				}

@@ -43,8 +43,9 @@ import p455w0rd.danknull.client.gui.GuiDankNull;
 import p455w0rd.danknull.client.gui.GuiDankNullDock;
 import p455w0rd.danknull.init.ModConfig.Options;
 import p455w0rd.danknull.init.ModIntegration.Mods;
-import p455w0rd.danknull.integration.NEI;
+//import p455w0rd.danknull.integration.NEI;
 import p455w0rd.danknull.inventory.InventoryDankNull;
+import p455w0rd.danknull.inventory.PlayerSlot;
 import p455w0rd.danknull.network.PacketEmptyDock;
 import p455w0rd.danknull.network.PacketOpenDankGui;
 import p455w0rd.danknull.network.PacketSetSelectedItem;
@@ -94,13 +95,12 @@ public class ModEvents {
 		if ((entityStack.isEmpty()) || (player == null)) {
 			return;
 		}
-		ItemStack dankNull = DankNullUtils.getDankNullForStack(player, entityStack);
-		if (!dankNull.isEmpty()) {
-			InventoryDankNull inventory = DankNullUtils.getNewDankNullInventory(dankNull);
+		PlayerSlot dankNull = DankNullUtils.getDankNullForStack(player, entityStack);
+		if (dankNull != null) {
+			InventoryDankNull inventory = DankNullUtils.getNewDankNullInventory(dankNull, player);
 			if (inventory != null && (DankNullUtils.addFilteredStackToDankNull(inventory, entityStack))) {
 				entityStack.setCount(0);
-				player.getEntityWorld().playSound((EntityPlayer) null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_ITEM_PICKUP, player.getSoundCategory(), 0.2F, ((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7F + 1.0F) * 2.0F);
-				return;
+				player.getEntityWorld().playSound(null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_ITEM_PICKUP, player.getSoundCategory(), 0.2F, ((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7F + 1.0F) * 2.0F);
 			}
 		}
 	}
@@ -109,13 +109,12 @@ public class ModEvents {
 	@SideOnly(Side.CLIENT)
 	public static void onKeyInput(KeyInputEvent event) {
 		EntityPlayer player = EasyMappings.player();
-		ItemStack dankNullItem = ItemStack.EMPTY;
 
-		dankNullItem = DankNullUtils.getDankNull(player);
 		InventoryDankNull inventory = DankNullUtils.getInventoryFromHeld(player);
-		if (dankNullItem.isEmpty() || !DankNullUtils.isDankNull(dankNullItem)) {
+		if (inventory == null) {
 			return;
 		}
+
 		if (ModKeyBindings.getOpenDankNullKeyBind().isPressed()) {
 			ModNetworking.getInstance().sendToServer(new PacketOpenDankGui());
 		}
@@ -248,11 +247,9 @@ public class ModEvents {
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public static void onMouseEvent(MouseEvent event) {
 		EntityPlayer player = EasyMappings.player();
-		ItemStack dankNullItem = ItemStack.EMPTY;
 
-		dankNullItem = DankNullUtils.getDankNull(player);
 		InventoryDankNull inventory = DankNullUtils.getInventoryFromHeld(player);
-		if (dankNullItem.isEmpty() || !DankNullUtils.isDankNull(dankNullItem)) {
+		if (inventory == null) {
 			return;
 		}
 
@@ -354,7 +351,7 @@ public class ModEvents {
 	@SideOnly(Side.CLIENT)
 	public static void onWorldLoaded(WorldEvent.Load e) {
 		if (Mods.NEI.isLoaded() && FMLCommonHandler.instance().getSide().isClient()) {
-			NEI.init();
+//			NEI.init();
 		}
 	}
 

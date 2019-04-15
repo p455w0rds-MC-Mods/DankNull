@@ -1,7 +1,6 @@
 package p455w0rd.danknull.inventory;
 
-import javax.annotation.Nonnull;
-
+import codechicken.lib.util.ItemNBTUtils;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -11,247 +10,279 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.util.Constants;
-import net.minecraftforge.common.util.INBTSerializable;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
 import p455w0rd.danknull.items.ItemDankNull;
 import p455w0rd.danknull.util.DankNullUtils;
 
 /**
  * @author p455w0rd
- *
  */
-public class InventoryDankNull implements IInventory, INBTSerializable<NBTTagCompound> {
+public class InventoryDankNull implements IInventory {
 
-	public static final String INVENTORY_NAME = "danknull-inventory";
-	public static final String TAG_SLOT = "Slot";
-	public static final String TAG_COUNT = "RealCount";
+    public static final String INVENTORY_NAME = "danknull-inventory";
+    public static final String TAG_SLOT = "Slot";
+    public static final String TAG_COUNT = "RealCount";
 
-	private final NonNullList<ItemStack> itemStacks;
-	private final int[] stackSizes;
-	private ItemStack dankNull = ItemStack.EMPTY;
-	private EntityPlayer player;
-	//private Map<ItemStack, SlotExtractionMode> extractionModes = Maps.<ItemStack, SlotExtractionMode>newHashMap();
+    private final NonNullList<ItemStack> itemStacks;
+    private final int[] stackSizes;
+    //	private ItemStack dankNull = ItemStack.EMPTY;
+    private EntityPlayer player;
+    private PlayerSlot dankNullSlot = null;
+    private String itemUUID = "";
+    private ItemStack unsafeStack = null;
+    //private Map<ItemStack, SlotExtractionMode> extractionModes = Maps.<ItemStack, SlotExtractionMode>newHashMap();
 
-	public InventoryDankNull(final ItemStack dankNull) {
-		this.dankNull = dankNull;
+    public InventoryDankNull(final PlayerSlot dankNullSlot, EntityPlayer player) {
+        this.dankNullSlot = dankNullSlot;
+        this.player = player;
 
-		//size = numRows * 9;
-		itemStacks = NonNullList.<ItemStack>withSize(getSizeInventory(), ItemStack.EMPTY);
-		stackSizes = new int[getSizeInventory()];
-		if (!dankNull.hasTagCompound()) {
-			dankNull.setTagCompound(new NBTTagCompound());
-		}
-		deserializeNBT(dankNull.getTagCompound());
-	}
+        itemUUID = ItemNBTUtils.getString(getDankNull(), "UUID");
+        itemStacks = NonNullList.withSize(getSizeInventory(), ItemStack.EMPTY);
+        stackSizes = new int[getSizeInventory()];
 
-	@Override
-	public int getSizeInventory() {
-		int numRows = dankNull.getItemDamage() + 1;
-		if (DankNullUtils.isCreativeDankNull(dankNull)) {
-			numRows--;
-		}
-		return numRows * 9;
-	}
+        loadInventory(getDNTag());
+    }
 
-	@Override
-	public ItemStack getStackInSlot(final int index) {
-		if (DankNullUtils.isCreativeDankNull(getDankNull()) && index < getSizeInventory() && !itemStacks.get(index).isEmpty()) {
-			final ItemStack tmp = itemStacks.get(index).copy();
-			tmp.setCount(Integer.MAX_VALUE);
-			return tmp;
-		}
-		return index < getSizeInventory() ? itemStacks.get(index) : ItemStack.EMPTY;
-	}
+    //This is for those few situations where you just dont have access to the player.
+    public InventoryDankNull(ItemStack stack) {
+        this.unsafeStack = stack;
 
-	@Override
-	public ItemStack decrStackSize(final int index, final int amount) {
+        itemUUID = ItemNBTUtils.getString(getDankNull(), "UUID");
+        itemStacks = NonNullList.withSize(getSizeInventory(), ItemStack.EMPTY);
+        stackSizes = new int[getSizeInventory()];
 
-		if (!getStackInSlot(index).isEmpty()) {
-			if (DankNullUtils.isCreativeDankNull(getDankNull())) {
-				final ItemStack tmp = getStackInSlot(index).copy();
-				tmp.setCount(Integer.MAX_VALUE);
-				return tmp;
-			}
-			if (getStackInSlot(index).getCount() <= amount) {
-				final ItemStack itemstack = getStackInSlot(index);
-				itemStacks.set(index, ItemStack.EMPTY);
-				setSizeForSlot(index, 0);
-				markDirty();
-				return itemstack;
-			}
-			final ItemStack itemstack1 = getStackInSlot(index).splitStack(amount);
-			setSizeForSlot(index, getSizeForSlot(index) - amount);
-			if (getStackInSlot(index).getCount() == 0) {
-				itemStacks.set(index, ItemStack.EMPTY);
-			}
-			markDirty();
-			return itemstack1;
-		}
-		else {
-			return ItemStack.EMPTY;
-		}
-	}
+        loadInventory(getDNTag());
+    }
 
-	@Override
-	public void setInventorySlotContents(final int index, final ItemStack itemStack) {
-		setInventorySlotContents(index, itemStack, null);
-	}
+    @Override
+    public int getSizeInventory() {
+        ItemStack dankNull = getDankNull();
+        int numRows = dankNull.getItemDamage() + 1;
+        if (DankNullUtils.isCreativeDankNull(dankNull)) {
+            numRows--;
+        }
+        return numRows * 9;
+    }
 
-	public void setInventorySlotContents(final int index, final ItemStack itemStack, final TileDankNullDock te) {
-		itemStacks.set(index, itemStack);
-		markDirty();
-	}
+    @Override
+    public ItemStack getStackInSlot(final int index) {
+        if (DankNullUtils.isCreativeDankNull(getDankNull()) && index < getSizeInventory() && !itemStacks.get(index).isEmpty()) {
+            final ItemStack tmp = itemStacks.get(index).copy();
+            tmp.setCount(Integer.MAX_VALUE);
+            return tmp;
+        }
+        return index < getSizeInventory() ? itemStacks.get(index) : ItemStack.EMPTY;
+    }
 
-	@Override
-	public boolean isUsableByPlayer(final EntityPlayer var1) {
-		return true;
-	}
+    @Override
+    public ItemStack decrStackSize(final int index, final int amount) {
 
-	@Override
-	public boolean isItemValidForSlot(final int i, final ItemStack stack) {
-		return !(stack.getItem() instanceof ItemDankNull);
-	}
+        if (!getStackInSlot(index).isEmpty()) {
+            if (DankNullUtils.isCreativeDankNull(getDankNull())) {
+                final ItemStack tmp = getStackInSlot(index).copy();
+                tmp.setCount(Integer.MAX_VALUE);
+                return tmp;
+            }
+            if (getStackInSlot(index).getCount() <= amount) {
+                final ItemStack itemstack = getStackInSlot(index);
+                itemStacks.set(index, ItemStack.EMPTY);
+                setSizeForSlot(index, 0);
+                markDirty();
+                return itemstack;
+            }
+            final ItemStack itemstack1 = getStackInSlot(index).splitStack(amount);
+            setSizeForSlot(index, getSizeForSlot(index) - amount);
+            if (getStackInSlot(index).getCount() == 0) {
+                itemStacks.set(index, ItemStack.EMPTY);
+            }
+            markDirty();
+            return itemstack1;
+        }
+        else {
+            return ItemStack.EMPTY;
+        }
+    }
 
-	@Override
-	public String getName() {
-		return INVENTORY_NAME;
-	}
+    @Override
+    public void setInventorySlotContents(final int index, final ItemStack itemStack) {
+        setInventorySlotContents(index, itemStack, null);
+    }
 
-	@Override
-	public boolean hasCustomName() {
-		return false;
-	}
+    public void setInventorySlotContents(final int index, final ItemStack itemStack, final TileDankNullDock te) {
+        itemStacks.set(index, itemStack);
+        markDirty();
+    }
 
-	@Override
-	public ITextComponent getDisplayName() {
-		return new TextComponentString(getName());
-	}
+    @Override
+    public boolean isUsableByPlayer(final EntityPlayer var1) {
+        return true;
+    }
 
-	@Override
-	public ItemStack removeStackFromSlot(final int index) {
-		final ItemStack stack = getStackInSlot(index);
-		if (!stack.isEmpty()) {
-			itemStacks.set(index, ItemStack.EMPTY);
-		}
-		markDirty();
-		return stack;
-	}
+    @Override
+    public boolean isItemValidForSlot(final int i, final ItemStack stack) {
+        return !(stack.getItem() instanceof ItemDankNull);
+    }
 
-	@Override
-	public int getInventoryStackLimit() {
-		return Integer.MAX_VALUE;
-	}
+    @Override
+    public String getName() {
+        return INVENTORY_NAME;
+    }
 
-	@Override
-	public void openInventory(final EntityPlayer player) {
-		if (player != null) {
-			this.player = player;
-		}
-	}
+    @Override
+    public boolean hasCustomName() {
+        return false;
+    }
 
-	@Override
-	public void closeInventory(final EntityPlayer player) {
-	}
+    @Override
+    public ITextComponent getDisplayName() {
+        return new TextComponentString(getName());
+    }
 
-	@Override
-	public int getField(final int id) {
-		return 0;
-	}
+    @Override
+    public ItemStack removeStackFromSlot(final int index) {
+        final ItemStack stack = getStackInSlot(index);
+        if (!stack.isEmpty()) {
+            itemStacks.set(index, ItemStack.EMPTY);
+        }
+        markDirty();
+        return stack;
+    }
 
-	@Override
-	public void setField(final int id, final int value) {
-	}
+    @Override
+    public int getInventoryStackLimit() {
+        return Integer.MAX_VALUE;
+    }
 
-	@Override
-	public int getFieldCount() {
-		return 0;
-	}
+    @Override
+    public void openInventory(final EntityPlayer player) {
+    }
 
-	@Override
-	public void clear() {
-	}
+    @Override
+    public void closeInventory(final EntityPlayer player) {
+    }
 
-	public NonNullList<ItemStack> getStacks() {
-		return itemStacks;
-	}
+    @Override
+    public int getField(final int id) {
+        return 0;
+    }
 
-	public int getSizeForSlot(final int index) {
-		return index >= 0 ? DankNullUtils.isCreativeDankNull(getDankNull()) ? Integer.MAX_VALUE : stackSizes[index] : 0;
-	}
+    @Override
+    public void setField(final int id, final int value) {
+    }
 
-	public void setSizeForSlot(final int index, int size) {
-		if (DankNullUtils.isCreativeDankNull(getDankNull())) {
-			size = Integer.MAX_VALUE;
-		}
-		stackSizes[index] = size < 0 ? 0 : size;
-	}
+    @Override
+    public int getFieldCount() {
+        return 0;
+    }
 
-	public long getMaxStackSize() {
-		return DankNullUtils.getDankNullMaxStackSize(getDankNull());
-	}
+    @Override
+    public void clear() {
+    }
 
-	@Override
-	public boolean isEmpty() {
-		for (int x = 0; x < getSizeInventory(); x++) {
-			if (!getStackInSlot(x).isEmpty()) {
-				return false;
-			}
-		}
-		return true;
-	}
+    public NonNullList<ItemStack> getStacks() {
+        return itemStacks;
+    }
 
-	public ItemStack getDankNull() {
-		return !dankNull.isEmpty() ? dankNull : ItemStack.EMPTY;
-	}
+    public int getSizeForSlot(final int index) {
+        return index >= 0 ? DankNullUtils.isCreativeDankNull(getDankNull()) ? Integer.MAX_VALUE : stackSizes[index] : 0;
+    }
 
-	public static boolean isSameItem(@Nonnull final ItemStack left, @Nonnull final ItemStack right) {
-		return !left.isEmpty() && !right.isEmpty() && left.isItemEqual(right);
-	}
+    public void setSizeForSlot(final int index, int size) {
+        if (DankNullUtils.isCreativeDankNull(getDankNull())) {
+            size = Integer.MAX_VALUE;
+        }
+        stackSizes[index] = size < 0 ? 0 : size;
+    }
 
-	@Override
-	public void markDirty() {
-		if (getDankNull().isEmpty()) {
-			return;
-		}
-		getDankNull().setTagCompound(serializeNBT());
-	}
+    public long getMaxStackSize() {
+        return DankNullUtils.getDankNullMaxStackSize(getDankNull());
+    }
 
-	@Override
-	public NBTTagCompound serializeNBT() {
-		final NBTTagList nbtTL = new NBTTagList();
-		for (int i = 0; i < getSizeInventory(); i++) {
-			if (!getStackInSlot(i).isEmpty()) {
-				final NBTTagCompound nbtTC = new NBTTagCompound();
-				nbtTC.setInteger(TAG_SLOT, i);
-				nbtTC.setInteger(TAG_COUNT, getStackInSlot(i).getCount() <= DankNullUtils.getDankNullMaxStackSize(this) ? getStackInSlot(i).getCount() : DankNullUtils.getDankNullMaxStackSize(this));
-				getStackInSlot(i).writeToNBT(nbtTC);
-				nbtTL.appendTag(nbtTC);
-			}
-		}
-		final NBTTagCompound invNBT = new NBTTagCompound();
-		invNBT.setTag(getName(), nbtTL);
-		return invNBT;
-	}
+    @Override
+    public boolean isEmpty() {
+        for (int x = 0; x < getSizeInventory(); x++) {
+            if (!getStackInSlot(x).isEmpty()) {
+                return false;
+            }
+        }
+        return true;
+    }
 
-	@Override
-	public void deserializeNBT(final NBTTagCompound compound) {
-		final NBTTagList nbtTL = compound.hasKey(getName(), Constants.NBT.TAG_LIST) ? compound.getTagList(getName(), Constants.NBT.TAG_COMPOUND) : new NBTTagList();
-		for (int i = 0; i < nbtTL.tagCount(); i++) {
-			final NBTTagCompound nbtTC = nbtTL.getCompoundTagAt(i);
-			if (nbtTC != null) {
-				final int slot = nbtTC.getInteger(TAG_SLOT);
-				final ItemStack stack = new ItemStack(nbtTC);
-				if (nbtTC.hasKey(TAG_COUNT)) {
-					stack.setCount(nbtTC.getInteger(TAG_COUNT));
-					setSizeForSlot(slot, nbtTC.getInteger(TAG_COUNT));
-				}
-				itemStacks.set(slot, stack);
-			}
-		}
-	}
+    public ItemStack getDankNull() {
+        if (unsafeStack != null) {
+            return unsafeStack;
+        }
 
-	public EntityPlayer getPlayer() {
-		return player;
-	}
+        return dankNullSlot.getStackInSlot(player);
+    }
 
+    public NBTTagCompound getDNTag() {
+        ItemStack dn = getDankNull();
+        if (!dn.hasTagCompound()) {
+            dn.setTagCompound(new NBTTagCompound()); //This should not be needed but just in case...
+        }
+        return dn.getTagCompound();
+    }
+
+    @Override
+    public void markDirty() {
+        if (!isValid()) {
+            return;
+        }
+
+        ItemStack stack = getDankNull();
+        if (!stack.hasTagCompound()) {
+            stack.setTagCompound(new NBTTagCompound()); //Really not needed but better safe than sorry
+        }
+
+        saveInventory(stack.getTagCompound());
+        if (dankNullSlot != null){
+            dankNullSlot.setStackInSlot(player, stack);
+        }
+    }
+
+    public NBTTagCompound saveInventory(NBTTagCompound compound) {
+        final NBTTagList nbtTL = new NBTTagList();
+        for (int i = 0; i < getSizeInventory(); i++) {
+            if (!getStackInSlot(i).isEmpty()) {
+                final NBTTagCompound nbtTC = new NBTTagCompound();
+                nbtTC.setInteger(TAG_SLOT, i);
+                nbtTC.setInteger(TAG_COUNT, getStackInSlot(i).getCount() <= DankNullUtils.getDankNullMaxStackSize(this) ? getStackInSlot(i).getCount() : DankNullUtils.getDankNullMaxStackSize(this));
+                getStackInSlot(i).writeToNBT(nbtTC);
+                nbtTL.appendTag(nbtTC);
+            }
+        }
+
+        compound.setTag(getName(), nbtTL);
+        return compound;
+    }
+
+    public void loadInventory(NBTTagCompound compound) {
+        final NBTTagList nbtTL = compound.getTagList(getName(), Constants.NBT.TAG_COMPOUND);
+        for (int i = 0; i < nbtTL.tagCount(); i++) {
+            final NBTTagCompound nbtTC = nbtTL.getCompoundTagAt(i);
+            final int slot = nbtTC.getInteger(TAG_SLOT);
+            final ItemStack stack = new ItemStack(nbtTC);
+            if (nbtTC.hasKey(TAG_COUNT)) {
+                stack.setCount(nbtTC.getInteger(TAG_COUNT));
+                setSizeForSlot(slot, nbtTC.getInteger(TAG_COUNT));
+            }
+            itemStacks.set(slot, stack);
+        }
+    }
+
+    public EntityPlayer getPlayer() {
+        return player;
+    }
+
+    public boolean isValid() {
+        if (itemUUID.isEmpty()) {
+            return false;
+        }
+
+        ItemStack stack = getDankNull();
+        String itemUUID = ItemNBTUtils.getString(getDankNull(), "UUID");
+        return stack.getItem() instanceof ItemDankNull && itemUUID.equals(this.itemUUID);
+        //This instanceof probably isn't needed. I mean the chances of some random item somehow having a UUID field that matches yours...
+    }
 }

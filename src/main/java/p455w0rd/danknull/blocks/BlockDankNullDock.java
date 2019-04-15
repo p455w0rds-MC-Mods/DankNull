@@ -1,10 +1,7 @@
 package p455w0rd.danknull.blocks;
 
-import javax.annotation.Nullable;
-
-import com.google.common.collect.Maps;
-
 import codechicken.lib.model.ModelRegistryHelper;
+import com.google.common.collect.Maps;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -36,10 +33,14 @@ import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
 import p455w0rd.danknull.client.render.DankTextures;
 import p455w0rd.danknull.client.render.TESRDankNullDock;
 import p455w0rd.danknull.init.ModGlobals;
-import p455w0rd.danknull.init.ModItems;
 import p455w0rd.danknull.init.ModNetworking;
+import p455w0rd.danknull.inventory.PlayerSlot;
 import p455w0rd.danknull.network.PacketSetDankNullInDock;
 import p455w0rd.danknull.util.DankNullUtils;
+
+import javax.annotation.Nullable;
+
+import static net.minecraft.util.EnumHand.MAIN_HAND;
 
 /**
  * @author p455w0rd
@@ -132,21 +133,23 @@ public class BlockDankNullDock extends BlockContainerBase {
 		}
 		TileDankNullDock dankDock = getTE(world, pos);
 		if (dankDock != null) {
-			if (!player.getHeldItem(hand).isEmpty() && dankDock.getDankNull().isEmpty() && player.getHeldItem(hand).getItem() == ModItems.DANK_NULL) {
-				ItemStack dankNull = player.getHeldItem(hand);
+			PlayerSlot slot = PlayerSlot.getHand(player, hand);
+			ItemStack stack = slot.getStackInSlot(player);
+
+			if (DankNullUtils.isDankNull(stack)) {
 				//dankDock.setDankNull(dankNull);
-				dankDock.setInventory(DankNullUtils.getNewDankNullInventory(dankNull));
+				dankDock.setInventory(DankNullUtils.getNewDankNullInventory(slot, player));
 				//if (!player.capabilities.isCreativeMode || (player.capabilities.isCreativeMode && !player.isSneaking())) {
 				player.setHeldItem(hand, ItemStack.EMPTY);
 				//}
 				//if (!world.isRemote) {
-				ModNetworking.getInstance().sendToDimension(new PacketSetDankNullInDock(dankDock, dankNull), world.provider.getDimension());
+				ModNetworking.getInstance().sendToDimension(new PacketSetDankNullInDock(dankDock, stack), world.provider.getDimension());
 				//}
 				//dankDock.markDirty();
 				return true;
 			}
 			else //if (player.getHeldItem(hand).isEmpty()) {
-			if (!player.isSneaking() && hand == EnumHand.MAIN_HAND) {
+			if (!player.isSneaking() && hand == MAIN_HAND) {
 				if (!dankDock.getDankNull().isEmpty()) {
 					//ModGuiHandler.launchGui(GUIType.DANKNULL_TE, player, world, pos.getX(), pos.getY(), pos.getZ());
 					//return true;

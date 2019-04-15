@@ -1,23 +1,14 @@
 package p455w0rd.danknull.client.gui;
 
-import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
-
-import org.apache.commons.lang3.tuple.Pair;
-import org.lwjgl.opengl.GL11;
-
 import com.google.common.collect.Lists;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.Gui;
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.OpenGlHelper;
-import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.EntityPlayer;
@@ -28,8 +19,9 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
+import org.apache.commons.lang3.tuple.Pair;
+import org.lwjgl.opengl.GL11;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
-import p455w0rd.danknull.client.render.DankNullRenderItem;
 import p455w0rd.danknull.container.ContainerDankNullDock;
 import p455w0rd.danknull.init.ModConfig.Options;
 import p455w0rd.danknull.init.ModGlobals;
@@ -40,10 +32,14 @@ import p455w0rd.danknull.inventory.slot.SlotDankNull;
 import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rd.danknull.util.DankNullUtils.SlotExtractionMode;
 import p455w0rdslib.client.gui.GuiModular;
-import p455w0rdslib.util.EasyMappings;
-import p455w0rdslib.util.GuiUtils;
-import p455w0rdslib.util.MathUtils;
-import p455w0rdslib.util.RenderUtils;
+import p455w0rdslib.util.*;
+
+import javax.annotation.Nonnull;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
+
+//import p455w0rd.danknull.client.render.DankNullRenderItem;
 
 /**
  * @author p455w0rd
@@ -51,7 +47,7 @@ import p455w0rdslib.util.RenderUtils;
  */
 public class GuiDankNullDock extends GuiModular {
 
-	private DankNullRenderItem pRenderItem;
+//	private DankNullRenderItem pRenderItem;
 	private final List<SlotDankNull> slots = new LinkedList<SlotDankNull>();
 	private Slot theSlot;
 	private Slot returningStackDestSlot;
@@ -76,7 +72,7 @@ public class GuiDankNullDock extends GuiModular {
 			dock = te;
 		}
 		//te.getDankNull();
-		pRenderItem = new DankNullRenderItem(Minecraft.getMinecraft().renderEngine, Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getModelManager(), Minecraft.getMinecraft().getItemColors(), te.getDankNull(), false);
+//		pRenderItem = new DankNullRenderItem(Minecraft.getMinecraft().renderEngine, Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getModelManager(), Minecraft.getMinecraft().getItemColors(), te.getDankNull(), false);
 		numRows = te.getDankNull().getItemDamage();
 		if (DankNullUtils.isCreativeDankNull(te.getDankNull())) {
 			numRows--;
@@ -395,11 +391,81 @@ public class GuiDankNullDock extends GuiModular {
 			}
 			GlStateManager.enableDepth();
 			Minecraft.getMinecraft().getRenderItem().renderItemAndEffectIntoGUI(itemstack, i, j);
-			pRenderItem.renderItemOverlayIntoGUI(RenderUtils.getFontRenderer(), itemstack, i, j, s);
+			renderItemOverlayIntoGUI(RenderUtils.getFontRenderer(), itemstack, i, j);
 		}
 		itemRender.zLevel = 0.0F;
 		zLevel = 0.0F;
 	}
+
+	private void renderItemOverlayIntoGUI(FontRenderer fontRenderer, @Nonnull ItemStack is, int par4, int par5) {
+		if (!is.isEmpty()) {
+			float scaleFactor = 0.5F;
+			float inverseScaleFactor = 1.0F / scaleFactor;
+			int offset = -1;
+			String stackSize = "";
+
+			boolean unicodeFlag = fontRenderer.getUnicodeFlag();
+			fontRenderer.setUnicodeFlag(false);
+			if (is.getItem().showDurabilityBar(is)) {
+				double health = is.getItem().getDurabilityForDisplay(is);
+				int j = (int) Math.round(13.0D - health * 13.0D);
+				int i = (int) Math.round(255.0D - health * 255.0D);
+
+				GlStateManager.disableDepth();
+				GlStateManager.disableTexture2D();
+
+				Tessellator tessellator = Tessellator.getInstance();
+				BufferBuilder vertexbuffer = tessellator.getBuffer();
+				draw(vertexbuffer, par4 + 2, par5 + 13, 13, 2, 0, 0, 0, 255);
+				draw(vertexbuffer, par4 + 2, par5 + 13, 12, 1, (255 - i) / 4, 64, 0, 255);
+				draw(vertexbuffer, par4 + 2, par5 + 13, j, 1, 255 - i, i, 0, 255);
+
+				GlStateManager.enableTexture2D();
+
+				GlStateManager.enableDepth();
+			}
+
+			int amount = dock.getInventory().getSizeForSlot(DankNullUtils.getIndexForStack(dock.getInventory(), is));
+			if (amount != 0) {
+				scaleFactor = 0.5F;
+				inverseScaleFactor = 1.0F / scaleFactor;
+				offset = -1;
+				stackSize = getToBeRenderedStackSize(amount);
+			}
+			GlStateManager.disableLighting();
+			GlStateManager.disableAlpha();
+			GlStateManager.disableBlend();
+			GlStateManager.disableDepth();
+			GlStateManager.pushMatrix();
+			GlStateManager.scale(scaleFactor, scaleFactor, scaleFactor);
+			int X = (int) ((par4 + offset + 16.0F - fontRenderer.getStringWidth(stackSize) * scaleFactor) * inverseScaleFactor);
+			int Y = (int) ((par5 + offset + 16.0F - 7.0F * scaleFactor) * inverseScaleFactor);
+			if (amount > 1L) {
+				fontRenderer.drawStringWithShadow(stackSize, X, Y, 16777215);
+			}
+			GlStateManager.popMatrix();
+			GlStateManager.enableDepth();
+			GlStateManager.enableBlend();
+			GlStateManager.enableAlpha();
+			GlStateManager.enableLighting();
+
+			fontRenderer.setUnicodeFlag(unicodeFlag);
+		}
+	}
+
+	private void draw(BufferBuilder renderer, int x, int y, int width, int height, int red, int green, int blue, int alpha) {
+		renderer.begin(7, DefaultVertexFormats.POSITION_COLOR);
+		renderer.pos(x + 0, y + 0, 0.0D).color(red, green, blue, alpha).endVertex();
+		renderer.pos(x + 0, y + height, 0.0D).color(red, green, blue, alpha).endVertex();
+		renderer.pos(x + width, y + height, 0.0D).color(red, green, blue, alpha).endVertex();
+		renderer.pos(x + width, y + 0, 0.0D).color(red, green, blue, alpha).endVertex();
+		Tessellator.getInstance().draw();
+	}
+
+	private String getToBeRenderedStackSize(long originalSize) {
+		return ReadableNumberConverter.INSTANCE.toSlimReadableForm(originalSize);
+	}
+
 
 	@Override
 	public void updateScreen() {
