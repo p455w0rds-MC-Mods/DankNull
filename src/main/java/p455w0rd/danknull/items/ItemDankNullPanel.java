@@ -1,7 +1,9 @@
 package p455w0rd.danknull.items;
 
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.*;
+import net.minecraft.item.EnumRarity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
@@ -25,18 +27,17 @@ public class ItemDankNullPanel extends Item implements IModelHolder {
 		ForgeRegistries.ITEMS.register(this);
 		setMaxDamage(0);
 		setHasSubtypes(true);
-		setMaxStackSize(1024);
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public boolean hasEffect(final ItemStack stack) {
+	public boolean hasEffect(ItemStack stack) {
 		return true;
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void getSubItems(final CreativeTabs tab, final NonNullList<ItemStack> subItems) {
+	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> subItems) {
 		if (isInCreativeTab(tab)) {
 			for (int i = 0; i < 6; i++) {
 				subItems.add(new ItemStack(this, 1, i));
@@ -50,7 +51,7 @@ public class ItemDankNullPanel extends Item implements IModelHolder {
 	}
 
 	@Override
-	public boolean isDamaged(final ItemStack stack) {
+	public boolean isDamaged(ItemStack stack) {
 		return false;
 	}
 
@@ -60,7 +61,7 @@ public class ItemDankNullPanel extends Item implements IModelHolder {
 	}
 
 	@Override
-	public boolean showDurabilityBar(final ItemStack stack) {
+	public boolean showDurabilityBar(ItemStack stack) {
 		return false;
 	}
 
@@ -71,7 +72,7 @@ public class ItemDankNullPanel extends Item implements IModelHolder {
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public String getItemStackDisplayName(final ItemStack stack) {
+	public String getItemStackDisplayName(ItemStack stack) {
 		return I18n.translateToLocal(stack.getItem().getUnlocalizedName() + "_" + stack.getItemDamage() + ".name").trim();
 	}
 
@@ -84,7 +85,7 @@ public class ItemDankNullPanel extends Item implements IModelHolder {
 	}
 
 	@Override
-	public EnumRarity getRarity(final ItemStack stack) {
+	public EnumRarity getRarity(ItemStack stack) {
 		return ModGlobals.Rarities.getRarityFromMeta(stack.getItemDamage());
 	}
 

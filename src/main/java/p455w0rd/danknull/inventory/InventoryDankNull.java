@@ -1,13 +1,9 @@
 package p455w0rd.danknull.inventory;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.annotation.Nonnull;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
-import net.minecraft.inventory.ItemStackHelper;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -16,10 +12,9 @@ import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.common.util.INBTSerializable;
-import p455w0rd.danknull.init.ModGlobals.NBT;
+import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
+import p455w0rd.danknull.items.ItemDankNull;
 import p455w0rd.danknull.util.DankNullUtils;
-import p455w0rd.danknull.util.DankNullUtils.SlotExtractionMode;
-import p455w0rd.danknull.util.DankNullUtils.SlotPlacementMode;
 
 /**
  * @author p455w0rd
@@ -28,34 +23,98 @@ import p455w0rd.danknull.util.DankNullUtils.SlotPlacementMode;
 public class InventoryDankNull implements IInventory, INBTSerializable<NBTTagCompound> {
 
 	public static final String INVENTORY_NAME = "danknull-inventory";
+	public static final String TAG_SLOT = "Slot";
+	public static final String TAG_COUNT = "RealCount";
 
-	private final NonNullList<ItemStack> inventory;
-	private final ItemStack dankNull;
-	int selectedIndex = -1;
-	boolean isLocked = false;
-
-	// For the following, we reference ItemStacks so that the actual stack can be fully removed, but the /dank/null will retain its setting
-
-	// Stack, Use Ore Dictionary
-	private Map<ItemStack, Boolean> oreDictModes = new HashMap<>();
-	// Stack, Mode
-	private Map<ItemStack, SlotExtractionMode> extractionModes = new HashMap<>();
-	// Stack, Mode
-	private Map<ItemStack, SlotPlacementMode> placementModes = new HashMap<>();
+	private final NonNullList<ItemStack> itemStacks;
+	private final int[] stackSizes;
+	private ItemStack dankNull = ItemStack.EMPTY;
+	private EntityPlayer player;
+	//private Map<ItemStack, SlotExtractionMode> extractionModes = Maps.<ItemStack, SlotExtractionMode>newHashMap();
 
 	public InventoryDankNull(final ItemStack dankNull) {
 		this.dankNull = dankNull;
-		inventory = NonNullList.<ItemStack>withSize(getSizeInventory(), ItemStack.EMPTY);
+
+		//size = numRows * 9;
+		itemStacks = NonNullList.<ItemStack>withSize(getSizeInventory(), ItemStack.EMPTY);
+		stackSizes = new int[getSizeInventory()];
+		if (!dankNull.hasTagCompound()) {
+			dankNull.setTagCompound(new NBTTagCompound());
+		}
 		deserializeNBT(dankNull.getTagCompound());
+	}
+
+	@Override
+	public int getSizeInventory() {
+		int numRows = dankNull.getItemDamage() + 1;
+		if (DankNullUtils.isCreativeDankNull(dankNull)) {
+			numRows--;
+		}
+		return numRows * 9;
+	}
+
+	@Override
+	public ItemStack getStackInSlot(final int index) {
+		if (DankNullUtils.isCreativeDankNull(getDankNull()) && index < getSizeInventory() && !itemStacks.get(index).isEmpty()) {
+			final ItemStack tmp = itemStacks.get(index).copy();
+			tmp.setCount(Integer.MAX_VALUE);
+			return tmp;
+		}
+		return index < getSizeInventory() ? itemStacks.get(index) : ItemStack.EMPTY;
+	}
+
+	@Override
+	public ItemStack decrStackSize(final int index, final int amount) {
+
+		if (!getStackInSlot(index).isEmpty()) {
+			if (DankNullUtils.isCreativeDankNull(getDankNull())) {
+				final ItemStack tmp = getStackInSlot(index).copy();
+				tmp.setCount(Integer.MAX_VALUE);
+				return tmp;
+			}
+			if (getStackInSlot(index).getCount() <= amount) {
+				final ItemStack itemstack = getStackInSlot(index);
+				itemStacks.set(index, ItemStack.EMPTY);
+				setSizeForSlot(index, 0);
+				markDirty();
+				return itemstack;
+			}
+			final ItemStack itemstack1 = getStackInSlot(index).splitStack(amount);
+			setSizeForSlot(index, getSizeForSlot(index) - amount);
+			if (getStackInSlot(index).getCount() == 0) {
+				itemStacks.set(index, ItemStack.EMPTY);
+			}
+			markDirty();
+			return itemstack1;
+		}
+		else {
+			return ItemStack.EMPTY;
+		}
+	}
+
+	@Override
+	public void setInventorySlotContents(final int index, final ItemStack itemStack) {
+		setInventorySlotContents(index, itemStack, null);
+	}
+
+	public void setInventorySlotContents(final int index, final ItemStack itemStack, final TileDankNullDock te) {
+		itemStacks.set(index, itemStack);
+		markDirty();
+	}
+
+	@Override
+	public boolean isUsableByPlayer(final EntityPlayer var1) {
+		return true;
+	}
+
+	@Override
+	public boolean isItemValidForSlot(final int i, final ItemStack stack) {
+		return !(stack.getItem() instanceof ItemDankNull);
 	}
 
 	@Override
 	public String getName() {
 		return INVENTORY_NAME;
-	}
-
-	public NonNullList<ItemStack> getStacks() {
-		return inventory;
 	}
 
 	@Override
@@ -68,309 +127,30 @@ public class InventoryDankNull implements IInventory, INBTSerializable<NBTTagCom
 		return new TextComponentString(getName());
 	}
 
-	public void setSelectedIndex(final int index) {
-		selectedIndex = index;
-		markDirty();
-	}
-
-	public int getSelectedIndex() {
-		return selectedIndex;
-	}
-
-	// Extraction Mode
-	public Map<ItemStack, SlotExtractionMode> getExtractionModes() {
-		return extractionModes;
-	}
-
-	public SlotExtractionMode getExtractionMode(@Nonnull final ItemStack stack) {
-		for (final Map.Entry<ItemStack, SlotExtractionMode> entry : getExtractionModes().entrySet()) {
-			if (DankNullUtils.areStacksEqual(entry.getKey(), stack)) {
-				return entry.getValue();
-			}
-		}
-		setExtractionMode(stack, SlotExtractionMode.KEEP_1);
-		return SlotExtractionMode.KEEP_1;
-	}
-
-	public void setExtractionModes(final Map<ItemStack, SlotExtractionMode> modes) {
-		extractionModes = modes;
-		markDirty();
-	}
-
-	public void setExtractionMode(final ItemStack stack, final SlotExtractionMode mode) {
-		ItemStack storedStack = stack.copy();
-		for (final Map.Entry<ItemStack, SlotExtractionMode> entry : extractionModes.entrySet()) {
-			if (DankNullUtils.areStacksEqual(stack, entry.getKey())) {
-				storedStack = entry.getKey();
-			}
-		}
-		storedStack.setCount(1);
-		extractionModes.put(storedStack, mode);
-		markDirty();
-	}
-
-	// Placement Mode
-	public Map<ItemStack, SlotPlacementMode> getPlacementModes() {
-		return placementModes;
-	}
-
-	public SlotPlacementMode getPlacementMode(@Nonnull final ItemStack stack) {
-		for (final Map.Entry<ItemStack, SlotPlacementMode> entry : getPlacementModes().entrySet()) {
-			if (DankNullUtils.areStacksEqual(entry.getKey(), stack)) {
-				return entry.getValue();
-			}
-		}
-		setPlacementMode(stack, SlotPlacementMode.KEEP_1);
-		return SlotPlacementMode.KEEP_1;
-	}
-
-	public void setPlacementModes(final Map<ItemStack, SlotPlacementMode> modes) {
-		placementModes = modes;
-		markDirty();
-	}
-
-	public void setPlacementMode(final ItemStack stack, final SlotPlacementMode mode) {
-		ItemStack storedStack = stack.copy();
-		for (final Map.Entry<ItemStack, SlotPlacementMode> entry : placementModes.entrySet()) {
-			if (DankNullUtils.areStacksEqual(stack, entry.getKey())) {
-				storedStack = entry.getKey();
-			}
-		}
-		storedStack.setCount(1);
-		placementModes.put(storedStack, mode);
-	}
-
-	// OreDict Mode
-	public Map<ItemStack, Boolean> getOreDictModes() {
-		return oreDictModes;
-	}
-
-	public boolean getOreDictMode(@Nonnull final ItemStack stack) {
-		for (final Map.Entry<ItemStack, Boolean> entry : getOreDictModes().entrySet()) {
-			if (DankNullUtils.areStacksEqual(entry.getKey(), stack)) {
-				return entry.getValue();
-			}
-		}
-		return false;
-	}
-
-	public void setOreDictModes(final Map<ItemStack, Boolean> modes) {
-		oreDictModes = modes;
-		markDirty();
-	}
-
-	public void setOreDictMode(final ItemStack stack, final boolean mode) {
-		ItemStack storedStack = stack.copy();
-		for (final Map.Entry<ItemStack, Boolean> entry : oreDictModes.entrySet()) {
-			if (DankNullUtils.areStacksEqual(stack, entry.getKey())) {
-				storedStack = entry.getKey();
-			}
-		}
-		storedStack.setCount(1);
-		oreDictModes.put(storedStack, mode);
-	}
-
-	@Override
-	public NBTTagCompound serializeNBT() {
-		final NBTTagList itemList = new NBTTagList();
-		for (int i = 0; i < inventory.size(); i++) {
-			final ItemStack currentStack = inventory.get(i);
-			if (!currentStack.isEmpty()) {
-				final NBTTagCompound slotTag = new NBTTagCompound();
-				slotTag.setInteger(NBT.SLOT_KEY, i);
-				currentStack.writeToNBT(slotTag);
-				itemList.appendTag(slotTag);
-			}
-		}
-
-		// OreDict Mode
-		final NBTTagList oreDictList = new NBTTagList();
-		for (final ItemStack stack : oreDictModes.keySet()) {
-			final NBTTagCompound tempNBT = new NBTTagCompound();
-			if (stack.getCount() != 1) {
-				stack.setCount(1);
-			}
-			tempNBT.setTag(NBT.STACK_KEY, stack.serializeNBT());
-			tempNBT.setBoolean(NBT.MODE_KEY, oreDictModes.get(stack));
-			oreDictList.appendTag(tempNBT);
-		}
-
-		// Extraction Mode
-		final NBTTagList extractionList = new NBTTagList();
-		for (final ItemStack stack : extractionModes.keySet()) {
-			final NBTTagCompound tempNBT = new NBTTagCompound();
-			if (stack.getCount() != 1) {
-				stack.setCount(1);
-			}
-			tempNBT.setTag(NBT.STACK_KEY, stack.serializeNBT());
-			tempNBT.setInteger(NBT.MODE_KEY, extractionModes.get(stack).ordinal());
-			extractionList.appendTag(tempNBT);
-		}
-
-		// Placement Mode
-		final NBTTagList placementList = new NBTTagList();
-		for (final ItemStack stack : placementModes.keySet()) {
-			final NBTTagCompound tempNBT = new NBTTagCompound();
-			if (stack.getCount() != 1) {
-				stack.setCount(1);
-			}
-			tempNBT.setTag(NBT.STACK_KEY, stack.serializeNBT());
-			tempNBT.setInteger(NBT.MODE_KEY, placementModes.get(stack).ordinal());
-			extractionList.appendTag(tempNBT);
-		}
-
-		final NBTTagCompound invNBT = new NBTTagCompound();
-		invNBT.setTag(NBT.ITEMS_KEY, itemList);
-		invNBT.setInteger(NBT.SELECTEDINDEX_KEY, selectedIndex);
-		invNBT.setBoolean(NBT.LOCKED_KEY, isLocked);
-		invNBT.setTag(NBT.OREDICT_MODES_KEY, oreDictList);
-		invNBT.setTag(NBT.EXTRACTION_MODES_KEY, extractionList);
-		invNBT.setTag(NBT.PLACEMENT_MODES_KEY, placementList);
-		final NBTTagCompound itemHandlerNBT = new NBTTagCompound();
-		itemHandlerNBT.setTag(getName(), invNBT);
-		return itemHandlerNBT;
-	}
-
-	@Override
-	public void deserializeNBT(final NBTTagCompound compound) {
-		// we generally package everything under the getName() subTag, but allow for sending of individual parts (like ext mode) for syncing
-		final NBTTagCompound nbt = compound.hasKey(getName(), Constants.NBT.TAG_COMPOUND) ? compound.getCompoundTag(getName()) : compound;
-		if (nbt != null) {
-			final NBTTagList nbtTL = nbt.hasKey(NBT.ITEMS_KEY, Constants.NBT.TAG_LIST) ? nbt.getTagList(NBT.ITEMS_KEY, Constants.NBT.TAG_COMPOUND) : new NBTTagList();
-			for (int i = 0; i < nbtTL.tagCount(); i++) {
-				final NBTTagCompound nbtTC = nbtTL.getCompoundTagAt(i);
-				if (nbtTC != null) {
-					setInventorySlotContents(nbtTC.getInteger(NBT.SLOT_KEY), new ItemStack(nbtTC));
-				}
-			}
-
-			if (nbt.hasKey(NBT.SELECTEDINDEX_KEY, Constants.NBT.TAG_INT)) {
-				selectedIndex = nbt.getInteger(NBT.SELECTEDINDEX_KEY);
-			}
-
-			if (nbt.hasKey(NBT.LOCKED_KEY, Constants.NBT.TAG_BYTE)) {
-				isLocked = nbt.getBoolean(NBT.LOCKED_KEY);
-			}
-
-			// OreDict Mode
-			if (nbt.hasKey(NBT.OREDICT_MODES_KEY)) {
-				final NBTTagList oreDictList = nbt.getTagList(NBT.OREDICT_MODES_KEY, Constants.NBT.TAG_COMPOUND);
-				for (int i = 0; i < oreDictList.tagCount(); i++) {
-					final NBTTagCompound tmpNBT = oreDictList.getCompoundTagAt(i);
-					setOreDictMode(new ItemStack(tmpNBT.getCompoundTag(NBT.STACK_KEY)), tmpNBT.getBoolean(NBT.MODE_KEY));
-				}
-			}
-
-			// Extraction Mode
-			if (nbt.hasKey(NBT.EXTRACTION_MODES_KEY)) {
-				final NBTTagList extractionList = nbt.getTagList(NBT.EXTRACTION_MODES_KEY, Constants.NBT.TAG_COMPOUND);
-				for (int i = 0; i < extractionList.tagCount(); i++) {
-					final NBTTagCompound tempNBT = extractionList.getCompoundTagAt(i);
-					setExtractionMode(new ItemStack(tempNBT.getCompoundTag(NBT.STACK_KEY)), SlotExtractionMode.values()[tempNBT.getInteger(NBT.MODE_KEY)]);
-				}
-			}
-
-			// Placement Mode
-			if (nbt.hasKey(NBT.PLACEMENT_MODES_KEY)) {
-				final NBTTagList placementList = nbt.getTagList(NBT.PLACEMENT_MODES_KEY, Constants.NBT.TAG_COMPOUND);
-				for (int i = 0; i < placementList.tagCount(); i++) {
-					final NBTTagCompound tempNBT = placementList.getCompoundTagAt(i);
-					setPlacementMode(new ItemStack(tempNBT.getCompoundTag(NBT.STACK_KEY)), SlotPlacementMode.values()[tempNBT.getInteger(NBT.MODE_KEY)]);
-				}
-			}
-		}
-	}
-
-	@Override
-	public int getSizeInventory() {
-		int numRows = getDankNull().getItemDamage() + 1;
-		if (DankNullUtils.isCreativeDankNull(getDankNull())) {
-			numRows--;
-		}
-		return numRows * 9;
-	}
-
-	@Override
-	public boolean isEmpty() {
-		for (int x = 0; x < getSizeInventory(); x++) {
-			if (!getStackInSlot(x).isEmpty()) {
-				return false;
-			}
-		}
-		return true;
-	}
-
-	@Override
-	public ItemStack getStackInSlot(final int index) {
-		return index >= 0 && index < inventory.size() ? (ItemStack) inventory.get(index) : ItemStack.EMPTY;
-	}
-
-	@Override
-	public ItemStack decrStackSize(final int index, final int count) {
-		final ItemStack itemstack = ItemStackHelper.getAndSplit(inventory, index, count);
-		if (!itemstack.isEmpty()) {
-			markDirty();
-		}
-		return itemstack;
-	}
-
 	@Override
 	public ItemStack removeStackFromSlot(final int index) {
-		final ItemStack itemstack = inventory.get(index);
-		if (itemstack.isEmpty()) {
-			return ItemStack.EMPTY;
-		}
-		else {
-			inventory.set(index, ItemStack.EMPTY);
-			return itemstack;
-		}
-	}
-
-	@Override
-	public void setInventorySlotContents(final int index, final ItemStack stack) {
-		inventory.set(index, stack);
-		if (!stack.isEmpty() && stack.getCount() > getInventoryStackLimit()) {
-			stack.setCount(getInventoryStackLimit());
+		final ItemStack stack = getStackInSlot(index);
+		if (!stack.isEmpty()) {
+			itemStacks.set(index, ItemStack.EMPTY);
 		}
 		markDirty();
+		return stack;
 	}
 
 	@Override
 	public int getInventoryStackLimit() {
-		return DankNullUtils.getDankNullMaxStackSize(getDankNull());
-	}
-
-	public ItemStack getDankNull() {
-		return dankNull;
-	}
-
-	@Override
-	public void markDirty() {
-		if (getDankNull().isEmpty()) {
-			return;
-		}
-		if (!getDankNull().hasTagCompound()) {
-			getDankNull().setTagCompound(new NBTTagCompound());
-		}
-		getDankNull().setTagCompound(serializeNBT());
-	}
-
-	@Override
-	public boolean isUsableByPlayer(final EntityPlayer player) {
-		return true;
+		return Integer.MAX_VALUE;
 	}
 
 	@Override
 	public void openInventory(final EntityPlayer player) {
+		if (player != null) {
+			this.player = player;
+		}
 	}
 
 	@Override
 	public void closeInventory(final EntityPlayer player) {
-	}
-
-	@Override
-	public boolean isItemValidForSlot(final int index, final ItemStack stack) {
-		return true;
 	}
 
 	@Override
@@ -389,7 +169,89 @@ public class InventoryDankNull implements IInventory, INBTSerializable<NBTTagCom
 
 	@Override
 	public void clear() {
-		inventory.clear();
+	}
+
+	public NonNullList<ItemStack> getStacks() {
+		return itemStacks;
+	}
+
+	public int getSizeForSlot(final int index) {
+		return index >= 0 ? DankNullUtils.isCreativeDankNull(getDankNull()) ? Integer.MAX_VALUE : stackSizes[index] : 0;
+	}
+
+	public void setSizeForSlot(final int index, int size) {
+		if (DankNullUtils.isCreativeDankNull(getDankNull())) {
+			size = Integer.MAX_VALUE;
+		}
+		stackSizes[index] = size < 0 ? 0 : size;
+	}
+
+	public long getMaxStackSize() {
+		return DankNullUtils.getDankNullMaxStackSize(getDankNull());
+	}
+
+	@Override
+	public boolean isEmpty() {
+		for (int x = 0; x < getSizeInventory(); x++) {
+			if (!getStackInSlot(x).isEmpty()) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public ItemStack getDankNull() {
+		return !dankNull.isEmpty() ? dankNull : ItemStack.EMPTY;
+	}
+
+	public static boolean isSameItem(@Nonnull final ItemStack left, @Nonnull final ItemStack right) {
+		return !left.isEmpty() && !right.isEmpty() && left.isItemEqual(right);
+	}
+
+	@Override
+	public void markDirty() {
+		if (getDankNull().isEmpty()) {
+			return;
+		}
+		getDankNull().setTagCompound(serializeNBT());
+	}
+
+	@Override
+	public NBTTagCompound serializeNBT() {
+		final NBTTagList nbtTL = new NBTTagList();
+		for (int i = 0; i < getSizeInventory(); i++) {
+			if (!getStackInSlot(i).isEmpty()) {
+				final NBTTagCompound nbtTC = new NBTTagCompound();
+				nbtTC.setInteger(TAG_SLOT, i);
+				nbtTC.setInteger(TAG_COUNT, getStackInSlot(i).getCount() <= DankNullUtils.getDankNullMaxStackSize(this) ? getStackInSlot(i).getCount() : DankNullUtils.getDankNullMaxStackSize(this));
+				getStackInSlot(i).writeToNBT(nbtTC);
+				nbtTL.appendTag(nbtTC);
+			}
+		}
+		final NBTTagCompound invNBT = new NBTTagCompound();
+		invNBT.setTag(getName(), nbtTL);
+		return invNBT;
+	}
+
+	@Override
+	public void deserializeNBT(final NBTTagCompound compound) {
+		final NBTTagList nbtTL = compound.hasKey(getName(), Constants.NBT.TAG_LIST) ? compound.getTagList(getName(), Constants.NBT.TAG_COMPOUND) : new NBTTagList();
+		for (int i = 0; i < nbtTL.tagCount(); i++) {
+			final NBTTagCompound nbtTC = nbtTL.getCompoundTagAt(i);
+			if (nbtTC != null) {
+				final int slot = nbtTC.getInteger(TAG_SLOT);
+				final ItemStack stack = new ItemStack(nbtTC);
+				if (nbtTC.hasKey(TAG_COUNT)) {
+					stack.setCount(nbtTC.getInteger(TAG_COUNT));
+					setSizeForSlot(slot, nbtTC.getInteger(TAG_COUNT));
+				}
+				itemStacks.set(slot, stack);
+			}
+		}
+	}
+
+	public EntityPlayer getPlayer() {
+		return player;
 	}
 
 }

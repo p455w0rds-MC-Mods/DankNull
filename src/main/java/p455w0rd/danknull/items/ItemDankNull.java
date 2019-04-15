@@ -1,39 +1,58 @@
 package p455w0rd.danknull.items;
 
-import java.text.DecimalFormat;
-import java.text.DecimalFormatSymbols;
-import java.util.List;
-import java.util.Locale;
-
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import codechicken.lib.model.ModelRegistryHelper;
 import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.block.*;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockBanner;
+import net.minecraft.block.BlockSlab;
+import net.minecraft.block.BlockStairs;
+import net.minecraft.block.BlockStandingSign;
+import net.minecraft.block.BlockWallSign;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.renderer.block.model.ModelResourceLocation;
-import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
-import net.minecraft.item.*;
+import net.minecraft.item.EnumRarity;
+import net.minecraft.item.Item;
+import net.minecraft.item.ItemBlock;
+import net.minecraft.item.ItemBlockSpecial;
+import net.minecraft.item.ItemBucket;
+import net.minecraft.item.ItemEgg;
+import net.minecraft.item.ItemEnderPearl;
+import net.minecraft.item.ItemSlab;
+import net.minecraft.item.ItemSnowball;
+import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntityBanner;
-import net.minecraft.util.*;
-import net.minecraft.util.math.*;
+import net.minecraft.util.ActionResult;
+import net.minecraft.util.EnumActionResult;
+import net.minecraft.util.EnumFacing;
+import net.minecraft.util.EnumHand;
+import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.SoundCategory;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fluids.UniversalBucket;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
-import net.minecraftforge.fml.relauncher.*;
+import net.minecraftforge.fml.relauncher.ReflectionHelper;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.wrapper.InvWrapper;
 import p455w0rd.danknull.api.IModelHolder;
@@ -67,15 +86,15 @@ public class ItemDankNull extends Item implements IModelHolder {
 	}
 
 	@Override
-	public ICapabilityProvider initCapabilities(final ItemStack stack, final NBTTagCompound nbt) {
+	public ICapabilityProvider initCapabilities(ItemStack stack, NBTTagCompound nbt) {
 		return new ICapabilityProvider() {
 			@Override
-			public boolean hasCapability(final Capability<?> capability, final EnumFacing facing) {
+			public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
 				return capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
 			}
 
 			@Override
-			public <T> T getCapability(final Capability<T> capability, final EnumFacing facing) {
+			public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
 				return hasCapability(capability, facing) ? CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(new InvWrapper(DankNullUtils.getNewDankNullInventory(stack))) : null;
 			}
 
@@ -84,24 +103,7 @@ public class ItemDankNull extends Item implements IModelHolder {
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void addInformation(final ItemStack stack, @Nullable final World worldIn, final List<String> tooltip, final ITooltipFlag flagIn) {
-		int numSlots = DankNullUtils.getSlotCount(stack);
-		String numPerSlot = "0";
-		if (DankNullUtils.isCreativeDankNull(stack)) {
-			numSlots -= 9;
-			numPerSlot = I18n.translateToLocal("dn.infinity");
-		}
-		else {
-			final DecimalFormat df = new DecimalFormat("###,###.###", new DecimalFormatSymbols(Locale.US));
-			numPerSlot = I18n.translateToLocal("dn.upto") + " " + df.format(Double.valueOf(DankNullUtils.getDankNullMaxStackSize(stack)));
-		}
-		tooltip.add(I18n.translateToLocalFormatted("dn.numslots", numSlots));
-		tooltip.add(I18n.translateToLocalFormatted("dn.num_per_slot", numPerSlot));
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public boolean hasEffect(final ItemStack stack) {
+	public boolean hasEffect(ItemStack stack) {
 		return true;
 	}
 
@@ -109,15 +111,15 @@ public class ItemDankNull extends Item implements IModelHolder {
 	@SideOnly(Side.CLIENT)
 	public void initModel() {
 		for (int i = 0; i <= 6; i++) {
-			final ResourceLocation regName = new ResourceLocation(getRegistryName().getResourceDomain(), getRegistryName().getResourcePath() + "_" + i);
-			final ModelResourceLocation location = new ModelResourceLocation(regName, "inventory");
+			ResourceLocation regName = new ResourceLocation(getRegistryName().getResourceDomain(), getRegistryName().getResourcePath() + "_" + i);
+			ModelResourceLocation location = new ModelResourceLocation(regName, "inventory");
 			ModelLoader.setCustomModelResourceLocation(this, i, location);
 			ModelRegistryHelper.register(location, new DankNullRenderer(() -> new ModelResourceLocation(regName, "inventory")));
 		}
 	}
 
 	@Override
-	public String getItemStackDisplayName(final ItemStack stack) {
+	public String getItemStackDisplayName(ItemStack stack) {
 		String name = I18n.translateToLocal(getUnlocalizedNameInefficiently(stack) + "_" + getDamage(stack) + ".name").trim();
 		if (Options.callItDevNull) {
 			name = name.replace("/dank/", "/dev/");
@@ -126,18 +128,18 @@ public class ItemDankNull extends Item implements IModelHolder {
 	}
 
 	@Override
-	public ActionResult<ItemStack> onItemRightClick(final World world, final EntityPlayer player, final EnumHand hand) {
-		final ItemStack stack = player.getHeldItem(hand);
-		if (player.isSneaking() && (Options.ignoreEdgeDetection || getBlockUnderPlayer(player) != Blocks.AIR)) {
-			ModGuiHandler.launchGui(GUIType.DANKNULL, player, world);
-			return new ActionResult<>(EnumActionResult.FAIL, stack);
+	public ActionResult<ItemStack> onItemRightClick(World worldIn, EntityPlayer playerIn, EnumHand hand) {
+		ItemStack stack = playerIn.getHeldItem(hand);
+		if (playerIn.isSneaking() && getBlockUnderPlayer(playerIn) != Blocks.AIR) {
+			ModGuiHandler.launchGui(GUIType.DANKNULL, playerIn, worldIn, (int) playerIn.posX, (int) playerIn.posY, (int) playerIn.posZ);
+			return new ActionResult<ItemStack>(EnumActionResult.FAIL, stack);
 		}
-		return new ActionResult<>(EnumActionResult.FAIL, stack);
+		return new ActionResult<ItemStack>(EnumActionResult.FAIL, stack);
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
-	public void getSubItems(final CreativeTabs tab, final NonNullList<ItemStack> subItems) {
+	public void getSubItems(CreativeTabs tab, NonNullList<ItemStack> subItems) {
 		if (isInCreativeTab(tab)) {
 			for (int i = 0; i <= 6; i++) {
 				subItems.add(new ItemStack(this, 1, i));
@@ -151,7 +153,7 @@ public class ItemDankNull extends Item implements IModelHolder {
 	}
 
 	@Override
-	public boolean isDamaged(final ItemStack stack) {
+	public boolean isDamaged(ItemStack stack) {
 		return false;
 	}
 
@@ -161,7 +163,7 @@ public class ItemDankNull extends Item implements IModelHolder {
 	}
 
 	@Override
-	public boolean showDurabilityBar(final ItemStack stack) {
+	public boolean showDurabilityBar(ItemStack stack) {
 		return false;
 	}
 
@@ -170,63 +172,66 @@ public class ItemDankNull extends Item implements IModelHolder {
 		return false;
 	}
 
-	private IBlockState getBlockUnderPlayer(final EntityPlayer player) {
-		final int blockX = MathHelper.floor(player.posX);
-		final int blockY = MathHelper.floor(player.getEntityBoundingBox().minY - 0.5);
-		final int blockZ = MathHelper.floor(player.posZ);
+	private IBlockState getBlockUnderPlayer(EntityPlayer player) {
+		int blockX = MathHelper.floor(player.posX);
+		int blockY = MathHelper.floor(player.getEntityBoundingBox().minY - 0.5);
+		int blockZ = MathHelper.floor(player.posZ);
 		return player.getEntityWorld().getBlockState(new BlockPos(blockX, blockY, blockZ));
 	}
 
-	public RayTraceResult rayTrace(final EntityPlayer player, final double blockReachDistance, final float partialTicks) {
-		final Vec3d vec3d = player.getPositionEyes(partialTicks);
-		final Vec3d vec3d1 = player.getLook(partialTicks);
-		final Vec3d vec3d2 = vec3d.addVector(vec3d1.x * blockReachDistance, vec3d1.y * blockReachDistance, vec3d1.z * blockReachDistance);
+	public RayTraceResult rayTrace(EntityPlayer player, double blockReachDistance, float partialTicks) {
+		Vec3d vec3d = player.getPositionEyes(partialTicks);
+		Vec3d vec3d1 = player.getLook(partialTicks);
+		Vec3d vec3d2 = vec3d.addVector(vec3d1.x * blockReachDistance, vec3d1.y * blockReachDistance, vec3d1.z * blockReachDistance);
 		return player.world.rayTraceBlocks(vec3d, vec3d2, false, false, true);
 	}
 
 	@Override
-	public EnumActionResult onItemUse(final EntityPlayer player, final World world, final BlockPos posIn, final EnumHand hand, EnumFacing facing, final float hitX, final float hitY, final float hitZ) {
-		final ItemStack stack = player.getHeldItem(hand);
-		final InventoryDankNull inventory = new InventoryDankNull(stack);
-		final ItemStack selectedStack = DankNullUtils.getSelectedStack(inventory);
-		final Block selectedBlock = Block.getBlockFromItem(selectedStack.getItem());
-		final boolean isSelectedStackABlock = selectedBlock != null && selectedBlock != Blocks.AIR;
-		final Block blockUnderPlayer = getBlockUnderPlayer(player).getBlock();
-		if (player.isSneaking() && (Options.ignoreEdgeDetection || blockUnderPlayer != Blocks.AIR && isSelectedStackABlock && blockUnderPlayer != selectedBlock)) {
-			ModGuiHandler.launchGui(GUIType.DANKNULL, player, world);
+	public EnumActionResult onItemUse(EntityPlayer player, World world, BlockPos posIn, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+		if (world.isRemote) {
 			return EnumActionResult.SUCCESS;
 		}
-		final SlotExtractionMode placementMode = DankNullUtils.getPlacementModeForStack(stack, selectedStack);
+		ItemStack stack = player.getHeldItem(hand);
+		InventoryDankNull inventory = new InventoryDankNull(stack);
+		ItemStack selectedStack = DankNullUtils.getSelectedStack(inventory);
+		Block selectedBlock = Block.getBlockFromItem(selectedStack.getItem());
+		boolean isSelectedStackABlock = selectedBlock != null && selectedBlock != Blocks.AIR;
+		Block blockUnderPlayer = getBlockUnderPlayer(player).getBlock();
+		if (player.isSneaking() && (blockUnderPlayer != Blocks.AIR && (isSelectedStackABlock && blockUnderPlayer != selectedBlock))) {
+			ModGuiHandler.launchGui(GUIType.DANKNULL, player, world, (int) player.posX, (int) player.posY, (int) player.posZ);
+			return EnumActionResult.SUCCESS;
+		}
+		SlotExtractionMode placementMode = DankNullUtils.getPlacementModeForStack(stack, selectedStack);
 		if (placementMode != null) {
 			if (placementMode != SlotExtractionMode.KEEP_NONE) {
-				final int count = DankNullUtils.getSelectedStackSize(inventory);
-				final int amountToKeep = placementMode.getNumberToKeep();
+				int count = DankNullUtils.getSelectedStackSize(inventory);
+				int amountToKeep = placementMode.getNumberToKeep();
 				if (count <= amountToKeep && !player.capabilities.isCreativeMode) {
 					return EnumActionResult.FAIL;
 				}
 			}
 		}
-		final IBlockState state = world.getBlockState(posIn);
-		final Block block = state.getBlock();
+		IBlockState state = world.getBlockState(posIn);
+		Block block = state.getBlock();
 		BlockPos pos = posIn;
 
-		if (selectedStack.isEmpty() || !(selectedStack.getItem() instanceof ItemBlock) && !(selectedStack.getItem() instanceof ItemBlockSpecial)) { //TODO I do have an idea
+		if (selectedStack.isEmpty() || (!(selectedStack.getItem() instanceof ItemBlock) && !(selectedStack.getItem() instanceof ItemBlockSpecial))) { //TODO I do have an idea
 			//return EnumActionResult.PASS;
 		}
-		if (!block.isReplaceable(world, posIn) && block == Blocks.SNOW_LAYER) {
+		if (!block.isReplaceable(world, posIn) && (block == Blocks.SNOW_LAYER)) {
 			facing = EnumFacing.UP;
 		}
-		else if (!block.isReplaceable(world, posIn) && selectedBlock != null && !selectedBlock.isFullBlock(selectedBlock.getStateFromMeta(selectedStack.getMetadata()))) {
+		else if (!block.isReplaceable(world, posIn) && (selectedBlock != null && !selectedBlock.isFullBlock(selectedBlock.getStateFromMeta(selectedStack.getMetadata())))) {
 			pos = pos.offset(facing);
 		}
-		if (DankNullUtils.getSelectedStackSize(inventory) > 0 && player.canPlayerEdit(posIn, facing, stack)) {
-			final int meta = selectedStack.getMetadata();
+		if ((DankNullUtils.getSelectedStackSize(inventory) > 0) && (player.canPlayerEdit(posIn, facing, stack))) {
+			int meta = selectedStack.getMetadata();
 			if (selectedBlock instanceof BlockStairs || selectedBlock instanceof BlockBanner) {
-				final IBlockState newState = selectedBlock.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, meta, player);
-				final EnumActionResult result = DankNullUtils.placeBlock(newState, world, pos);
+				IBlockState newState = selectedBlock.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, meta, player);
+				EnumActionResult result = DankNullUtils.placeBlock(newState, world, pos);
 				if (world.getTileEntity(pos) != null && world.getTileEntity(pos) instanceof TileEntityBanner) {
 					if (facing == EnumFacing.UP) {
-						final int i = MathHelper.floor((player.rotationYaw + 180.0F) * 16.0F / 360.0F + 0.5D) & 15;
+						int i = MathHelper.floor((player.rotationYaw + 180.0F) * 16.0F / 360.0F + 0.5D) & 15;
 						world.setBlockState(pos, Blocks.STANDING_BANNER.getDefaultState().withProperty(BlockStandingSign.ROTATION, Integer.valueOf(i)), 3);
 					}
 					else {
@@ -235,7 +240,7 @@ public class ItemDankNull extends Item implements IModelHolder {
 					((TileEntityBanner) world.getTileEntity(pos)).setItemValues(selectedStack, false);
 				}
 				if (result != EnumActionResult.FAIL) {
-					final SoundType soundType = block.getSoundType(newState, world, pos, player);
+					SoundType soundType = block.getSoundType(newState, world, pos, player);
 					world.playSound((EntityPlayer) null, player.getPosition(), soundType.getPlaceSound(), SoundCategory.BLOCKS, 1.0F, 0.5F * ((world.rand.nextFloat() - world.rand.nextFloat()) * 0.7F + 2F));
 				}
 				if (!player.capabilities.isCreativeMode) {
@@ -246,11 +251,11 @@ public class ItemDankNull extends Item implements IModelHolder {
 			else if (selectedStack.getItem() instanceof ItemBucket || selectedStack.getItem() instanceof UniversalBucket) {
 				//TODO soon!
 			}
-			else if (selectedStack.getItem() instanceof ItemSnowball || selectedStack.getItem() instanceof ItemEnderPearl || selectedStack.getItem() instanceof ItemEgg) {
+			else if ((selectedStack.getItem() instanceof ItemSnowball) || (selectedStack.getItem() instanceof ItemEnderPearl) || (selectedStack.getItem() instanceof ItemEgg)) {
 				//TODO soon!
 			}
 			else {
-				final EnumActionResult result = placeItemIntoWorld(selectedStack.copy(), player, world, pos, facing, hitX, hitY, hitZ, hand);
+				EnumActionResult result = placeItemIntoWorld(selectedStack.copy(), player, world, pos, facing, hitX, hitY, hitZ, hand);
 
 				if (result == EnumActionResult.SUCCESS && !player.capabilities.isCreativeMode && !DankNullUtils.isCreativeDankNull(stack)) {
 					DankNullUtils.decrSelectedStackSize(inventory, 1);
@@ -261,13 +266,13 @@ public class ItemDankNull extends Item implements IModelHolder {
 		return EnumActionResult.SUCCESS;
 	}
 
-	public EnumActionResult placeItemIntoWorld(@Nonnull final ItemStack itemstack, @Nonnull final EntityPlayer player, @Nonnull final World world, @Nonnull final BlockPos pos, @Nonnull final EnumFacing facing, final float hitX, final float hitY, final float hitZ, @Nonnull final EnumHand hand) {
+	public EnumActionResult placeItemIntoWorld(@Nonnull ItemStack itemstack, @Nonnull EntityPlayer player, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing facing, float hitX, float hitY, float hitZ, @Nonnull EnumHand hand) {
 		return placeItemIntoWorld(itemstack, player, world, pos, facing, hitX, hitY, hitZ, hand, false);
 	}
 
-	public EnumActionResult placeItemIntoWorld(@Nonnull final ItemStack itemstack, @Nonnull final EntityPlayer player, @Nonnull final World world, @Nonnull BlockPos pos, @Nonnull final EnumFacing facing, final float hitX, final float hitY, final float hitZ, @Nonnull final EnumHand hand, final boolean skipSlab) {
+	public EnumActionResult placeItemIntoWorld(@Nonnull ItemStack itemstack, @Nonnull EntityPlayer player, @Nonnull World world, @Nonnull BlockPos pos, @Nonnull EnumFacing facing, float hitX, float hitY, float hitZ, @Nonnull EnumHand hand, boolean skipSlab) {
 		if (itemstack.getItem() instanceof ItemBlock) {
-			final Block block = Block.getBlockFromItem(itemstack.getItem());
+			Block block = Block.getBlockFromItem(itemstack.getItem());
 			ItemSlab slab = null;
 			if (itemstack.getItem() instanceof ItemSlab && !skipSlab) {
 				slab = (ItemSlab) itemstack.getItem();
@@ -284,7 +289,7 @@ public class ItemDankNull extends Item implements IModelHolder {
 
 				if (placeBlockAt(itemstack, player, world, pos, facing, hitX, hitY, hitZ, iblockstate1, block)) {
 					iblockstate1 = world.getBlockState(pos);
-					final SoundType soundtype = iblockstate1.getBlock().getSoundType(iblockstate1, world, pos, player);
+					SoundType soundtype = iblockstate1.getBlock().getSoundType(iblockstate1, world, pos, player);
 					//world.playSound(player, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
 					world.playSound((EntityPlayer) null, player.getPosition(), soundtype.getPlaceSound(), SoundCategory.BLOCKS, 1.0F, 0.5F * ((world.rand.nextFloat() - world.rand.nextFloat()) * 0.7F + 2F));
 				}
@@ -294,11 +299,11 @@ public class ItemDankNull extends Item implements IModelHolder {
 		return EnumActionResult.FAIL;
 	}
 
-	public boolean placeBlockAt(final ItemStack stack, final EntityPlayer player, final World world, final BlockPos pos, final EnumFacing side, final float hitX, final float hitY, final float hitZ, final IBlockState newState, final Block block) {
-		final ItemStack tmpStack = stack.copy();
+	public boolean placeBlockAt(ItemStack stack, EntityPlayer player, World world, BlockPos pos, EnumFacing side, float hitX, float hitY, float hitZ, IBlockState newState, Block block) {
+		ItemStack tmpStack = stack.copy();
 		tmpStack.setCount(1);
 		if (tmpStack.getItem() instanceof ItemBlock) {
-			final ItemBlock blockItem = (ItemBlock) tmpStack.getItem();
+			ItemBlock blockItem = (ItemBlock) tmpStack.getItem();
 			blockItem.placeBlockAt(stack, player, world, pos, side, hitX, hitY, hitZ, newState);
 			return true;
 		}
@@ -316,22 +321,22 @@ public class ItemDankNull extends Item implements IModelHolder {
 		return true;
 	}
 
-	public EnumActionResult placeSlab(final EntityPlayer player, final World worldIn, final BlockPos pos, final EnumHand hand, final EnumFacing facing, final float hitX, final float hitY, final float hitZ, final ItemStack itemstack, final ItemSlab slab) {
-		final BlockSlab singleSlab = ObfuscationReflectionHelper.getPrivateValue(ItemSlab.class, slab, "singleSlab");
+	public EnumActionResult placeSlab(EntityPlayer player, World worldIn, BlockPos pos, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ, ItemStack itemstack, ItemSlab slab) {
+		BlockSlab singleSlab = ReflectionHelper.getPrivateValue(ItemSlab.class, slab, "singleSlab");
 		//BlockSlab doubleSlab = ReflectionHelper.getPrivateValue(ItemSlab.class, slab, "doubleSlab");
 		if (!itemstack.isEmpty() && player.canPlayerEdit(pos, facing, itemstack)) {
-			final Comparable<?> comparable = singleSlab.getTypeForItem(itemstack);
-			final IBlockState iblockstate = worldIn.getBlockState(pos);//block.getStateForPlacement(worldIn, pos, facing, hitX, hitY, hitZ, itemstack.getItemDamage(), player);
-			final ItemStack blockAsStack = new ItemStack(Item.getItemFromBlock(iblockstate.getBlock()), 1, iblockstate.getBlock().getMetaFromState(iblockstate));
+			Comparable<?> comparable = singleSlab.getTypeForItem(itemstack);
+			IBlockState iblockstate = worldIn.getBlockState(pos);//block.getStateForPlacement(worldIn, pos, facing, hitX, hitY, hitZ, itemstack.getItemDamage(), player);
+			ItemStack blockAsStack = new ItemStack(Item.getItemFromBlock(iblockstate.getBlock()), 1, iblockstate.getBlock().getMetaFromState(iblockstate));
 			if (iblockstate.getBlock() == singleSlab && ((BlockSlab) iblockstate.getBlock()).getTypeForItem(blockAsStack) == comparable) {
-				final IProperty<?> iproperty = singleSlab.getVariantProperty();
-				final Comparable<?> comparable1 = iblockstate.getValue(iproperty);
-				final BlockSlab.EnumBlockHalf blockslab$enumblockhalf = iblockstate.getValue(BlockSlab.HALF);
+				IProperty<?> iproperty = singleSlab.getVariantProperty();
+				Comparable<?> comparable1 = iblockstate.getValue(iproperty);
+				BlockSlab.EnumBlockHalf blockslab$enumblockhalf = iblockstate.getValue(BlockSlab.HALF);
 				if ((facing == EnumFacing.UP && blockslab$enumblockhalf == BlockSlab.EnumBlockHalf.BOTTOM || facing == EnumFacing.DOWN && blockslab$enumblockhalf == BlockSlab.EnumBlockHalf.TOP) && comparable1 == comparable) {
-					final IBlockState iblockstate1 = makeState(iproperty, comparable1, slab);
-					final AxisAlignedBB axisalignedbb = iblockstate1.getCollisionBoundingBox(worldIn, pos);
+					IBlockState iblockstate1 = makeState(iproperty, comparable1, slab);
+					AxisAlignedBB axisalignedbb = iblockstate1.getCollisionBoundingBox(worldIn, pos);
 					if (axisalignedbb != Block.NULL_AABB && worldIn.checkNoEntityCollision(axisalignedbb.offset(pos)) && worldIn.setBlockState(pos, iblockstate1, 3)) {
-						final SoundType soundtype = singleSlab.getSoundType(iblockstate1, worldIn, pos, player);
+						SoundType soundtype = singleSlab.getSoundType(iblockstate1, worldIn, pos, player);
 						worldIn.playSound(null, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
 						if (player instanceof EntityPlayerMP) {
 							CriteriaTriggers.PLACED_BLOCK.trigger((EntityPlayerMP) player, pos, itemstack);
@@ -348,18 +353,18 @@ public class ItemDankNull extends Item implements IModelHolder {
 		//}
 	}
 
-	private boolean tryPlace(final EntityPlayer player, final ItemStack stack, final World worldIn, final BlockPos pos, final Object itemSlabType, final ItemSlab slab) {
-		final BlockSlab singleSlab = ReflectionHelper.getPrivateValue(ItemSlab.class, slab, "singleSlab");
-		final BlockSlab doubleSlab = ReflectionHelper.getPrivateValue(ItemSlab.class, slab, "doubleSlab");
-		final IBlockState iblockstate = worldIn.getBlockState(pos);
+	private boolean tryPlace(EntityPlayer player, ItemStack stack, World worldIn, BlockPos pos, Object itemSlabType, ItemSlab slab) {
+		BlockSlab singleSlab = ReflectionHelper.getPrivateValue(ItemSlab.class, slab, "singleSlab");
+		BlockSlab doubleSlab = ReflectionHelper.getPrivateValue(ItemSlab.class, slab, "doubleSlab");
+		IBlockState iblockstate = worldIn.getBlockState(pos);
 		if (iblockstate.getBlock() == singleSlab) {
-			final Comparable<?> comparable = singleSlab.getTypeForItem(stack);//slab.getBlock().getDefaultState().getValue(singleSlab.getVariantProperty());
-			final ItemStack blockAsStack = new ItemStack(Item.getItemFromBlock(iblockstate.getBlock()), 1, iblockstate.getBlock().getMetaFromState(iblockstate));
+			Comparable<?> comparable = singleSlab.getTypeForItem(stack);//slab.getBlock().getDefaultState().getValue(singleSlab.getVariantProperty());
+			ItemStack blockAsStack = new ItemStack(Item.getItemFromBlock(iblockstate.getBlock()), 1, iblockstate.getBlock().getMetaFromState(iblockstate));
 			if (comparable == itemSlabType && ((BlockSlab) iblockstate.getBlock()).getTypeForItem(blockAsStack) == comparable) {
-				final IBlockState iblockstate1 = makeState(singleSlab.getVariantProperty(), comparable, slab);
-				final AxisAlignedBB axisalignedbb = iblockstate1.getCollisionBoundingBox(worldIn, pos);
+				IBlockState iblockstate1 = makeState(singleSlab.getVariantProperty(), comparable, slab);
+				AxisAlignedBB axisalignedbb = iblockstate1.getCollisionBoundingBox(worldIn, pos);
 				if (axisalignedbb != Block.NULL_AABB && worldIn.checkNoEntityCollision(axisalignedbb.offset(pos)) && worldIn.setBlockState(pos, iblockstate1, 3)) {
-					final SoundType soundtype = doubleSlab.getSoundType(iblockstate1, worldIn, pos, player);
+					SoundType soundtype = doubleSlab.getSoundType(iblockstate1, worldIn, pos, player);
 					worldIn.playSound(null, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
 				}
 				return true;
@@ -368,18 +373,18 @@ public class ItemDankNull extends Item implements IModelHolder {
 		return false;
 	}
 
-	protected <T extends Comparable<T>> IBlockState makeState(final IProperty<T> p_185055_1_, final Comparable<?> p_185055_2_, final ItemSlab slab) {
-		final BlockSlab doubleSlab = ReflectionHelper.getPrivateValue(ItemSlab.class, slab, "doubleSlab");
+	protected <T extends Comparable<T>> IBlockState makeState(IProperty<T> p_185055_1_, Comparable<?> p_185055_2_, ItemSlab slab) {
+		BlockSlab doubleSlab = ReflectionHelper.getPrivateValue(ItemSlab.class, slab, "doubleSlab");
 		return doubleSlab.getDefaultState().withProperty(p_185055_1_, (T) p_185055_2_);
 	}
 
 	@Override
-	public EnumRarity getRarity(final ItemStack stack) {
+	public EnumRarity getRarity(ItemStack stack) {
 		return ModGlobals.Rarities.getRarityFromMeta(stack.getItemDamage());
 	}
 
 	@Override
-	public boolean shouldCauseReequipAnimation(final ItemStack oldStack, final ItemStack newStack, final boolean slotChanged) {
+	public boolean shouldCauseReequipAnimation(ItemStack oldStack, ItemStack newStack, boolean slotChanged) {
 		return !oldStack.isItemEqual(newStack) || slotChanged;
 	}
 

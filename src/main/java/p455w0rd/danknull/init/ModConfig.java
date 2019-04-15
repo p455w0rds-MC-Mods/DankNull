@@ -44,7 +44,6 @@ public class ModConfig {
 
 		Options.callItDevNull = CONFIG.getBoolean("CallItDevNull", CLIENT_CAT, false, "Call it a /dev/null in-game ");
 		Options.superShine = CONFIG.getBoolean("SuperShine", CLIENT_CAT, false, "Make items ultra shiny!");
-		Options.ignoreEdgeDetection = CONFIG.getBoolean("IgnoreEdgeDetection", CLIENT_CAT, false, "Ignore edge detection when opening the GUI");
 		Options.creativeBlacklist = CONFIG.getString(CONST_CREATIVE_BLACKLIST, SERVER_CAT, "", "A semicolon separated list of items that are not allowed to be placed into the creative /dank/null\nFormat: modid:name:meta (meta optional: modid:name is acceptable) - Example: minecraft:diamond;minecraft:coal:1").trim();
 		Options.creativeWhitelist = CONFIG.getString(CONST_CREATIVE_WHITELIST, SERVER_CAT, "", "A semicolon separated list of items that are allowed to be placed into the creative /dank/null\nSame format as Blacklist and whitelist superceeds blacklist.\nIf whitelist is non-empty, then ONLY whitelisted items can be added to the Creative /dank/null").trim();
 		Options.oreBlacklist = CONFIG.getString(CONST_OREDICT_BLACKLIST, SERVER_CAT, "", "A semicolon separated list of Ore Dictionary entries (strings) which WILL NOT be allowed to be used with /dank/null's Ore Dictionary functionality.");
@@ -60,7 +59,6 @@ public class ModConfig {
 
 		public static boolean callItDevNull = false;
 		public static boolean superShine = false;
-		public static boolean ignoreEdgeDetection = false;
 		public static String creativeBlacklist = "";
 		public static String creativeWhitelist = "";
 		public static String oreBlacklist = "";

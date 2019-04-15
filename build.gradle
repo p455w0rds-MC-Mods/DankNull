@@ -21,13 +21,10 @@ archivesBaseName = "DankNull"
 sourceCompatibility = targetCompatibility = "1.8"
 
 minecraft {
-    version = "1.12.2-14.23.5.2784"
+    version = "1.12.2-14.23.4.2760"
 	mappings = "snapshot_20171003"
 	runDir = "run"
 	useDepAts = true
-	clientJvmArgs += "-Dfml.coreMods.load=com.elytradev.mini.MiniCoremod,team.chisel.ctm.client.asm.CTMCorePlugin"
-    serverJvmArgs += "-Dfml.coreMods.load=com.elytradev.mini.MiniCoremod"
-    serverJvmArgs += "-Dfml.queryResult=confirm"
 }
 
 repositories {
@@ -49,10 +46,6 @@ repositories {
 		url = "http://maven.tterrag.com"
 	}
 	maven {
-		name = "tterrag2"
-		url = "http://maven2.tterrag.com"
-	}
-	maven {
 		name = "tehnut"
 		url = "http://tehnut.info/maven"
 	}
@@ -67,11 +60,10 @@ repositories {
 }
 
 dependencies {
-	deobfCompile "p455w0rd:p455w0rdslib:1.12.2-2.0.36"
-	deobfCompile "mezz.jei:jei_1.12.2:4.14.4.251"
-	deobfCompile "codechicken:CodeChickenLib:1.12.2-3.2.2.353:universal"
-	deobfCompile "codechicken:NotEnoughItems:1.12.2-2.4.2.240:universal"
-	deobfCompile "cofh:RedstoneFlux:1.12-2.1.0.6:universal"
+	deobfCompile "mezz.jei:jei_1.12.2:+"
+	deobfCompile "codechicken:CodeChickenLib:1.12.2-3.2.1.351:universal"
+	deobfCompile "codechicken:NotEnoughItems:1.12.2-2.4.1.238:universal"
+	deobfCompile "cofh:RedstoneFlux:1.12-2.0.2.4:universal"
 	deobfCompile "cofh:ThermalDynamics:1.12.2-2+:universal"
 	deobfCompile "cofh:ThermalFoundation:1.12.2-2+:universal"
 	deobfCompile "cofh:ThermalExpansion:1.12.2-5+:universal"
@@ -79,16 +71,11 @@ dependencies {
 	deobfCompile "cofh:CoFHWorld:1.12.2-1+:universal"
 	deobfCompile "mcjty.theoneprobe:TheOneProbe-1.12:1.12-1.4.23-16"
 	deobfCompile "mcp.mobius.waila:Hwyla:1.8.26-B41_1.12.2"
-	deobfCompile "team.chisel:Chisel:MC1.12.2-0.2.1.36"
-	deobfCompile "team.chisel.ctm:CTM:MC1.12.2-0.3.3.22"
+	deobfCompile "team.chisel:Chisel:MC1.12.2-0.2.1.34"
+	deobfCompile "team.chisel.ctm:CTM:MC1.12.2-0.3.2.18"
 	deobfCompile "com.feed_the_beast.mods:FTBLib:5+"
 	deobfCompile "com.feed_the_beast.mods:FTBUtilities:5+"
-	deobfCompile "info.loenwind.autoconfig:AutoConfig:1.12.2-1.0.1"
-	deobfCompile "info.loenwind.autosave:AutoSave:1.12.2-1.0.8"
-	deobfCompile "com.enderio.core:EnderCore:1.12.2-0.5.44"
-	deobfCompile ("com.enderio:EnderIO:1.12.2-5.0.39") {
-		transitive = false
-	}
+	deobfCompile "com.enderio.core:EnderCore:1.12.2-0.5.37"
 }
 
 processResources {
@@ -109,9 +96,7 @@ processResources {
 
 jar {
 	manifest {
-		attributes {
-			'FMLAT': 'danknull_at.cfg'
-		}
+	    attributes 'FMLAT': 'danknull_at.cfg'
 	}
 }
 

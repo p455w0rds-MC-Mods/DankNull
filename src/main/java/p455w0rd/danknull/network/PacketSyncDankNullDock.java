@@ -9,7 +9,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
-import net.minecraftforge.fml.common.network.simpleimpl.*;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
 import p455w0rd.danknull.inventory.InventoryDankNull;
@@ -27,54 +29,54 @@ public class PacketSyncDankNullDock implements IMessage {
 	private int[] stackSizes;
 
 	@Override
-	public void fromBytes(final ByteBuf buf) {
+	public void fromBytes(ByteBuf buf) {
 		dockPos = new BlockPos(buf.readInt(), buf.readInt(), buf.readInt());
 		dankNull = ByteBufUtils.readItemStack(buf);
 		stackSizes = new int[buf.readInt()];
 		for (int i = 0; i < stackSizes.length - 1; i++) {
-			//stackSizes[i] = buf.readInt();
+			stackSizes[i] = buf.readInt();
 		}
 	}
 
 	@Override
-	public void toBytes(final ByteBuf buf) {
+	public void toBytes(ByteBuf buf) {
 		buf.writeInt(dockPos.getX());
 		buf.writeInt(dockPos.getY());
 		buf.writeInt(dockPos.getZ());
 		ByteBufUtils.writeItemStack(buf, dankNull);
-		final InventoryDankNull inv = DankNullUtils.getNewDankNullInventory(dankNull);
+		InventoryDankNull inv = DankNullUtils.getNewDankNullInventory(dankNull);
 		buf.writeInt(inv.getSizeInventory());
 		for (int i = 0; i < inv.getSizeInventory(); i++) {
-			//buf.writeInt(DankNullUtils.getNewDankNullInventory(dankNull).getSizeForSlot(i));
+			buf.writeInt(DankNullUtils.getNewDankNullInventory(dankNull).getSizeForSlot(i));
 		}
 	}
 
 	public PacketSyncDankNullDock() {
 	}
 
-	public PacketSyncDankNullDock(@Nonnull final TileDankNullDock dockingStation, final ItemStack dankNull) {
+	public PacketSyncDankNullDock(@Nonnull TileDankNullDock dockingStation, ItemStack dankNull) {
 		dockPos = dockingStation.getPos();
 		this.dankNull = dankNull;
 	}
 
 	public static class Handler implements IMessageHandler<PacketSyncDankNullDock, IMessage> {
 		@Override
-		public IMessage onMessage(final PacketSyncDankNullDock message, final MessageContext ctx) {
+		public IMessage onMessage(PacketSyncDankNullDock message, MessageContext ctx) {
 			FMLCommonHandler.instance().getWorldThread(ctx.netHandler).addScheduledTask(() -> {
 				handle(message, ctx.side == Side.SERVER ? ctx.getServerHandler().player : EasyMappings.player(), ctx.side);
 			});
 			return null;
 		}
 
-		private void handle(final PacketSyncDankNullDock message, final EntityPlayer player, final Side side) {
-			final World world = player.getEntityWorld();
+		private void handle(PacketSyncDankNullDock message, EntityPlayer player, Side side) {
+			World world = player.getEntityWorld();
 			if (world != null && world.getTileEntity(message.dockPos) != null && world.getTileEntity(message.dockPos) instanceof TileDankNullDock) {
-				final TileDankNullDock dankDock = (TileDankNullDock) world.getTileEntity(message.dockPos);
-				final ItemStack stack = message.dankNull;
-				final InventoryDankNull inv = DankNullUtils.getNewDankNullInventory(stack);
-				final int[] sizes = message.stackSizes;
-				for (final int size : sizes) {
-					//inv.setSizeForSlot(i, sizes[i]);
+				TileDankNullDock dankDock = (TileDankNullDock) world.getTileEntity(message.dockPos);
+				ItemStack stack = message.dankNull;
+				InventoryDankNull inv = DankNullUtils.getNewDankNullInventory(stack);
+				int[] sizes = message.stackSizes;
+				for (int i = 0; i < sizes.length; i++) {
+					inv.setSizeForSlot(i, sizes[i]);
 				}
 				//dankDock.setDankNull(stack);
 				/*

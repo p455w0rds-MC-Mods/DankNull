@@ -4,17 +4,26 @@ import codechicken.lib.texture.TextureUtils;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
-import net.minecraftforge.fml.common.event.*;
+import net.minecraftforge.fml.common.event.FMLInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
+import net.minecraftforge.fml.common.event.FMLServerStartingEvent;
+import p455w0rd.danknull.client.gui.GuiDankNull;
 import p455w0rd.danknull.client.render.DankNullPanelRenderer;
 import p455w0rd.danknull.client.render.DankTextures;
-import p455w0rd.danknull.init.*;
+import p455w0rd.danknull.init.ModBlocks;
+import p455w0rd.danknull.init.ModCreativeTab;
+import p455w0rd.danknull.init.ModIntegration;
+import p455w0rd.danknull.init.ModItems;
+import p455w0rd.danknull.init.ModKeyBindings;
 import p455w0rdslib.util.EasyMappings;
 
 public class ClientProxy extends CommonProxy {
 
 	@Override
-	public void preInit(final FMLPreInitializationEvent e) {
+	public void preInit(FMLPreInitializationEvent e) {
 		super.preInit(e);
 		TextureUtils.addIconRegister(new DankTextures());
 		ModBlocks.registerModels();
@@ -25,18 +34,18 @@ public class ClientProxy extends CommonProxy {
 	}
 
 	@Override
-	public void init(final FMLInitializationEvent e) {
+	public void init(FMLInitializationEvent e) {
 		super.init(e);
 	}
 
 	@Override
-	public void postInit(final FMLPostInitializationEvent e) {
+	public void postInit(FMLPostInitializationEvent e) {
 		super.postInit(e);
 		ModIntegration.postInit();
 	}
 
 	@Override
-	public void serverStarting(final FMLServerStartingEvent e) {
+	public void serverStarting(FMLServerStartingEvent e) {
 		super.serverStarting(e);
 	}
 
@@ -51,12 +60,18 @@ public class ClientProxy extends CommonProxy {
 	}
 
 	@Override
-	public World getWorld(final int dimension) {
+	public World getWorld(int dimension) {
 		return getWorld();
 	}
 
 	public GuiScreen getScreen() {
 		return Minecraft.getMinecraft().currentScreen;
+	}
+
+	@Override
+	public void setGUIDankNull(ItemStack dankNull) {
+		GuiDankNull screen = (GuiDankNull) getScreen();
+		screen.setDankNull(dankNull);
 	}
 
 }

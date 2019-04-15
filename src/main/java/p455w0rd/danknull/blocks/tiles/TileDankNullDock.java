@@ -3,7 +3,11 @@ package p455w0rd.danknull.blocks.tiles;
 import javax.annotation.Nullable;
 
 import mcjty.theoneprobe.Tools;
-import mcjty.theoneprobe.api.*;
+import mcjty.theoneprobe.api.ElementAlignment;
+import mcjty.theoneprobe.api.IProbeHitData;
+import mcjty.theoneprobe.api.IProbeInfo;
+import mcjty.theoneprobe.api.ProbeMode;
+import mcjty.theoneprobe.api.TextStyleClass;
 import mcjty.theoneprobe.apiimpl.styles.LayoutStyle;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
@@ -45,16 +49,16 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 
 	private RedstoneMode redstoneMode = RedstoneMode.REQUIRED;
 	private boolean hasRedstoneSignal = false;
-	private final NonNullList<ItemStack> slots = NonNullList.create();
+	private NonNullList<ItemStack> slots = NonNullList.create();
 	InventoryDankNull inventory = null;
 
 	@Override
-	public boolean hasCapability(final Capability<?> capability, final EnumFacing facing) {
-		return !getDankNull().isEmpty() && capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && facing == EnumFacing.DOWN || super.hasCapability(capability, facing);
+	public boolean hasCapability(Capability<?> capability, EnumFacing facing) {
+		return (!getDankNull().isEmpty() && capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && facing == EnumFacing.DOWN) || super.hasCapability(capability, facing);
 	}
 
 	@Override
-	public <T> T getCapability(final Capability<T> capability, final EnumFacing facing) {
+	public <T> T getCapability(Capability<T> capability, EnumFacing facing) {
 		if (!getDankNull().isEmpty() && capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && facing == EnumFacing.DOWN) {
 			return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(new SidedInvWrapper(this, facing));
 		}
@@ -62,23 +66,23 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 	}
 
 	@Override
-	public boolean overrideStandardInfo(final ProbeMode mode, final IProbeInfo probeInfo, final EntityPlayer player, final World world, final IBlockState state, final IProbeHitData data) {
+	public boolean overrideStandardInfo(ProbeMode mode, IProbeInfo probeInfo, EntityPlayer player, World world, IBlockState state, IProbeHitData data) {
 		if (state.getBlock() == ModBlocks.DANKNULL_DOCK) {
-			final ItemStack stack = new ItemStack(ModBlocks.DANKNULL_DOCK);
-			final TileEntity tile = world.getTileEntity(data.getPos());
+			ItemStack stack = new ItemStack(ModBlocks.DANKNULL_DOCK);
+			TileEntity tile = world.getTileEntity(data.getPos());
 			if (tile != null && tile instanceof TileDankNullDock) {
-				final TileDankNullDock te = (TileDankNullDock) tile;
+				TileDankNullDock te = (TileDankNullDock) tile;
 				stack.setTagInfo("BlockEntityTag", te.writeToNBT(new NBTTagCompound()));
-				final String dankNull = "/d" + (Options.callItDevNull ? "ev" : "ank") + "/null";
-				final String msg = DankNullUtils.translate("dn.right_click_with.desc") + (te.getDankNull().isEmpty() ? " " + dankNull : " " + DankNullUtils.translate("dn.empty_hand_open.desc"));
-				final ItemStack dockedDankNull = te.getDankNull().isEmpty() ? ItemStack.EMPTY : te.getDankNull();
-				final IProbeInfo topTip = probeInfo.horizontal().item(stack).vertical().itemLabel(stack);
+				String dankNull = "/d" + (Options.callItDevNull ? "ev" : "ank") + "/null";
+				String msg = DankNullUtils.translate("dn.right_click_with.desc") + (te.getDankNull().isEmpty() ? " " + dankNull : " " + DankNullUtils.translate("dn.empty_hand_open.desc"));
+				ItemStack dockedDankNull = te.getDankNull().isEmpty() ? ItemStack.EMPTY : te.getDankNull();
+				IProbeInfo topTip = probeInfo.horizontal().item(stack).vertical().itemLabel(stack);
 				if (!dockedDankNull.isEmpty()) {
-					final String dockedMsg = ModGlobals.Rarities.getRarityFromMeta(dockedDankNull.getItemDamage()).rarityColor + "" + dockedDankNull.getDisplayName() + "" + TextFormatting.WHITE + " " + DankNullUtils.translate("dn.docked.desc");
+					String dockedMsg = ModGlobals.Rarities.getRarityFromMeta(dockedDankNull.getItemDamage()).rarityColor + "" + dockedDankNull.getDisplayName() + "" + TextFormatting.WHITE + " " + DankNullUtils.translate("dn.docked.desc");
 					topTip.text(dockedMsg);
-					final ItemStack selectedStack = DankNullUtils.getSelectedStack(getInventory());
+					ItemStack selectedStack = DankNullUtils.getSelectedStack(getInventory());
 					if (!selectedStack.isEmpty()) {
-						final ItemStack tmpStack = selectedStack.copy();
+						ItemStack tmpStack = selectedStack.copy();
 						String countText = "";
 						if (selectedStack.getCount() >= 100000) {
 							tmpStack.setCount(1);
@@ -100,7 +104,7 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 		return inventory;
 	}
 
-	public void setInventory(final InventoryDankNull inv) {
+	public void setInventory(InventoryDankNull inv) {
 		inventory = inv;
 		VanillaPacketDispatcher.dispatchTEToNearbyPlayers(this);
 	}
@@ -127,7 +131,7 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 	}
 
 	@Override
-	public void setRedstoneMode(final RedstoneMode mode) {
+	public void setRedstoneMode(RedstoneMode mode) {
 		redstoneMode = mode;
 		markDirty();
 	}
@@ -151,12 +155,12 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 	}
 
 	@Override
-	public void setRSSignal(final boolean isPowered) {
+	public void setRSSignal(boolean isPowered) {
 		hasRedstoneSignal = isPowered;
 	}
 
 	@Override
-	public boolean shouldRefresh(final World world, final BlockPos pos, final IBlockState oldState, final IBlockState newSate) {
+	public boolean shouldRefresh(World world, BlockPos pos, IBlockState oldState, IBlockState newSate) {
 		return oldState.getBlock() != newSate.getBlock();
 	}
 
@@ -172,7 +176,7 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 	}
 
 	@Override
-	public void onDataPacket(final NetworkManager net, final SPacketUpdateTileEntity pkt) {
+	public void onDataPacket(NetworkManager net, SPacketUpdateTileEntity pkt) {
 		readFromNBT(pkt.getNbtCompound());
 	}
 
@@ -184,7 +188,7 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 	}
 
 	@Override
-	public void readFromNBT(final NBTTagCompound compound) {
+	public void readFromNBT(NBTTagCompound compound) {
 		super.readFromNBT(compound);
 		if (compound.hasKey(TAG_ITEMSTACK, Constants.NBT.TAG_COMPOUND)) {
 			setInventory(DankNullUtils.getNewDankNullInventory(new ItemStack(compound.getCompoundTag(TAG_ITEMSTACK))));
@@ -204,13 +208,13 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 	}
 
 	@Override
-	public ItemStack getStackInSlot(final int index) {
+	public ItemStack getStackInSlot(int index) {
 		if (getInventory() != null) {
-			final ItemStack stack = getInventory().getStackInSlot(index);
+			ItemStack stack = getInventory().getStackInSlot(index);
 			if (!stack.isEmpty()) {
-				final int amountToBeKept = DankNullUtils.getExtractionModeForStack(getDankNull(), stack).getNumberToKeep();
+				int amountToBeKept = DankNullUtils.getExtractionModeForStack(getDankNull(), stack).getNumberToKeep();
 				if (stack.getCount() > amountToBeKept) {
-					final ItemStack availableStack = stack.copy();
+					ItemStack availableStack = stack.copy();
 					availableStack.setCount(stack.getCount() - amountToBeKept);
 					return availableStack;
 				}
@@ -220,8 +224,8 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 	}
 
 	@Override
-	public ItemStack decrStackSize(final int index, final int count) {
-		final ItemStack ret = !getDankNull().isEmpty() ? getInventory().decrStackSize(index, count) : ItemStack.EMPTY;
+	public ItemStack decrStackSize(int index, int count) {
+		ItemStack ret = !getDankNull().isEmpty() ? getInventory().decrStackSize(index, count) : ItemStack.EMPTY;
 		if (getInventory() != null) {
 			DankNullUtils.reArrangeStacks(getInventory());
 		}
@@ -230,14 +234,14 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 	}
 
 	@Override
-	public ItemStack removeStackFromSlot(final int index) {
+	public ItemStack removeStackFromSlot(int index) {
 		return ItemStack.EMPTY;
 	}
 
 	@Override
-	public void setInventorySlotContents(final int index, final ItemStack stack) {
+	public void setInventorySlotContents(int index, ItemStack stack) {
 		if (!getDankNull().isEmpty()) {
-			getInventory().setInventorySlotContents(index, stack);
+			getInventory().setInventorySlotContents(index, stack, this);
 			return;
 		}
 		if (getInventory() != null) {
@@ -252,30 +256,30 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 	}
 
 	@Override
-	public boolean isUsableByPlayer(final EntityPlayer player) {
+	public boolean isUsableByPlayer(EntityPlayer player) {
 		return true;
 	}
 
 	@Override
-	public void openInventory(final EntityPlayer player) {
+	public void openInventory(EntityPlayer player) {
 	}
 
 	@Override
-	public void closeInventory(final EntityPlayer player) {
+	public void closeInventory(EntityPlayer player) {
 	}
 
 	@Override
-	public boolean isItemValidForSlot(final int index, final ItemStack stack) {
+	public boolean isItemValidForSlot(int index, ItemStack stack) {
 		return getInventory() == null ? false : getInventory().isItemValidForSlot(index, stack);
 	}
 
 	@Override
-	public int getField(final int id) {
+	public int getField(int id) {
 		return 0;
 	}
 
 	@Override
-	public void setField(final int id, final int value) {
+	public void setField(int id, int value) {
 	}
 
 	@Override
@@ -298,9 +302,9 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 	}
 
 	@Override
-	public int[] getSlotsForFace(final EnumFacing side) {
+	public int[] getSlotsForFace(EnumFacing side) {
 		if (!getDankNull().isEmpty() && side == EnumFacing.DOWN) {
-			final int[] slots = new int[getSizeInventory()];
+			int[] slots = new int[getSizeInventory()];
 			for (int i = 0; i < slots.length; i++) {
 				slots[i] = i;
 			}
@@ -310,12 +314,12 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 	}
 
 	@Override
-	public boolean canInsertItem(final int index, final ItemStack itemStackIn, final EnumFacing direction) {
+	public boolean canInsertItem(int index, ItemStack itemStackIn, EnumFacing direction) {
 		return false;
 	}
 
 	@Override
-	public boolean canExtractItem(final int index, final ItemStack stack, final EnumFacing direction) {
+	public boolean canExtractItem(int index, ItemStack stack, EnumFacing direction) {
 		if (!getDankNull().isEmpty()) {
 			if (DankNullUtils.getExtractionModeForStack(getDankNull(), stack) != SlotExtractionMode.KEEP_ALL) {
 				return true;

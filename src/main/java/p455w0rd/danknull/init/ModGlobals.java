@@ -9,13 +9,13 @@ public class ModGlobals {
 	public static final String MODID_PWLIB = "p455w0rdslib";
 
 	public static final String MODID = "danknull";
-	public static final String VERSION = "1.4.46";
+	public static final String VERSION = "1.4.43";
 	public static final String NAME = "/dank/null";
 	public static final String SERVER_PROXY = "p455w0rd.danknull.proxy.CommonProxy";
 	public static final String CLIENT_PROXY = "p455w0rd.danknull.proxy.ClientProxy";
 	public static final String GUI_FACTORY = "p455w0rd.danknull.init.ModGuiFactory";
 	public static final String CONFIG_FILE = "config/DankNull.cfg";
-	public static final String DEPENDANCIES = "required-after:" + MODID_PWLIB + "@[2.0.35,);required-after:codechickenlib@[3.2.1.351,);after:stg;after:jei;after:waila;after:theoneprobe;after:nei";
+	public static final String DEPENDANCIES = "required-after:" + MODID_PWLIB + "@[2.1.40,);required-after:codechickenlib@[3.2.1.351,);after:stg;after:jei;after:waila;after:theoneprobe;after:nei";
 
 	public static boolean GUI_DANKNULL_ISOPEN = false;
 	public static float TIME = 0.0F;
@@ -36,21 +36,6 @@ public class ModGlobals {
 		public static EnumRarity getRarityFromMeta(final int meta) {
 			return meta >= ARRAY.length ? ARRAY[0] : ARRAY[meta];
 		}
-
-	}
-
-	public static class NBT {
-
-		public static final String SLOT_KEY = "Slot";
-		public static final String ITEMS_KEY = "Items";
-		public static final String DEMAGNETIZE_KEY = "PreventRemoteMovement";
-		public static final String EXTRACTION_MODES_KEY = "ExtractionModes";
-		public static final String PLACEMENT_MODES_KEY = "PlacementModes";
-		public static final String OREDICT_MODES_KEY = "OreDictModes";
-		public static final String LOCKED_KEY = "Locked";
-		public static final String SELECTEDINDEX_KEY = "selectedIndex";
-		public static final String STACK_KEY = "Stack";
-		public static final String MODE_KEY = "Mode";
 
 	}
 
