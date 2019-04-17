@@ -801,19 +801,19 @@ public class DankNullUtils {
     // Extraction Mode
     // ======
 
-    public static Map<ItemStack, SlotExtractionMode> getExtractionModes(ItemStack dankNull) {
-        Map<ItemStack, SlotExtractionMode> modes = Maps.<ItemStack, SlotExtractionMode>newHashMap();
+    public static Map<ItemStack, ItemExtractionMode> getExtractionModes(ItemStack dankNull) {
+        Map<ItemStack, ItemExtractionMode> modes = Maps.<ItemStack, ItemExtractionMode>newHashMap();
         if (dankNull.hasTagCompound() && dankNull.getTagCompound().hasKey(TAG_EXTRACTION_MODES, Constants.NBT.TAG_LIST)) {
             NBTTagList extractionList = dankNull.getTagCompound().getTagList(TAG_EXTRACTION_MODES, Constants.NBT.TAG_COMPOUND);
             for (int i = 0; i < extractionList.tagCount(); i++) {
                 NBTTagCompound tempNBT = extractionList.getCompoundTagAt(i);
-                modes.put(new ItemStack(tempNBT.getCompoundTag("Stack")), SlotExtractionMode.values()[tempNBT.getInteger("Mode")]);
+                modes.put(new ItemStack(tempNBT.getCompoundTag("Stack")), ItemExtractionMode.values()[tempNBT.getInteger("Mode")]);
             }
         }
         return modes;
     }
 
-    public static void setExtractionModes(ItemStack dankNull, Map<ItemStack, SlotExtractionMode> modes) {
+    public static void setExtractionModes(ItemStack dankNull, Map<ItemStack, ItemExtractionMode> modes) {
         if (modes.isEmpty()) {
             return;
         }
@@ -834,8 +834,8 @@ public class DankNullUtils {
         dankNullNBT.setTag(TAG_EXTRACTION_MODES, extractionList);
     }
 
-    public static SlotExtractionMode getExtractionModeForStack(ItemStack dankNull, ItemStack stack) {
-        Map<ItemStack, SlotExtractionMode> modes = getExtractionModes(dankNull);
+    public static ItemExtractionMode getExtractionModeForStack(ItemStack dankNull, ItemStack stack) {
+        Map<ItemStack, ItemExtractionMode> modes = getExtractionModes(dankNull);
         if (!modes.isEmpty()) {
             for (ItemStack currentStack : modes.keySet()) {
                 if (areStacksEqual(stack, currentStack)) {
@@ -843,15 +843,15 @@ public class DankNullUtils {
                 }
             }
         }
-        return SlotExtractionMode.KEEP_ALL;
+        return ItemExtractionMode.KEEP_ALL;
     }
 
-    public static void setExtractionModeForStack(ItemStack dankNull, ItemStack stack, SlotExtractionMode mode) {
+    public static void setExtractionModeForStack(ItemStack dankNull, ItemStack stack, ItemExtractionMode mode) {
         if (!dankNull.hasTagCompound()) {
             dankNull.setTagCompound(new NBTTagCompound());
         }
         boolean alreadyAdded = false;
-        Map<ItemStack, SlotExtractionMode> currentModes = getExtractionModes(dankNull);
+        Map<ItemStack, ItemExtractionMode> currentModes = getExtractionModes(dankNull);
         for (ItemStack currentStack : currentModes.keySet()) {
             if (areStacksEqual(stack, currentStack)) {
                 currentModes.put(currentStack, mode);
@@ -865,12 +865,12 @@ public class DankNullUtils {
     }
 
     public static void cycleExtractionMode(ItemStack dankNull, ItemStack stack) {
-        SlotExtractionMode current = getExtractionModeForStack(dankNull, stack);
-        if (current.ordinal() >= SlotExtractionMode.values().length - 1) {
-            setExtractionModeForStack(dankNull, stack, SlotExtractionMode.values()[0]);
+        ItemExtractionMode current = getExtractionModeForStack(dankNull, stack);
+        if (current.ordinal() >= ItemExtractionMode.values().length - 1) {
+            setExtractionModeForStack(dankNull, stack, ItemExtractionMode.values()[0]);
         }
         else {
-            setExtractionModeForStack(dankNull, stack, SlotExtractionMode.values()[current.ordinal() + 1]);
+            setExtractionModeForStack(dankNull, stack, ItemExtractionMode.values()[current.ordinal() + 1]);
         }
         if (FMLCommonHandler.instance().getSide().isClient()) {
             if (getExtractionModeForStack(dankNull, stack) == null) {
@@ -884,19 +884,19 @@ public class DankNullUtils {
     // Placement Mode
     // ======
 
-    public static Map<ItemStack, SlotExtractionMode> getPlacementModes(ItemStack dankNull) {
-        Map<ItemStack, SlotExtractionMode> modes = Maps.<ItemStack, SlotExtractionMode>newHashMap();
+    public static Map<ItemStack, ItemExtractionMode> getPlacementModes(ItemStack dankNull) {
+        Map<ItemStack, ItemExtractionMode> modes = Maps.<ItemStack, ItemExtractionMode>newHashMap();
         if (dankNull.hasTagCompound() && dankNull.getTagCompound().hasKey(TAG_PLACEMENT_MODES, Constants.NBT.TAG_LIST)) {
             NBTTagList extractionList = dankNull.getTagCompound().getTagList(TAG_PLACEMENT_MODES, Constants.NBT.TAG_COMPOUND);
             for (int i = 0; i < extractionList.tagCount(); i++) {
                 NBTTagCompound tempNBT = extractionList.getCompoundTagAt(i);
-                modes.put(new ItemStack(tempNBT.getCompoundTag("Stack")), SlotExtractionMode.values()[tempNBT.getInteger("Mode")]);
+                modes.put(new ItemStack(tempNBT.getCompoundTag("Stack")), ItemExtractionMode.values()[tempNBT.getInteger("Mode")]);
             }
         }
         return modes;
     }
 
-    public static void setPlacementModes(ItemStack dankNull, Map<ItemStack, SlotExtractionMode> modes) {
+    public static void setPlacementModes(ItemStack dankNull, Map<ItemStack, ItemExtractionMode> modes) {
         if (modes.isEmpty()) {
             return;
         }
@@ -917,8 +917,8 @@ public class DankNullUtils {
         dankNullNBT.setTag(TAG_PLACEMENT_MODES, extractionList);
     }
 
-    public static SlotExtractionMode getPlacementModeForStack(ItemStack dankNull, ItemStack stack) {
-        Map<ItemStack, SlotExtractionMode> modes = getPlacementModes(dankNull);
+    public static ItemExtractionMode getPlacementModeForStack(ItemStack dankNull, ItemStack stack) {
+        Map<ItemStack, ItemExtractionMode> modes = getPlacementModes(dankNull);
         if (!modes.isEmpty()) {
             for (ItemStack currentStack : modes.keySet()) {
                 if (areStacksEqual(stack, currentStack)) {
@@ -926,15 +926,15 @@ public class DankNullUtils {
                 }
             }
         }
-        return SlotExtractionMode.KEEP_1;
+        return ItemExtractionMode.KEEP_1;
     }
 
-    public static void setPlacementModeForStack(ItemStack dankNull, ItemStack stack, SlotExtractionMode mode) {
+    public static void setPlacementModeForStack(ItemStack dankNull, ItemStack stack, ItemExtractionMode mode) {
         if (!dankNull.hasTagCompound()) {
             dankNull.setTagCompound(new NBTTagCompound());
         }
         boolean alreadyAdded = false;
-        Map<ItemStack, SlotExtractionMode> currentModes = getPlacementModes(dankNull);
+        Map<ItemStack, ItemExtractionMode> currentModes = getPlacementModes(dankNull);
         for (ItemStack currentStack : currentModes.keySet()) {
             if (areStacksEqual(stack, currentStack)) {
                 currentModes.put(currentStack, mode);
@@ -948,12 +948,12 @@ public class DankNullUtils {
     }
 
     public static void cyclePlacementMode(ItemStack dankNull, ItemStack stack) {
-        SlotExtractionMode current = getPlacementModeForStack(dankNull, stack);
-        if (current.ordinal() >= SlotExtractionMode.values().length - 1) {
-            setPlacementModeForStack(dankNull, stack, SlotExtractionMode.values()[0]);
+        ItemExtractionMode current = getPlacementModeForStack(dankNull, stack);
+        if (current.ordinal() >= ItemExtractionMode.values().length - 1) {
+            setPlacementModeForStack(dankNull, stack, ItemExtractionMode.values()[0]);
         }
         else {
-            setPlacementModeForStack(dankNull, stack, SlotExtractionMode.values()[current.ordinal() + 1]);
+            setPlacementModeForStack(dankNull, stack, ItemExtractionMode.values()[current.ordinal() + 1]);
         }
         if (FMLCommonHandler.instance().getSide().isClient()) {
             if (getPlacementModeForStack(dankNull, stack) == null) {
@@ -988,7 +988,7 @@ public class DankNullUtils {
                 if (itemNameWidth >= 88) {
                     selectedStackName = selectedStackName.substring(0, 14).trim() + "...";
                 }
-                SlotExtractionMode placementMode = DankNullUtils.getPlacementModeForStack(currentItem, selectedStack);
+                ItemExtractionMode placementMode = DankNullUtils.getPlacementModeForStack(currentItem, selectedStack);
                 mc.fontRenderer.drawStringWithShadow(translate("dn.selected_item.desc") + ": " + selectedStackName, ((scaledRes.getScaledWidth() * 2) - 212) + 45, (scaledRes.getScaledHeight() * 2) - 72, 16777215);
                 mc.fontRenderer.drawStringWithShadow(translate("dn.count.desc") + ": " + (isCreativeDankNull(currentItem) ? "Infinite" : selectedStack.getCount()), ((scaledRes.getScaledWidth() * 2) - 212) + 45, (scaledRes.getScaledHeight() * 2) - 61, 16777215);
                 mc.fontRenderer.drawStringWithShadow(translate("dn.place.desc") + ": " + placementMode.getTooltip().replace(DankNullUtils.translate("dn.extract.desc").toLowerCase(Locale.ENGLISH), DankNullUtils.translate("dn.place.desc").toLowerCase(Locale.ENGLISH)).replace(DankNullUtils.translate("dn.extract.desc"), DankNullUtils.translate("dn.place.desc")), ((scaledRes.getScaledWidth() * 2) - 212) + 45, (scaledRes.getScaledHeight() * 2) - 50, 16777215);
@@ -1051,7 +1051,7 @@ public class DankNullUtils {
         ModNetworking.getInstance().sendTo(new PacketConfigSync(map), player);
     }
 
-    public static enum SlotExtractionMode {
+    public static enum ItemExtractionMode {
 
         KEEP_ALL(Integer.MAX_VALUE, DankNullUtils.translate("dn.not_extract.desc")),
         KEEP_1(1, DankNullUtils.translate("dn.extract_all_but.desc") + " 1"),
@@ -1062,7 +1062,7 @@ public class DankNullUtils {
         int number = 0;
         String msg;
 
-        SlotExtractionMode(int numberToKeep, String message) {
+        ItemExtractionMode(int numberToKeep, String message) {
             number = numberToKeep;
             msg = message;
         }

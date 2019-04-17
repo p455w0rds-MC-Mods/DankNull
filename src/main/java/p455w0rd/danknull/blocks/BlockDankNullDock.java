@@ -1,14 +1,16 @@
 package p455w0rd.danknull.blocks;
 
-import codechicken.lib.model.ModelRegistryHelper;
+import static net.minecraft.util.EnumHand.MAIN_HAND;
+
+import javax.annotation.Nullable;
+
 import com.google.common.collect.Maps;
+
+import codechicken.lib.model.ModelRegistryHelper;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.block.model.BuiltInModel;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
-import net.minecraft.client.renderer.block.model.ItemOverrideList;
-import net.minecraft.client.renderer.block.model.ModelResourceLocation;
+import net.minecraft.client.renderer.block.model.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.Item;
@@ -16,12 +18,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.stats.StatList;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.EnumFacing;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.math.AxisAlignedBB;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.RayTraceResult;
+import net.minecraft.util.*;
+import net.minecraft.util.math.*;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelLoader;
@@ -37,10 +35,6 @@ import p455w0rd.danknull.init.ModNetworking;
 import p455w0rd.danknull.inventory.PlayerSlot;
 import p455w0rd.danknull.network.PacketSetDankNullInDock;
 import p455w0rd.danknull.util.DankNullUtils;
-
-import javax.annotation.Nullable;
-
-import static net.minecraft.util.EnumHand.MAIN_HAND;
 
 /**
  * @author p455w0rd
@@ -58,37 +52,37 @@ public class BlockDankNullDock extends BlockContainerBase {
 	}
 
 	@Override
-	public AxisAlignedBB getCollisionBoundingBox(IBlockState blockState, IBlockAccess worldIn, BlockPos pos) {
+	public AxisAlignedBB getCollisionBoundingBox(final IBlockState blockState, final IBlockAccess worldIn, final BlockPos pos) {
 		return isEmpty(worldIn, pos) ? new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 3 * 0.0625D, 1.0D) : new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 12 * 0.0625D, 1.0D);
 	}
 
 	@Override
-	public AxisAlignedBB getBoundingBox(IBlockState state, IBlockAccess source, BlockPos pos) {
+	public AxisAlignedBB getBoundingBox(final IBlockState state, final IBlockAccess source, final BlockPos pos) {
 		return isEmpty(source, pos) ? new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 3 * 0.0625D, 1.0D) : new AxisAlignedBB(0.0D, 0.0D, 0.0D, 1.0D, 12 * 0.0625D, 1.0D);
 	}
 
 	@Override
-	public boolean isPassable(IBlockAccess worldIn, BlockPos pos) {
+	public boolean isPassable(final IBlockAccess worldIn, final BlockPos pos) {
 		return true;
 	}
 
 	@Override
-	public boolean doesSideBlockRendering(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing face) {
+	public boolean doesSideBlockRendering(final IBlockState state, final IBlockAccess world, final BlockPos pos, final EnumFacing face) {
 		return false;
 	}
 
 	@Override
-	public boolean isFullCube(IBlockState state) {
+	public boolean isFullCube(final IBlockState state) {
 		return false;
 	}
 
 	@Override
-	public boolean canConnectRedstone(IBlockState state, IBlockAccess world, BlockPos pos, EnumFacing side) {
+	public boolean canConnectRedstone(final IBlockState state, final IBlockAccess world, final BlockPos pos, final EnumFacing side) {
 		return true;
 	}
 
 	@Override
-	public TileEntity createNewTileEntity(World worldIn, int meta) {
+	public TileEntity createNewTileEntity(final World worldIn, final int meta) {
 		return new TileDankNullDock();
 	}
 
@@ -101,7 +95,7 @@ public class BlockDankNullDock extends BlockContainerBase {
 	}
 
 	@SideOnly(Side.CLIENT)
-	public static void setParticleTexture(Block block) {
+	public static void setParticleTexture(final Block block) {
 		final ModelResourceLocation modelLoc = new ModelResourceLocation(block.getRegistryName(), "particle");
 		ModelRegistryHelper.register(modelLoc, new BuiltInModel(ItemCameraTransforms.DEFAULT, ItemOverrideList.NONE) {
 			@Override
@@ -112,33 +106,33 @@ public class BlockDankNullDock extends BlockContainerBase {
 		ModelLoader.setCustomStateMapper(block, blockIn -> Maps.toMap(blockIn.getBlockState().getValidStates(), input -> modelLoc));
 	}
 
-	private TileDankNullDock getTE(IBlockAccess worldIn, BlockPos pos) {
+	private TileDankNullDock getTE(final IBlockAccess worldIn, final BlockPos pos) {
 		if (worldIn.getTileEntity(pos) != null && worldIn.getTileEntity(pos) instanceof TileDankNullDock) {
 			return (TileDankNullDock) worldIn.getTileEntity(pos);
 		}
 		return null;
 	}
 
-	private boolean isEmpty(IBlockAccess world, BlockPos pos) {
+	private boolean isEmpty(final IBlockAccess world, final BlockPos pos) {
 		return getTE(world, pos) != null && getTE(world, pos).getDankNull().isEmpty();
 	}
 
 	@Override
-	public boolean onBlockActivated(World world, BlockPos pos, IBlockState state, EntityPlayer player, EnumHand hand, EnumFacing facing, float hitX, float hitY, float hitZ) {
+	public boolean onBlockActivated(final World world, final BlockPos pos, final IBlockState state, final EntityPlayer player, final EnumHand hand, final EnumFacing facing, final float hitX, final float hitY, final float hitZ) {
 		if (world.isRemote) {
 			return false;
 		}
 		if (player.getServer().isBlockProtected(world, pos, player)) {
 			return false;
 		}
-		TileDankNullDock dankDock = getTE(world, pos);
+		final TileDankNullDock dankDock = getTE(world, pos);
 		if (dankDock != null) {
-			PlayerSlot slot = PlayerSlot.getHand(player, hand);
-			ItemStack stack = slot.getStackInSlot(player);
+			final PlayerSlot slot = PlayerSlot.getHand(player, hand);
+			final ItemStack stack = slot.getStackInSlot(player);
 
 			if (DankNullUtils.isDankNull(stack)) {
 				//dankDock.setDankNull(dankNull);
-				dankDock.setInventory(DankNullUtils.getNewDankNullInventory(slot, player));
+				dankDock.setInventory(DankNullUtils.getNewDankNullInventory(stack));
 				//if (!player.capabilities.isCreativeMode || (player.capabilities.isCreativeMode && !player.isSneaking())) {
 				player.setHeldItem(hand, ItemStack.EMPTY);
 				//}
@@ -161,21 +155,21 @@ public class BlockDankNullDock extends BlockContainerBase {
 	}
 
 	@Override
-	public ItemStack getPickBlock(IBlockState state, RayTraceResult target, World world, BlockPos pos, EntityPlayer player) {
+	public ItemStack getPickBlock(final IBlockState state, final RayTraceResult target, final World world, final BlockPos pos, final EntityPlayer player) {
 		return getItemBlockWithNBT(world.getTileEntity(pos));
 	}
 
 	@Override
-	public void harvestBlock(World worldIn, EntityPlayer player, BlockPos pos, IBlockState state, @Nullable TileEntity te, @Nullable ItemStack stack) {
+	public void harvestBlock(final World worldIn, final EntityPlayer player, final BlockPos pos, final IBlockState state, @Nullable final TileEntity te, @Nullable ItemStack stack) {
 		player.addStat(StatList.getBlockStats(this));
 		player.addExhaustion(0.025F);
 		stack = getItemBlockWithNBT(te);
 		spawnAsEntity(worldIn, pos, stack);
 	}
 
-	private ItemStack getItemBlockWithNBT(@Nullable TileEntity te) {
-		ItemStack stack = new ItemStack(this);
-		NBTTagCompound nbttagcompound = new NBTTagCompound();
+	private ItemStack getItemBlockWithNBT(@Nullable final TileEntity te) {
+		final ItemStack stack = new ItemStack(this);
+		final NBTTagCompound nbttagcompound = new NBTTagCompound();
 		if (te != null) {
 			te.writeToNBT(nbttagcompound);
 			stack.setTagInfo("BlockEntityTag", nbttagcompound);

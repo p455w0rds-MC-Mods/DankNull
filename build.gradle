@@ -21,10 +21,10 @@ archivesBaseName = "DankNull"
 sourceCompatibility = targetCompatibility = "1.8"
 
 minecraft {
-    version = "1.12.2-14.23.4.2760"
+    version = "1.12.2-14.23.5.2836"
 	mappings = "snapshot_20171003"
 	runDir = "run"
-	useDepAts = true
+	//useDepAts = true
 }
 
 repositories {
@@ -46,6 +46,10 @@ repositories {
 		url = "http://maven.tterrag.com"
 	}
 	maven {
+		name = "tterrag2"
+		url = "http://maven2.tterrag.com"
+	}
+	maven {
 		name = "tehnut"
 		url = "http://tehnut.info/maven"
 	}
@@ -57,25 +61,40 @@ repositories {
 		name = "LatvianModder"
 		url = "https://maven.latmod.com"
 	}
+	maven {
+		name = "Curse"
+		url = "https://minecraft.curseforge.com/api/maven/"
+	}
 }
 
 dependencies {
-	deobfCompile "mezz.jei:jei_1.12.2:+"
-	deobfCompile "codechicken:CodeChickenLib:1.12.2-3.2.1.351:universal"
-	deobfCompile "codechicken:NotEnoughItems:1.12.2-2.4.1.238:universal"
-	deobfCompile "cofh:RedstoneFlux:1.12-2.0.2.4:universal"
-	deobfCompile "cofh:ThermalDynamics:1.12.2-2+:universal"
-	deobfCompile "cofh:ThermalFoundation:1.12.2-2+:universal"
-	deobfCompile "cofh:ThermalExpansion:1.12.2-5+:universal"
-	deobfCompile "cofh:CoFHCore:1.12.2-4+:universal"
-	deobfCompile "cofh:CoFHWorld:1.12.2-1+:universal"
+	deobfCompile "mezz.jei:jei_1.12.2:4.14.3.238"
+	compile "mezz.jei:jei_1.12.2:4.14.3.238"
+	runtime "mezz.jei:jei_1.12.2:4.14.3.238"
+	deobfCompile "codechicken:CodeChickenLib:1.12.2-3.2.2.353:universal"
+	compile "codechicken:CodeChickenLib:1.12.2-3.2.2.353:universal"
+	deobfCompile "codechicken:NotEnoughItems:1.12.2-2.4.2.240:universal"
+	deobfCompile "cofh:RedstoneFlux:1.12-2.1.0.6:universal"
+	deobfCompile "cofh:ThermalDynamics:1.12.2-2.5.4.18:universal"
+	deobfCompile "cofh:ThermalFoundation:1.12.2-2.6.2.26:universal"
+	deobfCompile "cofh:ThermalExpansion:1.12.2-5.5.3.41:universal"
+	deobfCompile "cofh:CoFHCore:1.12.2-4.6.2.25:universal"
+	deobfCompile "cofh:CoFHWorld:1.12.2-1.3.0.6:universal"
 	deobfCompile "mcjty.theoneprobe:TheOneProbe-1.12:1.12-1.4.23-16"
 	deobfCompile "mcp.mobius.waila:Hwyla:1.8.26-B41_1.12.2"
 	deobfCompile "team.chisel:Chisel:MC1.12.2-0.2.1.34"
-	deobfCompile "team.chisel.ctm:CTM:MC1.12.2-0.3.2.18"
+	deobfCompile "team.chisel.ctm:CTM:MC1.12.2-0.3.3.22"
 	deobfCompile "com.feed_the_beast.mods:FTBLib:5+"
 	deobfCompile "com.feed_the_beast.mods:FTBUtilities:5+"
-	deobfCompile "com.enderio.core:EnderCore:1.12.2-0.5.37"
+	deobfCompile "info.loenwind.autoconfig:AutoConfig:1.12.2-1.0.1"
+	deobfCompile "info.loenwind.autosave:AutoSave:1.12.2-1.0.8"
+	deobfCompile "com.enderio.core:EnderCore:1.12.2-0.5.44"
+	deobfCompile ("com.enderio:EnderIO:1.12.2-5.0.39") {
+		transitive = false
+	}
+	deobfCompile "p455w0rd:p455w0rdslib:1.12.2-2.1.44"
+	deobfCompile "mouse-tweaks:MouseTweaks:2.10:mc1.12.2"
+	deobfCompile "item-scroller:itemscroller-rift:1.13.2:0.14.2"
 }
 
 processResources {

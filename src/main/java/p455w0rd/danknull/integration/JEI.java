@@ -1,42 +1,36 @@
 package p455w0rd.danknull.integration;
 
+import java.util.*;
+
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
 import mezz.jei.JustEnoughItems;
 import mezz.jei.api.*;
-import mezz.jei.api.gui.IGuiIngredient;
-import mezz.jei.api.gui.IGuiItemStackGroup;
-import mezz.jei.api.gui.IRecipeLayout;
+import mezz.jei.api.gui.*;
 import mezz.jei.api.ingredients.IIngredientBlacklist;
 import mezz.jei.api.ingredients.IModIngredientRegistration;
 import mezz.jei.api.recipe.IRecipeCategoryRegistration;
 import mezz.jei.api.recipe.VanillaRecipeCategoryUid;
-import mezz.jei.api.recipe.transfer.IRecipeTransferError;
-import mezz.jei.api.recipe.transfer.IRecipeTransferHandler;
-import mezz.jei.api.recipe.transfer.IRecipeTransferHandlerHelper;
+import mezz.jei.api.recipe.transfer.*;
 import mezz.jei.config.ServerInfo;
 import mezz.jei.startup.StackHelper;
-import mezz.jei.util.Log;
-import mezz.jei.util.Translator;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.inventory.Container;
-import net.minecraft.inventory.ContainerWorkbench;
-import net.minecraft.inventory.Slot;
+import net.minecraft.inventory.*;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.text.translation.I18n;
 import p455w0rd.danknull.container.ContainerDankNull;
-import p455w0rd.danknull.init.ModBlocks;
+import p455w0rd.danknull.init.*;
 import p455w0rd.danknull.init.ModIntegration.Mods;
-import p455w0rd.danknull.init.ModItems;
 import p455w0rd.danknull.integration.jei.DankNullUpgradeWrapper;
 import p455w0rd.danknull.integration.jei.PacketVanllaRecipeTransfer;
 import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rd.danknull.inventory.PlayerSlot;
 import p455w0rd.danknull.recipes.RecipeDankNullUpgrade;
 import p455w0rd.danknull.util.DankNullUtils;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-import java.util.*;
 
 /**
  * @author p455w0rd
@@ -48,12 +42,12 @@ public class JEI implements IModPlugin {
 	public static IIngredientBlacklist blacklist;
 
 	@Override
-	public void register(@Nonnull IModRegistry registry) {
+	public void register(@Nonnull final IModRegistry registry) {
 		blacklist = registry.getJeiHelpers().getIngredientBlacklist();
 
 		//blacklistItem(new ItemStack(ModItems.DANK_NULL_HOLDER, 1, OreDictionary.WILDCARD_VALUE));
 
-		List<ItemStack> dankNulls = new ArrayList<ItemStack>();
+		final List<ItemStack> dankNulls = new ArrayList<>();
 		dankNulls.addAll(Arrays.asList(new ItemStack(ModItems.DANK_NULL, 1, 0), new ItemStack(ModItems.DANK_NULL, 1, 1), new ItemStack(ModItems.DANK_NULL, 1, 2), new ItemStack(ModItems.DANK_NULL, 1, 3), new ItemStack(ModItems.DANK_NULL, 1, 4), new ItemStack(ModItems.DANK_NULL, 1, 5)));
 		registry.addIngredientInfo(dankNulls, ItemStack.class, "jei.danknull.desc");
 		registry.addIngredientInfo(new ItemStack(ModItems.DANK_NULL, 1, 0), ItemStack.class, "jei.danknull.desc0");
@@ -92,41 +86,41 @@ public class JEI implements IModPlugin {
 	}
 
 	@Override
-	public void onRuntimeAvailable(IJeiRuntime runtime) {
+	public void onRuntimeAvailable(final IJeiRuntime runtime) {
 	}
 
 	@Override
-	public void registerIngredients(IModIngredientRegistration registry) {
+	public void registerIngredients(final IModIngredientRegistration registry) {
 	}
 
 	@Override
-	public void registerItemSubtypes(ISubtypeRegistry registry) {
+	public void registerItemSubtypes(final ISubtypeRegistry registry) {
 	}
 
 	@Override
-	public void registerCategories(IRecipeCategoryRegistration registry) {
+	public void registerCategories(final IRecipeCategoryRegistration registry) {
 	}
 
-	public static void blacklistItem(ItemStack stack) {
+	public static void blacklistItem(final ItemStack stack) {
 		if (Mods.JEI.isLoaded() && blacklist != null && !isItemBlacklisted(stack)) {
 			blacklist.addIngredientToBlacklist(stack);
 		}
 	}
 
-	public static boolean isItemBlacklisted(ItemStack stack) {
+	public static boolean isItemBlacklisted(final ItemStack stack) {
 		if (Mods.JEI.isLoaded()) {
 			return blacklist.isIngredientBlacklisted(stack);
 		}
 		return false;
 	}
 
-	public static void whitelistItem(ItemStack stack) {
+	public static void whitelistItem(final ItemStack stack) {
 		if (Mods.JEI.isLoaded() && isItemBlacklisted(stack)) {
 			blacklist.removeIngredientFromBlacklist(stack);
 		}
 	}
 
-	public static void handleItemBlacklisting(ItemStack stack, boolean shouldBlacklist) {
+	public static void handleItemBlacklisting(final ItemStack stack, final boolean shouldBlacklist) {
 		if (shouldBlacklist) {
 			if (!isItemBlacklisted(stack)) {
 				blacklistItem(stack);
@@ -143,7 +137,7 @@ public class JEI implements IModPlugin {
 		private final StackHelper stackHelper;
 		private final IRecipeTransferHandlerHelper handlerHelper;
 
-		public VanillaRecipeTransferHandler(StackHelper stackHelper, IRecipeTransferHandlerHelper handlerHelper) {
+		public VanillaRecipeTransferHandler(final StackHelper stackHelper, final IRecipeTransferHandlerHelper handlerHelper) {
 			this.stackHelper = stackHelper;
 			this.handlerHelper = handlerHelper;
 		}
@@ -154,51 +148,51 @@ public class JEI implements IModPlugin {
 		}
 
 		@Override
-		public IRecipeTransferError transferRecipe(ContainerWorkbench container, IRecipeLayout recipeLayout, EntityPlayer player, boolean maxTransfer, boolean doTransfer) {
+		public IRecipeTransferError transferRecipe(final ContainerWorkbench container, final IRecipeLayout recipeLayout, final EntityPlayer player, final boolean maxTransfer, final boolean doTransfer) {
 			if (!ServerInfo.isJeiOnServer()) {
-				String tooltipMessage = Translator.translateToLocal("jei.tooltip.error.recipe.transfer.no.server");
+				final String tooltipMessage = I18n.translateToLocal("jei.tooltip.error.recipe.transfer.no.server");
 				return handlerHelper.createUserErrorWithTooltip(tooltipMessage);
 			}
 
-			List<ItemStack> dankNullStacks = Lists.newArrayList();
+			final List<ItemStack> dankNullStacks = Lists.newArrayList();
 
-			Map<Integer, Slot> inventorySlots = new HashMap<>();
+			final Map<Integer, Slot> inventorySlots = new HashMap<>();
 			for (int i = 10; i < 46; i++) {
-				Slot slot = container.getSlot(i);
+				final Slot slot = container.getSlot(i);
 				inventorySlots.put(slot.slotNumber, slot);
 				if (slot.getHasStack() && DankNullUtils.isDankNull(slot.getStack())) {
 					dankNullStacks.add(slot.getStack());
 				}
 			}
 
-			Map<Integer, Slot> craftingSlots = new HashMap<>();
+			final Map<Integer, Slot> craftingSlots = new HashMap<>();
 			for (int i = 1; i < 10; i++) {
-				Slot slot = container.getSlot(i);
+				final Slot slot = container.getSlot(i);
 				craftingSlots.put(slot.slotNumber, slot);
 			}
 
 			int inputCount = 0;
-			IGuiItemStackGroup itemStackGroup = recipeLayout.getItemStacks();
-			for (IGuiIngredient<ItemStack> ingredient : itemStackGroup.getGuiIngredients().values()) {
+			final IGuiItemStackGroup itemStackGroup = recipeLayout.getItemStacks();
+			for (final IGuiIngredient<ItemStack> ingredient : itemStackGroup.getGuiIngredients().values()) {
 				if (ingredient.isInput() && !ingredient.getAllIngredients().isEmpty()) {
 					inputCount++;
 				}
 			}
 
 			if (inputCount > craftingSlots.size()) {
-				Log.get().error("Error transferring recipe for container {}", container.getClass());
+				ModLogger.error(String.format("Error transferring recipe for container {}", container.getClass()));
 				return handlerHelper.createInternalError();
 			}
 
-			Map<Integer, ItemStack> availableItemStacks = new HashMap<>();
+			final Map<Integer, ItemStack> availableItemStacks = new HashMap<>();
 			int filledCraftSlotCount = 0;
 			int emptySlotCount = 0;
 
-			for (Slot slot : craftingSlots.values()) {
+			for (final Slot slot : craftingSlots.values()) {
 				final ItemStack stack = slot.getStack();
 				if (!stack.isEmpty()) {
 					if (!slot.canTakeStack(player)) {
-						Log.get().error("Error transferring recipe for container {}. Player can't move item out of Crafting Slot number {}", container.getClass(), slot.slotNumber);
+						ModLogger.error(String.format("Error transferring recipe for container {}. Player can't move item out of Crafting Slot number {}", container.getClass(), slot.slotNumber));
 						return handlerHelper.createInternalError();
 					}
 					filledCraftSlotCount++;
@@ -206,7 +200,7 @@ public class JEI implements IModPlugin {
 				}
 			}
 
-			for (Slot slot : inventorySlots.values()) {
+			for (final Slot slot : inventorySlots.values()) {
 				final ItemStack stack = slot.getStack();
 				if (!stack.isEmpty()) {
 					availableItemStacks.put(slot.slotNumber, stack.copy());
@@ -218,23 +212,23 @@ public class JEI implements IModPlugin {
 
 			// check if we have enough inventory space to shuffle items around to their final locations
 			if (filledCraftSlotCount - inputCount > emptySlotCount) {
-				String message = Translator.translateToLocal("jei.tooltip.error.recipe.transfer.inventory.full");
+				final String message = I18n.translateToLocal("jei.tooltip.error.recipe.transfer.inventory.full");
 				return handlerHelper.createUserErrorWithTooltip(message);
 			}
 
-			StackHelper.MatchingItemsResult matchingItemsResult = stackHelper.getMatchingItems(availableItemStacks, itemStackGroup.getGuiIngredients());
+			final StackHelper.MatchingItemsResult matchingItemsResult = stackHelper.getMatchingItems(availableItemStacks, itemStackGroup.getGuiIngredients());
 
-			Map<Integer, ItemStack> recipe = Maps.newHashMap();
+			final Map<Integer, ItemStack> recipe = Maps.newHashMap();
 			for (int i = 1; i < itemStackGroup.getGuiIngredients().size(); i++) {
-				int slotNum = (int) itemStackGroup.getGuiIngredients().keySet().toArray()[i];
+				final int slotNum = (int) itemStackGroup.getGuiIngredients().keySet().toArray()[i];
 				recipe.put(slotNum, itemStackGroup.getGuiIngredients().get(slotNum).getDisplayedIngredient());
 			}
 			int matchingDankNulls = 0;
-			for (IGuiIngredient<ItemStack> ingredient : itemStackGroup.getGuiIngredients().values()) {
+			for (final IGuiIngredient<ItemStack> ingredient : itemStackGroup.getGuiIngredients().values()) {
 				if (ingredient.getDisplayedIngredient() == null || ingredient.getDisplayedIngredient().isEmpty()) {
 					continue;
 				}
-				for (ItemStack dankNull : dankNullStacks) {
+				for (final ItemStack dankNull : dankNullStacks) {
 					if (DankNullUtils.isFilteredOreDict(DankNullUtils.getNewDankNullInventory(dankNull), ingredient.getDisplayedIngredient())) {
 						matchingDankNulls++;
 					}
@@ -242,42 +236,42 @@ public class JEI implements IModPlugin {
 			}
 			boolean foundInDankNull = false;
 			if (matchingItemsResult.missingItems.size() > 0 || matchingDankNulls > 0) {
-				for (IGuiIngredient<ItemStack> filteredIngredient : itemStackGroup.getGuiIngredients().values()) {
-					ItemStack filteredStack = filteredIngredient.getDisplayedIngredient();
+				for (final IGuiIngredient<ItemStack> filteredIngredient : itemStackGroup.getGuiIngredients().values()) {
+					final ItemStack filteredStack = filteredIngredient.getDisplayedIngredient();
 					if (filteredStack == null || filteredStack.isEmpty()) {
 						continue;
 					}
-					for (ItemStack dankNull : dankNullStacks) {
+					for (final ItemStack dankNull : dankNullStacks) {
 						if (DankNullUtils.isFilteredOreDict(DankNullUtils.getNewDankNullInventory(dankNull), filteredStack)) {
 							foundInDankNull = true;
 						}
 					}
 				}
 				if (!foundInDankNull) {
-					String message = Translator.translateToLocal("jei.tooltip.error.recipe.transfer.missing");
+					final String message = I18n.translateToLocal("jei.tooltip.error.recipe.transfer.missing");
 					return handlerHelper.createUserErrorForSlots(message, matchingItemsResult.missingItems);
 				}
 			}
 
-			List<Integer> craftingSlotIndexes = new ArrayList<>(craftingSlots.keySet());
+			final List<Integer> craftingSlotIndexes = new ArrayList<>(craftingSlots.keySet());
 			Collections.sort(craftingSlotIndexes);
 
-			List<Integer> inventorySlotIndexes = new ArrayList<>(inventorySlots.keySet());
+			final List<Integer> inventorySlotIndexes = new ArrayList<>(inventorySlots.keySet());
 			Collections.sort(inventorySlotIndexes);
 
 			// check that the slots exist and can be altered
-			for (Map.Entry<Integer, Integer> entry : matchingItemsResult.matchingItems.entrySet()) {
-				int craftNumber = entry.getKey();
-				int slotNumber = craftingSlotIndexes.get(craftNumber);
+			for (final Map.Entry<Integer, Integer> entry : matchingItemsResult.matchingItems.entrySet()) {
+				final int craftNumber = entry.getKey();
+				final int slotNumber = craftingSlotIndexes.get(craftNumber);
 				if (slotNumber < 0 || slotNumber >= container.inventorySlots.size()) {
-					Log.get().error("Slot {} outside of the inventory's size {}", slotNumber, container.inventorySlots.size());
+					ModLogger.error(String.format("Slot {} outside of the inventory's size {}", slotNumber, container.inventorySlots.size()));
 					return handlerHelper.createInternalError();
 				}
 			}
 
 			if (doTransfer) {
 				//PacketVanllaRecipeTransfer packet = new PacketVanllaRecipeTransfer(recipe, craftingSlotIndexes, inventorySlotIndexes, maxTransfer);
-				PacketVanllaRecipeTransfer packet = new PacketVanllaRecipeTransfer(recipe, maxTransfer);
+				final PacketVanllaRecipeTransfer packet = new PacketVanllaRecipeTransfer(recipe, maxTransfer);
 				JustEnoughItems.getProxy().sendPacketToServer(packet);
 			}
 
@@ -288,20 +282,20 @@ public class JEI implements IModPlugin {
 
 	public static final class VanillaRecipeTransferHandlerServer {
 
-		public static void setItems(EntityPlayer player, Map<Integer, ItemStack> slotIdMap, List<Integer> craftingSlots, List<Integer> inventorySlots, boolean maxTransfer) {
-			Container container = player.openContainer;
+		public static void setItems(final EntityPlayer player, final Map<Integer, ItemStack> slotIdMap, final List<Integer> craftingSlots, final List<Integer> inventorySlots, final boolean maxTransfer) {
+			final Container container = player.openContainer;
 
 			// grab items from slots
-			Map<Integer, ItemStack> slotMap = new HashMap<>(slotIdMap.size());
-			Map<ItemStack, Integer> slotMapReverse = new HashMap<>(slotIdMap.size());
+			final Map<Integer, ItemStack> slotMap = new HashMap<>(slotIdMap.size());
+			final Map<ItemStack, Integer> slotMapReverse = new HashMap<>(slotIdMap.size());
 
-			for (Map.Entry<Integer, ItemStack> entry : slotIdMap.entrySet()) {
-				Slot slot = container.getSlot(entry.getKey());
+			for (final Map.Entry<Integer, ItemStack> entry : slotIdMap.entrySet()) {
+				final Slot slot = container.getSlot(entry.getKey());
 				final ItemStack slotStack = slot.getStack();
 				if (slotStack.isEmpty()) {
 					continue;
 				}
-				ItemStack stack = slotStack.copy();
+				final ItemStack stack = slotStack.copy();
 				stack.setCount(1);
 
 				slotMap.put(entry.getKey(), stack);
@@ -309,13 +303,13 @@ public class JEI implements IModPlugin {
 			}
 
 			int maxRemovedSets = maxTransfer ? 64 : 1;
-			for (Map.Entry<Integer, ItemStack> entry : slotMap.entrySet()) {
-				ItemStack stack = entry.getValue();
+			for (final Map.Entry<Integer, ItemStack> entry : slotMap.entrySet()) {
+				final ItemStack stack = entry.getValue();
 				if (stack.isStackable()) {
-					Integer craftNumber = entry.getKey();
-					Integer slotNumber = craftingSlots.get(craftNumber);
-					Slot craftSlot = container.getSlot(slotNumber);
-					int maxStackSize = Math.min(craftSlot.getItemStackLimit(stack), stack.getMaxStackSize());
+					final Integer craftNumber = entry.getKey();
+					final Integer slotNumber = craftingSlots.get(craftNumber);
+					final Slot craftSlot = container.getSlot(slotNumber);
+					final int maxStackSize = Math.min(craftSlot.getItemStackLimit(stack), stack.getMaxStackSize());
 					maxRemovedSets = Math.min(maxRemovedSets, maxStackSize);
 				}
 				else {
@@ -325,8 +319,8 @@ public class JEI implements IModPlugin {
 
 			boolean needsDankNull = false;
 			if (slotMap.isEmpty()) {
-				List<PlayerSlot> dankNulls = DankNullUtils.getAllDankNulls(player);
-				for (PlayerSlot slot : dankNulls) {
+				final List<PlayerSlot> dankNulls = DankNullUtils.getAllDankNulls(player);
+				for (final PlayerSlot slot : dankNulls) {
 					needsDankNull = true;
 					maxRemovedSets++;
 				}
@@ -339,7 +333,7 @@ public class JEI implements IModPlugin {
 			// remove required recipe items
 			/*
 			int removedSets = removeSetsFromInventory(container, slotIdMap.values(), craftingSlots, inventorySlots, maxRemovedSets);
-			
+
 			if (removedSets == 0) {
 				return;
 			}
@@ -349,22 +343,22 @@ public class JEI implements IModPlugin {
 			}
 
 			// clear the crafting grid
-			List<ItemStack> clearedCraftingItems = new ArrayList<>();
-			for (Integer craftingSlotNumber : craftingSlots) {
-				Slot craftingSlot = container.getSlot(craftingSlotNumber);
+			final List<ItemStack> clearedCraftingItems = new ArrayList<>();
+			for (final Integer craftingSlotNumber : craftingSlots) {
+				final Slot craftingSlot = container.getSlot(craftingSlotNumber);
 				if (craftingSlot.getHasStack()) {
-					ItemStack craftingItem = craftingSlot.decrStackSize(Integer.MAX_VALUE);
+					final ItemStack craftingItem = craftingSlot.decrStackSize(Integer.MAX_VALUE);
 					clearedCraftingItems.add(craftingItem);
 				}
 			}
 
 			// put items into the crafting grid
-			for (Map.Entry<Integer, ItemStack> entry : slotIdMap.entrySet()) {
-				Integer craftNumber = entry.getKey() - 1;
-				Integer slotNumber = craftingSlots.get(craftNumber);
-				Slot slot = container.getSlot(slotNumber);
+			for (final Map.Entry<Integer, ItemStack> entry : slotIdMap.entrySet()) {
+				final Integer craftNumber = entry.getKey() - 1;
+				final Integer slotNumber = craftingSlots.get(craftNumber);
+				final Slot slot = container.getSlot(slotNumber);
 
-				ItemStack stack = entry.getValue();
+				final ItemStack stack = entry.getValue();
 				if (stack.isEmpty()) {
 					continue;
 				}
@@ -382,8 +376,8 @@ public class JEI implements IModPlugin {
 			}
 
 			// put cleared items back into the inventory
-			for (ItemStack oldCraftingItem : clearedCraftingItems) {
-				int added = addStack(container, inventorySlots, oldCraftingItem);
+			for (final ItemStack oldCraftingItem : clearedCraftingItems) {
+				final int added = addStack(container, inventorySlots, oldCraftingItem);
 				if (added < oldCraftingItem.getCount()) {
 					if (!player.inventory.addItemStackToInventory(oldCraftingItem)) {
 						player.dropItem(oldCraftingItem, false);
@@ -395,36 +389,36 @@ public class JEI implements IModPlugin {
 			}
 		}
 
-		public static void setItems(EntityPlayer player, Map<Integer, ItemStack> recipe, boolean maxTransfer) {
-			Container container = player.openContainer;
+		public static void setItems(final EntityPlayer player, final Map<Integer, ItemStack> recipe, final boolean maxTransfer) {
+			final Container container = player.openContainer;
 
 			// Map to tell which recipe slots have been filled
-			Map<Integer, ItemStack> recipeSlotsStatus = Maps.newHashMap();
+			final Map<Integer, ItemStack> recipeSlotsStatus = Maps.newHashMap();
 			// Applicable slots with needed items in inventory
-			Map<Integer, ItemStack> inventorySlotsToUse = Maps.newHashMap();
+			final Map<Integer, ItemStack> inventorySlotsToUse = Maps.newHashMap();
 			// Applicable slots with /dank/nulls containing needed items
-			Map<Integer, ItemStack> dankNulls = Maps.newHashMap();
+			final Map<Integer, ItemStack> dankNulls = Maps.newHashMap();
 			// Crafting grid slot numbers
-			List<Integer> craftingSlotNumbers = Lists.newArrayList(1, 2, 3, 4, 5, 6, 7, 8, 9);
+			final List<Integer> craftingSlotNumbers = Lists.newArrayList(1, 2, 3, 4, 5, 6, 7, 8, 9);
 			// Inventory slot numbers
-			List<Integer> inventorySlotNumbers = Lists.newArrayList();
+			final List<Integer> inventorySlotNumbers = Lists.newArrayList();
 			for (int i = 10; i < 46; i++) {
 				inventorySlotNumbers.add(i);
 			}
 
 			// clear the crafting grid
-			List<ItemStack> clearedCraftingItems = new ArrayList<>();
-			for (Integer craftingSlotNumber : craftingSlotNumbers) {
-				Slot craftingSlot = container.getSlot(craftingSlotNumber);
+			final List<ItemStack> clearedCraftingItems = new ArrayList<>();
+			for (final Integer craftingSlotNumber : craftingSlotNumbers) {
+				final Slot craftingSlot = container.getSlot(craftingSlotNumber);
 				if (craftingSlot.getHasStack()) {
-					ItemStack craftingItem = craftingSlot.getStack().copy();
+					final ItemStack craftingItem = craftingSlot.getStack().copy();
 					clearedCraftingItems.add(craftingItem);
 					craftingSlot.putStack(ItemStack.EMPTY);
 				}
 			}
 
 			// put cleared items back into the inventory
-			for (ItemStack oldCraftingItem : clearedCraftingItems) {
+			for (final ItemStack oldCraftingItem : clearedCraftingItems) {
 				//int added = addStack(container, , oldCraftingItem);
 				//if (added < oldCraftingItem.getCount()) {
 				if (!player.inventory.addItemStackToInventory(oldCraftingItem)) {
@@ -435,9 +429,9 @@ public class JEI implements IModPlugin {
 
 			// grab items from inventory
 			for (int i = 0; i < inventorySlotNumbers.size(); i++) {
-				Slot slot = container.getSlot(inventorySlotNumbers.get(i));
+				final Slot slot = container.getSlot(inventorySlotNumbers.get(i));
 				if (slot.getHasStack()) {
-					for (Map.Entry<Integer, ItemStack> recipeItem : recipe.entrySet()) {
+					for (final Map.Entry<Integer, ItemStack> recipeItem : recipe.entrySet()) {
 						if (!recipeSlotsStatus.containsKey(recipeItem.getKey())) {
 							if (recipeItem.getValue().isEmpty()) {
 								recipeSlotsStatus.put(recipeItem.getKey(), ItemStack.EMPTY);
@@ -453,7 +447,7 @@ public class JEI implements IModPlugin {
 			}
 
 			boolean recipeIsFulfilled = true;
-			for (Map.Entry<Integer, ItemStack> recipeItem : recipe.entrySet()) {
+			for (final Map.Entry<Integer, ItemStack> recipeItem : recipe.entrySet()) {
 				if (!recipeSlotsStatus.containsKey(recipeItem.getKey()) || !(ItemStack.areItemsEqual(recipeSlotsStatus.get(recipeItem.getKey()), recipeItem.getValue()) && ItemStack.areItemStackTagsEqual(recipeSlotsStatus.get(recipeItem.getKey()), recipeItem.getValue()))) {
 					recipeIsFulfilled = false;
 				}
@@ -462,7 +456,7 @@ public class JEI implements IModPlugin {
 			// recipe not fulfilled yet, so check for applicable /dank/nulls
 			if (!recipeIsFulfilled) {
 				for (int i = 0; i < inventorySlotNumbers.size(); i++) {
-					Slot slot = container.getSlot(inventorySlotNumbers.get(i));
+					final Slot slot = container.getSlot(inventorySlotNumbers.get(i));
 				}
 			}
 			/*
@@ -476,9 +470,9 @@ public class JEI implements IModPlugin {
 				stack.setCount(1);
 				//slotMap.put(entry.getKey(), stack);
 			}
-			
+
 			int maxRemovedSets = maxTransfer ? 64 : 1;
-			
+
 			for (Map.Entry<Integer, ItemStack> entry : slotMap.entrySet()) {
 				ItemStack stack = entry.getValue();
 				if (stack.isStackable()) {
@@ -492,7 +486,7 @@ public class JEI implements IModPlugin {
 					maxRemovedSets = 1;
 				}
 			}
-			
+
 			boolean needsDankNull = false;
 			if (slotMap.isEmpty()) {
 				List<ItemStack> dankNulls = DankNullUtils.getAllDankNulls(player);
@@ -501,23 +495,23 @@ public class JEI implements IModPlugin {
 					maxRemovedSets++;
 				}
 			}
-			
+
 			if (maxRemovedSets <= 0) {
 				return;
 			}
-			
+
 			if (!removeSetsFromInventory(container, slotIdMap.values(), craftingSlots, inventorySlots)) {
 				return;
 			}
 			*/
 
 			// put items into the crafting grid
-			for (Map.Entry<Integer, ItemStack> entry : recipe.entrySet()) {
-				Integer craftNumber = entry.getKey() - 1;
-				Integer slotNumber = Lists.newArrayList(1, 2, 3, 4, 5, 6, 7, 8, 9).get(craftNumber);
-				Slot slot = container.getSlot(slotNumber);
+			for (final Map.Entry<Integer, ItemStack> entry : recipe.entrySet()) {
+				final Integer craftNumber = entry.getKey() - 1;
+				final Integer slotNumber = Lists.newArrayList(1, 2, 3, 4, 5, 6, 7, 8, 9).get(craftNumber);
+				final Slot slot = container.getSlot(slotNumber);
 
-				ItemStack stack = entry.getValue();
+				final ItemStack stack = entry.getValue();
 				if (stack.isEmpty()) {
 					continue;
 				}
@@ -533,7 +527,7 @@ public class JEI implements IModPlugin {
 			container.detectAndSendChanges();
 		}
 
-		private static int removeSetsFromInventory(Container container, Collection<ItemStack> required, List<Integer> craftingSlots, List<Integer> inventorySlots, final int maxRemovedSets) {
+		private static int removeSetsFromInventory(final Container container, final Collection<ItemStack> required, final List<Integer> craftingSlots, final List<Integer> inventorySlots, final int maxRemovedSets) {
 			int removedSets = 0;
 			while (removedSets < maxRemovedSets) {
 				if (removeSetsFromInventory(container, required, craftingSlots, inventorySlots)) {
@@ -543,10 +537,10 @@ public class JEI implements IModPlugin {
 			return removedSets;
 		}
 
-		private static boolean removeSetsFromInventory(Container container, Iterable<ItemStack> required, List<Integer> craftingSlots, List<Integer> inventorySlots) {
+		private static boolean removeSetsFromInventory(final Container container, final Iterable<ItemStack> required, final List<Integer> craftingSlots, final List<Integer> inventorySlots) {
 			final Map<Slot, ItemStack> originalSlotContents = new HashMap<>();
 
-			for (ItemStack matchingStack : required) {
+			for (final ItemStack matchingStack : required) {
 				if (matchingStack.isEmpty()) {
 					continue;
 				}
@@ -555,8 +549,8 @@ public class JEI implements IModPlugin {
 				if (requiredStack.isEmpty()) {
 					continue;
 				}
-				InventoryDankNull dankNullInv = null;
-				Slot slot = getSlotWithStack(container, requiredStack, craftingSlots, inventorySlots);
+				final InventoryDankNull dankNullInv = null;
+				final Slot slot = getSlotWithStack(container, requiredStack, craftingSlots, inventorySlots);
 				/*
 				for (int slotNum : inventorySlots) {
 					Slot slot1 = container.getSlot(slotNum);
@@ -570,10 +564,10 @@ public class JEI implements IModPlugin {
 				}
 				*/
 				boolean tryDankNull = false;
-				if ((slot == null || slot.getStack().isEmpty())) {
+				if (slot == null || slot.getStack().isEmpty()) {
 					// abort! put removed items back where they came from
-					for (Map.Entry<Slot, ItemStack> slotEntry : originalSlotContents.entrySet()) {
-						ItemStack stack = slotEntry.getValue();
+					for (final Map.Entry<Slot, ItemStack> slotEntry : originalSlotContents.entrySet()) {
+						final ItemStack stack = slotEntry.getValue();
 						slotEntry.getKey().putStack(stack);
 					}
 					tryDankNull = true;
@@ -584,12 +578,12 @@ public class JEI implements IModPlugin {
 					if (!originalSlotContents.containsKey(slot)) {
 						originalSlotContents.put(slot, slot.getStack().copy());
 					}
-					ItemStack removed = slot.decrStackSize(requiredStack.getCount());
+					final ItemStack removed = slot.decrStackSize(requiredStack.getCount());
 					requiredStack.shrink(removed.getCount());
 				}
 				else {
-					for (int slotNum : inventorySlots) {
-						Slot slot1 = container.getSlot(slotNum);
+					for (final int slotNum : inventorySlots) {
+						final Slot slot1 = container.getSlot(slotNum);
 						if (slot1 != null && slot1.getHasStack()) {
 							if (DankNullUtils.isDankNull(slot1.getStack()) && DankNullUtils.isFilteredOreDict(DankNullUtils.getNewDankNullInventory(slot1.getStack()), requiredStack)) {
 								DankNullUtils.decrDankNullStackSize(DankNullUtils.getNewDankNullInventory(slot1.getStack()), requiredStack, requiredStack.getCount());
@@ -603,7 +597,7 @@ public class JEI implements IModPlugin {
 		}
 
 		@Nullable
-		private static Slot getSlotWithStack(Container container, ItemStack stack, List<Integer> craftingSlots, List<Integer> inventorySlots) {
+		private static Slot getSlotWithStack(final Container container, final ItemStack stack, final List<Integer> craftingSlots, final List<Integer> inventorySlots) {
 			Slot slot = getSlotWithStack(container, craftingSlots, stack);
 			if (slot == null) {
 				slot = getSlotWithStack(container, inventorySlots, stack);
@@ -612,7 +606,7 @@ public class JEI implements IModPlugin {
 			return slot;
 		}
 
-		private static int addStack(Container container, Collection<Integer> slotIndexes, ItemStack stack) {
+		private static int addStack(final Container container, final Collection<Integer> slotIndexes, final ItemStack stack) {
 			int added = 0;
 			// Add to existing stacks first
 			for (final Integer slotIndex : slotIndexes) {
@@ -620,7 +614,7 @@ public class JEI implements IModPlugin {
 					final Slot slot = container.getSlot(slotIndex);
 					final ItemStack inventoryStack = slot.getStack();
 					// Check that the slot's contents are stackable with this stack
-					if (!inventoryStack.isEmpty() && (inventoryStack.isStackable() && inventoryStack.isItemEqual(stack) && ItemStack.areItemStackTagsEqual(inventoryStack, stack) || (DankNullUtils.isDankNull(inventoryStack) && DankNullUtils.isFiltered(DankNullUtils.getNewDankNullInventory(inventoryStack), stack)))) {
+					if (!inventoryStack.isEmpty() && (inventoryStack.isStackable() && inventoryStack.isItemEqual(stack) && ItemStack.areItemStackTagsEqual(inventoryStack, stack) || DankNullUtils.isDankNull(inventoryStack) && DankNullUtils.isFiltered(DankNullUtils.getNewDankNullInventory(inventoryStack), stack))) {
 						boolean isDankNull = false;
 						if (DankNullUtils.isDankNull(inventoryStack)) {
 							isDankNull = true;
@@ -665,7 +659,7 @@ public class JEI implements IModPlugin {
 					final Slot slot = container.getSlot(slotIndex);
 					final ItemStack inventoryStack = slot.getStack();
 					if (inventoryStack.isEmpty()) {
-						ItemStack stackToAdd = stack.copy();
+						final ItemStack stackToAdd = stack.copy();
 						stackToAdd.setCount(stack.getCount() - added);
 						slot.putStack(stackToAdd);
 						return stack.getCount();
@@ -677,11 +671,11 @@ public class JEI implements IModPlugin {
 		}
 
 		@Nullable
-		private static Slot getSlotWithStack(Container container, Iterable<Integer> slotNumbers, ItemStack itemStack) {
-			for (Integer slotNumber : slotNumbers) {
+		private static Slot getSlotWithStack(final Container container, final Iterable<Integer> slotNumbers, final ItemStack itemStack) {
+			for (final Integer slotNumber : slotNumbers) {
 				if (slotNumber >= 0 && slotNumber < container.inventorySlots.size()) {
-					Slot slot = container.getSlot(slotNumber);
-					ItemStack slotStack = slot.getStack();
+					final Slot slot = container.getSlot(slotNumber);
+					final ItemStack slotStack = slot.getStack();
 					if (ItemStack.areItemsEqual(itemStack, slotStack) && ItemStack.areItemStackTagsEqual(itemStack, slotStack)) {
 						return slot;
 					}

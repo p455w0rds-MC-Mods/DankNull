@@ -38,7 +38,7 @@ import p455w0rd.danknull.init.ModGuiHandler.GUIType;
 import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rd.danknull.inventory.PlayerSlot;
 import p455w0rd.danknull.util.DankNullUtils;
-import p455w0rd.danknull.util.DankNullUtils.SlotExtractionMode;
+import p455w0rd.danknull.util.DankNullUtils.ItemExtractionMode;
 
 import javax.annotation.Nonnull;
 import java.util.UUID;
@@ -188,9 +188,9 @@ public class ItemDankNull extends Item implements IModelHolder {
 			ModGuiHandler.launchGui(GUIType.DANKNULL, player, world, (int) player.posX, (int) player.posY, (int) player.posZ);
 			return EnumActionResult.SUCCESS;
 		}
-		SlotExtractionMode placementMode = DankNullUtils.getPlacementModeForStack(stack, selectedStack);
+		ItemExtractionMode placementMode = DankNullUtils.getPlacementModeForStack(stack, selectedStack);
 		if (placementMode != null) {
-			if (placementMode != SlotExtractionMode.KEEP_NONE) {
+			if (placementMode != ItemExtractionMode.KEEP_NONE) {
 				int count = DankNullUtils.getSelectedStackSize(inventory);
 				int amountToKeep = placementMode.getNumberToKeep();
 				if (count <= amountToKeep && !player.capabilities.isCreativeMode) {

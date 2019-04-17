@@ -34,7 +34,7 @@ import p455w0rd.danknull.init.ModGlobals;
 import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rd.danknull.network.VanillaPacketDispatcher;
 import p455w0rd.danknull.util.DankNullUtils;
-import p455w0rd.danknull.util.DankNullUtils.SlotExtractionMode;
+import p455w0rd.danknull.util.DankNullUtils.ItemExtractionMode;
 
 /**
  * @author p455w0rd
@@ -321,7 +321,7 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 	@Override
 	public boolean canExtractItem(int index, ItemStack stack, EnumFacing direction) {
 		if (!getDankNull().isEmpty()) {
-			if (DankNullUtils.getExtractionModeForStack(getDankNull(), stack) != SlotExtractionMode.KEEP_ALL) {
+			if (DankNullUtils.getExtractionModeForStack(getDankNull(), stack) != ItemExtractionMode.KEEP_ALL) {
 				return true;
 			}
 		}

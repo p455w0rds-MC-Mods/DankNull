@@ -30,7 +30,7 @@ import p455w0rd.danknull.integration.Chisel;
 import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rd.danknull.inventory.slot.SlotDankNull;
 import p455w0rd.danknull.util.DankNullUtils;
-import p455w0rd.danknull.util.DankNullUtils.SlotExtractionMode;
+import p455w0rd.danknull.util.DankNullUtils.ItemExtractionMode;
 import p455w0rdslib.client.gui.GuiModular;
 import p455w0rdslib.util.*;
 
@@ -524,8 +524,8 @@ public class GuiDankNullDock extends GuiModular {
 		Slot s = getSlotAtPos(x, y);
 		if (s != null && s instanceof SlotDankNull && s.getHasStack()) {
 			boolean showOreDictMessage = ((DankNullUtils.isOreDictBlacklistEnabled() && !DankNullUtils.isItemOreDictBlacklisted(s.getStack())) || (DankNullUtils.isOreDictWhitelistEnabled() && DankNullUtils.isItemOreDictWhitelisted(s.getStack())) || !DankNullUtils.isOreDictBlacklistEnabled() && !DankNullUtils.isOreDictWhitelistEnabled());
-			SlotExtractionMode extractMode = DankNullUtils.getExtractionModeForStack(getDankNull(), s.getStack());
-			SlotExtractionMode placementMode = DankNullUtils.getPlacementModeForStack(getDankNull(), s.getStack());
+			ItemExtractionMode extractMode = DankNullUtils.getExtractionModeForStack(getDankNull(), s.getStack());
+			ItemExtractionMode placementMode = DankNullUtils.getPlacementModeForStack(getDankNull(), s.getStack());
 
 			if (extractMode != null) {
 				list.add(1, DankNullUtils.translate("dn.extract_mode.desc") + ": " + extractMode.getTooltip());
