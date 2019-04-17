@@ -94,7 +94,7 @@ dependencies {
 	}
 	deobfCompile "p455w0rd:p455w0rdslib:1.12.2-2.1.44"
 	deobfCompile "mouse-tweaks:MouseTweaks:2.10:mc1.12.2"
-	deobfCompile "item-scroller:itemscroller-rift:1.13.2:0.14.2"
+	deobfCompile "item-scroller:itemscroller:1.12.2:0.12.0"
 }
 
 processResources {
