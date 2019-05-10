@@ -59,12 +59,16 @@ public class ModelDankNullDock extends ModelBase {
 		setRotation(base2edge4, 0F, 0F, 0F);
 	}
 
-	public void render(float scale) {
+	public void render() {
+		render(0.0625F);
+	}
+
+	public void render(final float scale) {
 		render((Entity) null, 0f, 0f, 0f, 0f, 0f, scale);
 	}
 
 	@Override
-	public void render(Entity entity, float f, float f1, float f2, float f3, float f4, float f5) {
+	public void render(final Entity entity, final float f, final float f1, final float f2, final float f3, final float f4, final float f5) {
 		super.render(entity, f, f1, f2, f3, f4, f5);
 		setRotationAngles(f, f1, f2, f3, f4, f5, entity);
 		base.render(f5);
@@ -75,7 +79,7 @@ public class ModelDankNullDock extends ModelBase {
 		base2edge4.render(f5);
 	}
 
-	private void setRotation(ModelRenderer model, float x, float y, float z) {
+	private void setRotation(final ModelRenderer model, final float x, final float y, final float z) {
 		model.rotateAngleX = x;
 		model.rotateAngleY = y;
 		model.rotateAngleZ = z;

@@ -1,0 +1,41 @@
+{
+    "parent": "item/generated",
+    "overrides": [
+    {
+      "predicate": {
+        "meta": 0
+      },
+	  "model": "danknull:item/dank_null_panel_0"
+    },
+    {
+      "predicate": {
+        "meta": 1
+      },
+      "model": "danknull:item/dank_null_panel_1"
+    },
+    {
+      "predicate": {
+        "meta": 2
+      },
+      "model": "danknull:item/dank_null_panel_2"
+    },
+    {
+      "predicate": {
+        "meta": 3
+      },
+      "model": "danknull:item/dank_null_panel_3"
+    },
+    {
+      "predicate": {
+        "meta": 4
+      },
+      "model": "danknull:item/dank_null_panel_4"
+    },
+    {
+      "predicate": {
+        "meta": 5
+      },
+      "model": "danknull:item/dank_null_panel_5"
+    }
+  ]
+}

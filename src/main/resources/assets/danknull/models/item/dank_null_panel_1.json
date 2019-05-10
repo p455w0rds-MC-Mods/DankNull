@@ -1,6 +1,6 @@
 {
-    "parent": "item/generated",
+    "parent": "danknull:item/dank_null_panel_new",
     "textures": {
-        "layer0": "danknull:items/dank_null_panel_1"
+        "1": "danknull:items/danknull/glass_lapis"
     }
 }

@@ -37,6 +37,7 @@ key.categories.danknull=/dank/null
 key.next_item.desc=Cycle to next item in /dank/null
 key.previous_item.desc=Cycle to previous item in /dank/null
 key.open_danknull.desc=Open nearest /dank/null
+key.togglehud.desc=Toggle HUD visibility
 
 //Misc
 dn.selected_item.desc=Selected Item

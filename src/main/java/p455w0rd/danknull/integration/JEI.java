@@ -11,8 +11,7 @@ import com.google.common.collect.Maps;
 import mezz.jei.JustEnoughItems;
 import mezz.jei.api.*;
 import mezz.jei.api.gui.*;
-import mezz.jei.api.ingredients.IIngredientBlacklist;
-import mezz.jei.api.ingredients.IModIngredientRegistration;
+import mezz.jei.api.ingredients.*;
 import mezz.jei.api.recipe.IRecipeCategoryRegistration;
 import mezz.jei.api.recipe.VanillaRecipeCategoryUid;
 import mezz.jei.api.recipe.transfer.*;
@@ -21,16 +20,16 @@ import mezz.jei.startup.StackHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.*;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.text.translation.I18n;
 import p455w0rd.danknull.container.ContainerDankNull;
 import p455w0rd.danknull.init.*;
-import p455w0rd.danknull.init.ModIntegration.Mods;
 import p455w0rd.danknull.integration.jei.DankNullUpgradeWrapper;
 import p455w0rd.danknull.integration.jei.PacketVanllaRecipeTransfer;
 import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rd.danknull.inventory.PlayerSlot;
 import p455w0rd.danknull.recipes.RecipeDankNullUpgrade;
 import p455w0rd.danknull.util.DankNullUtils;
+import p455w0rdslib.LibGlobals.Mods;
+import p455w0rdslib.util.TextUtils;
 
 /**
  * @author p455w0rd
@@ -48,17 +47,15 @@ public class JEI implements IModPlugin {
 		//blacklistItem(new ItemStack(ModItems.DANK_NULL_HOLDER, 1, OreDictionary.WILDCARD_VALUE));
 
 		final List<ItemStack> dankNulls = new ArrayList<>();
-		dankNulls.addAll(Arrays.asList(new ItemStack(ModItems.DANK_NULL, 1, 0), new ItemStack(ModItems.DANK_NULL, 1, 1), new ItemStack(ModItems.DANK_NULL, 1, 2), new ItemStack(ModItems.DANK_NULL, 1, 3), new ItemStack(ModItems.DANK_NULL, 1, 4), new ItemStack(ModItems.DANK_NULL, 1, 5)));
-		registry.addIngredientInfo(dankNulls, ItemStack.class, "jei.danknull.desc");
-		registry.addIngredientInfo(new ItemStack(ModItems.DANK_NULL, 1, 0), ItemStack.class, "jei.danknull.desc0");
-		registry.addIngredientInfo(new ItemStack(ModItems.DANK_NULL, 1, 1), ItemStack.class, "jei.danknull.desc1");
-		registry.addIngredientInfo(new ItemStack(ModItems.DANK_NULL, 1, 2), ItemStack.class, "jei.danknull.desc2");
-		registry.addIngredientInfo(new ItemStack(ModItems.DANK_NULL, 1, 3), ItemStack.class, "jei.danknull.desc3");
-		registry.addIngredientInfo(new ItemStack(ModItems.DANK_NULL, 1, 4), ItemStack.class, "jei.danknull.desc4");
-		registry.addIngredientInfo(new ItemStack(ModItems.DANK_NULL, 1, 5), ItemStack.class, "jei.danknull.desc5");
-
-		registry.addIngredientInfo(new ItemStack(ModBlocks.DANKNULL_DOCK), ItemStack.class, "jei.danknull_dock.desc");
-
+		dankNulls.addAll(Arrays.asList(new ItemStack(ModItems.REDSTONE_DANKNULL), new ItemStack(ModItems.LAPIS_DANKNULL), new ItemStack(ModItems.IRON_DANKNULL), new ItemStack(ModItems.GOLD_DANKNULL), new ItemStack(ModItems.DIAMOND_DANKNULL), new ItemStack(ModItems.EMERALD_DANKNULL)));
+		registry.addIngredientInfo(dankNulls, VanillaTypes.ITEM, "jei.danknull.desc");
+		registry.addIngredientInfo(new ItemStack(ModItems.REDSTONE_DANKNULL), VanillaTypes.ITEM, "jei.danknull.desc0");
+		registry.addIngredientInfo(new ItemStack(ModItems.LAPIS_DANKNULL), VanillaTypes.ITEM, "jei.danknull.desc1");
+		registry.addIngredientInfo(new ItemStack(ModItems.IRON_DANKNULL), VanillaTypes.ITEM, "jei.danknull.desc2");
+		registry.addIngredientInfo(new ItemStack(ModItems.GOLD_DANKNULL), VanillaTypes.ITEM, "jei.danknull.desc3");
+		registry.addIngredientInfo(new ItemStack(ModItems.DIAMOND_DANKNULL), VanillaTypes.ITEM, "jei.danknull.desc4");
+		registry.addIngredientInfo(new ItemStack(ModItems.EMERALD_DANKNULL), VanillaTypes.ITEM, "jei.danknull.desc5");
+		registry.addIngredientInfo(new ItemStack(ModBlocks.DANKNULL_DOCK), VanillaTypes.ITEM, "jei.danknull_dock.desc");
 		registry.handleRecipes(RecipeDankNullUpgrade.class, recipe -> new DankNullUpgradeWrapper(registry.getJeiHelpers(), recipe), VanillaRecipeCategoryUid.CRAFTING);
 		// replace vanilla crafting to support extracting from /dank/null
 		/*
@@ -150,7 +147,7 @@ public class JEI implements IModPlugin {
 		@Override
 		public IRecipeTransferError transferRecipe(final ContainerWorkbench container, final IRecipeLayout recipeLayout, final EntityPlayer player, final boolean maxTransfer, final boolean doTransfer) {
 			if (!ServerInfo.isJeiOnServer()) {
-				final String tooltipMessage = I18n.translateToLocal("jei.tooltip.error.recipe.transfer.no.server");
+				final String tooltipMessage = TextUtils.translate("jei.tooltip.error.recipe.transfer.no.server");
 				return handlerHelper.createUserErrorWithTooltip(tooltipMessage);
 			}
 
@@ -212,7 +209,7 @@ public class JEI implements IModPlugin {
 
 			// check if we have enough inventory space to shuffle items around to their final locations
 			if (filledCraftSlotCount - inputCount > emptySlotCount) {
-				final String message = I18n.translateToLocal("jei.tooltip.error.recipe.transfer.inventory.full");
+				final String message = TextUtils.translate("jei.tooltip.error.recipe.transfer.inventory.full");
 				return handlerHelper.createUserErrorWithTooltip(message);
 			}
 
@@ -248,7 +245,7 @@ public class JEI implements IModPlugin {
 					}
 				}
 				if (!foundInDankNull) {
-					final String message = I18n.translateToLocal("jei.tooltip.error.recipe.transfer.missing");
+					final String message = TextUtils.translate("jei.tooltip.error.recipe.transfer.missing");
 					return handlerHelper.createUserErrorForSlots(message, matchingItemsResult.missingItems);
 				}
 			}
@@ -333,7 +330,7 @@ public class JEI implements IModPlugin {
 			// remove required recipe items
 			/*
 			int removedSets = removeSetsFromInventory(container, slotIdMap.values(), craftingSlots, inventorySlots, maxRemovedSets);
-
+			
 			if (removedSets == 0) {
 				return;
 			}
@@ -385,7 +382,7 @@ public class JEI implements IModPlugin {
 				}
 			}
 			if (container instanceof ContainerDankNull) {
-				((ContainerDankNull) container).sync();
+				((ContainerDankNull) container).detectAndSendChanges();
 			}
 		}
 
@@ -470,9 +467,9 @@ public class JEI implements IModPlugin {
 				stack.setCount(1);
 				//slotMap.put(entry.getKey(), stack);
 			}
-
+			
 			int maxRemovedSets = maxTransfer ? 64 : 1;
-
+			
 			for (Map.Entry<Integer, ItemStack> entry : slotMap.entrySet()) {
 				ItemStack stack = entry.getValue();
 				if (stack.isStackable()) {
@@ -486,7 +483,7 @@ public class JEI implements IModPlugin {
 					maxRemovedSets = 1;
 				}
 			}
-
+			
 			boolean needsDankNull = false;
 			if (slotMap.isEmpty()) {
 				List<ItemStack> dankNulls = DankNullUtils.getAllDankNulls(player);
@@ -495,11 +492,11 @@ public class JEI implements IModPlugin {
 					maxRemovedSets++;
 				}
 			}
-
+			
 			if (maxRemovedSets <= 0) {
 				return;
 			}
-
+			
 			if (!removeSetsFromInventory(container, slotIdMap.values(), craftingSlots, inventorySlots)) {
 				return;
 			}

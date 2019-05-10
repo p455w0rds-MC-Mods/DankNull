@@ -3,12 +3,7 @@ package p455w0rd.danknull.init;
 import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.network.simpleimpl.SimpleNetworkWrapper;
 import net.minecraftforge.fml.relauncher.Side;
-import p455w0rd.danknull.network.PacketConfigSync;
-import p455w0rd.danknull.network.PacketEmptyDock;
-import p455w0rd.danknull.network.PacketOpenDankGui;
-import p455w0rd.danknull.network.PacketSetDankNullInDock;
-import p455w0rd.danknull.network.PacketSetSelectedItem;
-import p455w0rd.danknull.network.PacketSyncDankNull;
+import p455w0rd.danknull.network.*;
 
 /**
  * @author p455w0rd
@@ -39,8 +34,9 @@ public class ModNetworking {
 		getInstance().registerMessage(PacketEmptyDock.Handler.class, PacketEmptyDock.class, nextID(), Side.CLIENT);
 		getInstance().registerMessage(PacketSetDankNullInDock.Handler.class, PacketSetDankNullInDock.class, nextID(), Side.CLIENT);
 		//getInstance().registerMessage(PacketSyncDankNullDock.Handler.class, PacketSyncDankNullDock.class, nextID(), Side.CLIENT);
-		//getInstance().registerMessage(PacketSyncDankNullDock.Handler.class, PacketSyncDankNullDock.class, nextID(), Side.SERVER);
+		getInstance().registerMessage(PacketSyncDankNullDock.Handler.class, PacketSyncDankNullDock.class, nextID(), Side.SERVER);
 		getInstance().registerMessage(PacketOpenDankGui.Handler.class, PacketOpenDankGui.class, nextID(), Side.SERVER);
+		getInstance().registerMessage(PacketMouseWheel.Handler.class, PacketMouseWheel.class, nextID(), Side.SERVER);
 		//getInstance().registerMessage(PacketSetSelectedItemDock.Handler.class, PacketSetSelectedItemDock.class, nextID(), Side.SERVER);
 	}
 }

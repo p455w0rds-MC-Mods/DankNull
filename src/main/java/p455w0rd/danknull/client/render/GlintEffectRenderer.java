@@ -14,7 +14,7 @@ import net.minecraft.util.ResourceLocation;
  */
 public class GlintEffectRenderer {
 
-	public static void apply(IBakedModel model, int damage) {
+	public static void apply(final IBakedModel model, final int damage) {
 		GlStateManager.enableAlpha();
 		GlStateManager.enableBlend();
 		GlStateManager.depthMask(false);
@@ -25,7 +25,7 @@ public class GlintEffectRenderer {
 		GlStateManager.matrixMode(5890);
 		GlStateManager.pushMatrix();
 		GlStateManager.scale(8.0F, 8.0F, 8.0F);
-		float f = Minecraft.getSystemTime() % 3000L / 3000.0F / 8.0F;
+		final float f = Minecraft.getSystemTime() % 3000L / 3000.0F / 8.0F;
 		GlStateManager.translate(f, 0.0F, 0.0F);
 		GlStateManager.rotate(-50.0F, 0.0F, 0.0F, 1.0F);
 		switch (damage) {
@@ -63,10 +63,11 @@ public class GlintEffectRenderer {
 		GlStateManager.enableLighting();
 		GlStateManager.depthFunc(515);
 		GlStateManager.depthMask(true);
+		Minecraft.getMinecraft().getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, true);
 		Minecraft.getMinecraft().getTextureManager().bindTexture(TextureMap.LOCATION_BLOCKS_TEXTURE);
 	}
 
-	public static void apply2(IBakedModel model, int color) {
+	public static void apply2(final IBakedModel model, final int color) {
 		GlStateManager.enableAlpha();
 		GlStateManager.enableBlend();
 		GlStateManager.depthMask(false);
@@ -77,7 +78,7 @@ public class GlintEffectRenderer {
 		GlStateManager.matrixMode(5890);
 		GlStateManager.pushMatrix();
 		GlStateManager.scale(8.0F, 8.0F, 8.0F);
-		float f = Minecraft.getSystemTime() % 3000L / 3000.0F / 8.0F;
+		final float f = Minecraft.getSystemTime() % 3000L / 3000.0F / 8.0F;
 		GlStateManager.translate(f, 0.0F, 0.0F);
 		GlStateManager.rotate(-50.0F, 0.0F, 0.0F, 1.0F);
 		RenderModel.render(model, color);

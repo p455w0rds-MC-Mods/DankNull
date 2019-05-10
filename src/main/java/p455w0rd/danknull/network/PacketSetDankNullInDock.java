@@ -9,9 +9,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.common.network.simpleimpl.*;
 import p455w0rd.danknull.DankNull;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
 import p455w0rd.danknull.inventory.InventoryDankNull;
@@ -27,16 +25,16 @@ public class PacketSetDankNullInDock implements IMessage {
 	BlockPos pos;
 
 	@Override
-	public void fromBytes(ByteBuf buf) {
-		int x = buf.readInt();
-		int y = buf.readInt();
-		int z = buf.readInt();
+	public void fromBytes(final ByteBuf buf) {
+		final int x = buf.readInt();
+		final int y = buf.readInt();
+		final int z = buf.readInt();
 		pos = new BlockPos(x, y, z);
 		dankNull = ByteBufUtils.readItemStack(buf);
 	}
 
 	@Override
-	public void toBytes(ByteBuf buf) {
+	public void toBytes(final ByteBuf buf) {
 		buf.writeInt(pos.getX());
 		buf.writeInt(pos.getY());
 		buf.writeInt(pos.getZ());
@@ -46,23 +44,24 @@ public class PacketSetDankNullInDock implements IMessage {
 	public PacketSetDankNullInDock() {
 	}
 
-	public PacketSetDankNullInDock(TileDankNullDock dockingStation, @Nonnull ItemStack dankNull) {
+	public PacketSetDankNullInDock(final TileDankNullDock dockingStation, @Nonnull final ItemStack dankNull) {
 		pos = dockingStation.getPos();
 		this.dankNull = dankNull;
 	}
 
 	public static class Handler implements IMessageHandler<PacketSetDankNullInDock, IMessage> {
 		@Override
-		public IMessage onMessage(PacketSetDankNullInDock message, MessageContext ctx) {
+		public IMessage onMessage(final PacketSetDankNullInDock message, final MessageContext ctx) {
 			FMLCommonHandler.instance().getWorldThread(ctx.netHandler).addScheduledTask(() -> {
-				World world = DankNull.PROXY.getWorld();
-				TileEntity te = world.getTileEntity(message.pos);
+				final World world = DankNull.PROXY.getWorld();
+				final TileEntity te = world.getTileEntity(message.pos);
 				if (te != null && te instanceof TileDankNullDock) {
-					TileDankNullDock dankDock = (TileDankNullDock) te;
-					InventoryDankNull inv = DankNullUtils.getNewDankNullInventory(message.dankNull);
-					dankDock.setInventory(inv);
+					final TileDankNullDock dankDock = (TileDankNullDock) te;
+					final InventoryDankNull inv = DankNullUtils.getNewDankNullInventory(message.dankNull);
+					//dankDock.removeDankNull();
+					dankDock.setDankNull(message.dankNull);
 					//world.updateComparatorOutputLevel(message.pos, te.getBlockType());
-					dankDock.markDirty();
+					//dankDock.markDirty();
 				}
 			});
 			return null;

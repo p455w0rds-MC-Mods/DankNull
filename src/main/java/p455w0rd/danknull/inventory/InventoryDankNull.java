@@ -1,6 +1,5 @@
 package p455w0rd.danknull.inventory;
 
-import codechicken.lib.util.ItemNBTUtils;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -10,55 +9,46 @@ import net.minecraft.util.NonNullList;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
 import net.minecraftforge.common.util.Constants;
-import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
+import p455w0rd.danknull.init.ModGlobals.DankNullTier;
+import p455w0rd.danknull.init.ModGlobals.NBT;
 import p455w0rd.danknull.items.ItemDankNull;
 import p455w0rd.danknull.util.DankNullUtils;
+import p455w0rd.danknull.util.ItemNBTUtils;
 
 /**
  * @author p455w0rd
  */
 public class InventoryDankNull implements IInventory {
 
-	public static final String INVENTORY_NAME = "danknull-inventory";
-	public static final String TAG_SLOT = "Slot";
-	public static final String TAG_COUNT = "RealCount";
-
 	private final NonNullList<ItemStack> itemStacks;
 	private final int[] stackSizes;
-	//	private ItemStack dankNull = ItemStack.EMPTY;
 	private EntityPlayer player;
 	private PlayerSlot dankNullSlot = null;
 	private String itemUUID = "";
-	private ItemStack unsafeStack = null;
-	//private Map<ItemStack, SlotExtractionMode> extractionModes = Maps.<ItemStack, SlotExtractionMode>newHashMap();
+	private ItemStack tileStack = null;
 
 	public InventoryDankNull(final PlayerSlot dankNullSlot, final EntityPlayer player) {
 		this.dankNullSlot = dankNullSlot;
 		this.player = player;
-
-		itemUUID = ItemNBTUtils.getString(getDankNull(), "UUID");
+		itemUUID = ItemNBTUtils.getString(getDankNull(), NBT.UUID);
 		itemStacks = NonNullList.withSize(getSizeInventory(), ItemStack.EMPTY);
 		stackSizes = new int[getSizeInventory()];
-
 		loadInventory(getDNTag());
 	}
 
 	//This is for those few situations where you just dont have access to the player.
 	public InventoryDankNull(final ItemStack stack) {
-		unsafeStack = stack;
-
-		itemUUID = ItemNBTUtils.getString(getDankNull(), "UUID");
+		tileStack = stack;
+		itemUUID = ItemNBTUtils.getString(getDankNull(), NBT.UUID);
 		itemStacks = NonNullList.withSize(getSizeInventory(), ItemStack.EMPTY);
 		stackSizes = new int[getSizeInventory()];
-
 		loadInventory(getDNTag());
 	}
 
 	@Override
 	public int getSizeInventory() {
-		final ItemStack dankNull = getDankNull();
-		int numRows = dankNull.getItemDamage() + 1;
-		if (DankNullUtils.isCreativeDankNull(dankNull)) {
+		int numRows = DankNullUtils.getMeta(getDankNull()) + 1;
+		if (DankNullUtils.isCreativeDankNull(getDankNull())) {
 			numRows--;
 		}
 		return numRows * 9;
@@ -76,7 +66,6 @@ public class InventoryDankNull implements IInventory {
 
 	@Override
 	public ItemStack decrStackSize(final int index, final int amount) {
-
 		if (!getStackInSlot(index).isEmpty()) {
 			if (DankNullUtils.isCreativeDankNull(getDankNull())) {
 				final ItemStack tmp = getStackInSlot(index).copy();
@@ -105,10 +94,6 @@ public class InventoryDankNull implements IInventory {
 
 	@Override
 	public void setInventorySlotContents(final int index, final ItemStack itemStack) {
-		setInventorySlotContents(index, itemStack, null);
-	}
-
-	public void setInventorySlotContents(final int index, final ItemStack itemStack, final TileDankNullDock te) {
 		itemStacks.set(index, itemStack);
 		markDirty();
 	}
@@ -125,7 +110,7 @@ public class InventoryDankNull implements IInventory {
 
 	@Override
 	public String getName() {
-		return INVENTORY_NAME;
+		return NBT.DANKNULL_INVENTORY;
 	}
 
 	@Override
@@ -177,6 +162,11 @@ public class InventoryDankNull implements IInventory {
 
 	@Override
 	public void clear() {
+		itemStacks.clear();
+	}
+
+	public DankNullTier getTier() {
+		return DankNullUtils.getTier(getDankNull());
 	}
 
 	public NonNullList<ItemStack> getStacks() {
@@ -195,7 +185,7 @@ public class InventoryDankNull implements IInventory {
 	}
 
 	public long getMaxStackSize() {
-		return DankNullUtils.getDankNullMaxStackSize(getDankNull());
+		return getTier().getMaxStackSize();
 	}
 
 	@Override
@@ -209,11 +199,11 @@ public class InventoryDankNull implements IInventory {
 	}
 
 	public ItemStack getDankNull() {
-		if (unsafeStack != null) {
-			return unsafeStack;
+		if (tileStack != null) {
+			return tileStack;
 		}
 
-		return dankNullSlot.getStackInSlot(player);
+		return dankNullSlot.getStackInSlot(getPlayer());
 	}
 
 	public int getPlayerSlotIndex() {
@@ -223,7 +213,7 @@ public class InventoryDankNull implements IInventory {
 	public NBTTagCompound getDNTag() {
 		final ItemStack dn = getDankNull();
 		if (!dn.hasTagCompound()) {
-			dn.setTagCompound(new NBTTagCompound()); //This should not be needed but just in case...
+			dn.setTagCompound(saveInventory(new NBTTagCompound())); //This should not be needed but just in case...
 		}
 		return dn.getTagCompound();
 	}
@@ -233,15 +223,13 @@ public class InventoryDankNull implements IInventory {
 		if (!isValid()) {
 			return;
 		}
-
 		final ItemStack stack = getDankNull();
 		if (!stack.hasTagCompound()) {
 			stack.setTagCompound(new NBTTagCompound()); //Really not needed but better safe than sorry
 		}
-
 		saveInventory(stack.getTagCompound());
 		if (dankNullSlot != null) {
-			dankNullSlot.setStackInSlot(player, stack);
+			dankNullSlot.setStackInSlot(getPlayer(), stack);
 		}
 	}
 
@@ -250,13 +238,15 @@ public class InventoryDankNull implements IInventory {
 		for (int i = 0; i < getSizeInventory(); i++) {
 			if (!getStackInSlot(i).isEmpty()) {
 				final NBTTagCompound nbtTC = new NBTTagCompound();
-				nbtTC.setInteger(TAG_SLOT, i);
-				nbtTC.setInteger(TAG_COUNT, getStackInSlot(i).getCount() <= DankNullUtils.getDankNullMaxStackSize(this) ? getStackInSlot(i).getCount() : DankNullUtils.getDankNullMaxStackSize(this));
+				nbtTC.setInteger(NBT.SLOT, i);
+				nbtTC.setInteger(NBT.REALCOUNT, getStackInSlot(i).getCount() <= getTier().getMaxStackSize() ? getStackInSlot(i).getCount() : getTier().getMaxStackSize());
 				getStackInSlot(i).writeToNBT(nbtTC);
 				nbtTL.appendTag(nbtTC);
 			}
 		}
-
+		if (itemUUID != null && !itemUUID.isEmpty()) {
+			compound.setString(NBT.UUID, itemUUID);
+		}
 		compound.setTag(getName(), nbtTL);
 		return compound;
 	}
@@ -265,13 +255,16 @@ public class InventoryDankNull implements IInventory {
 		final NBTTagList nbtTL = compound.getTagList(getName(), Constants.NBT.TAG_COMPOUND);
 		for (int i = 0; i < nbtTL.tagCount(); i++) {
 			final NBTTagCompound nbtTC = nbtTL.getCompoundTagAt(i);
-			final int slot = nbtTC.getInteger(TAG_SLOT);
+			final int slot = nbtTC.getInteger(NBT.SLOT);
 			final ItemStack stack = new ItemStack(nbtTC);
-			if (nbtTC.hasKey(TAG_COUNT)) {
-				stack.setCount(nbtTC.getInteger(TAG_COUNT));
-				setSizeForSlot(slot, nbtTC.getInteger(TAG_COUNT));
+			if (nbtTC.hasKey(NBT.REALCOUNT)) {
+				stack.setCount(nbtTC.getInteger(NBT.REALCOUNT));
+				setSizeForSlot(slot, nbtTC.getInteger(NBT.REALCOUNT));
 			}
 			itemStacks.set(slot, stack);
+		}
+		if (compound.hasKey(NBT.UUID, Constants.NBT.TAG_STRING)) {
+			itemUUID = compound.getString(NBT.UUID);
 		}
 	}
 
@@ -283,10 +276,8 @@ public class InventoryDankNull implements IInventory {
 		if (itemUUID.isEmpty()) {
 			return false;
 		}
-
-		final ItemStack stack = getDankNull();
-		final String itemUUID = ItemNBTUtils.getString(getDankNull(), "UUID");
-		return stack.getItem() instanceof ItemDankNull && itemUUID.equals(this.itemUUID);
-		//This instanceof probably isn't needed. I mean the chances of some random item somehow having a UUID field that matches yours...
+		final String itemUUID = ItemNBTUtils.getString(getDankNull(), NBT.UUID);
+		return itemUUID.equals(this.itemUUID);
 	}
+
 }

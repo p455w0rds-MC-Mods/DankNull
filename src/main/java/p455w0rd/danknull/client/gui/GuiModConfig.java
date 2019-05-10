@@ -5,7 +5,7 @@ import java.util.List;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.util.text.translation.I18n;
+import p455w0rdslib.util.TextUtils;
 import net.minecraftforge.common.config.ConfigCategory;
 import net.minecraftforge.common.config.ConfigElement;
 import net.minecraftforge.common.config.Configuration;
@@ -39,7 +39,7 @@ public class GuiModConfig extends GuiConfig {
 	}
 
 	private static String getTitle(GuiScreen parent) {
-		return I18n.translateToLocal(ModGlobals.NAME + " Config");
+		return TextUtils.translate(ModGlobals.NAME + " Config");
 	}
 
 	@Override

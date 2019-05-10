@@ -1,6 +1,7 @@
 package p455w0rd.danknull.init;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.inventory.Container;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -9,7 +10,6 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import p455w0rd.danknull.DankNull;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
 import p455w0rd.danknull.client.gui.GuiDankNull;
-import p455w0rd.danknull.client.gui.GuiDankNullDock;
 import p455w0rd.danknull.container.ContainerDankNull;
 import p455w0rd.danknull.container.ContainerDankNullDock;
 import p455w0rd.danknull.inventory.InventoryDankNull;
@@ -28,21 +28,19 @@ public class ModGuiHandler implements IGuiHandler {
 	}
 
 	@Override
-	public Object getServerGuiElement(int id, EntityPlayer player, World world, int x, int y, int z) {
+	public Object getServerGuiElement(final int id, final EntityPlayer player, final World world, final int x, final int y, final int z) {
 		switch (GUIType.VALUES[id]) {
 		case DANKNULL:
-			PlayerSlot dankNull = DankNullUtils.getDankNullSlot(player);
-
+			final PlayerSlot dankNull = DankNullUtils.getDankNullSlot(player);
 			if (dankNull == null) {
 				return null;
 			}
-
-			InventoryDankNull inventory = new InventoryDankNull(dankNull, player);
+			final InventoryDankNull inventory = new InventoryDankNull(dankNull, player);
 			return new ContainerDankNull(player, inventory);
 		case DANKNULL_TE:
-			TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
+			final TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
 			if (te instanceof TileDankNullDock) {
-				TileDankNullDock dankDock = (TileDankNullDock) te;
+				final TileDankNullDock dankDock = (TileDankNullDock) te;
 				if (!dankDock.getDankNull().isEmpty()) {
 					return new ContainerDankNullDock(player, dankDock);
 				}
@@ -54,34 +52,36 @@ public class ModGuiHandler implements IGuiHandler {
 	}
 
 	@Override
-	public Object getClientGuiElement(int id, EntityPlayer player, World world, int x, int y, int z) {
-		switch (GUIType.VALUES[id]) {
-		case DANKNULL:
-			PlayerSlot dankNull = DankNullUtils.getDankNullSlot(player);
-
-			if (dankNull == null) {
-				return null;
-			}
-
-			InventoryDankNull inventory = new InventoryDankNull(dankNull, player);
-			return new GuiDankNull(inventory, player);
-		case DANKNULL_TE:
-			TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
-			if (te != null && te instanceof TileDankNullDock) {
-				TileDankNullDock dankDock = (TileDankNullDock) te;
-				if (!dankDock.getDankNull().isEmpty()) {
-					return new GuiDankNullDock(new ContainerDankNullDock(player, dankDock), player, dankDock);
+	public Object getClientGuiElement(final int id, final EntityPlayer player, final World world, final int x, final int y, final int z) {
+		final Container c = (Container) getServerGuiElement(id, player, world, x, y, z);
+		if (c != null) {
+			switch (GUIType.VALUES[id]) {
+			case DANKNULL_TE:
+				final TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
+				if (te instanceof TileDankNullDock) {
+					final TileDankNullDock dankDock = (TileDankNullDock) te;
+					if (!dankDock.getDankNull().isEmpty()) {
+						final InventoryDankNull inventory = DankNullUtils.getNewDankNullInventory(dankDock.getDankNull());
+						return new GuiDankNull(c, inventory, player);
+					}
 				}
+			case DANKNULL:
+				final PlayerSlot dankNull = DankNullUtils.getDankNullSlot(player);
+				if (dankNull == null) {
+					return null;
+				}
+				final InventoryDankNull inventory = new InventoryDankNull(dankNull, player);
+				return new GuiDankNull(c, inventory, player);
+			default:
+				break;
 			}
-		default:
-			break;
 		}
 		return null;
 	}
 
-	public static void launchGui(GUIType type, EntityPlayer playerIn, World worldIn, int x, int y, int z) {
-		if (!worldIn.isRemote){
-			playerIn.openGui(DankNull.INSTANCE, type.ordinal(), worldIn, x, y, z);
+	public static void launchGui(final GUIType type, final EntityPlayer player, final World world, final BlockPos pos) {
+		if (!world.isRemote) {
+			player.openGui(DankNull.INSTANCE, type.ordinal(), world, pos.getX(), pos.getY(), pos.getZ());
 		}
 	}
 

@@ -84,17 +84,19 @@ dependencies {
 	deobfCompile "mcp.mobius.waila:Hwyla:1.8.26-B41_1.12.2"
 	deobfCompile "team.chisel:Chisel:MC1.12.2-0.2.1.34"
 	deobfCompile "team.chisel.ctm:CTM:MC1.12.2-0.3.3.22"
-	deobfCompile "com.feed_the_beast.mods:FTBLib:5+"
-	deobfCompile "com.feed_the_beast.mods:FTBUtilities:5+"
+	deobfCompile "com.feed_the_beast.mods:FTBLib:5.4.1.95"
+	deobfCompile "com.feed_the_beast.mods:FTBUtilities:5.4.0.92"
 	deobfCompile "info.loenwind.autoconfig:AutoConfig:1.12.2-1.0.1"
 	deobfCompile "info.loenwind.autosave:AutoSave:1.12.2-1.0.8"
 	deobfCompile "com.enderio.core:EnderCore:1.12.2-0.5.44"
 	deobfCompile ("com.enderio:EnderIO:1.12.2-5.0.39") {
 		transitive = false
 	}
-	deobfCompile "p455w0rd:p455w0rdslib:1.12.2-2.1.44"
+	deobfCompile "p455w0rd:p455w0rdslib:1.12.2-2.2.98"
 	deobfCompile "mouse-tweaks:MouseTweaks:2.10:mc1.12.2"
 	deobfCompile "item-scroller:itemscroller:1.12.2:0.12.0"
+	deobfCompile "thaumcraft:Thaumcraft:1.12.2:6.1.BETA26"
+	deobfCompile "baubles:Baubles:1.12:1.5.2"
 }
 
 processResources {

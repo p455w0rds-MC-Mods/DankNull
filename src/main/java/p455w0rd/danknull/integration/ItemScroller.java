@@ -2,7 +2,7 @@ package p455w0rd.danknull.integration;
 
 import com.google.common.collect.Lists;
 
-import p455w0rd.danknull.init.ModIntegration.Mods;
+import p455w0rdslib.LibGlobals.Mods;
 
 /**
  * @author p455w0rd

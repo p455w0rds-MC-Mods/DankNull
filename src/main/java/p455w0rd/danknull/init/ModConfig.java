@@ -31,10 +31,11 @@ public class ModConfig {
 	public static final String CONST_OREDICT_BLACKLIST = "OreDictBlacklist";
 	public static final String CONST_OREDICT_WHITELIST = "OreDictWhitelist";
 	public static final String CONST_DISABLE_OREDICT = "DisableOreDictMode";
+	public static final String CONST_ENABLE_COLORED_LIGHTING = "EnableColorShaders";
 
 	public static void init() {
 		if (CONFIG == null) {
-			File configFile = new File(ModGlobals.CONFIG_FILE);
+			final File configFile = new File(ModGlobals.CONFIG_FILE);
 			if (DEBUG_RESET) {
 				configFile.delete();
 			}
@@ -49,7 +50,8 @@ public class ModConfig {
 		Options.oreBlacklist = CONFIG.getString(CONST_OREDICT_BLACKLIST, SERVER_CAT, "", "A semicolon separated list of Ore Dictionary entries (strings) which WILL NOT be allowed to be used with /dank/null's Ore Dictionary functionality.");
 		Options.oreWhitelist = CONFIG.getString(CONST_OREDICT_WHITELIST, SERVER_CAT, "", "A semicolon separated list of Ore Dictionary entries (strings) which WILL BE allowed to be used with /dank/null's Ore Dictionary functionality. Whitelist superceeds blacklist.\nIf whitelist is non-empty, then ONLY Ore Dictionary items matching the entries will\nbe able to take advantage of /dank/null's Ore Dictionary functionality.");
 		Options.disableOreDictMode = CONFIG.getBoolean(CONST_DISABLE_OREDICT, SERVER_CAT, false, "If set to true, then Ore Dictionary Mode will not be available (overrides Ore Dictionary White/Black lists)");
-
+		Options.enabledColoredLightShaderSupport = CONFIG.getBoolean(CONST_ENABLE_COLORED_LIGHTING, CLIENT_CAT, true, "If true, /dank/nulls and panels will emit colored light");
+		Options.showHUD = CONFIG.getBoolean("showHUD", CLIENT_CAT, true, "Show the /dank/null HUD overlay?");
 		if (CONFIG.hasChanged()) {
 			CONFIG.save();
 		}
@@ -57,12 +59,14 @@ public class ModConfig {
 
 	public static class Options {
 
+		public static boolean enabledColoredLightShaderSupport = true;
 		public static boolean callItDevNull = false;
 		public static boolean superShine = false;
 		public static String creativeBlacklist = "";
 		public static String creativeWhitelist = "";
 		public static String oreBlacklist = "";
 		public static String oreWhitelist = "";
+		public static boolean showHUD = true;
 		private static NonNullListSerializable<ItemStack> creativeItemBlacklist = null; // cache it..
 		private static NonNullListSerializable<ItemStack> creativeItemWhitelist = null;
 		private static ArrayList<String> oreStringBlacklist = Lists.<String>newArrayList();
@@ -75,7 +79,7 @@ public class ModConfig {
 				tmpList = oreBlacklist.split(";");
 			}
 			if (tmpList != null) {
-				for (String string : tmpList) {
+				for (final String string : tmpList) {
 					if (OreDictionary.doesOreNameExist(string)) {
 						oreStringBlacklist.add(string);
 					}
@@ -90,7 +94,7 @@ public class ModConfig {
 				tmpList = oreWhitelist.split(";");
 			}
 			if (tmpList != null) {
-				for (String string : tmpList) {
+				for (final String string : tmpList) {
 					if (OreDictionary.doesOreNameExist(string)) {
 						oreStringWhitelist.add(string);
 					}
@@ -103,15 +107,15 @@ public class ModConfig {
 			if (creativeItemBlacklist == null && getCreativeWhitelistedItems().isEmpty()) {
 				creativeItemBlacklist = (NonNullListSerializable<ItemStack>) NonNullListSerializable.<ItemStack>create();
 				if (!creativeBlacklist.isEmpty()) {
-					List<String> itemStringList = Lists.newArrayList(creativeBlacklist.split(";"));
-					for (String itemString : itemStringList) {
-						String[] params = itemString.split(":");
-						int numColons = params.length - 1;
+					final List<String> itemStringList = Lists.newArrayList(creativeBlacklist.split(";"));
+					for (final String itemString : itemStringList) {
+						final String[] params = itemString.split(":");
+						final int numColons = params.length - 1;
 						if (numColons > 2 || numColons <= 0) {
 							throw new Exception(new Throwable("Invalid format for item blacklisting, check " + ModGlobals.CONFIG_FILE + " for an example"));
 						}
 						if (numColons == 1) { //no meta
-							Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(params[0], params[1]));
+							final Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(params[0], params[1]));
 							if (item == null) {
 								ModLogger.warn("Item \"" + params[0] + ":" + params[1] + "\" not found");
 							}
@@ -120,7 +124,7 @@ public class ModConfig {
 							}
 						}
 						else if (numColons == 2) {
-							Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(params[0], params[1]));
+							final Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(params[0], params[1]));
 							if (item == null) {
 								ModLogger.warn("Item \"" + params[0] + ":" + params[1] + "\" not found");
 							}
@@ -129,7 +133,7 @@ public class ModConfig {
 								try {
 									meta = Integer.parseInt(params[2]);
 								}
-								catch (NumberFormatException e) {
+								catch (final NumberFormatException e) {
 									meta = -1;
 								}
 								if (meta < 0) {
@@ -150,15 +154,15 @@ public class ModConfig {
 			if (creativeItemWhitelist == null) {
 				creativeItemWhitelist = (NonNullListSerializable<ItemStack>) NonNullListSerializable.<ItemStack>create();
 				if (!creativeWhitelist.isEmpty()) {
-					List<String> itemStringList = Lists.newArrayList(creativeWhitelist.split(";"));
-					for (String itemString : itemStringList) {
-						String[] params = itemString.split(":");
-						int numColons = params.length - 1;
+					final List<String> itemStringList = Lists.newArrayList(creativeWhitelist.split(";"));
+					for (final String itemString : itemStringList) {
+						final String[] params = itemString.split(":");
+						final int numColons = params.length - 1;
 						if (numColons > 2 || numColons <= 0) {
 							throw new Exception(new Throwable("Invalid format for item whitelisting, check " + ModGlobals.CONFIG_FILE + " for an example"));
 						}
 						if (numColons == 1) { //no meta
-							Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(params[0], params[1]));
+							final Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(params[0], params[1]));
 							if (item == null) {
 								ModLogger.warn("Item \"" + params[0] + ":" + params[1] + "\" not found");
 							}
@@ -167,7 +171,7 @@ public class ModConfig {
 							}
 						}
 						else if (numColons == 2) {
-							Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(params[0], params[1]));
+							final Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(params[0], params[1]));
 							if (item == null) {
 								ModLogger.warn("Item \"" + params[0] + ":" + params[1] + "\" not found");
 							}
@@ -176,7 +180,7 @@ public class ModConfig {
 								try {
 									meta = Integer.parseInt(params[2]);
 								}
-								catch (NumberFormatException e) {
+								catch (final NumberFormatException e) {
 									meta = -1;
 								}
 								if (meta < 0) {

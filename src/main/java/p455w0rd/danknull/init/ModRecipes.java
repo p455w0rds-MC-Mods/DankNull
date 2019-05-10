@@ -53,30 +53,30 @@ public class ModRecipes {
 	@SuppressWarnings("deprecation")
 	public List<IRecipe> getRecipes() {
 		if (CRAFTING_RECIPES.isEmpty()) {
-			ItemStack coalBlock = new ItemStack(Blocks.COAL_BLOCK);
+			final ItemStack coalBlock = new ItemStack(Blocks.COAL_BLOCK);
 
-			ItemStack redPane = new ItemStack(Blocks.STAINED_GLASS_PANE, 1, 14);
-			ItemStack bluePane = new ItemStack(Blocks.STAINED_GLASS_PANE, 1, 3);
-			ItemStack whitePane = new ItemStack(Blocks.STAINED_GLASS_PANE, 1, 0);
-			ItemStack yellowPane = new ItemStack(Blocks.STAINED_GLASS_PANE, 1, 4);
-			ItemStack cyanPane = new ItemStack(Blocks.STAINED_GLASS_PANE, 1, 9);
-			ItemStack limePane = new ItemStack(Blocks.STAINED_GLASS_PANE, 1, 5);
+			final ItemStack redPane = new ItemStack(Blocks.STAINED_GLASS_PANE, 1, 14);
+			final ItemStack bluePane = new ItemStack(Blocks.STAINED_GLASS_PANE, 1, 3);
+			final ItemStack whitePane = new ItemStack(Blocks.STAINED_GLASS_PANE, 1, 0);
+			final ItemStack yellowPane = new ItemStack(Blocks.STAINED_GLASS_PANE, 1, 4);
+			final ItemStack cyanPane = new ItemStack(Blocks.STAINED_GLASS_PANE, 1, 9);
+			final ItemStack limePane = new ItemStack(Blocks.STAINED_GLASS_PANE, 1, 5);
 
-			ItemStack panel0 = new ItemStack(ModItems.DANK_NULL_PANEL);
-			ItemStack panel1 = new ItemStack(ModItems.DANK_NULL_PANEL, 1, 1);
-			ItemStack panel2 = new ItemStack(ModItems.DANK_NULL_PANEL, 1, 2);
-			ItemStack panel3 = new ItemStack(ModItems.DANK_NULL_PANEL, 1, 3);
-			ItemStack panel4 = new ItemStack(ModItems.DANK_NULL_PANEL, 1, 4);
-			ItemStack panel5 = new ItemStack(ModItems.DANK_NULL_PANEL, 1, 5);
+			final ItemStack panel0 = new ItemStack(ModItems.REDSTONE_PANEL);
+			final ItemStack panel1 = new ItemStack(ModItems.LAPIS_PANEL);
+			final ItemStack panel2 = new ItemStack(ModItems.IRON_PANEL);
+			final ItemStack panel3 = new ItemStack(ModItems.GOLD_PANEL);
+			final ItemStack panel4 = new ItemStack(ModItems.DIAMOND_PANEL);
+			final ItemStack panel5 = new ItemStack(ModItems.EMERALD_PANEL);
 
-			ItemStack dankNull0 = new ItemStack(ModItems.DANK_NULL, 1, 0);
-			ItemStack dankNull1 = new ItemStack(ModItems.DANK_NULL, 1, 1);
-			ItemStack dankNull2 = new ItemStack(ModItems.DANK_NULL, 1, 2);
-			ItemStack dankNull3 = new ItemStack(ModItems.DANK_NULL, 1, 3);
-			ItemStack dankNull4 = new ItemStack(ModItems.DANK_NULL, 1, 4);
-			ItemStack dankNull5 = new ItemStack(ModItems.DANK_NULL, 1, 5);
+			final ItemStack dankNull0 = new ItemStack(ModItems.REDSTONE_DANKNULL);
+			final ItemStack dankNull1 = new ItemStack(ModItems.LAPIS_DANKNULL);
+			final ItemStack dankNull2 = new ItemStack(ModItems.IRON_DANKNULL);
+			final ItemStack dankNull3 = new ItemStack(ModItems.GOLD_DANKNULL);
+			final ItemStack dankNull4 = new ItemStack(ModItems.DIAMOND_DANKNULL);
+			final ItemStack dankNull5 = new ItemStack(ModItems.EMERALD_DANKNULL);
 
-			ItemStack dankNullDockItem = new ItemStack(Item.getItemFromBlock(ModBlocks.DANKNULL_DOCK));
+			final ItemStack dankNullDockItem = new ItemStack(Item.getItemFromBlock(ModBlocks.DANKNULL_DOCK));
 
 			CRAFTING_RECIPES.add(panelRedstone = recipeUtils.addOldShaped(panel0, "aca", "cbc", "aca", 'a', new ItemStack(Items.REDSTONE), 'b', redPane, 'c', coalBlock));
 			CRAFTING_RECIPES.add(panelLapis = recipeUtils.addOldShaped(panel1, "aca", "cbc", "aca", 'a', new ItemStack(Items.DYE, 1, 4), 'b', bluePane, 'c', coalBlock));
@@ -104,7 +104,7 @@ public class ModRecipes {
 	}
 
 	public IRecipe[] getArray() {
-		IRecipe[] recipesArray = new IRecipe[getRecipes().size()];
+		final IRecipe[] recipesArray = new IRecipe[getRecipes().size()];
 		for (int i = 0; i < getRecipes().size(); i++) {
 			recipesArray[i] = getRecipes().get(i);
 		}

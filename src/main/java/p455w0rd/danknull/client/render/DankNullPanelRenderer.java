@@ -1,76 +1,85 @@
 package p455w0rd.danknull.client.render;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Nonnull;
 
-import codechicken.lib.model.ItemQuadBakery;
-import codechicken.lib.model.bakedmodels.ModelProperties.PerspectiveProperties;
-import codechicken.lib.model.bakedmodels.PerspectiveAwareBakedModel;
-import codechicken.lib.render.item.IItemRenderer;
-import codechicken.lib.util.TransformUtils;
-import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GlStateManager;
-import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.OpenGlHelper;
 import net.minecraft.client.renderer.block.model.IBakedModel;
-import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
-import net.minecraft.client.renderer.block.model.ItemOverrideList;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.EnumFacing;
-import net.minecraftforge.common.model.IModelState;
 import p455w0rd.danknull.init.ModConfig.Options;
 import p455w0rd.danknull.items.ItemDankNullPanel;
 import p455w0rd.danknull.util.DankNullUtils;
-import p455w0rdslib.util.RenderUtils;
+import p455w0rdslib.api.client.*;
 
 /**
  * @author p455w0rd
  *
  */
-public class DankNullPanelRenderer implements IItemRenderer {
+public class DankNullPanelRenderer extends TileEntityItemStackRenderer implements ICustomItemRenderer {
 
-	private static final DankNullPanelRenderer INSTANCE = new DankNullPanelRenderer();
+	public ItemLayerWrapper model;
+	public static TransformType transformType;
+	private static final Map<Item, ICustomItemRenderer> CACHE = new HashMap<>();
 
-	private static Map<String, IBakedModel> modelCache = new HashMap<>();
+	private DankNullPanelRenderer(@Nonnull final Item item) {
+		registerRenderer(item, this);
+	}
 
-	private static PerspectiveProperties props = new PerspectiveProperties(TransformUtils.DEFAULT_ITEM, PerspectiveProperties.DEFAULT_ITEM);
+	private static void registerRenderer(final Item item, final ICustomItemRenderer instance) {
+		CACHE.put(item, instance);
+	}
 
-	public static DankNullPanelRenderer getInstance() {
-		return INSTANCE;
+	public static ICustomItemRenderer getRendererForItem(final Item item) {
+		if (!CACHE.containsKey(item)) {
+			new DankNullPanelRenderer(item);
+		}
+		return CACHE.get(item);
 	}
 
 	@Override
-	public void renderItem(ItemStack stack, TransformType transformType) {
+	public void renderByItem(final ItemStack stack, final float partialTicks) {
 		if (stack.isEmpty() || !(stack.getItem() instanceof ItemDankNullPanel)) {
 			return;
 		}
-
-		IBakedModel model = getModel(stack);
-
+		if (model == null) {
+			final IBakedModel baseModel = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel(stack);
+			if (baseModel == null) {
+				return;
+			}
+			final ItemLayerWrapper wrapper = new ItemLayerWrapper(baseModel).setRenderer(this);
+			final Item item = stack.getItem();
+			if (item instanceof IModelHolder) {
+				((IModelHolder) item).setWrappedModel(wrapper);
+			}
+			model = wrapper;
+		}
 		GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 		GlStateManager.enableLighting();
 		GlStateManager.enableAlpha();
 		GlStateManager.enableRescaleNormal();
-		if (stack.isOnItemFrame()) {
-			GlStateManager.scale(1.25D, 1.25D, 1.25D);
-			GlStateManager.translate(-0.1D, -0.1D, -0.25D);
-		}
-
 		GlStateManager.pushMatrix();
-
+		final float pbx = OpenGlHelper.lastBrightnessX;
+		final float pby = OpenGlHelper.lastBrightnessY;
+		if (stack.getItem().hasEffect(stack)) {
+			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240F, 240F);
+		}
 		RenderModel.render(model, stack);
 		if (stack.hasEffect()) {
+			final int meta = ((ItemDankNullPanel) stack.getItem()).getTier().ordinal();
 			if (Options.superShine) {
-				GlintEffectRenderer.apply2(model, DankNullUtils.getColor(stack.getMetadata(), false));
+				GlintEffectRenderer.apply2(model, DankNullUtils.getTier(stack).getHexColor(false));
 			}
 			else {
-				GlintEffectRenderer.apply(model, stack.getMetadata());
+				GlintEffectRenderer.apply(model, meta);
 			}
+			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, pbx, pby);
 		}
 
 		GlStateManager.popMatrix();
@@ -80,64 +89,13 @@ public class DankNullPanelRenderer implements IItemRenderer {
 	}
 
 	@Override
-	public List<BakedQuad> getQuads(IBlockState state, EnumFacing side, long rand) {
-		return new ArrayList<BakedQuad>();
+	public TransformType getTransformType() {
+		return transformType;
 	}
 
 	@Override
-	public boolean isAmbientOcclusion() {
-		return false;
-	}
-
-	@Override
-	public boolean isGui3d() {
-		return false;
-	}
-
-	@Override
-	public boolean isBuiltInRenderer() {
-		return true;
-	}
-
-	@Override
-	public TextureAtlasSprite getParticleTexture() {
-		return null;
-	}
-
-	@Override
-	public ItemCameraTransforms getItemCameraTransforms() {
-		return ItemCameraTransforms.DEFAULT;
-	}
-
-	@Override
-	public ItemOverrideList getOverrides() {
-		return ItemOverrideList.NONE;
-	}
-
-	@Override
-	public IModelState getTransforms() {
-		return TransformUtils.DEFAULT_ITEM;
-	}
-
-	private String getKey(@Nonnull ItemStack stack) {
-		return stack.getItem().getRegistryName().getResourcePath() + "_" + stack.getMetadata();
-	}
-
-	private IBakedModel getModel(@Nonnull ItemStack stack) {
-		String key = getKey(stack);
-		int meta = stack.getMetadata();
-		if (!modelCache.containsKey(key)) {
-			if (DankTextures.DANKNULL_PANELS == null) {
-				DankTextures.getInstance().registerIcons(RenderUtils.getBlocksTextureMap());
-			}
-			List<BakedQuad> quads = ItemQuadBakery.bakeItem(DankTextures.DANKNULL_PANELS[meta]);
-			modelCache.put(key, new PerspectiveAwareBakedModel(quads, props));
-		}
-		return modelCache.get(key);
-	}
-
-	public static void initialize() {
-		RenderUtils.getResourceManager().registerReloadListener(resourceManager -> modelCache.clear());
+	public void setTransformType(final TransformType type) {
+		transformType = type;
 	}
 
 }

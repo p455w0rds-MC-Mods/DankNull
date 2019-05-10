@@ -1,1087 +1,1256 @@
 package p455w0rd.danknull.util;
 
-import codechicken.lib.util.ItemNBTUtils;
+import static p455w0rd.danknull.inventory.PlayerSlot.EnumInvCategory.MAIN;
+import static p455w0rd.danknull.inventory.PlayerSlot.EnumInvCategory.OFF_HAND;
+
+import java.util.*;
+
+import javax.annotation.Nonnull;
+
+import org.apache.commons.lang3.tuple.Pair;
+
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.entity.player.*;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.EnumActionResult;
-import net.minecraft.util.EnumHand;
-import net.minecraft.util.NonNullList;
-import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.*;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 import net.minecraftforge.common.crafting.CraftingHelper;
 import net.minecraftforge.common.crafting.CraftingHelper.ShapedPrimer;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.oredict.OreDictionary;
-import org.apache.commons.lang3.tuple.Pair;
+import p455w0rd.danknull.blocks.BlockDankNullDock;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
+import p455w0rd.danknull.client.gui.GuiDankNull;
 import p455w0rd.danknull.container.ContainerDankNull;
 import p455w0rd.danknull.container.ContainerDankNullDock;
 import p455w0rd.danknull.init.*;
 import p455w0rd.danknull.init.ModConfig.Options;
-import p455w0rd.danknull.inventory.DankNullItemHandler;
+import p455w0rd.danknull.init.ModGlobals.DankNullTier;
+import p455w0rd.danknull.init.ModGlobals.NBT;
 import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rd.danknull.inventory.PlayerSlot;
-import p455w0rd.danknull.items.ItemDankNull;
-import p455w0rd.danknull.network.PacketConfigSync;
-import p455w0rd.danknull.network.PacketSetSelectedItem;
+import p455w0rd.danknull.items.*;
+import p455w0rd.danknull.network.*;
 import p455w0rd.danknull.recipes.RecipeDankNullUpgrade;
-import p455w0rdslib.util.GuiUtils;
-import p455w0rdslib.util.RenderUtils;
-
-import javax.annotation.Nonnull;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
-import static p455w0rd.danknull.inventory.PlayerSlot.EnumInvCategory.MAIN;
-import static p455w0rd.danknull.inventory.PlayerSlot.EnumInvCategory.OFF_HAND;
+import p455w0rdslib.util.*;
 
 /**
  * @author p455w0rd
  */
 public class DankNullUtils {
 
-    public static final String TAG_EXTRACTION_MODES = "ExtractionModes";
-    public static final String TAG_PLACEMENT_MODES = "PlacementModes";
-    private static final String TAG_OREDICT_MODES = "OreDictModes";
-    private static final String TAG_LOCKED = "Locked";
+	public static final int[] STEPS_MOST = new int[] {
+			850, 700, 775, 900, 800
+	};
+	public static final int[] STEPS_LEAST = new int[] {
+			500, 475, 625, 700, 575
+	};
 
-    public static PlayerSlot getDankNullSlot(EntityPlayer player) {
-        InventoryPlayer playerInv = player.inventory;
-        ItemStack mainHand = player.getHeldItemMainhand();
-        ItemStack offHand = player.getHeldItemOffhand();
+	public static PlayerSlot getDankNullSlot(final EntityPlayer player) {
+		final InventoryPlayer playerInv = player.inventory;
+		final ItemStack mainHand = player.getHeldItemMainhand();
+		final ItemStack offHand = player.getHeldItemOffhand();
 
-        if (mainHand.getItem() instanceof ItemDankNull) {
-            return new PlayerSlot(playerInv.currentItem, MAIN);
-        }
-        else if (offHand.getItem() instanceof ItemDankNull) {
-            return new PlayerSlot(0, OFF_HAND);
-        }
+		if (mainHand.getItem() instanceof ItemDankNull) {
+			return new PlayerSlot(playerInv.currentItem, MAIN);
+		}
+		else if (offHand.getItem() instanceof ItemDankNull) {
+			return new PlayerSlot(0, OFF_HAND);
+		}
 
-        for (int i = 0; i < playerInv.mainInventory.size(); i++) {
-            ItemStack stack = playerInv.mainInventory.get(i);
-            if (stack.getItem() instanceof ItemDankNull) {
-                return new PlayerSlot(i, MAIN);
-            }
-        }
+		for (int i = 0; i < playerInv.mainInventory.size(); i++) {
+			final ItemStack stack = playerInv.mainInventory.get(i);
+			if (stack.getItem() instanceof ItemDankNull) {
+				return new PlayerSlot(i, MAIN);
+			}
+		}
+		return null;
+	}
 
-        return null;
-    }
-
-    @Nonnull
-    public static Pair<Integer, ItemStack> getSyncableDankNull(EntityPlayer player) {
-        InventoryPlayer playerInv = player.inventory;
-        ItemStack dankNullItem = ItemStack.EMPTY;
-        int slot = -1;
-        if ((player.getHeldItemMainhand().getItem() instanceof ItemDankNull)) {
-            slot = playerInv.currentItem;
-            dankNullItem = player.getHeldItem(EnumHand.MAIN_HAND);
-        }
-        else if ((!player.getHeldItemOffhand().isEmpty()) && ((player.getHeldItemOffhand().getItem() instanceof ItemDankNull))) {
-            slot = 40;
-            dankNullItem = player.getHeldItem(EnumHand.OFF_HAND);
-        }
-        if (dankNullItem.isEmpty()) {
-            int invSize = playerInv.getSizeInventory();
-            if (invSize <= 0) {
-                return Pair.of(-1, ItemStack.EMPTY);
-            }
-            for (int i = 0; i < invSize; i++) {
-                ItemStack itemStack = playerInv.getStackInSlot(i);
-                if (!itemStack.isEmpty() && (itemStack.getItem() instanceof ItemDankNull)) {
-                    slot = i;
-                    dankNullItem = itemStack;
-                    break;
-                }
-            }
-        }
-        return Pair.of(slot, dankNullItem);
-    }
-
-    public static List<PlayerSlot> getAllDankNulls(EntityPlayer player) {
-        InventoryPlayer playerInv = player.inventory;
-        List<PlayerSlot> dankNullList = Lists.newArrayList();
-        for (int i = 0; i < playerInv.mainInventory.size(); i++) {
-            if (isDankNull(playerInv.mainInventory.get(i))) {
-                dankNullList.add(new PlayerSlot(i, MAIN));
-            }
-        }
-
-        for (int i = 0; i < playerInv.offHandInventory.size(); i++) {
-            if (isDankNull(playerInv.offHandInventory.get(i))) {
-                dankNullList.add(new PlayerSlot(i, MAIN));
-            }
-        }
-
-        return dankNullList;
-    }
-
-    public static PlayerSlot getDankNullForStack(EntityPlayer player, ItemStack stack) {
-        List<PlayerSlot> dankNulls = getAllDankNulls(player);
-
-        for (PlayerSlot slot : dankNulls) {
-            ItemStack itemStack = slot.getStackInSlot(player);
-            if ((itemStack.getItem() instanceof ItemDankNull)) {
-                if (isFiltered(getNewDankNullInventory(slot, player), stack)) {
-                    return slot;
-                }
-                if (isFilteredOreDict(getNewDankNullInventory(slot, player), stack)) {
-                    return slot;
-                }
-            }
-        }
-
-        return null;
-    }
-
-    public static void reArrangeStacks(InventoryDankNull inventory) {
-        if (inventory != null) {
-            int count = 0;
-            NonNullList<ItemStack> stackList = NonNullList.withSize(inventory.getSizeInventory(), ItemStack.EMPTY);
-            for (int i = 0; i < inventory.getSizeInventory(); i++) {
-                ItemStack stack = inventory.getStackInSlot(i);
-                if (!stack.isEmpty()) {
-                    stackList.set(count, inventory.getStackInSlot(i));
-                    count++;
-                }
-            }
-            if (stackList.size() == 0) {
-                setSelectedStackIndex(inventory, -1);
-            }
-            else {
-                for (int i = 0; i < stackList.size(); i++) {
-                    inventory.setInventorySlotContents(i, stackList.get(i));
-                }
-                for (int i = stackList.size(); i < inventory.getSizeInventory(); i++) {
-                    inventory.setInventorySlotContents(i, ItemStack.EMPTY);
-                }
-            }
-            setSelectedIndexApplicable(inventory);
-        }
-    }
-
-    public static NonNullList<ItemStack> getInventoryListArray(InventoryDankNull inventory) {
-        if (inventory != null) {
-            return inventory.getStacks();
-        }
-        return NonNullList.<ItemStack>create();
-    }
-
-    public static int getSelectedStackIndex(InventoryDankNull inventory) {
-        if (inventory != null && !inventory.getDankNull().isEmpty()) {
-            ItemStack dankNull = inventory.getDankNull();
-            if (!dankNull.hasTagCompound()) {
-                dankNull.setTagCompound(new NBTTagCompound());
-            }
-            if (!dankNull.getTagCompound().hasKey("selectedIndex")) {
-                dankNull.getTagCompound().setInteger("selectedIndex", 0);
-            }
-            return dankNull.getTagCompound().getInteger("selectedIndex");
-        }
-        return -1;
-    }
-
-    public static boolean isDankNull(ItemStack stack) {
-        return stack.getItem() instanceof ItemDankNull;
-    }
-
-    public static ItemStack makeDankNullCreative(ItemStack dankNull) {
-        ItemStack creativeDankNull = dankNull.copy();
-        if (isDankNull(creativeDankNull) && !isCreativeDankNull(creativeDankNull)) {
-            if (creativeDankNull.getItemDamage() != 6) {
-                creativeDankNull.setItemDamage(6);
-            }
-        }
-        return creativeDankNull;
-    }
-
-    public static boolean isCreativeDankNull(ItemStack stack) {
-        return isDankNull(stack) && stack.getItemDamage() == 6;
-    }
-
-    public static boolean isCreativeDankNullLocked(ItemStack dankNull) {
-        if (isCreativeDankNull(dankNull)) {
-            return dankNull.hasTagCompound() && dankNull.getTagCompound().hasKey(TAG_LOCKED, Constants.NBT.TAG_BYTE) && dankNull.getTagCompound().getBoolean(TAG_LOCKED);
-        }
-        return false;
-    }
-
-    public static void setLocked(ItemStack creativeDankNull, boolean locked) {
-        if (isCreativeDankNull(creativeDankNull)) {
-            if (!creativeDankNull.hasTagCompound()) {
-                creativeDankNull.setTagCompound(new NBTTagCompound());
-            }
-            creativeDankNull.getTagCompound().setBoolean(TAG_LOCKED, locked);
-        }
-    }
-
-    public static void setSelectedStackIndex(InventoryDankNull inventory, int index) {
-        if (inventory != null && !inventory.getDankNull().isEmpty()) {
-            ItemStack dankNull = inventory.getDankNull();
-            if (!dankNull.hasTagCompound()) {
-                dankNull.setTagCompound(new NBTTagCompound());
-            }
-            dankNull.getTagCompound().setInteger("selectedIndex", index);
-        }
-    }
+	public static ItemStack getDockedDankNull(final ItemStack dankNullDock) {
+		if (dankNullDock.hasTagCompound() && dankNullDock.getTagCompound().hasKey(NBT.BLOCKENTITYTAG, Constants.NBT.TAG_COMPOUND)) {
+			final NBTTagCompound nbt = dankNullDock.getTagCompound().getCompoundTag(NBT.BLOCKENTITYTAG);
+			if (!nbt.hasNoTags()) {
+				return new ItemStack(nbt.getCompoundTag(NBT.DOCKEDSTACK));
+			}
+		}
+		return ItemStack.EMPTY;
+	}
 
 	/*
-	public static void setSelectedStackIndex(InventoryDankNull inventory, int index, World world, BlockPos dockPos) {
-		if (inventory != null && !inventory.getDankNull().isEmpty()) {
-			ItemStack dankNull = inventory.getDankNull();
-			if (!dankNull.hasTagCompound()) {
-				dankNull.setTagCompound(new NBTTagCompound());
+	@Nonnull
+	public static Pair<Integer, ItemStack> getSyncableDankNull(final EntityPlayer player) {
+		final InventoryPlayer playerInv = player.inventory;
+		ItemStack dankNullItem = ItemStack.EMPTY;
+		int slot = -1;
+		if (player.getHeldItemMainhand().getItem() instanceof ItemDankNull) {
+			slot = playerInv.currentItem;
+			dankNullItem = player.getHeldItem(EnumHand.MAIN_HAND);
+		}
+		else if (!player.getHeldItemOffhand().isEmpty() && player.getHeldItemOffhand().getItem() instanceof ItemDankNull) {
+			slot = 40;
+			dankNullItem = player.getHeldItem(EnumHand.OFF_HAND);
+		}
+		if (dankNullItem.isEmpty()) {
+			final int invSize = playerInv.getSizeInventory();
+			if (invSize <= 0) {
+				return Pair.of(-1, ItemStack.EMPTY);
 			}
-			dankNull.getTagCompound().setInteger("selectedIndex", index);
-			if (dockPos != null && world != null && !world.isRemote) {
-				TileEntity te = world.getTileEntity(dockPos);
-				if (te instanceof TileDankNullDock) {
-					TileDankNullDock dankDock = (TileDankNullDock) te;
-					dankDock.setStack(dankNull);
-					VanillaPacketDispatcher.dispatchTEToNearbyPlayers(dankDock);
-					dankDock.markDirty();
-					world.notifyBlockUpdate(dockPos, world.getBlockState(dockPos), world.getBlockState(dockPos), 3);
+			for (int i = 0; i < invSize; i++) {
+				final ItemStack itemStack = playerInv.getStackInSlot(i);
+				if (!itemStack.isEmpty() && itemStack.getItem() instanceof ItemDankNull) {
+					slot = i;
+					dankNullItem = itemStack;
+					break;
+				}
+			}
+		}
+		return Pair.of(slot, dankNullItem);
+	}
+	*/
+	public static List<PlayerSlot> getAllDankNulls(final EntityPlayer player) {
+		final InventoryPlayer playerInv = player.inventory;
+		final List<PlayerSlot> dankNullList = Lists.newArrayList();
+		for (int i = 0; i < playerInv.mainInventory.size(); i++) {
+			if (isDankNull(playerInv.mainInventory.get(i))) {
+				dankNullList.add(new PlayerSlot(i, MAIN));
+			}
+		}
+
+		for (int i = 0; i < playerInv.offHandInventory.size(); i++) {
+			if (isDankNull(playerInv.offHandInventory.get(i))) {
+				dankNullList.add(new PlayerSlot(i, MAIN));
+			}
+		}
+
+		return dankNullList;
+	}
+
+	public static PlayerSlot getDankNullForStack(final EntityPlayer player, final ItemStack stack) {
+		final List<PlayerSlot> dankNulls = getAllDankNulls(player);
+
+		for (final PlayerSlot slot : dankNulls) {
+			final ItemStack itemStack = slot.getStackInSlot(player);
+			if (itemStack.getItem() instanceof ItemDankNull) {
+				if (isFiltered(getNewDankNullInventory(slot, player), stack)) {
+					return slot;
+				}
+				if (isFilteredOreDict(getNewDankNullInventory(slot, player), stack)) {
+					return slot;
+				}
+			}
+		}
+
+		return null;
+	}
+
+	public static void setStackInSlot(final ItemStack dankNull, final int index, final ItemStack stack) {
+		final InventoryDankNull inv = getNewDankNullInventory(dankNull);
+		inv.setInventorySlotContents(index, stack);
+		if (!dankNull.hasTagCompound()) {
+			dankNull.setTagCompound(new NBTTagCompound());
+		}
+		inv.saveInventory(dankNull.getTagCompound());
+	}
+
+	public static ItemStack decrStackSize(final ItemStack dankNull, final int index, final int amount) {
+		final InventoryDankNull inv = getNewDankNullInventory(dankNull);
+		final ItemStack ret = inv.decrStackSize(index, amount);
+		if (!dankNull.hasTagCompound()) {
+			dankNull.setTagCompound(new NBTTagCompound());
+		}
+		inv.saveInventory(dankNull.getTagCompound());
+		return ret;
+	}
+
+	/*
+	public static void reArrangeStacks(final ItemStack dankNull) {
+		final InventoryDankNull inv = getNewDankNullInventory(dankNull);
+		reArrangeStacks(inv);
+		if (!dankNull.hasTagCompound()) {
+			dankNull.setTagCompound(new NBTTagCompound());
+		}
+		inv.saveInventory(dankNull.getTagCompound());
+	}
+	*/
+
+	public static boolean isDankDock(final Object obj) {
+		return obj != null && obj instanceof TileDankNullDock || obj instanceof BlockDankNullDock || obj instanceof ItemBlockDankNullDock;
+	}
+
+	public static void reArrangeStacks(final TileDankNullDock dankDock) {
+		if (isDankDock(dankDock) && !dankDock.getDankNull().isEmpty()) {
+			final InventoryDankNull tmpInv = getNewDankNullInventory(dankDock.getDankNull());
+			reArrangeStacks(dankDock.getDankNull());
+			//tmpInv.markDirty();
+			//dankDock.markDirty();
+		}
+	}
+
+	public static void reArrangeStacks(final ItemStack dankNull) {
+		if (isDankNull(dankNull)) {
+			final InventoryDankNull tmpInv = getNewDankNullInventory(dankNull);
+			reArrangeStacks(tmpInv);
+			tmpInv.markDirty();
+		}
+	}
+
+	public static void reArrangeStacks(final InventoryDankNull inventory) {
+		if (inventory != null) {
+			int count = 0;
+			final NonNullList<ItemStack> stackList = NonNullList.withSize(inventory.getSizeInventory(), ItemStack.EMPTY);
+			for (int i = 0; i < inventory.getSizeInventory(); i++) {
+				final ItemStack stack = inventory.getStackInSlot(i);
+				if (!stack.isEmpty()) {
+					stackList.set(count, inventory.getStackInSlot(i));
+					count++;
+				}
+			}
+			if (stackList.size() == 0) {
+				setSelectedStackIndex(inventory, -1);
+			}
+			else {
+				for (int i = 0; i < stackList.size(); i++) {
+					inventory.setInventorySlotContents(i, stackList.get(i));
+				}
+				for (int i = stackList.size(); i < inventory.getSizeInventory(); i++) {
+					inventory.setInventorySlotContents(i, ItemStack.EMPTY);
+				}
+			}
+			setSelectedIndexApplicable(inventory);
+		}
+	}
+
+	public static IMessage getSyncPacket(final GuiDankNull gui) {
+		if (gui.isTile()) {
+			final ContainerDankNullDock c = (ContainerDankNullDock) gui.inventorySlots;
+			return new PacketSyncDankNullDock(c.getTile(), c.getDankNull());
+		}
+		return new PacketSyncDankNull(Pair.of(gui.getDankNullInventory().getPlayerSlotIndex(), gui.getDankNull()));
+	}
+
+	public static NonNullList<ItemStack> getInventoryListArray(final InventoryDankNull inventory) {
+		if (inventory != null) {
+			return inventory.getStacks();
+		}
+		return NonNullList.<ItemStack>create();
+	}
+
+	public static int getSelectedStackIndex(final InventoryDankNull inventory) {
+		if (inventory != null && !inventory.getDankNull().isEmpty()) {
+			return getSelectedStackIndex(inventory.getDankNull());
+		}
+		return -1;
+	}
+
+	public static int getSelectedStackIndex(final ItemStack dankNull) {
+		if (!dankNull.hasTagCompound()) {
+			dankNull.setTagCompound(new NBTTagCompound());
+		}
+		if (!dankNull.getTagCompound().hasKey(NBT.SELECTEDINDEX)) {
+			dankNull.getTagCompound().setInteger(NBT.SELECTEDINDEX, 0);
+		}
+		return dankNull.getTagCompound().getInteger(NBT.SELECTEDINDEX);
+	}
+
+	public static boolean isDankNull(final ItemStack stack) {
+		return stack.getItem() instanceof ItemDankNull;
+	}
+
+	public static ItemStack makeDankNullCreative(final ItemStack dankNull) {
+		final ItemStack creativeDankNull = dankNull.copy();
+		if (isDankNull(creativeDankNull) && !isCreativeDankNull(creativeDankNull)) {
+			if (getMeta(creativeDankNull) != 6) {
+				final ItemStack newStack = new ItemStack(ModItems.CREATIVE_DANKNULL);
+				if (creativeDankNull.hasTagCompound()) {
+					newStack.setTagCompound(creativeDankNull.getTagCompound());
+				}
+				return newStack;
+			}
+		}
+		return creativeDankNull;
+	}
+
+	public static boolean isCreativeDankNull(final ItemStack stack) {
+		return isDankNull(stack) && stack.getItem() == ModItems.CREATIVE_DANKNULL;
+	}
+
+	public static boolean isDankNullPanel(final ItemStack stack) {
+		return stack.getItem() instanceof ItemDankNullPanel;
+	}
+
+	public static int getMeta(final ItemStack stack) {
+		if (isDankNull(stack)) {
+			return ((ItemDankNull) stack.getItem()).getTier().ordinal();
+		}
+		else if (isDankNullPanel(stack)) {
+			return ((ItemDankNullPanel) stack.getItem()).getTier().ordinal();
+		}
+		return -1;
+	}
+
+	public static boolean isCreativeDankNullLocked(final ItemStack dankNull) {
+		if (isCreativeDankNull(dankNull)) {
+			return dankNull.hasTagCompound() && dankNull.getTagCompound().hasKey(NBT.LOCKED, Constants.NBT.TAG_BYTE) && dankNull.getTagCompound().getBoolean(NBT.LOCKED);
+		}
+		return false;
+	}
+
+	public static void setLocked(final ItemStack creativeDankNull, final boolean locked) {
+		if (isCreativeDankNull(creativeDankNull)) {
+			if (!creativeDankNull.hasTagCompound()) {
+				creativeDankNull.setTagCompound(new NBTTagCompound());
+			}
+			creativeDankNull.getTagCompound().setBoolean(NBT.LOCKED, locked);
+		}
+	}
+
+	public static void setSelectedStackIndex(final InventoryDankNull inventory, final int index) {
+		if (inventory != null && !inventory.getDankNull().isEmpty()) {
+			final ItemStack dankNull = inventory.getDankNull();
+			setSelectedStackIndex(dankNull, index);
+		}
+	}
+
+	public static void setSelectedStackIndex(final ItemStack dankNull, final int index) {
+		ItemNBTUtils.setInteger(dankNull, NBT.SELECTEDINDEX, index);
+	}
+
+	public static void setNextSelectedStack(final InventoryDankNull inventory) {
+		if (inventory != null && !inventory.getDankNull().isEmpty()) {
+			setNextSelectedStack(inventory, null);
+		}
+	}
+
+	public static void setNextSelectedStack(final InventoryDankNull inventory, final EntityPlayer player) {
+		final int currentIndex = getSelectedStackIndex(inventory);
+		final int totalSize = getItemCount(inventory);
+		final int maxIndex = totalSize - 1;
+		int newIndex = 0;
+		if (totalSize > 1) {
+			if (currentIndex == maxIndex) {
+				newIndex = 0;
+				ModNetworking.getInstance().sendToServer(new PacketSetSelectedItem(newIndex));
+				setSelectedStackIndex(inventory, newIndex);
+			}
+			else {
+				newIndex = currentIndex + 1;
+				ModNetworking.getInstance().sendToServer(new PacketSetSelectedItem(newIndex));
+				setSelectedStackIndex(inventory, newIndex);
+			}
+		}
+	}
+
+	public static void setPreviousSelectedStack(final InventoryDankNull inventory, final EntityPlayer player) {
+		final int currentIndex = getSelectedStackIndex(inventory);
+		final int totalSize = getItemCount(inventory);
+		final int maxIndex = totalSize - 1;
+		int newIndex = 0;
+		if (totalSize > 1) {
+			if (currentIndex == 0) {
+				newIndex = maxIndex;
+				ModNetworking.getInstance().sendToServer(new PacketSetSelectedItem(newIndex));
+				setSelectedStackIndex(inventory, newIndex);
+			}
+			else {
+				newIndex = currentIndex - 1;
+				ModNetworking.getInstance().sendToServer(new PacketSetSelectedItem(newIndex));
+				setSelectedStackIndex(inventory, newIndex);
+			}
+		}
+	}
+
+	public static int getItemCount(final InventoryDankNull inventory) {
+		int count = 0;
+		if (inventory != null) {
+			for (int i = 0; i < inventory.getSizeInventory(); i++) {
+				if (!inventory.getStackInSlot(i).isEmpty()) {
+					count++;
+				}
+			}
+		}
+		return count;
+	}
+
+	public static void decrSelectedStackSize(final InventoryDankNull inventory, final int amount) {
+		if (inventory == null || inventory.getDankNull().isEmpty()) {
+			return;
+		}
+		getSelectedStack(inventory).shrink(amount);
+		reArrangeStacks(inventory);
+	}
+
+	public static int getSelectedStackSize(final InventoryDankNull inventory) {
+		if (inventory != null && !inventory.getDankNull().isEmpty()) {
+			final ItemStack selectedStack = getSelectedStack(inventory);
+			if (!selectedStack.isEmpty()) {
+				return selectedStack.getCount();
+			}
+		}
+		return 0;
+	}
+
+	public static InventoryDankNull getInventoryFromHeld(final EntityPlayer player) {
+		if (player != null) {
+			if (isDankNull(player.getHeldItemMainhand())) {
+				return new InventoryDankNull(new PlayerSlot(player.inventory.currentItem, MAIN), player);
+			}
+			else if (isDankNull(player.getHeldItemOffhand())) {
+				return new InventoryDankNull(new PlayerSlot(0, OFF_HAND), player);
+			}
+		}
+		return null;
+	}
+
+	public static ItemStack getSelectedStack(final ItemStack dankNull) {
+		if (!dankNull.hasTagCompound()) {
+			setSelectedStackIndex(dankNull, isEmpty(dankNull) ? -1 : 0);
+		}
+		final int selectedIndex = ItemNBTUtils.getInteger(dankNull, NBT.SELECTEDINDEX);
+		if (selectedIndex > -1 && dankNull.getTagCompound().hasKey(NBT.DANKNULL_INVENTORY, Constants.NBT.TAG_LIST)) {
+			final NBTTagList itemList = dankNull.getTagCompound().getTagList(NBT.DANKNULL_INVENTORY, Constants.NBT.TAG_COMPOUND);
+			if (selectedIndex < itemList.tagCount()) {
+				final NBTTagCompound currentNBT = itemList.getCompoundTagAt(selectedIndex);
+				final ItemStack ret = new ItemStack(currentNBT);
+				if (currentNBT.hasKey(NBT.REALCOUNT, Constants.NBT.TAG_INT)) {
+					ret.setCount(currentNBT.getInteger(NBT.REALCOUNT));
+				}
+				return ret;
+			}
+		}
+		return ItemStack.EMPTY;
+	}
+
+	public static ItemStack getSelectedStack(final InventoryDankNull inventory) {
+		if (inventory != null && !inventory.getDankNull().isEmpty()) {
+			final ItemStack dankNull = inventory.getDankNull();
+			if (!dankNull.hasTagCompound()) {
+				setSelectedStackIndex(inventory, isEmpty(inventory) ? 1 : 0);
+			}
+			final int selectedIndex = ItemNBTUtils.getInteger(dankNull, NBT.SELECTEDINDEX);
+			if (selectedIndex > -1) {
+				return inventory.getStackInSlot(selectedIndex);
+			}
+		}
+		return ItemStack.EMPTY;
+	}
+
+	public static boolean isEmpty(final InventoryDankNull inventory) {
+		return inventory.isEmpty();
+	}
+
+	private static boolean isEmpty(final ItemStack dankNull) {
+		return isEmpty(getNewDankNullInventory(dankNull));
+	}
+
+	public static boolean isFiltered(final ItemStack dankNull, final ItemStack filteredStack) {
+		return isFiltered(getNewDankNullInventory(dankNull), filteredStack);
+	}
+
+	public static boolean isFiltered(final InventoryDankNull inventory, final ItemStack filteredStack) {
+		if (inventory != null) {
+			for (int i = 0; i < inventory.getSizeInventory(); i++) {
+				if (!inventory.getStackInSlot(i).isEmpty()) {
+					if (areStacksEqual(inventory.getStackInSlot(i), filteredStack)) {
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	public static boolean isFilteredOreDict(final InventoryDankNull inventory, final ItemStack filteredStack) {
+		if (isOreDictBlacklistEnabled() && !isItemOreDictBlacklisted(filteredStack) || isOreDictWhitelistEnabled() && isItemOreDictWhitelisted(filteredStack) || !isOreDictBlacklistEnabled() && !isOreDictWhitelistEnabled()) {
+			final int[] ids = OreDictionary.getOreIDs(filteredStack);
+			if (inventory != null && ids.length > 0) {
+				for (int i = 0; i < inventory.getSizeInventory(); i++) {
+					if (!inventory.getStackInSlot(i).isEmpty() && isItemOreDicted(inventory.getStackInSlot(i)) && isItemOreDicted(filteredStack) && getOreDictModeForStack(inventory.getDankNull(), inventory.getStackInSlot(i))) {
+						final int[] ids2 = OreDictionary.getOreIDs(inventory.getStackInSlot(i));
+						for (final int id : ids) {
+							final String name = OreDictionary.getOreName(id);
+							for (final int id2 : ids2) {
+								if (name.equals(OreDictionary.getOreName(id2))) {
+									return true;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	public static boolean isOreDictBlacklistEnabled() {
+		return !Options.getOreBlacklist().isEmpty() && !isOreDictWhitelistEnabled();
+	}
+
+	public static boolean isOreDictWhitelistEnabled() {
+		return !Options.getOreWhitelist().isEmpty();
+	}
+
+	public static boolean isItemOreDictBlacklisted(final ItemStack stack) {
+		if (isOreDictBlacklistEnabled()) {
+			for (final int id : OreDictionary.getOreIDs(stack)) {
+				if (Options.getOreBlacklist().contains(OreDictionary.getOreName(id))) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	public static boolean isItemOreDictWhitelisted(final ItemStack stack) {
+		if (isOreDictWhitelistEnabled()) {
+			for (final int id : OreDictionary.getOreIDs(stack)) {
+				if (Options.getOreWhitelist().contains(OreDictionary.getOreName(id))) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	public static boolean canStackBeAdded(final InventoryDankNull inventory, final ItemStack stack) {
+		if (isDankNull(inventory.getDankNull())) {
+			return canStackBeAdded(inventory.getDankNull(), stack);
+		}
+		return false;
+	}
+
+	public static boolean canStackBeAdded(final ItemStack dankNull, final ItemStack stack) {
+		if (isDankNull(dankNull)) {
+			if (DankNullUtils.isCreativeDankNull(dankNull)) {
+				NonNullList<ItemStack> whiteList = null;
+				try {
+					whiteList = Options.getCreativeWhitelistedItems();
+				}
+				catch (final Exception e) {
+				}
+				if (whiteList != null && !whiteList.isEmpty()) {
+					for (final ItemStack whiteListedStack : whiteList) {
+						if (areStacksEqual(stack, whiteListedStack)) {
+							return true;
+						}
+					}
+					return false;
+				}
+				NonNullList<ItemStack> blackList = null;
+				try {
+					blackList = Options.getCreativeBlacklistedItems();
+				}
+				catch (final Exception e) {
+				}
+				if (blackList != null && !blackList.isEmpty()) {
+					for (final ItemStack blackListedStack : blackList) {
+						if (areStacksEqual(stack, blackListedStack)) {
+							return false;
+						}
+					}
+				}
+			}
+		}
+		return true;
+	}
+
+	public static boolean addUnfiliteredStackToDankNull(final ContainerDankNull container, final ItemStack stack) {
+		if (container.getDankNullInventory() != null && canStackBeAdded(container.getDankNullInventory(), stack)) {
+			container.inventorySlots.get(getNextAvailableSlot(container)).putStack(stack);
+			return true;
+		}
+		return false;
+	}
+
+	//TODO remove when these classes get merged
+	public static boolean addUnfiliteredStackToDankNull(final InventoryDankNull inventory, final ItemStack stack) {
+		if (!inventory.getDankNull().isEmpty() && canStackBeAdded(inventory, stack)) {
+			inventory.setInventorySlotContents(getNextAvailableSlot(inventory), stack);
+			return true;
+		}
+		return false;
+	}
+
+	public static int getNextAvailableSlot(final ContainerDankNull container) {
+		if (isCreativeDankNull(container.getDankNull()) && isCreativeDankNullLocked(container.getDankNull())) {
+			return -1;
+		}
+		for (int i = 36; i < container.inventorySlots.size(); i++) {
+			final Slot s = container.inventorySlots.get(i);
+			if (s != null && s.getStack().isEmpty()) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	public static int getNextAvailableSlot(final InventoryDankNull inventory) {
+		if (isCreativeDankNull(inventory.getDankNull()) && isCreativeDankNullLocked(inventory.getDankNull())) {
+			return -1;
+		}
+		for (int i = 0; i < inventory.getSizeInventory(); i++) {
+			if (inventory.getStackInSlot(i).isEmpty()) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	public static boolean addFilteredStackToDankNull(ItemStack dankNull, ItemStack filteredStack) {
+		if (isDankNull(dankNull) && canStackBeAdded(dankNull, filteredStack)) {
+			final InventoryDankNull tmpInv = getNewDankNullInventory(dankNull); //we'll only use getters with this inv (no syncing)
+			if (getIndexForStack(tmpInv, filteredStack) >= 0) {
+				final ItemStack currentStack = getFilteredStack(tmpInv, filteredStack);
+				if (!currentStack.isEmpty() && !filteredStack.isEmpty() && !areStacksEqual(currentStack, filteredStack)) {
+					filteredStack = convertToOreDictedStack(filteredStack, currentStack);
+				}
+				if (filteredStack.getCount() < Integer.MAX_VALUE) {
+					final long currentSize = currentStack.getCount();
+					final long maxDankNullStackSize = getTier(dankNull).getMaxStackSize();
+					if (currentSize + filteredStack.getCount() > maxDankNullStackSize) {
+						currentStack.setCount((int) maxDankNullStackSize);
+					}
+					else {
+						currentStack.setCount((int) currentSize + filteredStack.getCount());
+					}
+					tmpInv.setInventorySlotContents(getIndexForStack(tmpInv, filteredStack), currentStack);
+					dankNull = tmpInv.getDankNull();
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	public static boolean addFilteredStackToDankNull(final InventoryDankNull inventory, ItemStack filteredStack) {
+		if (canStackBeAdded(inventory, filteredStack)) {
+			if (getIndexForStack(inventory, filteredStack) >= 0) {
+				final ItemStack currentStack = getFilteredStack(inventory, filteredStack);
+				if (!currentStack.isEmpty() && !filteredStack.isEmpty() && !areStacksEqual(currentStack, filteredStack)) {
+					filteredStack = convertToOreDictedStack(filteredStack, currentStack);
+				}
+				if (filteredStack.getCount() < Integer.MAX_VALUE) {
+					final long currentSize = currentStack.getCount();
+					final long maxDankNullStackSize = getTier(inventory).getMaxStackSize();
+					if (currentSize + filteredStack.getCount() > maxDankNullStackSize) {
+						currentStack.setCount((int) maxDankNullStackSize);
+					}
+					else {
+						currentStack.setCount((int) currentSize + filteredStack.getCount());
+					}
+					inventory.setInventorySlotContents(getIndexForStack(inventory, filteredStack), currentStack);
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	public static ItemStack getFilteredStack(final InventoryDankNull inventory, final ItemStack stack) {
+		if (isFiltered(inventory, stack) || isFilteredOreDict(inventory, stack)) {
+			return getItemByIndex(inventory, getIndexForStack(inventory, stack));
+		}
+		return ItemStack.EMPTY;
+	}
+
+	public static boolean areStacksEqual(final ItemStack stack1, final ItemStack stack2) {
+		final ItemStack tmpStack1 = stack1.copy();
+		tmpStack1.setCount(1);
+		final ItemStack tmpStack2 = stack2.copy();
+		tmpStack2.setCount(1);
+		return ItemStack.areItemStacksEqual(tmpStack1, tmpStack2);
+	}
+
+	public static int getIndexForStack(final ItemStack dankNull, final ItemStack filteredStack) {
+		final InventoryDankNull inv = getNewDankNullInventory(dankNull);
+		return getIndexForStack(inv, filteredStack);
+	}
+
+	public static int getIndexForStack(final InventoryDankNull inventory, final ItemStack filteredStack) {
+		if (!filteredStack.isEmpty()) {
+			if (isFiltered(inventory, filteredStack)) {
+				for (int i = 0; i < inventory.getSizeInventory(); i++) {
+					if (!inventory.getStackInSlot(i).isEmpty()) {
+						if (areStacksEqual(inventory.getStackInSlot(i), filteredStack)) {
+							return i;
+						}
+					}
+				}
+			}
+			else if (isFilteredOreDict(inventory, filteredStack)) {
+				final int[] ids = OreDictionary.getOreIDs(filteredStack);
+				if (inventory != null && ids.length > 0) {
+					for (int i = 0; i < inventory.getSizeInventory(); i++) {
+						if (!inventory.getStackInSlot(i).isEmpty() && isItemOreDicted(inventory.getStackInSlot(i)) && isItemOreDicted(filteredStack) && getOreDictModeForStack(inventory.getDankNull(), inventory.getStackInSlot(i))) {
+							final int[] ids2 = OreDictionary.getOreIDs(inventory.getStackInSlot(i));
+							for (final int id : ids) {
+								final String name = OreDictionary.getOreName(id);
+								for (final int id2 : ids2) {
+									if (name.equals(OreDictionary.getOreName(id2))) {
+										return i;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		return -1;
+	}
+
+	public static ItemStack getItemByIndex(final InventoryDankNull inventory, final int index) {
+		if (inventory != null && index >= 0) {
+			return inventory.getStackInSlot(index);
+		}
+		return ItemStack.EMPTY;
+	}
+
+	// for rendering
+	public static ItemStack getStackInDankNullSlot(final ItemStack dankNull, final int slot) {
+		final NBTTagList itemList = getNBTItemList(dankNull);
+		if (!itemList.hasNoTags() && itemList.tagCount() > slot) {
+			return new ItemStack(itemList.getCompoundTagAt(slot));
+		}
+		return ItemStack.EMPTY;
+	}
+
+	public static ItemStack getStackInDankNullSlotWithSize(final ItemStack dankNull, final int slot) {
+		final NBTTagList itemList = getNBTItemList(dankNull);
+		if (!itemList.hasNoTags() && itemList.tagCount() > slot) {
+			final NBTTagCompound nbt = itemList.getCompoundTagAt(slot);
+			final ItemStack ret = new ItemStack(nbt);
+			if (nbt.hasKey(NBT.REALCOUNT, Constants.NBT.TAG_INT)) {
+				ret.setCount(nbt.getInteger(NBT.REALCOUNT));
+			}
+			return ret;
+		}
+		return ItemStack.EMPTY;
+	}
+
+	public static int getSizeInventory(final ItemStack dankNull) {
+		return !getNBTItemList(dankNull).hasNoTags() ? getNBTItemList(dankNull).tagCount() : 0;
+	}
+
+	public static NBTTagList getNBTItemList(final ItemStack dankNull) {
+		if (dankNull.hasTagCompound()) {
+			final NBTTagCompound nbt = dankNull.getTagCompound();
+			if (nbt.hasKey(NBT.DANKNULL_INVENTORY, Constants.NBT.TAG_LIST)) {
+				return nbt.getTagList(NBT.DANKNULL_INVENTORY, Constants.NBT.TAG_COMPOUND);
+			}
+		}
+		return new NBTTagList();
+	}
+
+	public static void decrDankNullStackSize(@Nonnull final TileDankNullDock dankDock, @Nonnull final ItemStack stack, final int amount) {
+		if (dankDock == null || dankDock.getDankNull().isEmpty() || stack.isEmpty()) {
+			return;
+		}
+		final ItemStack dankNull = dankDock.getDankNull();
+		if (isFiltered(dankNull, stack)) {
+			final InventoryDankNull tmpInv = getNewDankNullInventory(dankNull);
+			ItemStack currentStack = getFilteredStack(tmpInv, stack);
+			currentStack.setCount(currentStack.getCount() - amount);
+			if (currentStack.getCount() <= 0) {
+				currentStack = ItemStack.EMPTY;
+			}
+
+			final NBTTagCompound nbt = new NBTTagCompound();
+			nbt.setTag(NBT.DOCKEDSTACK, tmpInv.getDankNull().serializeNBT());
+			dankDock.readFromNBT(nbt);
+			dankDock.markDirty();
+		}
+	}
+
+	public static void decrDankNullStackSize(@Nonnull final InventoryDankNull inventory, @Nonnull final ItemStack stack, final int amount) {
+		if (inventory == null || stack.isEmpty()) {
+			return;
+		}
+		if (isFiltered(inventory, stack)) {
+			ItemStack currentStack = getFilteredStack(inventory, stack);
+			currentStack.setCount(currentStack.getCount() - amount);
+			if (currentStack.getCount() <= 0) {
+				currentStack = ItemStack.EMPTY;
+			}
+			inventory.markDirty();
+		}
+	}
+
+	// For ItemStack access via player inventory (right-click, keybind, etc)
+	public static InventoryDankNull getNewDankNullInventory(final PlayerSlot slot, final EntityPlayer player) {
+		final ItemStack stack = slot.getStackInSlot(player);
+
+		if (isDankNull(stack)) {
+			return new InventoryDankNull(slot, player);
+		}
+
+		return null;
+	}
+
+	// Use for Tile ONLY!
+	public static InventoryDankNull getNewDankNullInventory(final ItemStack stack) {
+		return new InventoryDankNull(stack);
+	}
+
+	public static DankNullTier getTier(final InventoryDankNull inventory) {
+		return getTier(inventory.getDankNull());
+	}
+
+	public static DankNullTier getTier(final ItemStack dankNull) {
+		return DankNullTier.VALUES[getMeta(dankNull)];
+	}
+
+	public static int getSlotCount(final ItemStack stack) {
+		return (getMeta(stack) + 1) * 9;
+	}
+
+	public static int getSlotCount(final InventoryDankNull inventory) {
+		return inventory.getSizeInventory();
+	}
+
+	public static void setSelectedIndexApplicable(final ItemStack dankNull) {
+
+	}
+
+	public static void setSelectedIndexApplicable(final InventoryDankNull inventory) {
+		if (inventory != null && !inventory.getDankNull().isEmpty()) {
+			if (getSelectedStackIndex(inventory) >= 0 && !getItemByIndex(inventory, getSelectedStackIndex(inventory)).isEmpty()) {
+				return;
+			}
+			boolean indexFound = false;
+			for (int i = getSelectedStackIndex(inventory); i > -1; i--) {
+				if (!getItemByIndex(inventory, i).isEmpty()) {
+					indexFound = true;
+					setSelectedStackIndex(inventory, i);
+					return;
+				}
+			}
+			for (int i = getSlotCount(inventory) - 1; i > -1; i--) {
+				if (!getItemByIndex(inventory, i).isEmpty()) {
+					indexFound = true;
+					setSelectedStackIndex(inventory, i);
+					return;
+				}
+			}
+			if (!indexFound) {
+				setSelectedStackIndex(inventory, -1);
+			}
+		}
+	}
+
+	public static EnumActionResult placeBlock(@Nonnull final IBlockState state, final World world, final BlockPos pos) {
+		return world.setBlockState(pos, state, 2) ? EnumActionResult.SUCCESS : EnumActionResult.FAIL;
+	}
+
+	public static IRecipe addDankNullUpgradeRecipe(final String recipeName, final Object... params) {
+		final ShapedPrimer primer = CraftingHelper.parseShaped(params);
+		final IRecipe recipe = new RecipeDankNullUpgrade(primer.input).setRegistryName(new ResourceLocation(ModGlobals.MODID, recipeName));
+		return recipe;
+	}
+
+	// ======
+	// OreDict Mode
+	// ======
+	public static Map<ItemStack, Boolean> getOreDictModes(final ItemStack dankNull) {
+		final Map<ItemStack, Boolean> modes = Maps.<ItemStack, Boolean>newHashMap();
+		if (!Options.disableOreDictMode && dankNull.hasTagCompound() && dankNull.getTagCompound().hasKey(NBT.OREDICT_MODES, Constants.NBT.TAG_LIST)) {
+			final NBTTagList extractionList = dankNull.getTagCompound().getTagList(NBT.OREDICT_MODES, Constants.NBT.TAG_COMPOUND);
+			for (int i = 0; i < extractionList.tagCount(); i++) {
+				final NBTTagCompound tempNBT = extractionList.getCompoundTagAt(i);
+				modes.put(new ItemStack(tempNBT.getCompoundTag(NBT.STACK)), tempNBT.getBoolean(NBT.OREDICT));
+			}
+		}
+		return modes;
+	}
+
+	public static void setOreDictModes(final ItemStack dankNull, final Map<ItemStack, Boolean> modes) {
+		if (Options.disableOreDictMode || modes.isEmpty()) {
+			return;
+		}
+		if (!dankNull.hasTagCompound()) {
+			dankNull.setTagCompound(new NBTTagCompound());
+		}
+		final NBTTagCompound dankNullNBT = dankNull.getTagCompound();
+		final NBTTagList oreDictList = new NBTTagList();
+		for (final ItemStack stack : modes.keySet()) {
+			final NBTTagCompound tempNBT = new NBTTagCompound();
+			if (stack.getCount() != 1) {
+				stack.setCount(1);
+			}
+			tempNBT.setTag(NBT.STACK, stack.serializeNBT());
+			tempNBT.setBoolean(NBT.OREDICT, modes.get(stack));
+			oreDictList.appendTag(tempNBT);
+		}
+		dankNullNBT.setTag(NBT.OREDICT_MODES, oreDictList);
+	}
+
+	public static boolean getOreDictModeForStack(final ItemStack dankNull, final ItemStack stack) {
+		if (!Options.disableOreDictMode) {
+			final Map<ItemStack, Boolean> modes = getOreDictModes(dankNull);
+			if (!modes.isEmpty()) {
+				for (final ItemStack currentStack : modes.keySet()) {
+					if (areStacksEqual(currentStack, stack)) {
+						return modes.get(currentStack);
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	public static void setOreDictModeForStack(final ItemStack dankNull, final ItemStack stack, final boolean mode) {
+		if (!dankNull.hasTagCompound()) {
+			dankNull.setTagCompound(new NBTTagCompound());
+		}
+		boolean alreadyAdded = false;
+		final ItemStack tempStack = stack.copy();
+		tempStack.setCount(1);
+		final Map<ItemStack, Boolean> currentModes = getOreDictModes(dankNull);
+		for (final ItemStack currentStack : currentModes.keySet()) {
+			if (areStacksEqual(tempStack, currentStack)) {
+				currentModes.put(currentStack, mode);
+				alreadyAdded = true;
+			}
+		}
+		if (!alreadyAdded) {
+			currentModes.put(tempStack, mode);
+		}
+		setOreDictModes(dankNull, currentModes);
+	}
+
+	public static void cycleOreDictModeForStack(final ItemStack dankNull, final ItemStack stack) {
+		setOreDictModeForStack(dankNull, stack, !getOreDictModeForStack(dankNull, stack));
+	}
+
+	// ======
+	// Extraction Mode
+	// ======
+
+	public static Map<ItemStack, ItemExtractionMode> getExtractionModes(final ItemStack dankNull) {
+		final Map<ItemStack, ItemExtractionMode> modes = Maps.<ItemStack, ItemExtractionMode>newHashMap();
+		if (dankNull.hasTagCompound() && dankNull.getTagCompound().hasKey(NBT.EXTRACTION_MODES, Constants.NBT.TAG_LIST)) {
+			final NBTTagList extractionList = dankNull.getTagCompound().getTagList(NBT.EXTRACTION_MODES, Constants.NBT.TAG_COMPOUND);
+			for (int i = 0; i < extractionList.tagCount(); i++) {
+				final NBTTagCompound tempNBT = extractionList.getCompoundTagAt(i);
+				modes.put(new ItemStack(tempNBT.getCompoundTag(NBT.STACK)), ItemExtractionMode.values()[tempNBT.getInteger(NBT.MODE)]);
+			}
+		}
+		return modes;
+	}
+
+	public static void setExtractionModes(final ItemStack dankNull, final Map<ItemStack, ItemExtractionMode> modes) {
+		if (modes.isEmpty()) {
+			return;
+		}
+		if (!dankNull.hasTagCompound()) {
+			dankNull.setTagCompound(new NBTTagCompound());
+		}
+		final NBTTagCompound dankNullNBT = dankNull.getTagCompound();
+		final NBTTagList extractionList = new NBTTagList();
+		for (final ItemStack stack : modes.keySet()) {
+			final NBTTagCompound tempNBT = new NBTTagCompound();
+			if (stack.getCount() != 1) {
+				stack.setCount(1);
+			}
+			tempNBT.setTag(NBT.STACK, stack.serializeNBT());
+			tempNBT.setInteger(NBT.MODE, modes.get(stack).ordinal());
+			extractionList.appendTag(tempNBT);
+		}
+		dankNullNBT.setTag(NBT.EXTRACTION_MODES, extractionList);
+	}
+
+	public static ItemExtractionMode getExtractionModeForStack(final ItemStack dankNull, final ItemStack stack) {
+		final Map<ItemStack, ItemExtractionMode> modes = getExtractionModes(dankNull);
+		if (!modes.isEmpty()) {
+			for (final ItemStack currentStack : modes.keySet()) {
+				if (areStacksEqual(stack, currentStack)) {
+					return modes.get(currentStack);
+				}
+			}
+		}
+		return ItemExtractionMode.KEEP_ALL;
+	}
+
+	public static void setExtractionModeForStack(final ItemStack dankNull, final ItemStack stack, final ItemExtractionMode mode) {
+		if (!dankNull.hasTagCompound()) {
+			dankNull.setTagCompound(new NBTTagCompound());
+		}
+		boolean alreadyAdded = false;
+		final Map<ItemStack, ItemExtractionMode> currentModes = getExtractionModes(dankNull);
+		for (final ItemStack currentStack : currentModes.keySet()) {
+			if (areStacksEqual(stack, currentStack)) {
+				currentModes.put(currentStack, mode);
+				alreadyAdded = true;
+			}
+		}
+		if (!alreadyAdded) {
+			currentModes.put(stack, mode);
+		}
+		setExtractionModes(dankNull, currentModes);
+	}
+
+	public static void cycleExtractionMode(final ItemStack dankNull, final ItemStack stack) {
+		final ItemExtractionMode current = getExtractionModeForStack(dankNull, stack);
+		if (current.ordinal() >= ItemExtractionMode.values().length - 1) {
+			setExtractionModeForStack(dankNull, stack, ItemExtractionMode.values()[0]);
+		}
+		else {
+			setExtractionModeForStack(dankNull, stack, ItemExtractionMode.values()[current.ordinal() + 1]);
+		}
+		if (FMLCommonHandler.instance().getSide().isClient()) {
+			if (getExtractionModeForStack(dankNull, stack) == null) {
+				ModLogger.warn("no extraction mode found");
+				return;
+			}
+		}
+	}
+
+	// ======
+	// Placement Mode
+	// ======
+
+	public static Map<ItemStack, ItemPlacementMode> getPlacementModes(final ItemStack dankNull) {
+		final Map<ItemStack, ItemPlacementMode> modes = Maps.<ItemStack, ItemPlacementMode>newHashMap();
+		if (dankNull.hasTagCompound() && dankNull.getTagCompound().hasKey(NBT.PLACEMENT_MODES, Constants.NBT.TAG_LIST)) {
+			final NBTTagList extractionList = dankNull.getTagCompound().getTagList(NBT.PLACEMENT_MODES, Constants.NBT.TAG_COMPOUND);
+			for (int i = 0; i < extractionList.tagCount(); i++) {
+				final NBTTagCompound tempNBT = extractionList.getCompoundTagAt(i);
+				modes.put(new ItemStack(tempNBT.getCompoundTag(NBT.STACK)), ItemPlacementMode.values()[tempNBT.getInteger(NBT.MODE)]);
+			}
+		}
+		return modes;
+	}
+
+	public static void setPlacementModes(final ItemStack dankNull, final Map<ItemStack, ItemPlacementMode> modes) {
+		if (modes.isEmpty()) {
+			return;
+		}
+		if (!dankNull.hasTagCompound()) {
+			dankNull.setTagCompound(new NBTTagCompound());
+		}
+		final NBTTagCompound dankNullNBT = dankNull.getTagCompound();
+		final NBTTagList extractionList = new NBTTagList();
+		for (final ItemStack stack : modes.keySet()) {
+			final NBTTagCompound tempNBT = new NBTTagCompound();
+			if (stack.getCount() != 1) {
+				stack.setCount(1);
+			}
+			tempNBT.setTag(NBT.STACK, stack.serializeNBT());
+			tempNBT.setInteger(NBT.MODE, modes.get(stack).ordinal());
+			extractionList.appendTag(tempNBT);
+		}
+		dankNullNBT.setTag(NBT.PLACEMENT_MODES, extractionList);
+	}
+
+	public static ItemPlacementMode getPlacementModeForStack(final ItemStack dankNull, final ItemStack stack) {
+		final Map<ItemStack, ItemPlacementMode> modes = getPlacementModes(dankNull);
+		if (!modes.isEmpty()) {
+			for (final ItemStack currentStack : modes.keySet()) {
+				if (areStacksEqual(stack, currentStack)) {
+					return modes.get(currentStack);
+				}
+			}
+		}
+		return ItemPlacementMode.KEEP_1;
+	}
+
+	public static void setPlacementModeForStack(final ItemStack dankNull, final ItemStack stack, final ItemPlacementMode mode) {
+		if (!dankNull.hasTagCompound()) {
+			dankNull.setTagCompound(new NBTTagCompound());
+		}
+		boolean alreadyAdded = false;
+		final Map<ItemStack, ItemPlacementMode> currentModes = getPlacementModes(dankNull);
+		for (final ItemStack currentStack : currentModes.keySet()) {
+			if (areStacksEqual(stack, currentStack)) {
+				currentModes.put(currentStack, mode);
+				alreadyAdded = true;
+			}
+		}
+		if (!alreadyAdded) {
+			currentModes.put(stack, mode);
+		}
+		setPlacementModes(dankNull, currentModes);
+	}
+
+	public static void cyclePlacementMode(final ItemStack dankNull, final ItemStack stack) {
+		final ItemPlacementMode current = getPlacementModeForStack(dankNull, stack);
+		if (current.ordinal() >= ItemPlacementMode.values().length - 1) {
+			setPlacementModeForStack(dankNull, stack, ItemPlacementMode.values()[0]);
+		}
+		else {
+			setPlacementModeForStack(dankNull, stack, ItemPlacementMode.values()[current.ordinal() + 1]);
+		}
+		if (FMLCommonHandler.instance().getSide().isClient()) {
+			if (getPlacementModeForStack(dankNull, stack) == null) {
+				ModLogger.warn("no extraction mode found");
+				return;
+			}
+		}
+	}
+
+	@SideOnly(Side.CLIENT)
+	public static void renderHUD(final Minecraft mc, final ScaledResolution scaledRes) {
+		if (!Options.showHUD || !mc.playerController.shouldDrawHUD() && !mc.player.capabilities.isCreativeMode) {
+			return;
+		}
+		ItemStack currentItem = mc.player.inventory.getCurrentItem();
+		if (currentItem.isEmpty() || !isDankNull(currentItem)) {
+			currentItem = mc.player.getHeldItemOffhand();
+		}
+		if (!currentItem.isEmpty() && isDankNull(currentItem)) {
+			final ItemStack selectedStack = getSelectedStack(getInventoryFromHeld(mc.player));
+			if (!selectedStack.isEmpty()) {
+				Minecraft.getMinecraft().renderEngine.bindTexture(new ResourceLocation(ModGlobals.MODID, "textures/gui/danknullscreen0.png"));
+				GlStateManager.enableBlend();
+				GlStateManager.enableAlpha();
+				GuiUtils.drawTexturedModalRect(scaledRes.getScaledWidth() - 106, scaledRes.getScaledHeight() - 45, 0, 210, 106, 45, 0);
+				GlStateManager.pushMatrix();
+				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+				GlStateManager.scale(0.5F, 0.5F, 0.5F);
+				mc.fontRenderer.drawStringWithShadow(currentItem.getDisplayName(), scaledRes.getScaledWidth() * 2 - 212 + 55, scaledRes.getScaledHeight() * 2 - 83, getTier(currentItem).getHexColor(true));
+				String selectedStackName = selectedStack.getDisplayName();
+				final int itemNameWidth = mc.fontRenderer.getStringWidth(selectedStackName);
+				if (itemNameWidth >= 88) {
+					selectedStackName = selectedStackName.substring(0, 14).trim() + "...";
+				}
+				final ItemPlacementMode placementMode = getPlacementModeForStack(currentItem, selectedStack);
+				mc.fontRenderer.drawStringWithShadow(TextUtils.translate("dn.selected_item.desc") + ": " + selectedStackName, scaledRes.getScaledWidth() * 2 - 212 + 45, scaledRes.getScaledHeight() * 2 - 72, 16777215);
+				mc.fontRenderer.drawStringWithShadow(TextUtils.translate("dn.count.desc") + ": " + (isCreativeDankNull(currentItem) ? "Infinite" : selectedStack.getCount()), scaledRes.getScaledWidth() * 2 - 212 + 45, scaledRes.getScaledHeight() * 2 - 61, 16777215);
+				mc.fontRenderer.drawStringWithShadow(TextUtils.translate("dn.place.desc") + ": " + placementMode.getTooltip().replace(TextUtils.translate("dn.extract.desc").toLowerCase(Locale.ENGLISH), TextUtils.translate("dn.place.desc").toLowerCase(Locale.ENGLISH)).replace(TextUtils.translate("dn.extract.desc"), TextUtils.translate("dn.place.desc")), scaledRes.getScaledWidth() * 2 - 212 + 45, scaledRes.getScaledHeight() * 2 - 50, 16777215);
+				mc.fontRenderer.drawStringWithShadow(TextUtils.translate("dn.extract.desc") + ": " + getExtractionModeForStack(currentItem, selectedStack).getTooltip(), scaledRes.getScaledWidth() * 2 - 212 + 45, scaledRes.getScaledHeight() * 2 - 40, 16777215);
+
+				final String keyBind = ModKeyBindings.getOpenDankNullKeyBind().getDisplayName();
+				mc.fontRenderer.drawStringWithShadow(keyBind.equalsIgnoreCase("none") ? TextUtils.translate("dn.no_open_keybind.desc") : TextUtils.translate("dn.open_with.desc") + " " + keyBind, scaledRes.getScaledWidth() * 2 - 212 + 45, scaledRes.getScaledHeight() * 2 - 29, 16777215);
+				String oreDictMode = TextUtils.translate("dn.ore_dictionary.desc") + ": " + (getOreDictModeForStack(currentItem, selectedStack) ? TextUtils.translate("dn.enabled.desc") : TextUtils.translate("dn.disabled.desc"));
+				if (!isItemOreDicted(selectedStack)) {
+					oreDictMode = TextUtils.translate("dn.not_oredicted.desc");
+				}
+				mc.fontRenderer.drawStringWithShadow(oreDictMode, scaledRes.getScaledWidth() * 2 - 212 + 45, scaledRes.getScaledHeight() * 2 - 18, 16777215);
+				RenderHelper.enableGUIStandardItemLighting();
+				GlStateManager.popMatrix();
+				GlStateManager.pushMatrix();
+				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
+				RenderUtils.getRenderItem().renderItemAndEffectIntoGUI(currentItem, scaledRes.getScaledWidth() - 106 + 5, scaledRes.getScaledHeight() - 20);
+				GlStateManager.popMatrix();
+				//String oreNames = "";
+				if (isItemOreDicted(selectedStack)) {
+					for (int i = 0; i < OreDictionary.getOreIDs(selectedStack).length; i++) {
+						//oreNames += OreDictionary.getOreName(OreDictionary.getOreIDs(selectedStack)[i]) + " ";
+					}
 				}
 			}
 		}
 	}
-	*/
 
-    public static void setNextSelectedStack(InventoryDankNull inventory) {
-        if (inventory != null && !inventory.getDankNull().isEmpty()) {
-            setNextSelectedStack(inventory, null);
-        }
-    }
-
-    public static void setNextSelectedStack(InventoryDankNull inventory, EntityPlayer player) {
-        int currentIndex = getSelectedStackIndex(inventory);
-        int totalSize = getItemCount(inventory);
-        int maxIndex = totalSize - 1;
-        int newIndex = 0;
-        if (totalSize > 1) {
-            if (currentIndex == maxIndex) {
-                newIndex = 0;
-                ModNetworking.getInstance().sendToServer(new PacketSetSelectedItem(newIndex));
-                setSelectedStackIndex(inventory, newIndex);
-            }
-            else {
-                newIndex = currentIndex + 1;
-                ModNetworking.getInstance().sendToServer(new PacketSetSelectedItem(newIndex));
-                setSelectedStackIndex(inventory, newIndex);
-            }
-        }
-    }
-
-    public static void setPreviousSelectedStack(InventoryDankNull inventory, EntityPlayer player) {
-        int currentIndex = getSelectedStackIndex(inventory);
-        int totalSize = getItemCount(inventory);
-        int maxIndex = totalSize - 1;
-        int newIndex = 0;
-        if (totalSize > 1) {
-            if (currentIndex == 0) {
-                newIndex = maxIndex;
-                ModNetworking.getInstance().sendToServer(new PacketSetSelectedItem(newIndex));
-                setSelectedStackIndex(inventory, newIndex);
-            }
-            else {
-                newIndex = currentIndex - 1;
-                ModNetworking.getInstance().sendToServer(new PacketSetSelectedItem(newIndex));
-                setSelectedStackIndex(inventory, newIndex);
-            }
-        }
-    }
-
-    public static int getItemCount(InventoryDankNull inventory) {
-        int count = 0;
-        if (inventory != null) {
-            for (int i = 0; i < inventory.getSizeInventory(); i++) {
-                if (!inventory.getStackInSlot(i).isEmpty()) {
-                    count++;
-                }
-            }
-        }
-        return count;
-    }
-
-    public static void decrSelectedStackSize(InventoryDankNull inventory, int amount) {
-        if (inventory == null || inventory.getDankNull().isEmpty()) {
-            return;
-        }
-        getSelectedStack(inventory).shrink(amount);
-        reArrangeStacks(inventory);
-    }
-
-    public static int getSelectedStackSize(InventoryDankNull inventory) {
-        if (inventory != null && !inventory.getDankNull().isEmpty()) {
-            ItemStack selectedStack = getSelectedStack(inventory);
-            if (!selectedStack.isEmpty()) {
-                return selectedStack.getCount();
-            }
-        }
-        return 0;
-    }
-
-    public static InventoryDankNull getInventoryFromHeld(EntityPlayer player) {
-        if (player != null) {
-            if (player.getHeldItemMainhand().getItem() == ModItems.DANK_NULL) {
-                return new InventoryDankNull(new PlayerSlot(player.inventory.currentItem, MAIN), player);
-            }
-            else if (player.getHeldItemOffhand().getItem() == ModItems.DANK_NULL) {
-                return new InventoryDankNull(new PlayerSlot(0, OFF_HAND), player);
-            }
-        }
-        return null;
-    }
-
-    public static ItemStack getSelectedStack(InventoryDankNull inventory) {
-        if (inventory != null && !inventory.getDankNull().isEmpty()) {
-            ItemStack dankNull = inventory.getDankNull();
-            if (!dankNull.hasTagCompound()) {
-                setSelectedStackIndex(inventory, isEmpty(inventory) ? 1 : 0);
-            }
-
-//            NBTTagCompound nbtTC = dankNull.getTagCompound();
-//            if (!nbtTC.hasKey("selectedIndex")) {
-//                nbtTC.setInteger("selectedIndex", 0);
-//            }
-            int selectedIndex = ItemNBTUtils.getInteger(dankNull, "selectedIndex");//nbtTC.getInteger("selectedIndex");
-            if (selectedIndex > -1) {
-                return inventory.getStackInSlot(selectedIndex);
-            }
-            //}
-        }
-        return ItemStack.EMPTY;
-    }
-
-    public static boolean isEmpty(InventoryDankNull inventory) {
-        return inventory.isEmpty();
-    }
-
-    public static boolean isFiltered(InventoryDankNull inventory, ItemStack filteredStack) {
-        if (inventory != null) {
-            for (int i = 0; i < inventory.getSizeInventory(); i++) {
-                if (!inventory.getStackInSlot(i).isEmpty()) {
-                    if (areStacksEqual(inventory.getStackInSlot(i), filteredStack)) {
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    public static boolean isFilteredOreDict(InventoryDankNull inventory, ItemStack filteredStack) {
-        if ((DankNullUtils.isOreDictBlacklistEnabled() && !DankNullUtils.isItemOreDictBlacklisted(filteredStack)) || (DankNullUtils.isOreDictWhitelistEnabled() && DankNullUtils.isItemOreDictWhitelisted(filteredStack)) || !DankNullUtils.isOreDictBlacklistEnabled() && !DankNullUtils.isOreDictWhitelistEnabled()) {
-            int[] ids = OreDictionary.getOreIDs(filteredStack);
-            if (inventory != null && ids.length > 0) {
-                for (int i = 0; i < inventory.getSizeInventory(); i++) {
-                    if (!inventory.getStackInSlot(i).isEmpty() && isItemOreDicted(inventory.getStackInSlot(i)) && isItemOreDicted(filteredStack) && getOreDictModeForStack(inventory.getDankNull(), inventory.getStackInSlot(i))) {
-                        int[] ids2 = OreDictionary.getOreIDs(inventory.getStackInSlot(i));
-                        for (int id : ids) {
-                            String name = OreDictionary.getOreName(id);
-                            for (int id2 : ids2) {
-                                if (name.equals(OreDictionary.getOreName(id2))) {
-                                    return true;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    public static boolean isOreDictBlacklistEnabled() {
-        return !Options.getOreBlacklist().isEmpty() && !isOreDictWhitelistEnabled();
-    }
-
-    public static boolean isOreDictWhitelistEnabled() {
-        return !Options.getOreWhitelist().isEmpty();
-    }
-
-    public static boolean isItemOreDictBlacklisted(ItemStack stack) {
-        if (isOreDictBlacklistEnabled()) {
-            for (int id : OreDictionary.getOreIDs(stack)) {
-                if (Options.getOreBlacklist().contains(OreDictionary.getOreName(id))) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    public static boolean isItemOreDictWhitelisted(ItemStack stack) {
-        if (isOreDictWhitelistEnabled()) {
-            for (int id : OreDictionary.getOreIDs(stack)) {
-                if (Options.getOreWhitelist().contains(OreDictionary.getOreName(id))) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    public static DankNullItemHandler getHandler(ItemStack dankNull) {
-        if (hasDankNullHandler(dankNull)) {
-            return (DankNullItemHandler) dankNull.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
-        }
-        return null;
-    }
-
-    public static boolean hasDankNullHandler(ItemStack dankNull) {
-        return dankNull.getItem() == ModItems.DANK_NULL && dankNull.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
-    }
-
-    public static boolean canStackBeAdded(InventoryDankNull inventory, ItemStack stack) {
-        if (!inventory.getDankNull().isEmpty()) {
-            ItemStack dankNull = inventory.getDankNull();
-            if (DankNullUtils.isCreativeDankNull(dankNull)) {
-                NonNullList<ItemStack> whiteList = null;
-                try {
-                    whiteList = Options.getCreativeWhitelistedItems();
-                }
-                catch (Exception e) {
-                }
-                if (whiteList != null && !whiteList.isEmpty()) {
-                    for (ItemStack whiteListedStack : whiteList) {
-                        if (areStacksEqual(stack, whiteListedStack)) {
-                            return true;
-                        }
-                    }
-                    return false;
-                }
-                NonNullList<ItemStack> blackList = null;
-                try {
-                    blackList = Options.getCreativeBlacklistedItems();
-                }
-                catch (Exception e) {
-                }
-                if (blackList != null && !blackList.isEmpty()) {
-                    for (ItemStack blackListedStack : blackList) {
-                        if (areStacksEqual(stack, blackListedStack)) {
-                            return false;
-                        }
-                    }
-                }
-            }
-        }
-        return true;
-    }
-
-    public static boolean addUnfiliteredFilteredStackToDankNull(ContainerDankNull container, ItemStack stack) {
-        if (container.getDankNullInventory() != null && canStackBeAdded(container.getDankNullInventory(), stack)) {
-            container.inventorySlots.get(getNextAvailableSlot(container)).putStack(stack);
-            return true;
-        }
-        return false;
-    }
-
-    //TODO remove when these classes get merged
-    public static boolean addUnfiliteredFilteredStackToDankNull(ContainerDankNullDock container, ItemStack stack) {
-        if (container.getDankNullInventory() != null && canStackBeAdded(container.getDankNullInventory(), stack)) {
-            container.inventorySlots.get(getNextAvailableSlot(container)).putStack(stack);
-            return true;
-        }
-        return false;
-    }
-
-    public static int getNextAvailableSlot(ContainerDankNull container) {
-        if (isCreativeDankNull(container.getDankNull()) && isCreativeDankNullLocked(container.getDankNull())) {
-            return -1;
-        }
-        for (int i = 36; i < container.inventorySlots.size(); i++) {
-            Slot s = container.inventorySlots.get(i);
-            if ((s != null) && (s.getStack().isEmpty())) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    //TODO remove when these classes get merged
-    public static int getNextAvailableSlot(ContainerDankNullDock container) {
-        if (isCreativeDankNull(container.getDankNull()) && isCreativeDankNullLocked(container.getDankNull())) {
-            return -1;
-        }
-        for (int i = 36; i < container.inventorySlots.size(); i++) {
-            Slot s = container.inventorySlots.get(i);
-            if ((s != null) && (s.getStack().isEmpty())) {
-                return i;
-            }
-        }
-        return -1;
-    }
-
-    public static boolean addFilteredStackToDankNull(InventoryDankNull inventory, ItemStack filteredStack) {
-        if (canStackBeAdded(inventory, filteredStack)) {
-            if (getIndexForStack(inventory, filteredStack) >= 0) {
-                ItemStack currentStack = getFilteredStack(inventory, filteredStack);
-                if (!currentStack.isEmpty() && !filteredStack.isEmpty() && !areStacksEqual(currentStack, filteredStack)) {
-                    filteredStack = convertToOreDictedStack(filteredStack, currentStack);
-                }
-                if (filteredStack.getCount() < Integer.MAX_VALUE) {
-                    long currentSize = currentStack.getCount();
-                    long maxDankNullStackSize = getDankNullMaxStackSize(inventory);
-                    if (currentSize + filteredStack.getCount() > maxDankNullStackSize) {
-                        currentStack.setCount((int) maxDankNullStackSize);
-                    }
-                    else {
-                        currentStack.setCount((int) currentSize + filteredStack.getCount());
-                    }
-                    inventory.setInventorySlotContents(getIndexForStack(inventory, filteredStack), currentStack);
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    public static ItemStack getFilteredStack(InventoryDankNull inventory, ItemStack stack) {
-        if (isFiltered(inventory, stack) || isFilteredOreDict(inventory, stack)) {
-            return getItemByIndex(inventory, getIndexForStack(inventory, stack));
-        }
-        return ItemStack.EMPTY;
-    }
-
-    public static boolean areStacksEqual(ItemStack stack1, ItemStack stack2) {
-        ItemStack tmpStack1 = stack1.copy();
-        tmpStack1.setCount(1);
-        ItemStack tmpStack2 = stack2.copy();
-        tmpStack2.setCount(1);
-        return ItemStack.areItemStacksEqual(tmpStack1, tmpStack2);
-    }
-
-    public static int getIndexForStack(InventoryDankNull inventory, ItemStack filteredStack) {
-        if (!filteredStack.isEmpty()) {
-            if (isFiltered(inventory, filteredStack)) {
-                for (int i = 0; i < inventory.getSizeInventory(); i++) {
-                    if (!inventory.getStackInSlot(i).isEmpty()) {
-                        if (areStacksEqual(inventory.getStackInSlot(i), filteredStack)) {
-                            return i;
-                        }
-                    }
-                }
-            }
-            else if (isFilteredOreDict(inventory, filteredStack)) {
-                int[] ids = OreDictionary.getOreIDs(filteredStack);
-                if (inventory != null && ids.length > 0) {
-                    for (int i = 0; i < inventory.getSizeInventory(); i++) {
-                        if (!inventory.getStackInSlot(i).isEmpty() && isItemOreDicted(inventory.getStackInSlot(i)) && isItemOreDicted(filteredStack) && getOreDictModeForStack(inventory.getDankNull(), inventory.getStackInSlot(i))) {
-                            int[] ids2 = OreDictionary.getOreIDs(inventory.getStackInSlot(i));
-                            for (int id : ids) {
-                                String name = OreDictionary.getOreName(id);
-                                for (int id2 : ids2) {
-                                    if (name.equals(OreDictionary.getOreName(id2))) {
-                                        return i;
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        return -1;
-    }
-
-    public static ItemStack getItemByIndex(InventoryDankNull inventory, int index) {
-        if (inventory != null && index >= 0) {
-            return inventory.getStackInSlot(index);
-        }
-        return ItemStack.EMPTY;
-    }
-
-    public static void decrDankNullStackSize(@Nonnull InventoryDankNull inventory, @Nonnull ItemStack stack, int amount) {
-        if (inventory == null || stack.isEmpty()) {
-            return;
-        }
-        if (isFiltered(inventory, stack)) {
-            ItemStack currentStack = getFilteredStack(inventory, stack);
-            currentStack.setCount(currentStack.getCount() - amount);
-            if (currentStack.getCount() <= 0) {
-                currentStack = ItemStack.EMPTY;
-            }
-            inventory.markDirty();
-        }
-    }
-
-    public static InventoryDankNull getNewDankNullInventory(PlayerSlot slot, EntityPlayer player) {
-        ItemStack stack = slot.getStackInSlot(player);
-
-        if (isDankNull(stack)) {
-            return new InventoryDankNull(slot, player);
-        }
-
-        return null;
-    }
-
-    @Deprecated //Unsafe use method above where possible
-    public static InventoryDankNull getNewDankNullInventory(ItemStack stack) {
-        return new InventoryDankNull(stack);
-    }
-
-    public static int getDankNullMaxStackSize(@Nonnull ItemStack itemStackIn) {
-        int level = itemStackIn.getItemDamage() + 1;
-        if (level >= 6) {
-            return Integer.MAX_VALUE;
-        }
-        return level * (128 * level);
-    }
-
-    public static int getDankNullMaxStackSize(InventoryDankNull inventory) {
-        if (inventory != null && !inventory.getDankNull().isEmpty()) {
-            int level = inventory.getDankNull().getItemDamage() + 1;
-            if (level == 6) {
-                return Integer.MAX_VALUE;
-            }
-            return level * (128 * level);
-        }
-        return 0;
-    }
-
-    public static int getColor(int damage, boolean opaque) {
-        switch (damage) {
-            case 0:
-                return opaque ? 0xFFEC4848 : 0x99EC4848;
-            case 1:
-                return opaque ? 0xFF4885EC : 0x994885EC;
-            default:
-            case 2:
-                return opaque ? 0xFFFFFFFF : 0x99FFFFFF;
-            case 3:
-                return opaque ? 0xFFFFFF00 : 0x99FFFF00;
-            case 4:
-                return opaque ? 0xFF00FFFF : 0x9900FFFF;
-            case 5:
-                return opaque ? 0xFF17FF6D : 0x9917FF6D;
-            case 6:
-                return opaque ? 0xFF8F15D4 : 0x998F15D4;
-        }
-    }
-
-    public static int getSlotCount(ItemStack stack) {
-        return (stack.getItemDamage() + 1) * 9;
-    }
-
-    public static int getSlotCount(InventoryDankNull inventory) {
-        return inventory.getSizeInventory();
-    }
-
-    public static void setSelectedIndexApplicable(InventoryDankNull inventory) {
-        if (inventory != null && !inventory.getDankNull().isEmpty()) {
-            if (getSelectedStackIndex(inventory) >= 0 && !getItemByIndex(inventory, getSelectedStackIndex(inventory)).isEmpty()) {
-                return;
-            }
-            boolean indexFound = false;
-            for (int i = getSelectedStackIndex(inventory); i > -1; i--) {
-                if (!getItemByIndex(inventory, i).isEmpty()) {
-                    indexFound = true;
-                    setSelectedStackIndex(inventory, i);
-                    return;
-                }
-            }
-            for (int i = getSlotCount(inventory) - 1; i > -1; i--) {
-                if (!getItemByIndex(inventory, i).isEmpty()) {
-                    indexFound = true;
-                    setSelectedStackIndex(inventory, i);
-                    return;
-                }
-            }
-            if (!indexFound) {
-                setSelectedStackIndex(inventory, -1);
-            }
-        }
-    }
-
-    public static EnumActionResult placeBlock(@Nonnull IBlockState state, World world, BlockPos pos) {
-        return world.setBlockState(pos, state, 2) ? EnumActionResult.SUCCESS : EnumActionResult.FAIL;
-    }
-
-    public static IRecipe addDankNullUpgradeRecipe(String recipeName, Object... params) {
-        ShapedPrimer primer = CraftingHelper.parseShaped(params);
-        IRecipe recipe = new RecipeDankNullUpgrade(primer.input).setRegistryName(new ResourceLocation(ModGlobals.MODID, recipeName));
-        return recipe;
-    }
-
-    // ======
-    // OreDict Mode
-    // ======
-    public static Map<ItemStack, Boolean> getOreDictModes(ItemStack dankNull) {
-        Map<ItemStack, Boolean> modes = Maps.<ItemStack, Boolean>newHashMap();
-        if (!Options.disableOreDictMode && dankNull.hasTagCompound() && dankNull.getTagCompound().hasKey(TAG_OREDICT_MODES, Constants.NBT.TAG_LIST)) {
-            NBTTagList extractionList = dankNull.getTagCompound().getTagList(TAG_OREDICT_MODES, Constants.NBT.TAG_COMPOUND);
-            for (int i = 0; i < extractionList.tagCount(); i++) {
-                NBTTagCompound tempNBT = extractionList.getCompoundTagAt(i);
-                modes.put(new ItemStack(tempNBT.getCompoundTag("Stack")), tempNBT.getBoolean("OreDict"));
-            }
-        }
-        return modes;
-    }
-
-    public static void setOreDictModes(ItemStack dankNull, Map<ItemStack, Boolean> modes) {
-        if (Options.disableOreDictMode || modes.isEmpty()) {
-            return;
-        }
-        if (!dankNull.hasTagCompound()) {
-            dankNull.setTagCompound(new NBTTagCompound());
-        }
-        NBTTagCompound dankNullNBT = dankNull.getTagCompound();
-        NBTTagList oreDictList = new NBTTagList();
-        for (ItemStack stack : modes.keySet()) {
-            NBTTagCompound tempNBT = new NBTTagCompound();
-            if (stack.getCount() != 1) {
-                stack.setCount(1);
-            }
-            tempNBT.setTag("Stack", stack.serializeNBT());
-            tempNBT.setBoolean("OreDict", modes.get(stack));
-            oreDictList.appendTag(tempNBT);
-        }
-        dankNullNBT.setTag(TAG_OREDICT_MODES, oreDictList);
-    }
-
-    public static boolean getOreDictModeForStack(ItemStack dankNull, ItemStack stack) {
-        if (!Options.disableOreDictMode) {
-            Map<ItemStack, Boolean> modes = getOreDictModes(dankNull);
-            if (!modes.isEmpty()) {
-                for (ItemStack currentStack : modes.keySet()) {
-                    if (areStacksEqual(currentStack, stack)) {
-                        return modes.get(currentStack);
-                    }
-                }
-            }
-        }
-        return false;
-    }
-
-    public static void setOreDictModeForStack(ItemStack dankNull, ItemStack stack, boolean mode) {
-        if (!dankNull.hasTagCompound()) {
-            dankNull.setTagCompound(new NBTTagCompound());
-        }
-        boolean alreadyAdded = false;
-        ItemStack tempStack = stack.copy();
-        tempStack.setCount(1);
-        Map<ItemStack, Boolean> currentModes = getOreDictModes(dankNull);
-        for (ItemStack currentStack : currentModes.keySet()) {
-            if (areStacksEqual(tempStack, currentStack)) {
-                currentModes.put(currentStack, mode);
-                alreadyAdded = true;
-            }
-        }
-        if (!alreadyAdded) {
-            currentModes.put(tempStack, mode);
-        }
-        setOreDictModes(dankNull, currentModes);
-    }
-
-    public static void cycleOreDictModeForStack(ItemStack dankNull, ItemStack stack) {
-        setOreDictModeForStack(dankNull, stack, !getOreDictModeForStack(dankNull, stack));
-    }
-
-    // ======
-    // Extraction Mode
-    // ======
-
-    public static Map<ItemStack, ItemExtractionMode> getExtractionModes(ItemStack dankNull) {
-        Map<ItemStack, ItemExtractionMode> modes = Maps.<ItemStack, ItemExtractionMode>newHashMap();
-        if (dankNull.hasTagCompound() && dankNull.getTagCompound().hasKey(TAG_EXTRACTION_MODES, Constants.NBT.TAG_LIST)) {
-            NBTTagList extractionList = dankNull.getTagCompound().getTagList(TAG_EXTRACTION_MODES, Constants.NBT.TAG_COMPOUND);
-            for (int i = 0; i < extractionList.tagCount(); i++) {
-                NBTTagCompound tempNBT = extractionList.getCompoundTagAt(i);
-                modes.put(new ItemStack(tempNBT.getCompoundTag("Stack")), ItemExtractionMode.values()[tempNBT.getInteger("Mode")]);
-            }
-        }
-        return modes;
-    }
-
-    public static void setExtractionModes(ItemStack dankNull, Map<ItemStack, ItemExtractionMode> modes) {
-        if (modes.isEmpty()) {
-            return;
-        }
-        if (!dankNull.hasTagCompound()) {
-            dankNull.setTagCompound(new NBTTagCompound());
-        }
-        NBTTagCompound dankNullNBT = dankNull.getTagCompound();
-        NBTTagList extractionList = new NBTTagList();
-        for (ItemStack stack : modes.keySet()) {
-            NBTTagCompound tempNBT = new NBTTagCompound();
-            if (stack.getCount() != 1) {
-                stack.setCount(1);
-            }
-            tempNBT.setTag("Stack", stack.serializeNBT());
-            tempNBT.setInteger("Mode", modes.get(stack).ordinal());
-            extractionList.appendTag(tempNBT);
-        }
-        dankNullNBT.setTag(TAG_EXTRACTION_MODES, extractionList);
-    }
-
-    public static ItemExtractionMode getExtractionModeForStack(ItemStack dankNull, ItemStack stack) {
-        Map<ItemStack, ItemExtractionMode> modes = getExtractionModes(dankNull);
-        if (!modes.isEmpty()) {
-            for (ItemStack currentStack : modes.keySet()) {
-                if (areStacksEqual(stack, currentStack)) {
-                    return modes.get(currentStack);
-                }
-            }
-        }
-        return ItemExtractionMode.KEEP_ALL;
-    }
-
-    public static void setExtractionModeForStack(ItemStack dankNull, ItemStack stack, ItemExtractionMode mode) {
-        if (!dankNull.hasTagCompound()) {
-            dankNull.setTagCompound(new NBTTagCompound());
-        }
-        boolean alreadyAdded = false;
-        Map<ItemStack, ItemExtractionMode> currentModes = getExtractionModes(dankNull);
-        for (ItemStack currentStack : currentModes.keySet()) {
-            if (areStacksEqual(stack, currentStack)) {
-                currentModes.put(currentStack, mode);
-                alreadyAdded = true;
-            }
-        }
-        if (!alreadyAdded) {
-            currentModes.put(stack, mode);
-        }
-        setExtractionModes(dankNull, currentModes);
-    }
-
-    public static void cycleExtractionMode(ItemStack dankNull, ItemStack stack) {
-        ItemExtractionMode current = getExtractionModeForStack(dankNull, stack);
-        if (current.ordinal() >= ItemExtractionMode.values().length - 1) {
-            setExtractionModeForStack(dankNull, stack, ItemExtractionMode.values()[0]);
-        }
-        else {
-            setExtractionModeForStack(dankNull, stack, ItemExtractionMode.values()[current.ordinal() + 1]);
-        }
-        if (FMLCommonHandler.instance().getSide().isClient()) {
-            if (getExtractionModeForStack(dankNull, stack) == null) {
-                ModLogger.warn("no extraction mode found");
-                return;
-            }
-        }
-    }
-
-    // ======
-    // Placement Mode
-    // ======
-
-    public static Map<ItemStack, ItemExtractionMode> getPlacementModes(ItemStack dankNull) {
-        Map<ItemStack, ItemExtractionMode> modes = Maps.<ItemStack, ItemExtractionMode>newHashMap();
-        if (dankNull.hasTagCompound() && dankNull.getTagCompound().hasKey(TAG_PLACEMENT_MODES, Constants.NBT.TAG_LIST)) {
-            NBTTagList extractionList = dankNull.getTagCompound().getTagList(TAG_PLACEMENT_MODES, Constants.NBT.TAG_COMPOUND);
-            for (int i = 0; i < extractionList.tagCount(); i++) {
-                NBTTagCompound tempNBT = extractionList.getCompoundTagAt(i);
-                modes.put(new ItemStack(tempNBT.getCompoundTag("Stack")), ItemExtractionMode.values()[tempNBT.getInteger("Mode")]);
-            }
-        }
-        return modes;
-    }
-
-    public static void setPlacementModes(ItemStack dankNull, Map<ItemStack, ItemExtractionMode> modes) {
-        if (modes.isEmpty()) {
-            return;
-        }
-        if (!dankNull.hasTagCompound()) {
-            dankNull.setTagCompound(new NBTTagCompound());
-        }
-        NBTTagCompound dankNullNBT = dankNull.getTagCompound();
-        NBTTagList extractionList = new NBTTagList();
-        for (ItemStack stack : modes.keySet()) {
-            NBTTagCompound tempNBT = new NBTTagCompound();
-            if (stack.getCount() != 1) {
-                stack.setCount(1);
-            }
-            tempNBT.setTag("Stack", stack.serializeNBT());
-            tempNBT.setInteger("Mode", modes.get(stack).ordinal());
-            extractionList.appendTag(tempNBT);
-        }
-        dankNullNBT.setTag(TAG_PLACEMENT_MODES, extractionList);
-    }
-
-    public static ItemExtractionMode getPlacementModeForStack(ItemStack dankNull, ItemStack stack) {
-        Map<ItemStack, ItemExtractionMode> modes = getPlacementModes(dankNull);
-        if (!modes.isEmpty()) {
-            for (ItemStack currentStack : modes.keySet()) {
-                if (areStacksEqual(stack, currentStack)) {
-                    return modes.get(currentStack);
-                }
-            }
-        }
-        return ItemExtractionMode.KEEP_1;
-    }
-
-    public static void setPlacementModeForStack(ItemStack dankNull, ItemStack stack, ItemExtractionMode mode) {
-        if (!dankNull.hasTagCompound()) {
-            dankNull.setTagCompound(new NBTTagCompound());
-        }
-        boolean alreadyAdded = false;
-        Map<ItemStack, ItemExtractionMode> currentModes = getPlacementModes(dankNull);
-        for (ItemStack currentStack : currentModes.keySet()) {
-            if (areStacksEqual(stack, currentStack)) {
-                currentModes.put(currentStack, mode);
-                alreadyAdded = true;
-            }
-        }
-        if (!alreadyAdded) {
-            currentModes.put(stack, mode);
-        }
-        setPlacementModes(dankNull, currentModes);
-    }
-
-    public static void cyclePlacementMode(ItemStack dankNull, ItemStack stack) {
-        ItemExtractionMode current = getPlacementModeForStack(dankNull, stack);
-        if (current.ordinal() >= ItemExtractionMode.values().length - 1) {
-            setPlacementModeForStack(dankNull, stack, ItemExtractionMode.values()[0]);
-        }
-        else {
-            setPlacementModeForStack(dankNull, stack, ItemExtractionMode.values()[current.ordinal() + 1]);
-        }
-        if (FMLCommonHandler.instance().getSide().isClient()) {
-            if (getPlacementModeForStack(dankNull, stack) == null) {
-                ModLogger.warn("no extraction mode found");
-                return;
-            }
-        }
-    }
-
-    @SideOnly(Side.CLIENT)
-    public static void renderHUD(Minecraft mc, ScaledResolution scaledRes) {
-        if (!mc.playerController.shouldDrawHUD() && !mc.player.capabilities.isCreativeMode) {
-            return;
-        }
-        ItemStack currentItem = mc.player.inventory.getCurrentItem();
-        if (currentItem.isEmpty() || currentItem.getItem() != ModItems.DANK_NULL) {
-            currentItem = mc.player.getHeldItemOffhand();
-        }
-        if (!currentItem.isEmpty() && currentItem.getItem() == ModItems.DANK_NULL) {
-            ItemStack selectedStack = DankNullUtils.getSelectedStack(DankNullUtils.getInventoryFromHeld(mc.player));
-            if (!selectedStack.isEmpty()) {
-                Minecraft.getMinecraft().renderEngine.bindTexture(new ResourceLocation(ModGlobals.MODID, "textures/gui/danknullscreen0.png"));
-                GlStateManager.enableBlend();
-                GlStateManager.enableAlpha();
-                GuiUtils.drawTexturedModalRect(scaledRes.getScaledWidth() - 106, scaledRes.getScaledHeight() - 45, 0, 210, 106, 45, 0);
-                GlStateManager.pushMatrix();
-                GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-                GlStateManager.scale(0.5F, 0.5F, 0.5F);
-                mc.fontRenderer.drawStringWithShadow(currentItem.getDisplayName(), ((scaledRes.getScaledWidth() * 2) - 212) + 55, (scaledRes.getScaledHeight() * 2) - 83, DankNullUtils.getColor(currentItem.getItemDamage(), true));
-                String selectedStackName = selectedStack.getDisplayName();
-                int itemNameWidth = mc.fontRenderer.getStringWidth(selectedStackName);
-                if (itemNameWidth >= 88) {
-                    selectedStackName = selectedStackName.substring(0, 14).trim() + "...";
-                }
-                ItemExtractionMode placementMode = DankNullUtils.getPlacementModeForStack(currentItem, selectedStack);
-                mc.fontRenderer.drawStringWithShadow(translate("dn.selected_item.desc") + ": " + selectedStackName, ((scaledRes.getScaledWidth() * 2) - 212) + 45, (scaledRes.getScaledHeight() * 2) - 72, 16777215);
-                mc.fontRenderer.drawStringWithShadow(translate("dn.count.desc") + ": " + (isCreativeDankNull(currentItem) ? "Infinite" : selectedStack.getCount()), ((scaledRes.getScaledWidth() * 2) - 212) + 45, (scaledRes.getScaledHeight() * 2) - 61, 16777215);
-                mc.fontRenderer.drawStringWithShadow(translate("dn.place.desc") + ": " + placementMode.getTooltip().replace(DankNullUtils.translate("dn.extract.desc").toLowerCase(Locale.ENGLISH), DankNullUtils.translate("dn.place.desc").toLowerCase(Locale.ENGLISH)).replace(DankNullUtils.translate("dn.extract.desc"), DankNullUtils.translate("dn.place.desc")), ((scaledRes.getScaledWidth() * 2) - 212) + 45, (scaledRes.getScaledHeight() * 2) - 50, 16777215);
-                mc.fontRenderer.drawStringWithShadow(translate("dn.extract.desc") + ": " + getExtractionModeForStack(currentItem, selectedStack).getTooltip(), ((scaledRes.getScaledWidth() * 2) - 212) + 45, (scaledRes.getScaledHeight() * 2) - 40, 16777215);
-
-                String keyBind = ModKeyBindings.getOpenDankNullKeyBind().getDisplayName();
-                mc.fontRenderer.drawStringWithShadow(keyBind.equalsIgnoreCase("none") ? translate("dn.no_open_keybind.desc") : translate("dn.open_with.desc") + " " + keyBind, ((scaledRes.getScaledWidth() * 2) - 212) + 45, (scaledRes.getScaledHeight() * 2) - 29, 16777215);
-                String oreDictMode = translate("dn.ore_dictionary.desc") + ": " + (getOreDictModeForStack(currentItem, selectedStack) ? translate("dn.enabled.desc") : translate("dn.disabled.desc"));
-                if (!isItemOreDicted(selectedStack)) {
-                    oreDictMode = translate("dn.not_oredicted.desc");
-                }
-                mc.fontRenderer.drawStringWithShadow(oreDictMode, ((scaledRes.getScaledWidth() * 2) - 212) + 45, (scaledRes.getScaledHeight() * 2) - 18, 16777215);
-                RenderHelper.enableGUIStandardItemLighting();
-                GlStateManager.popMatrix();
-                GlStateManager.pushMatrix();
-                GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
-                RenderUtils.getRenderItem().renderItemAndEffectIntoGUI(currentItem, (scaledRes.getScaledWidth() - 106) + 5, scaledRes.getScaledHeight() - 20);
-                GlStateManager.popMatrix();
-                String oreNames = "";
-                if (isItemOreDicted(selectedStack)) {
-                    for (int i = 0; i < OreDictionary.getOreIDs(selectedStack).length; i++) {
-                        oreNames += OreDictionary.getOreName(OreDictionary.getOreIDs(selectedStack)[i]) + " ";
-                    }
-                }
-            }
-        }
-    }
-
-    public static void emptyDankNullDock(@Nonnull TileDankNullDock dock) {
-        if (dock != null && dock.getWorld() != null) {
-            dock.setInventory(null);
-        }
-    }
-
-    public static String translate(String key) {
-        return I18n.translateToLocal(key);
-    }
-
-    public static boolean isItemOreDicted(ItemStack stack) {
-        return OreDictionary.getOreIDs(stack).length > 0;
-    }
-
-    public static ItemStack convertToOreDictedStack(ItemStack toBeConverted, ItemStack toConvertTo) {
-        if (!isItemOreDicted(toBeConverted) || !isItemOreDicted(toConvertTo) || Options.disableOreDictMode) {
-            return ItemStack.EMPTY;
-        }
-        ItemStack newStack = toConvertTo.copy();
-        newStack.setCount(toBeConverted.getCount());
-        return newStack;
-    }
-
-    @SideOnly(Side.SERVER)
-    public static void sendConfigsToClient(EntityPlayerMP player) {
-        WeakHashMapSerializable<String, Object> map = new WeakHashMapSerializable<String, Object>();
-        map.put(ModConfig.CONST_CREATIVE_BLACKLIST, Options.creativeBlacklist);
-        map.put(ModConfig.CONST_CREATIVE_WHITELIST, Options.creativeWhitelist);
-        map.put(ModConfig.CONST_OREDICT_BLACKLIST, Options.oreBlacklist);
-        map.put(ModConfig.CONST_OREDICT_WHITELIST, Options.oreWhitelist);
-        map.put(ModConfig.CONST_DISABLE_OREDICT, Options.disableOreDictMode);
-        ModNetworking.getInstance().sendTo(new PacketConfigSync(map), player);
-    }
-
-    public static enum ItemExtractionMode {
-
-        KEEP_ALL(Integer.MAX_VALUE, DankNullUtils.translate("dn.not_extract.desc")),
-        KEEP_1(1, DankNullUtils.translate("dn.extract_all_but.desc") + " 1"),
-        KEEP_16(16, DankNullUtils.translate("dn.extract_all_but.desc") + " 16"),
-        KEEP_64(64, DankNullUtils.translate("dn.extract_all_but.desc") + " 64"),
-        KEEP_NONE(0, DankNullUtils.translate("dn.extract_all.desc"));
-
-        int number = 0;
-        String msg;
-
-        ItemExtractionMode(int numberToKeep, String message) {
-            number = numberToKeep;
-            msg = message;
-        }
-
-        public int getNumberToKeep() {
-            return number;
-        }
-
-        public String getMessage() {
-            return DankNullUtils.translate("dn.will.desc") + " " + msg + " " + DankNullUtils.translate("dn.from_slot.desc");
-        }
-
-        public String getTooltip() {
-            if (toString().equals("KEEP_ALL")) {
-                return DankNullUtils.translate("dn.do.desc") + " " + msg;
-            }
-            return msg.substring(0, 1).toUpperCase() + msg.substring(1);
-        }
-
-    }
+	public static void toggleHUD() {
+		Options.showHUD = !Options.showHUD;
+		ModConfig.CONFIG.save();
+	}
+
+	public static boolean isItemOreDicted(final ItemStack stack) {
+		return OreDictionary.getOreIDs(stack).length > 0;
+	}
+
+	public static ItemStack convertToOreDictedStack(final ItemStack toBeConverted, final ItemStack toConvertTo) {
+		if (!isItemOreDicted(toBeConverted) || !isItemOreDicted(toConvertTo) || Options.disableOreDictMode) {
+			return ItemStack.EMPTY;
+		}
+		final ItemStack newStack = toConvertTo.copy();
+		newStack.setCount(toBeConverted.getCount());
+		return newStack;
+	}
+
+	@SideOnly(Side.SERVER)
+	public static void sendConfigsToClient(final EntityPlayerMP player) {
+		final WeakHashMapSerializable<String, Object> map = new WeakHashMapSerializable<>();
+		map.put(ModConfig.CONST_CREATIVE_BLACKLIST, Options.creativeBlacklist);
+		map.put(ModConfig.CONST_CREATIVE_WHITELIST, Options.creativeWhitelist);
+		map.put(ModConfig.CONST_OREDICT_BLACKLIST, Options.oreBlacklist);
+		map.put(ModConfig.CONST_OREDICT_WHITELIST, Options.oreWhitelist);
+		map.put(ModConfig.CONST_DISABLE_OREDICT, Options.disableOreDictMode);
+		ModNetworking.getInstance().sendTo(new PacketConfigSync(map), player);
+	}
+
+	public static enum ItemExtractionMode {
+
+			KEEP_ALL(Integer.MAX_VALUE, TextUtils.translate("dn.not_extract.desc")),
+			KEEP_1(1, TextUtils.translate("dn.extract_all_but.desc") + " 1"),
+			KEEP_16(16, TextUtils.translate("dn.extract_all_but.desc") + " 16"),
+			KEEP_64(64, TextUtils.translate("dn.extract_all_but.desc") + " 64"),
+			KEEP_NONE(0, TextUtils.translate("dn.extract_all.desc"));
+
+		int number = 0;
+		String msg;
+
+		ItemExtractionMode(final int numberToKeep, final String message) {
+			number = numberToKeep;
+			msg = message;
+		}
+
+		public int getNumberToKeep() {
+			return number;
+		}
+
+		public String getMessage() {
+			return TextUtils.translate("dn.will.desc") + " " + msg + " " + TextUtils.translate("dn.from_slot.desc");
+		}
+
+		public String getTooltip() {
+			if (toString().equals("KEEP_ALL")) {
+				return TextUtils.translate("dn.do.desc") + " " + msg;
+			}
+			return msg.substring(0, 1).toUpperCase() + msg.substring(1);
+		}
+
+	}
+
+	public static enum ItemPlacementMode {
+
+			KEEP_ALL(Integer.MAX_VALUE, TextUtils.translate("dn.not_extract.desc")),
+			KEEP_1(1, TextUtils.translate("dn.extract_all_but.desc") + " 1"),
+			KEEP_16(16, TextUtils.translate("dn.extract_all_but.desc") + " 16"),
+			KEEP_64(64, TextUtils.translate("dn.extract_all_but.desc") + " 64"),
+			KEEP_NONE(0, TextUtils.translate("dn.extract_all.desc"));
+
+		int number = 0;
+		String msg;
+
+		ItemPlacementMode(final int numberToKeep, final String message) {
+			number = numberToKeep;
+			msg = message;
+		}
+
+		public int getNumberToKeep() {
+			return number;
+		}
+
+		public String getMessage() {
+			return TextUtils.translate("dn.will.desc") + " " + msg + " " + TextUtils.translate("dn.from_slot.desc");
+		}
+
+		public String getTooltip() {
+			if (toString().equals("KEEP_ALL")) {
+				return TextUtils.translate("dn.do.desc") + " " + msg;
+			}
+			return msg.substring(0, 1).toUpperCase() + msg.substring(1);
+		}
+
+	}
 
 }

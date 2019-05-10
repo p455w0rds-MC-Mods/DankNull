@@ -2,8 +2,8 @@ package p455w0rd.danknull.integration;
 
 import codechicken.nei.NEIController;
 import codechicken.nei.handler.NEIClientEventHandler;
-import p455w0rd.danknull.init.ModIntegration.Mods;
 import p455w0rd.danknull.integration.nei.NEIControllerOverride;
+import p455w0rdslib.LibGlobals.Mods;
 
 /**
  * @author p455w0rd

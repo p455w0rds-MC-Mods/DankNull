@@ -1,10 +1,8 @@
 package p455w0rd.danknull.init;
 
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.Loader;
-import p455w0rd.danknull.integration.ItemScroller;
-import p455w0rd.danknull.integration.TOP;
-import p455w0rd.danknull.integration.WAILA;
+import p455w0rd.danknull.integration.*;
+import p455w0rdslib.LibGlobals.Mods;
 
 /**
  * @author p455w0rd
@@ -36,30 +34,6 @@ public class ModIntegration {
 	public static void postInit() {
 		if (Mods.ITEMSCROLLER.isLoaded()) {
 			ItemScroller.blackListSlots();
-		}
-	}
-
-	public static enum Mods {
-			TOP("theoneprobe", "The One Probe"), WAILA("waila", "WAILA"), JEI("jei", "JEI"),
-			ITEMSCROLLER("itemscroller", "Item Scroller"), NEI("nei", "Not Enough Items"), CHISEL("chisel", "Chisel");
-
-		private String modid, name;
-
-		Mods(String modidIn, String nameIn) {
-			modid = modidIn;
-			name = nameIn;
-		}
-
-		public String getId() {
-			return modid;
-		}
-
-		public String getName() {
-			return name;
-		}
-
-		public boolean isLoaded() {
-			return Loader.isModLoaded(getId());
 		}
 	}
 

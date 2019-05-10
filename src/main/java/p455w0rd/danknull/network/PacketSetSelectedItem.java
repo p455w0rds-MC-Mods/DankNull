@@ -4,10 +4,7 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
-import p455w0rd.danknull.init.ModItems;
+import net.minecraftforge.fml.common.network.simpleimpl.*;
 import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rd.danknull.util.DankNullUtils;
 
@@ -20,38 +17,53 @@ public class PacketSetSelectedItem implements IMessage {
 	private int index;
 
 	@Override
-	public void fromBytes(ByteBuf buf) {
+	public void fromBytes(final ByteBuf buf) {
 		index = buf.readInt();
 
 	}
 
 	@Override
-	public void toBytes(ByteBuf buf) {
+	public void toBytes(final ByteBuf buf) {
 		buf.writeInt(index);
 	}
 
 	public PacketSetSelectedItem() {
 	}
 
-	public PacketSetSelectedItem(int index) {
+	public PacketSetSelectedItem(final int index) {
 		this.index = index;
 	}
 
 	public static class Handler implements IMessageHandler<PacketSetSelectedItem, IMessage> {
 		@Override
-		public IMessage onMessage(PacketSetSelectedItem message, MessageContext ctx) {
+		public IMessage onMessage(final PacketSetSelectedItem message, final MessageContext ctx) {
 			FMLCommonHandler.instance().getWorldThread(ctx.netHandler).addScheduledTask(() -> {
-				EntityPlayerMP player = ctx.getServerHandler().player;
+				final EntityPlayerMP player = ctx.getServerHandler().player;
 				ItemStack dankNull = ItemStack.EMPTY;
+				/*
+				if (Minecraft.getMinecraft().currentScreen instanceof GuiDankNull) {
+					final GuiDankNull gui = (GuiDankNull) Minecraft.getMinecraft().currentScreen;
+					if (gui.isTile()) {
+						final TileDankNullDock tile = ((ContainerDankNullDock) gui.inventorySlots).getTile();
+						dankNull = tile.getDankNull();
+						final InventoryDankNull inv = DankNullUtils.getNewDankNullInventory(dankNull);
+						DankNullUtils.setSelectedStackIndex(inv, message.index);
+						inv.markDirty();
+						tile.setDankNull(inv.getDankNull());
+						//final NBTTagCompound nbt = new NBTTagCompound();
+						//nbt.setTag(NBT.DOCKEDSTACK, inv.getDankNull().writeToNBT(new NBTTagCompound()));
+						//tile.readFromNBT(nbt);
+					}
+				}*/
 				if (player != null) {
-					if (player.getHeldItemMainhand().getItem() == ModItems.DANK_NULL) {
+					if (DankNullUtils.isDankNull(player.getHeldItemMainhand())) {
 						dankNull = player.getHeldItemMainhand();
 					}
-					else if (player.getHeldItemOffhand().getItem() == ModItems.DANK_NULL) {
+					else if (DankNullUtils.isDankNull(player.getHeldItemOffhand())) {
 						dankNull = player.getHeldItemOffhand();
 					}
 
-					InventoryDankNull inv = DankNullUtils.getNewDankNullInventory(dankNull);
+					final InventoryDankNull inv = DankNullUtils.getNewDankNullInventory(dankNull);
 					DankNullUtils.setSelectedStackIndex(inv, message.index);
 				}
 			});

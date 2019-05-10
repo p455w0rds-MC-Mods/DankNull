@@ -1,12 +1,9 @@
 package p455w0rd.danknull.init;
 
-import java.util.Arrays;
-
 import net.minecraft.block.Block;
-import net.minecraft.item.ItemBlock;
-import net.minecraft.util.NonNullList;
-import p455w0rd.danknull.api.IModelHolder;
+import net.minecraftforge.event.RegistryEvent;
 import p455w0rd.danknull.blocks.BlockDankNullDock;
+import p455w0rdslib.api.client.IModelHolder;
 
 /**
  * @author p455w0rd
@@ -14,25 +11,25 @@ import p455w0rd.danknull.blocks.BlockDankNullDock;
  */
 public class ModBlocks {
 
-	private static final NonNullList<Block> BLOCK_LIST = NonNullList.<Block>create();
-
 	public static final BlockDankNullDock DANKNULL_DOCK = new BlockDankNullDock();
-
-	public static void init() {
-		BLOCK_LIST.addAll(Arrays.asList(DANKNULL_DOCK));
-		ModItems.getList().add(new ItemBlock(DANKNULL_DOCK).setRegistryName(DANKNULL_DOCK.getRegistryName()));
-	}
+	public static final Block[] BLOCK_ARRAY = new Block[] {
+			DANKNULL_DOCK
+	};
 
 	public static void registerModels() {
-		for (Block block : BLOCK_LIST) {
+		for (final Block block : getBlocks()) {
 			if (block instanceof IModelHolder) {
 				((IModelHolder) block).initModel();
 			}
 		}
 	}
 
-	public static NonNullList<Block> getList() {
-		return BLOCK_LIST;
+	public static Block[] getBlocks() {
+		return BLOCK_ARRAY;
+	}
+
+	public static void register(final RegistryEvent.Register<Block> e) {
+		e.getRegistry().registerAll(getBlocks());
 	}
 
 }

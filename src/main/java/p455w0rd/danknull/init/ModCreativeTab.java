@@ -2,12 +2,8 @@ package p455w0rd.danknull.init;
 
 import net.minecraft.block.Block;
 import net.minecraft.creativetab.CreativeTabs;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemBlock;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.*;
 import net.minecraft.util.NonNullList;
-import p455w0rd.danknull.items.ItemDankNull;
-import p455w0rd.danknull.items.ItemDankNullPanel;
 
 /**
  * @author p455w0rd
@@ -27,23 +23,18 @@ public class ModCreativeTab extends CreativeTabs {
 
 	@Override
 	public ItemStack getTabIconItem() {
-		return new ItemStack(ModItems.DANK_NULL, 1, 6);
+		return new ItemStack(ModItems.CREATIVE_DANKNULL);
 	}
 
 	@Override
-	public void displayAllRelevantItems(NonNullList<ItemStack> items) {
-		for (int i = 0; i <= 6; i++) {
-			items.add(new ItemStack(ModItems.DANK_NULL, 1, i));
-		}
-		for (Item item : ModItems.getList()) {
-			if (!(item instanceof ItemDankNull) && !(item instanceof ItemBlock) && !(item instanceof ItemDankNullPanel)) {
+	public void displayAllRelevantItems(final NonNullList<ItemStack> items) {
+
+		for (final Item item : ModItems.getItems()) {
+			if (!(item instanceof ItemBlock)) {
 				items.add(new ItemStack(item));
 			}
 		}
-		for (int i = 0; i < 6; i++) {
-			items.add(new ItemStack(ModItems.DANK_NULL_PANEL, 1, i));
-		}
-		for (Block block : ModBlocks.getList()) {
+		for (final Block block : ModBlocks.getBlocks()) {
 			items.add(new ItemStack(block));
 		}
 	}

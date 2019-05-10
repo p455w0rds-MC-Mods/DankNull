@@ -2,18 +2,14 @@ package p455w0rd.danknull.blocks;
 
 import static net.minecraft.util.EnumHand.MAIN_HAND;
 
+import java.util.UUID;
+
 import javax.annotation.Nullable;
 
-import com.google.common.collect.Maps;
-
-import codechicken.lib.model.ModelRegistryHelper;
-import net.minecraft.block.Block;
+import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.client.renderer.block.model.*;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.stats.StatList;
@@ -22,31 +18,36 @@ import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
-import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
-import p455w0rd.danknull.client.render.DankTextures;
 import p455w0rd.danknull.client.render.TESRDankNullDock;
-import p455w0rd.danknull.init.ModGlobals;
-import p455w0rd.danknull.init.ModNetworking;
+import p455w0rd.danknull.init.*;
+import p455w0rd.danknull.init.ModGlobals.NBT;
+import p455w0rd.danknull.init.ModGuiHandler.GUIType;
 import p455w0rd.danknull.inventory.PlayerSlot;
 import p455w0rd.danknull.network.PacketSetDankNullInDock;
 import p455w0rd.danknull.util.DankNullUtils;
+import p455w0rd.danknull.util.ItemNBTUtils;
+import p455w0rdslib.api.client.IModelHolder;
 
 /**
  * @author p455w0rd
  *
  */
-public class BlockDankNullDock extends BlockContainerBase {
+public class BlockDankNullDock extends BlockContainer implements IModelHolder {
 
-	public static final String NAME = "danknull_dock";
+	public static final ResourceLocation REGISTRY_NAME = new ResourceLocation(ModGlobals.MODID, "danknull_dock");
 
 	public BlockDankNullDock() {
-		super(Material.IRON, NAME, 10.0F, 6000000.0F);
-		GameRegistry.registerTileEntity(TileDankNullDock.class, new ResourceLocation(ModGlobals.MODID, NAME));
+		super(Material.IRON);
+		setUnlocalizedName(REGISTRY_NAME.getResourcePath());
+		setRegistryName(REGISTRY_NAME);
+		setResistance(6000000.0F);
+		setHardness(10.0F);
+		GameRegistry.registerTileEntity(TileDankNullDock.class, REGISTRY_NAME);
 		setLightOpacity(255);
 		useNeighborBrightness = true;
 	}
@@ -89,21 +90,7 @@ public class BlockDankNullDock extends BlockContainerBase {
 	@SideOnly(Side.CLIENT)
 	@Override
 	public void initModel() {
-		ModelRegistryHelper.registerItemRenderer(Item.getItemFromBlock(this), new TESRDankNullDock());
-		setParticleTexture(this);
 		ClientRegistry.bindTileEntitySpecialRenderer(TileDankNullDock.class, new TESRDankNullDock());
-	}
-
-	@SideOnly(Side.CLIENT)
-	public static void setParticleTexture(final Block block) {
-		final ModelResourceLocation modelLoc = new ModelResourceLocation(block.getRegistryName(), "particle");
-		ModelRegistryHelper.register(modelLoc, new BuiltInModel(ItemCameraTransforms.DEFAULT, ItemOverrideList.NONE) {
-			@Override
-			public TextureAtlasSprite getParticleTexture() {
-				return DankTextures.DANKNULL_DOCK_SPRITE;
-			}
-		});
-		ModelLoader.setCustomStateMapper(block, blockIn -> Maps.toMap(blockIn.getBlockState().getValidStates(), input -> modelLoc));
 	}
 
 	private TileDankNullDock getTE(final IBlockAccess worldIn, final BlockPos pos) {
@@ -120,7 +107,7 @@ public class BlockDankNullDock extends BlockContainerBase {
 	@Override
 	public boolean onBlockActivated(final World world, final BlockPos pos, final IBlockState state, final EntityPlayer player, final EnumHand hand, final EnumFacing facing, final float hitX, final float hitY, final float hitZ) {
 		if (world.isRemote) {
-			return false;
+			return true;
 		}
 		if (player.getServer().isBlockProtected(world, pos, player)) {
 			return false;
@@ -129,27 +116,24 @@ public class BlockDankNullDock extends BlockContainerBase {
 		if (dankDock != null) {
 			final PlayerSlot slot = PlayerSlot.getHand(player, hand);
 			final ItemStack stack = slot.getStackInSlot(player);
-
-			if (DankNullUtils.isDankNull(stack)) {
-				//dankDock.setDankNull(dankNull);
-				dankDock.setInventory(DankNullUtils.getNewDankNullInventory(stack));
-				//if (!player.capabilities.isCreativeMode || (player.capabilities.isCreativeMode && !player.isSneaking())) {
-				player.setHeldItem(hand, ItemStack.EMPTY);
-				//}
-				//if (!world.isRemote) {
-				ModNetworking.getInstance().sendToDimension(new PacketSetDankNullInDock(dankDock, stack), world.provider.getDimension());
-				//}
-				//dankDock.markDirty();
-				return true;
+			if (dankDock.getDankNull().isEmpty()) {
+				if (DankNullUtils.isDankNull(stack)) {
+					if (ItemNBTUtils.getString(stack, NBT.UUID).isEmpty() && !world.isRemote) {
+						ItemNBTUtils.setString(stack, NBT.UUID, UUID.randomUUID().toString());
+					}
+					dankDock.setDankNull(stack);
+					player.setHeldItem(hand, ItemStack.EMPTY);
+					ModNetworking.getInstance().sendToDimension(new PacketSetDankNullInDock(dankDock, stack), world.provider.getDimension());
+					return true;
+				}
 			}
-			else //if (player.getHeldItem(hand).isEmpty()) {
 			if (!player.isSneaking() && hand == MAIN_HAND) {
 				if (!dankDock.getDankNull().isEmpty()) {
-					//ModGuiHandler.launchGui(GUIType.DANKNULL_TE, player, world, pos.getX(), pos.getY(), pos.getZ());
-					//return true;
+					ModGuiHandler.launchGui(GUIType.DANKNULL_TE, player, world, pos);
+					return true;
 				}
-				//}
 			}
+
 		}
 		return false;
 	}
@@ -172,9 +156,44 @@ public class BlockDankNullDock extends BlockContainerBase {
 		final NBTTagCompound nbttagcompound = new NBTTagCompound();
 		if (te != null) {
 			te.writeToNBT(nbttagcompound);
-			stack.setTagInfo("BlockEntityTag", nbttagcompound);
+			stack.setTagInfo(NBT.BLOCKENTITYTAG, nbttagcompound);
 		}
 		return stack;
+	}
+
+	@Override
+	public EnumBlockRenderType getRenderType(final IBlockState state) {
+		return EnumBlockRenderType.MODEL;
+	}
+
+	@SideOnly(Side.CLIENT)
+	@Override
+	public boolean shouldSideBeRendered(final IBlockState blockState, final IBlockAccess blockAccess, final BlockPos pos, final EnumFacing side) {
+		return true;
+	}
+
+	@SideOnly(Side.CLIENT)
+	@Override
+	public BlockRenderLayer getBlockLayer() {
+		return BlockRenderLayer.CUTOUT;
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public boolean isSideSolid(final IBlockState base_state, final IBlockAccess worldIn, final BlockPos pos, final EnumFacing side) {
+		return false;
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public boolean isBlockNormalCube(final IBlockState state) {
+		return false;
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public boolean isOpaqueCube(final IBlockState blockState) {
+		return false;
 	}
 
 }

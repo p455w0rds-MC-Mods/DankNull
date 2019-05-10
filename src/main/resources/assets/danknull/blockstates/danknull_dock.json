@@ -1,7 +1,8 @@
 {
   "forge_marker": 1,
   "defaults": {
-    "model": "danknull:danknull_dock"
+    "model": "danknull:danknull_dock",
+	"transform": "forge:default-block"
   },
   "variants": {
     "normal": [{}],

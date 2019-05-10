@@ -7,9 +7,7 @@ import javax.annotation.Nonnull;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.ModelPlayer;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.EntityRenderer;
-import net.minecraft.client.renderer.Tessellator;
+import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.color.ItemColors;
@@ -26,33 +24,33 @@ import net.minecraftforge.client.model.pipeline.LightUtil;
  *
  */
 public class RenderModel {
-	public static void render(IBakedModel model, @Nonnull ItemStack stack) {
+	public static void render(final IBakedModel model, @Nonnull final ItemStack stack) {
 		render(model, -1, stack);
 	}
 
-	public static void render(IBakedModel model, int color) {
+	public static void render(final IBakedModel model, final int color) {
 		render(model, color, ItemStack.EMPTY);
 	}
 
-	public static void render(IBakedModel model, int color, @Nonnull ItemStack stack) {
-		Tessellator tessellator = Tessellator.getInstance();
-		BufferBuilder vertexbuffer = tessellator.getBuffer();
+	public static void render(final IBakedModel model, final int color, @Nonnull final ItemStack stack) {
+		final Tessellator tessellator = Tessellator.getInstance();
+		final BufferBuilder vertexbuffer = tessellator.getBuffer();
 		vertexbuffer.begin(7, DefaultVertexFormats.ITEM);
-		for (EnumFacing enumfacing : EnumFacing.values()) {
+		for (final EnumFacing enumfacing : EnumFacing.values()) {
 			renderQuads(vertexbuffer, model.getQuads((IBlockState) null, enumfacing, 0L), color, stack);
 		}
 		renderQuads(vertexbuffer, model.getQuads((IBlockState) null, (EnumFacing) null, 0L), color, stack);
 		tessellator.draw();
 	}
 
-	public static void renderQuads(BufferBuilder renderer, List<BakedQuad> quads, int color, ItemStack stack) {
-		boolean flag = (color == -1) && (!stack.isEmpty());
+	public static void renderQuads(final BufferBuilder renderer, final List<BakedQuad> quads, final int color, final ItemStack stack) {
+		final boolean flag = color == -1 && !stack.isEmpty();
 		int i = 0;
-		for (int j = quads.size(); i < j; i++) {
-			BakedQuad bakedquad = quads.get(i);
+		for (final int j = quads.size(); i < j; i++) {
+			final BakedQuad bakedquad = quads.get(i);
 			int k = color;
-			if ((flag) && (bakedquad.hasTintIndex())) {
-				ItemColors itemColors = Minecraft.getMinecraft().getItemColors();
+			if (flag && bakedquad.hasTintIndex()) {
+				final ItemColors itemColors = Minecraft.getMinecraft().getItemColors();
 				k = itemColors.colorMultiplier(stack, bakedquad.getTintIndex());
 				if (EntityRenderer.anaglyphEnable) {
 					k = TextureUtil.anaglyphColor(k);
@@ -65,8 +63,8 @@ public class RenderModel {
 
 	// =========
 
-	public static void render(ModelPlayer model, int color, EntityPlayer player, float partialTicks, boolean multiPass) {
-		RenderManager rm = Minecraft.getMinecraft().getRenderManager();
+	public static void render(final ModelPlayer model, final int color, final EntityPlayer player, final float partialTicks, final boolean multiPass) {
+		final RenderManager rm = Minecraft.getMinecraft().getRenderManager();
 		rm.renderEntityStatic(player, partialTicks, false);
 		//rm.doRenderEntity(player, player.posX, player.posY, player.posZ, player.cameraYaw, partialTicks, multiPass);
 	}
