@@ -2,7 +2,6 @@ package p455w0rd.danknull.items;
 
 import static p455w0rd.danknull.inventory.PlayerSlot.EnumInvCategory.MAIN;
 
-import java.util.List;
 import java.util.UUID;
 
 import javax.annotation.Nonnull;
@@ -13,7 +12,6 @@ import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.init.Blocks;
@@ -28,27 +26,23 @@ import net.minecraftforge.common.IRarity;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fluids.UniversalBucket;
-import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.wrapper.InvWrapper;
 import p455w0rd.danknull.client.render.DankNullRenderer;
 import p455w0rd.danknull.init.ModConfig.Options;
 import p455w0rd.danknull.init.ModGlobals.DankNullTier;
 import p455w0rd.danknull.init.ModGlobals.NBT;
 import p455w0rd.danknull.init.ModGuiHandler;
 import p455w0rd.danknull.init.ModGuiHandler.GUIType;
+import p455w0rd.danknull.integration.PwLib;
 import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rd.danknull.inventory.PlayerSlot;
 import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rd.danknull.util.DankNullUtils.ItemPlacementMode;
-import p455w0rd.danknull.util.ItemNBTUtils;
 import p455w0rdslib.api.client.*;
-import p455w0rdslib.api.client.shader.IColoredLightEmitter;
-import p455w0rdslib.api.client.shader.Light;
-import p455w0rdslib.util.RenderUtils;
-import p455w0rdslib.util.TextUtils;
+import p455w0rdslib.capabilities.CapabilityLightEmitter;
+import p455w0rdslib.integration.Albedo;
+import p455w0rdslib.util.*;
 
 /**
  * @author p455w0rd
@@ -57,7 +51,7 @@ import p455w0rdslib.util.TextUtils;
 @SuppressWarnings({
 		"unchecked", "deprecation"
 })
-public class ItemDankNull extends Item implements IModelHolder, IColoredLightEmitter {
+public class ItemDankNull extends Item implements IModelHolder/*, IBlockLightEmitter*/ {
 
 	InventoryDankNull inventory = null;
 	DankNullTier tier;
@@ -82,12 +76,23 @@ public class ItemDankNull extends Item implements IModelHolder, IColoredLightEmi
 		return new ICapabilityProvider() {
 			@Override
 			public boolean hasCapability(final Capability<?> capability, final EnumFacing facing) {
-				return capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
+				return CapabilityUtils.isItemHandler(capability) || Albedo.albedoCapCheck(capability) || CapabilityLightEmitter.checkCap(capability);
 			}
 
 			@Override
 			public <T> T getCapability(final Capability<T> capability, final EnumFacing facing) {
-				return hasCapability(capability, facing) ? CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(new InvWrapper(new InventoryDankNull(stack))) : null;
+				if (hasCapability(capability, facing)) {
+					if (Albedo.albedoCapCheck(capability)) {
+						return p455w0rd.danknull.integration.Albedo.getStackCapability(stack);
+					}
+					else if (CapabilityLightEmitter.checkCap(capability)) {
+						return PwLib.getStackCapability(stack);
+					}
+					else if (CapabilityUtils.isItemHandler(capability)) {
+						return CapabilityUtils.getWrappedItemHandler(new InventoryDankNull(stack));
+					}
+				}
+				return null;
 			}
 
 		};
@@ -102,12 +107,7 @@ public class ItemDankNull extends Item implements IModelHolder, IColoredLightEmi
 	@Override
 	@SideOnly(Side.CLIENT)
 	public void initModel() {
-		//for (int i = 0; i <= 6; i++) {
-		//	final ResourceLocation regName = new ResourceLocation(getRegistryName().getResourceDomain(), getRegistryName().getResourcePath() + "_" + i);
-		//	final ModelResourceLocation location = new ModelResourceLocation(regName, "inventory");
 		ModelLoader.setCustomModelResourceLocation(this, 0, getModelResource(this));
-		//ModelLoader.setCustomModelResourceLocation(this, i, new ModelResourceLocation(new ResourceLocation(getRegistryName().getResourceDomain(), getRegistryName().getResourcePath() + "_" + i), "inventory"));
-		//}
 	}
 
 	@Override
@@ -132,19 +132,6 @@ public class ItemDankNull extends Item implements IModelHolder, IColoredLightEmi
 	public ICustomItemRenderer getRenderer() {
 		return DankNullRenderer.getRendererForItem(this);
 	}
-
-	/*
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void initModel() {
-		for (int i = 0; i <= 6; i++) {
-			final ResourceLocation regName = new ResourceLocation(getRegistryName().getResourceDomain(), getRegistryName().getResourcePath() + "_" + i);
-			final ModelResourceLocation location = new ModelResourceLocation(regName, "inventory");
-			ModelLoader.setCustomModelResourceLocation(this, i, location);
-			ModelRegistryHelper.register(location, new DankNullRenderer(() -> new ModelResourceLocation(regName, "inventory")));
-		}
-	}
-	*/
 
 	@Override
 	public String getItemStackDisplayName(final ItemStack stack) {
@@ -340,12 +327,6 @@ public class ItemDankNull extends Item implements IModelHolder, IColoredLightEmi
 			return true;
 		}
 		world.setBlockState(pos, newState, 3);
-		//IBlockState state = world.getBlockState(pos);
-		//if (state.getBlock() == block) {
-		//world.setBlockState(pos, newState, 3);
-		//Block worldBlock = state.getBlock();
-		//ItemBlock.setTileEntityNBT(world, player, pos, tmpStack);
-		//block.onBlockPlacedBy(world, pos, newState, player, tmpStack);
 		world.notifyNeighborsOfStateChange(pos, block, true);
 		if (player instanceof EntityPlayerMP) {
 			CriteriaTriggers.PLACED_BLOCK.trigger((EntityPlayerMP) player, pos, tmpStack);
@@ -354,11 +335,10 @@ public class ItemDankNull extends Item implements IModelHolder, IColoredLightEmi
 	}
 
 	public EnumActionResult placeSlab(final EntityPlayer player, final World worldIn, final BlockPos pos, final EnumHand hand, final EnumFacing facing, final float hitX, final float hitY, final float hitZ, final ItemStack itemstack, final ItemSlab slab) {
-		final BlockSlab singleSlab = ObfuscationReflectionHelper.getPrivateValue(ItemSlab.class, slab, "singleSlab");
-		//BlockSlab doubleSlab = ObfuscationReflectionHelper.getPrivateValue(ItemSlab.class, slab, "doubleSlab");
+		final BlockSlab singleSlab = slab.singleSlab;
 		if (!itemstack.isEmpty() && player.canPlayerEdit(pos, facing, itemstack)) {
 			final Comparable<?> comparable = singleSlab.getTypeForItem(itemstack);
-			final IBlockState iblockstate = worldIn.getBlockState(pos);//block.getStateForPlacement(worldIn, pos, facing, hitX, hitY, hitZ, itemstack.getItemDamage(), player);
+			final IBlockState iblockstate = worldIn.getBlockState(pos);
 			final ItemStack blockAsStack = new ItemStack(Item.getItemFromBlock(iblockstate.getBlock()), 1, iblockstate.getBlock().getMetaFromState(iblockstate));
 			if (iblockstate.getBlock() == singleSlab && ((BlockSlab) iblockstate.getBlock()).getTypeForItem(blockAsStack) == comparable) {
 				final IProperty<?> iproperty = singleSlab.getVariantProperty();
@@ -380,17 +360,15 @@ public class ItemDankNull extends Item implements IModelHolder, IColoredLightEmi
 			}
 			return tryPlace(player, itemstack, worldIn, pos.offset(facing), comparable, slab) ? EnumActionResult.SUCCESS : placeItemIntoWorld(itemstack, player, worldIn, pos, facing, hitX, hitY, hitZ, hand, true);
 		}
-		//else {
 		return EnumActionResult.FAIL;
-		//}
 	}
 
 	private boolean tryPlace(final EntityPlayer player, final ItemStack stack, final World worldIn, final BlockPos pos, final Object itemSlabType, final ItemSlab slab) {
-		final BlockSlab singleSlab = ObfuscationReflectionHelper.getPrivateValue(ItemSlab.class, slab, "singleSlab");
-		final BlockSlab doubleSlab = ObfuscationReflectionHelper.getPrivateValue(ItemSlab.class, slab, "doubleSlab");
+		final BlockSlab singleSlab = slab.singleSlab;
+		final BlockSlab doubleSlab = slab.doubleSlab;
 		final IBlockState iblockstate = worldIn.getBlockState(pos);
 		if (iblockstate.getBlock() == singleSlab) {
-			final Comparable<?> comparable = singleSlab.getTypeForItem(stack);//slab.getBlock().getDefaultState().getValue(singleSlab.getVariantProperty());
+			final Comparable<?> comparable = singleSlab.getTypeForItem(stack);
 			final ItemStack blockAsStack = new ItemStack(Item.getItemFromBlock(iblockstate.getBlock()), 1, iblockstate.getBlock().getMetaFromState(iblockstate));
 			if (comparable == itemSlabType && ((BlockSlab) iblockstate.getBlock()).getTypeForItem(blockAsStack) == comparable) {
 				final IBlockState iblockstate1 = makeState(singleSlab.getVariantProperty(), comparable, slab);
@@ -406,7 +384,7 @@ public class ItemDankNull extends Item implements IModelHolder, IColoredLightEmi
 	}
 
 	protected <T extends Comparable<T>> IBlockState makeState(final IProperty<T> p_185055_1_, final Comparable<?> p_185055_2_, final ItemSlab slab) {
-		final BlockSlab doubleSlab = ObfuscationReflectionHelper.getPrivateValue(ItemSlab.class, slab, "doubleSlab");
+		final BlockSlab doubleSlab = slab.doubleSlab;
 		return doubleSlab.getDefaultState().withProperty(p_185055_1_, (T) p_185055_2_);
 	}
 
@@ -420,14 +398,14 @@ public class ItemDankNull extends Item implements IModelHolder, IColoredLightEmi
 		return !oldStack.isItemEqual(newStack) || slotChanged;
 	}
 
-	private int brightness = 0;
-	private boolean brightnessDir = false;
-	private int step = 0;
-	private boolean initLight = false;
-
+	/*private static int brightness = 0;
+	private static boolean brightnessDir = false;
+	private static int step = 0;
+	private static boolean initLight = false;
+	
 	@Override
 	public void emitLight(final List<Light> lights, final Entity e) {
-		if (!Options.enabledColoredLightShaderSupport) {
+		if (e == null || !Options.enabledColoredLightShaderSupport) {
 			return;
 		}
 		if (!initLight) {
@@ -475,8 +453,8 @@ public class ItemDankNull extends Item implements IModelHolder, IColoredLightEmi
 					}
 				}
 			}
-
-			final Vec3i c = RenderUtils.hexToRGB(tier.getHexColor(false));
+	
+			final Vec3i c = RenderUtils.hexToRGB(DankNullUtils.getTier(lightStack).getHexColor(false));
 			lights.add(Light.builder().pos(e).color(c.getX(), c.getY(), c.getZ(), (float) (brightness * 0.001)).radius(2.5f).intensity(5).build());
 		}
 		else {
@@ -484,6 +462,6 @@ public class ItemDankNull extends Item implements IModelHolder, IColoredLightEmi
 			brightness = 0;
 			step = 0;
 		}
-	}
+	}*/
 
 }

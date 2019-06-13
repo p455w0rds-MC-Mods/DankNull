@@ -11,7 +11,6 @@ import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.color.ItemColors;
-import net.minecraft.client.renderer.entity.RenderManager;
 import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.entity.player.EntityPlayer;
@@ -58,14 +57,14 @@ public class RenderModel {
 				k |= 0xFF000000;
 			}
 			LightUtil.renderQuadColor(renderer, bakedquad, k);
+			//LightUtil.renderQuadColorSlow(renderer, bakedquad, k);
 		}
 	}
 
 	// =========
 
-	public static void render(final ModelPlayer model, final int color, final EntityPlayer player, final float partialTicks, final boolean multiPass) {
-		final RenderManager rm = Minecraft.getMinecraft().getRenderManager();
-		rm.renderEntityStatic(player, partialTicks, false);
+	private static void render(final ModelPlayer model, final int color, final EntityPlayer player, final float partialTicks, final boolean multiPass) {
+		Minecraft.getMinecraft().getRenderManager().renderEntityStatic(player, partialTicks, false);
 		//rm.doRenderEntity(player, player.posX, player.posY, player.posZ, player.cameraYaw, partialTicks, multiPass);
 	}
 

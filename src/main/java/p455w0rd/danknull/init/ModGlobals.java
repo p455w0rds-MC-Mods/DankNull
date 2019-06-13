@@ -3,19 +3,20 @@ package p455w0rd.danknull.init;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.IRarity;
+import p455w0rdslib.LibGlobals;
 
 public class ModGlobals {
 
 	public static final String MODID_PWLIB = "p455w0rdslib";
 
 	public static final String MODID = "danknull";
-	public static final String VERSION = "1.5.53";
+	public static final String VERSION = "1.5.59";
 	public static final String NAME = "/dank/null";
 	public static final String SERVER_PROXY = "p455w0rd.danknull.proxy.CommonProxy";
 	public static final String CLIENT_PROXY = "p455w0rd.danknull.proxy.ClientProxy";
 	public static final String GUI_FACTORY = "p455w0rd.danknull.init.ModGuiFactory";
 	public static final String CONFIG_FILE = "config/DankNull.cfg";
-	public static final String DEPENDANCIES = "required-after:" + MODID_PWLIB + "@[2.2.98,);after:stg;after:jei;after:waila;after:theoneprobe;after:nei";
+	public static final String DEPENDANCIES = LibGlobals.REQUIRE_DEP + "after:stg;after:jei;after:waila;after:theoneprobe;after:nei";
 
 	public static boolean GUI_DANKNULL_ISOPEN = false;
 	public static float TIME = 0.0F;
@@ -82,7 +83,7 @@ public class ModGlobals {
 
 	public static enum DankNullTier {
 
-			REDSTONE, LAPIS, IRON, GOLD, DIAMOND, EMERALD, CREATIVE;
+			REDSTONE, LAPIS, IRON, GOLD, DIAMOND, EMERALD, CREATIVE, NONE;
 
 		public static DankNullTier[] VALUES = values();
 		//@formatter:off
@@ -93,7 +94,8 @@ public class ModGlobals {
 				0xFFFFFF00,
 				0xFF00FFFF,
 				0xFF17FF6D,
-				0xFF8F15D4
+				0xFF8F15D4,
+				0x0
 		};
 
 		private static final int[] HEX_COLORS = new int[] {
@@ -103,7 +105,8 @@ public class ModGlobals {
 				0x99FFFF00,
 				0x9900FFFF,
 				0x9917FF6D,
-				0x998F15D4
+				0x998F15D4,
+				0x0
 		};
 		//@formatter:on
 

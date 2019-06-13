@@ -39,17 +39,17 @@ public class DankNullRenderer extends TileEntityItemStackRenderer implements ICu
 	public ItemLayerWrapper model;
 	public static TransformType transformType;
 	boolean isGUI = false;
-	private static final Map<Item, ICustomItemRenderer> CACHE = new HashMap<>();
+	private static final Map<Item, DankNullRenderer> CACHE = new HashMap<>();
 
 	private DankNullRenderer(@Nonnull final Item item) {
 		registerRenderer(item, this);
 	}
 
-	private static void registerRenderer(final Item item, final ICustomItemRenderer instance) {
+	private static void registerRenderer(final Item item, final DankNullRenderer instance) {
 		CACHE.put(item, instance);
 	}
 
-	public static ICustomItemRenderer getRendererForItem(final Item item) {
+	public static DankNullRenderer getRendererForItem(final Item item) {
 		if (!CACHE.containsKey(item)) {
 			new DankNullRenderer(item);
 		}
@@ -89,11 +89,11 @@ public class DankNullRenderer extends TileEntityItemStackRenderer implements ICu
 			final float pby = OpenGlHelper.lastBrightnessY;
 			if (getTransformType() == TransformType.FIRST_PERSON_LEFT_HAND || getTransformType() == TransformType.FIRST_PERSON_RIGHT_HAND) {
 				if (item.hasEffect()) {
-					OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240F, 240F);
+					//OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240F, 240F);
 				}
 				renderItem(item, model);
 				if (item.hasEffect()) {
-					OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, pbx, pby);
+					//OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, pbx, pby);
 				}
 			}
 			if (!containedStack.isEmpty()) {
@@ -202,10 +202,13 @@ public class DankNullRenderer extends TileEntityItemStackRenderer implements ICu
 			if (item.hasEffect()) {
 				OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240F, 240F);
 			}
-			renderItem(item, model, false);
+			//GlStateManager.enableLighting();
+			renderItem(item, model);
+
 			if (item.hasEffect()) {
 				OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, pbx, pby);
 			}
+			//GlStateManager.enableLighting();
 			Minecraft.getMinecraft().getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, true);
 		}
 	}
@@ -218,12 +221,12 @@ public class DankNullRenderer extends TileEntityItemStackRenderer implements ICu
 		return false;
 	}
 
-	public void renderItem(final ItemStack stack, final IBakedModel model) {
+	private static void renderItem(final ItemStack stack, final IBakedModel model) {
 		renderItem(stack, model, false);
 	}
 
-	public void renderItem(final ItemStack stack, final IBakedModel model, final boolean disableGlint) {
-		if (!stack.isEmpty()) {
+	private static void renderItem(final ItemStack stack, final IBakedModel model, final boolean disableGlint) {
+		if (!stack.isEmpty() && model != null) {
 			if (model.isBuiltInRenderer() && !(stack.getItem() instanceof ItemDankNull)) {
 				Minecraft.getMinecraft().getItemRenderer().renderItem(EasyMappings.player(), stack, ItemCameraTransforms.TransformType.NONE);
 			}

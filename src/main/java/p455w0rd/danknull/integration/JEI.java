@@ -35,6 +35,7 @@ import p455w0rdslib.util.TextUtils;
  * @author p455w0rd
  *
  */
+@SuppressWarnings("unused")
 @JEIPlugin
 public class JEI implements IModPlugin {
 
@@ -47,7 +48,16 @@ public class JEI implements IModPlugin {
 		//blacklistItem(new ItemStack(ModItems.DANK_NULL_HOLDER, 1, OreDictionary.WILDCARD_VALUE));
 
 		final List<ItemStack> dankNulls = new ArrayList<>();
-		dankNulls.addAll(Arrays.asList(new ItemStack(ModItems.REDSTONE_DANKNULL), new ItemStack(ModItems.LAPIS_DANKNULL), new ItemStack(ModItems.IRON_DANKNULL), new ItemStack(ModItems.GOLD_DANKNULL), new ItemStack(ModItems.DIAMOND_DANKNULL), new ItemStack(ModItems.EMERALD_DANKNULL)));
+		dankNulls.addAll(Arrays.asList(
+				//@formatter:off
+				new ItemStack(ModItems.REDSTONE_DANKNULL),
+				new ItemStack(ModItems.LAPIS_DANKNULL),
+				new ItemStack(ModItems.IRON_DANKNULL),
+				new ItemStack(ModItems.GOLD_DANKNULL),
+				new ItemStack(ModItems.DIAMOND_DANKNULL),
+				new ItemStack(ModItems.EMERALD_DANKNULL))
+				//@formatter:on
+		);
 		registry.addIngredientInfo(dankNulls, VanillaTypes.ITEM, "jei.danknull.desc");
 		registry.addIngredientInfo(new ItemStack(ModItems.REDSTONE_DANKNULL), VanillaTypes.ITEM, "jei.danknull.desc0");
 		registry.addIngredientInfo(new ItemStack(ModItems.LAPIS_DANKNULL), VanillaTypes.ITEM, "jei.danknull.desc1");
@@ -392,9 +402,9 @@ public class JEI implements IModPlugin {
 			// Map to tell which recipe slots have been filled
 			final Map<Integer, ItemStack> recipeSlotsStatus = Maps.newHashMap();
 			// Applicable slots with needed items in inventory
-			final Map<Integer, ItemStack> inventorySlotsToUse = Maps.newHashMap();
+			//final Map<Integer, ItemStack> inventorySlotsToUse = Maps.newHashMap();
 			// Applicable slots with /dank/nulls containing needed items
-			final Map<Integer, ItemStack> dankNulls = Maps.newHashMap();
+			//final Map<Integer, ItemStack> dankNulls = Maps.newHashMap();
 			// Crafting grid slot numbers
 			final List<Integer> craftingSlotNumbers = Lists.newArrayList(1, 2, 3, 4, 5, 6, 7, 8, 9);
 			// Inventory slot numbers
@@ -453,7 +463,7 @@ public class JEI implements IModPlugin {
 			// recipe not fulfilled yet, so check for applicable /dank/nulls
 			if (!recipeIsFulfilled) {
 				for (int i = 0; i < inventorySlotNumbers.size(); i++) {
-					final Slot slot = container.getSlot(inventorySlotNumbers.get(i));
+					//final Slot slot = container.getSlot(inventorySlotNumbers.get(i));
 				}
 			}
 			/*

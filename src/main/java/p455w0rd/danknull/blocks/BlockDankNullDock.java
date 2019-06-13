@@ -30,8 +30,8 @@ import p455w0rd.danknull.init.ModGuiHandler.GUIType;
 import p455w0rd.danknull.inventory.PlayerSlot;
 import p455w0rd.danknull.network.PacketSetDankNullInDock;
 import p455w0rd.danknull.util.DankNullUtils;
-import p455w0rd.danknull.util.ItemNBTUtils;
 import p455w0rdslib.api.client.IModelHolder;
+import p455w0rdslib.util.ItemNBTUtils;
 
 /**
  * @author p455w0rd
@@ -175,13 +175,13 @@ public class BlockDankNullDock extends BlockContainer implements IModelHolder {
 	@SideOnly(Side.CLIENT)
 	@Override
 	public BlockRenderLayer getBlockLayer() {
-		return BlockRenderLayer.CUTOUT;
+		return BlockRenderLayer.SOLID;
 	}
 
 	@Override
 	@SideOnly(Side.CLIENT)
 	public boolean isSideSolid(final IBlockState base_state, final IBlockAccess worldIn, final BlockPos pos, final EnumFacing side) {
-		return false;
+		return true;
 	}
 
 	@Override

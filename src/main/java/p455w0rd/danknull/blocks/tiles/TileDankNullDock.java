@@ -1,12 +1,8 @@
 package p455w0rd.danknull.blocks.tiles;
 
-import java.util.List;
-
 import javax.annotation.Nullable;
 
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.ISidedInventory;
 import net.minecraft.item.ItemStack;
@@ -17,30 +13,27 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.NonNullList;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Vec3i;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.items.CapabilityItemHandler;
 import p455w0rd.danknull.api.IRedstoneControllable;
-import p455w0rd.danknull.init.ModConfig.Options;
 import p455w0rd.danknull.init.ModDataFixing.DankNullFixer;
 import p455w0rd.danknull.init.ModGlobals.NBT;
+import p455w0rd.danknull.integration.PwLib;
 import p455w0rd.danknull.inventory.DankNullSidedInvWrapper;
-import p455w0rd.danknull.items.ItemBlockDankNullDock;
 import p455w0rd.danknull.items.ItemDankNull;
 import p455w0rd.danknull.network.VanillaPacketDispatcher;
 import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rd.danknull.util.DankNullUtils.ItemExtractionMode;
-import p455w0rdslib.api.client.shader.IColoredLightEmitter;
-import p455w0rdslib.api.client.shader.Light;
-import p455w0rdslib.util.RenderUtils;
+import p455w0rdslib.capabilities.CapabilityLightEmitter;
+import p455w0rdslib.integration.Albedo;
 
 /**
  * @author p455w0rd
  *
  */
-public class TileDankNullDock extends TileEntity implements IRedstoneControllable, ISidedInventory, IColoredLightEmitter {
+public class TileDankNullDock extends TileEntity implements IRedstoneControllable, ISidedInventory/*, IBlockLightEmitter*/ {
 
 	private RedstoneMode redstoneMode = RedstoneMode.REQUIRED;
 	private boolean hasRedstoneSignal = false;
@@ -49,50 +42,24 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 
 	@Override
 	public boolean hasCapability(final Capability<?> capability, final EnumFacing facing) {
-		return !getDankNull().isEmpty() && capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && (facing == EnumFacing.DOWN || facing == EnumFacing.UP) || super.hasCapability(capability, facing);
+		return !getDankNull().isEmpty() && (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && (facing == EnumFacing.DOWN || facing == EnumFacing.UP) || Albedo.albedoCapCheck(capability) || CapabilityLightEmitter.checkCap(capability) || super.hasCapability(capability, facing));
 	}
 
 	@Override
 	public <T> T getCapability(final Capability<T> capability, final EnumFacing facing) {
-		if (!getDankNull().isEmpty() && capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && (facing == EnumFacing.DOWN || facing == EnumFacing.UP)) {
-			return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(new DankNullSidedInvWrapper(this, facing));
+		if (!getDankNull().isEmpty()) {
+			if (Albedo.albedoCapCheck(capability)) {
+				return p455w0rd.danknull.integration.Albedo.getTileCapability(getPos(), getDankNull());
+			}
+			if (CapabilityLightEmitter.checkCap(capability)) {
+				return PwLib.getTileCapability(this);
+			}
+			if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && (facing == EnumFacing.DOWN || facing == EnumFacing.UP)) {
+				return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(new DankNullSidedInvWrapper(this, facing));
+			}
 		}
 		return super.getCapability(capability, facing);
 	}
-
-	/*@Override
-	public boolean overrideStandardInfo(final ProbeMode mode, final IProbeInfo probeInfo, final EntityPlayer player, final World world, final IBlockState state, final IProbeHitData data) {
-		if (state.getBlock() == ModBlocks.DANKNULL_DOCK) {
-			final ItemStack stack = new ItemStack(ModBlocks.DANKNULL_DOCK);
-			final TileEntity tile = world.getTileEntity(data.getPos());
-			if (tile != null && tile instanceof TileDankNullDock) {
-				final TileDankNullDock te = (TileDankNullDock) tile;
-				stack.setTagInfo(NBT.BLOCKENTITYTAG, te.writeToNBT(new NBTTagCompound()));
-				final String dankNull = "/d" + (Options.callItDevNull ? "ev" : "ank") + "/null";
-				final String msg = TextUtils.translate("dn.right_click_with.desc") + (te.getDankNull().isEmpty() ? " " + dankNull : " " + TextUtils.translate("dn.empty_hand_open.desc"));
-				final ItemStack dockedDankNull = te.getDankNull().isEmpty() ? ItemStack.EMPTY : te.getDankNull();
-				final IProbeInfo topTip = probeInfo.horizontal().item(stack).vertical().itemLabel(stack);
-				if (!dockedDankNull.isEmpty()) {
-					final String dockedMsg = ModGlobals.Rarities.getRarityFromMeta(DankNullUtils.getMeta(dockedDankNull)).getColor() + "" + dockedDankNull.getDisplayName() + "" + TextFormatting.WHITE + " " + TextUtils.translate("dn.docked.desc");
-					topTip.text(dockedMsg);
-					final ItemStack selectedStack = DankNullUtils.getSelectedStack(getDankNull());
-					if (!selectedStack.isEmpty()) {
-						final ItemStack tmpStack = selectedStack.copy();
-						String countText = "";
-						if (selectedStack.getCount() >= 100000) {
-							tmpStack.setCount(1);
-							countText = ", " + TextUtils.translate("dn.count.desc") + ": " + (DankNullUtils.isCreativeDankNull(dockedDankNull) ? TextUtils.translate("dn.infinite.desc") : "" + selectedStack.getCount());
-						}
-						topTip.horizontal(new LayoutStyle().alignment(ElementAlignment.ALIGN_CENTER)).item(tmpStack).text(" " + TextUtils.translate("dn.selected.desc") + "" + countText);
-						topTip.text(TextUtils.translate("dn.extract_mode.desc") + ": " + DankNullUtils.getExtractionModeForStack(dockedDankNull, selectedStack).getTooltip());
-					}
-				}
-				topTip.text(TextStyleClass.MODNAME.toString() + Tools.getModName(state.getBlock()));
-				return true;
-			}
-		}
-		return true;
-	}*/
 
 	public void removeDankNull() {
 		if (!getDankNull().isEmpty()) {
@@ -340,11 +307,11 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 			REQUIRED, REQUIRE_NONE, IGNORED
 	}
 
-	private int brightness = 0;
+	/*private int brightness = 0;
 	private boolean brightnessDir = false;
 	private int step = 0;
 	private boolean initLight = false;
-
+	
 	@Override
 	public void emitLight(final List<Light> lights, final TileEntity tile) {
 		if (!Options.enabledColoredLightShaderSupport) {
@@ -355,7 +322,7 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 			initLight = true;
 		}
 		final ItemStack lightStack = getDankNull();
-		if (getWorld() != null && getWorld().isRemote && !lightStack.isEmpty() && lightStack.hasEffect()) {
+		if (getWorld() != null && getWorld().isRemote && !lightStack.isEmpty()) {
 			if (brightnessDir) {
 				brightness++;
 				if (brightness > DankNullUtils.STEPS_MOST[step]) {
@@ -384,36 +351,6 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 			brightness = 0;
 			step = 0;
 		}
-	}
-
-	@Override
-	public void emitLight(final List<Light> lights, final Entity e) {
-		if (!Options.enabledColoredLightShaderSupport) {
-			return;
-		}
-		if (!initLight) {
-			step = getWorld().rand.nextInt(4);
-			initLight = true;
-		}
-		if (e instanceof EntityPlayer) {
-			final EntityPlayer p = (EntityPlayer) e;
-			for (final ItemStack stack : p.getHeldEquipment()) {
-				if (stack.getItem() instanceof ItemBlockDankNullDock) {
-					final ItemStack dankStack = DankNullUtils.getDockedDankNull(stack);
-					if (!dankStack.isEmpty() && dankStack.getItem() instanceof IColoredLightEmitter) {
-						((IColoredLightEmitter) dankStack.getItem()).emitLight(lights, e);
-					}
-				}
-			}
-		}
-		else if (e instanceof EntityItem) {
-			if (DankNullUtils.isDankNull(((EntityItem) e).getItem())) {
-				((IColoredLightEmitter) ((EntityItem) e).getItem().getItem()).emitLight(lights, e);
-			}
-			else if (((EntityItem) e).getItem().getItem() instanceof ItemBlockDankNullDock) {
-				((IColoredLightEmitter) DankNullUtils.getDockedDankNull(((EntityItem) e).getItem()).getItem()).emitLight(lights, e);
-			}
-		}
-	}
+	}*/
 
 }

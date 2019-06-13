@@ -13,7 +13,7 @@ import p455w0rd.danknull.init.ModGlobals.DankNullTier;
 import p455w0rd.danknull.init.ModGlobals.NBT;
 import p455w0rd.danknull.items.ItemDankNull;
 import p455w0rd.danknull.util.DankNullUtils;
-import p455w0rd.danknull.util.ItemNBTUtils;
+import p455w0rdslib.util.ItemNBTUtils;
 
 /**
  * @author p455w0rd

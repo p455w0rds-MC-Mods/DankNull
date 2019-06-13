@@ -532,7 +532,7 @@ public class GuiDankNull extends GuiModular {
 							mc.player.inventory.setItemStack(tmpStack);
 						}
 						else {
-							if (DankNullUtils.areStacksEqual(slotStack, mouseStack)) {
+							if (ItemUtils.areItemStacksEqualIgnoreSize(slotStack, mouseStack)) {
 								DankNullUtils.decrDankNullStackSize(tmpInv, slotStack, 1);
 								mouseStack.grow(1);
 							}
