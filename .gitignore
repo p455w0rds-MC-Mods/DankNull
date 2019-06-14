@@ -1,24 +1,26 @@
-# eclipse
-bin
-*.launch
-.settings
-.metadata
-.classpath
-.project
+#Stolen form AE2 Repo. :D
+# exclude all
 
-# idea
-out
-*.ipr
-*.iws
-*.iml
-.idea
+/*
 
-# gradle
-build
-.gradle
+# Include important folders
 
-# other
-eclipse
-run
-libs
-tmp
+# Gradle stuff
+!gradle/
+!gradlew
+!gradlew.bat
+!build.gradle
+!gradle.properties
+!settings.gradle
+
+# Other Files.
+!LICENSE
+!README.md
+
+# Include git important files
+!.gitmodules
+!.gitignore
+
+# Include Important Folders
+!src/
+!libs/
