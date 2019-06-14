@@ -6,6 +6,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.Vec3i;
+import net.minecraftforge.common.capabilities.Capability;
 import p455w0rd.danknull.init.ModConfig.Options;
 import p455w0rd.danknull.init.ModGlobals.DankNullTier;
 import p455w0rd.danknull.util.DankNullUtils;
@@ -64,6 +65,10 @@ public class PwLib {
 						return lights;
 					}
 				});
+	}
+
+	public static boolean checkCap(final Capability<?> capability) {
+		return CapabilityLightEmitter.checkCap(capability) && Options.enableColoredLightShaderSupport;
 	}
 
 }

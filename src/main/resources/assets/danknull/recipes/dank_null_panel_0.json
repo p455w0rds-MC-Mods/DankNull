@@ -1,0 +1,23 @@
+{
+	"type": "forge:ore_shaped",
+	"pattern": [
+		"aca",
+		"cbc",
+		"aca"
+	],
+	"key": {
+		"a": {
+			"item": "minecraft:redstone"
+		},
+		"b": {
+			"item": "minecraft:stained_glass_pane",
+			"data": 14
+		},
+		"c": {
+			"item": "minecraft:coal_block"
+		}
+	},
+	"result": {
+		"item": "danknull:dank_null_panel_0"
+	}
+}

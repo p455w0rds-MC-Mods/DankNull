@@ -40,7 +40,6 @@ import p455w0rd.danknull.inventory.PlayerSlot;
 import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rd.danknull.util.DankNullUtils.ItemPlacementMode;
 import p455w0rdslib.api.client.*;
-import p455w0rdslib.capabilities.CapabilityLightEmitter;
 import p455w0rdslib.integration.Albedo;
 import p455w0rdslib.util.*;
 
@@ -76,7 +75,7 @@ public class ItemDankNull extends Item implements IModelHolder/*, IBlockLightEmi
 		return new ICapabilityProvider() {
 			@Override
 			public boolean hasCapability(final Capability<?> capability, final EnumFacing facing) {
-				return CapabilityUtils.isItemHandler(capability) || Albedo.albedoCapCheck(capability) || CapabilityLightEmitter.checkCap(capability);
+				return CapabilityUtils.isItemHandler(capability) || Albedo.albedoCapCheck(capability) || PwLib.checkCap(capability);
 			}
 
 			@Override
@@ -85,7 +84,7 @@ public class ItemDankNull extends Item implements IModelHolder/*, IBlockLightEmi
 					if (Albedo.albedoCapCheck(capability)) {
 						return p455w0rd.danknull.integration.Albedo.getStackCapability(stack);
 					}
-					else if (CapabilityLightEmitter.checkCap(capability)) {
+					else if (PwLib.checkCap(capability)) {
 						return PwLib.getStackCapability(stack);
 					}
 					else if (CapabilityUtils.isItemHandler(capability)) {

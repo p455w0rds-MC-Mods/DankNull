@@ -85,8 +85,6 @@ public class ContainerDankNullDock extends Container {
 			}
 		}
 		DankNullUtils.reArrangeStacks(inventory);
-		//final NBTTagCompound nbt = tmpInv.saveInventory(new NBTTagCompound());
-		//getDankNull().setTagCompound(nbt);
 		return ret;
 	}
 
@@ -104,7 +102,7 @@ public class ContainerDankNullDock extends Container {
 
 	@Override
 	public void detectAndSendChanges() {
-		//fuck vanilla syncing..seriously
+		//I'll take this, thanks
 	}
 
 	@Override
@@ -119,17 +117,13 @@ public class ContainerDankNullDock extends Container {
 	public ItemStack slotClick(final int index, final int dragType, final ClickType clickType, final EntityPlayer player) {
 		final Slot s = getSlot(index);
 		if (index < 36 && clickType != ClickType.QUICK_MOVE || clickType == ClickType.CLONE) {
-			//super.detectAndSendChanges();
 			return super.slotClick(index, dragType, clickType, player);
 		}
 		if (clickType == ClickType.QUICK_MOVE) {
-			//if (!(player instanceof EntityPlayerMP)) {
 			final InventoryDankNull tmpInv = DankNullUtils.getNewDankNullInventory(getDankNull());
 			shiftClick(tmpInv, index, player);
-			//}
 			return ItemStack.EMPTY;
 		}
-		//if (!(player instanceof EntityPlayerMP)) {
 		final InventoryDankNull tmpInv = DankNullUtils.getNewDankNullInventory(getDankNull());
 		final InventoryPlayer inventoryplayer = player.inventory;
 		final ItemStack heldStack = inventoryplayer.getItemStack();
@@ -144,17 +138,14 @@ public class ContainerDankNullDock extends Container {
 			if (!heldStack.isEmpty()) {
 				if (!(player instanceof EntityPlayerMP)) {
 					if (addStack(tmpInv, heldStack)) {
-						//playerIn.inventory.markDirty();
 						DankNullUtils.setSelectedIndexApplicable(tmpInv);
 						tmpInv.markDirty();
-						//getTile().setDankNull(tmpInv.getDankNull().copy());
 					}
 					sync(getDankNull());
 				}
 				if (player instanceof EntityPlayerMP) {
 					player.inventory.setInventorySlotContents(index, ItemStack.EMPTY);
 					player.inventory.markDirty();
-					//((EntityPlayerMP) player).connection.sendPacket(new SPacketSetSlot(-2, index, ItemStack.EMPTY));
 				}
 				inventoryplayer.setItemStack(ItemStack.EMPTY);
 			}
@@ -169,8 +160,6 @@ public class ContainerDankNullDock extends Container {
 
 			}
 		}
-		//sync(tmpInv.getDankNull());
-		//}
 		return ItemStack.EMPTY;
 	}
 
@@ -185,10 +174,8 @@ public class ContainerDankNullDock extends Container {
 				if (!(player instanceof EntityPlayerMP)) {
 					if (addStack(inventory, clickSlot.getStack())) {
 						clickSlot.putStack(ItemStack.EMPTY);
-						//playerIn.inventory.markDirty();
 						DankNullUtils.setSelectedIndexApplicable(inventory);
 						inventory.markDirty();
-						//getTile().setDankNull(tmpInv.getDankNull().copy());
 					}
 					else {
 						moveStackWithinInventory(clickSlot.getStack(), index);
@@ -198,7 +185,6 @@ public class ContainerDankNullDock extends Container {
 				if (player instanceof EntityPlayerMP) {
 					player.inventory.setInventorySlotContents(index, ItemStack.EMPTY);
 					player.inventory.markDirty();
-					//((EntityPlayerMP) player).connection.sendPacket(new SPacketSetSlot(-2, index, ItemStack.EMPTY));
 				}
 				return ItemStack.EMPTY;
 			}
@@ -208,16 +194,13 @@ public class ContainerDankNullDock extends Container {
 				final int currentStackSize = newStack.getCount();
 				if (!DankNullUtils.isCreativeDankNull(getDankNull()) && currentStackSize > realMaxStackSize) {
 					newStack.setCount(realMaxStackSize);
-					//f (!(player instanceof EntityPlayerMP)) {
 					if (moveStackToInventory(newStack) && !(player instanceof EntityPlayerMP)) {
 						DankNullUtils.decrDankNullStackSize(inventory, clickSlot.getStack(), realMaxStackSize);
 						sync(inventory.getDankNull());
 					}
-					//}
 					if (player instanceof EntityPlayerMP) {
 						player.inventory.setInventorySlotContents(index, newStack);
 						player.inventory.markDirty();
-						//((EntityPlayerMP) player).connection.sendPacket(new SPacketSetSlot(-2, index, newStack));
 					}
 				}
 				else {
@@ -234,7 +217,6 @@ public class ContainerDankNullDock extends Container {
 					if (player instanceof EntityPlayerMP) {
 						player.inventory.setInventorySlotContents(index, newStack);
 						player.inventory.markDirty();
-						//((EntityPlayerMP) player).connection.sendPacket(new SPacketSetSlot(-2, index, newStack));
 					}
 					DankNullUtils.reArrangeStacks(inventory);
 				}
@@ -251,7 +233,6 @@ public class ContainerDankNullDock extends Container {
 	private boolean moveStackWithinInventory(final ItemStack itemStackIn, final int index) {
 		if (isInHotbar(index)) {
 			if (mergeItemStack(itemStackIn, 9, 37, false)) {
-				//super.detectAndSendChanges();
 				return true;
 			}
 			for (int i = 9; i <= 36; i++) {
@@ -259,14 +240,12 @@ public class ContainerDankNullDock extends Container {
 				if (!possiblyOpenSlot.getHasStack()) {
 					possiblyOpenSlot.putStack(itemStackIn);
 					inventorySlots.get(index).putStack(ItemStack.EMPTY);
-					//super.detectAndSendChanges();
 					return true;
 				}
 			}
 		}
 		else if (isInInventory(index)) {
 			if (mergeItemStack(itemStackIn, 0, 9, false)) {
-				//super.detectAndSendChanges();
 				return true;
 			}
 			for (int i = 0; i <= 8; i++) {
@@ -274,7 +253,6 @@ public class ContainerDankNullDock extends Container {
 				if (!possiblyOpenSlot.getHasStack()) {
 					possiblyOpenSlot.putStack(itemStackIn);
 					inventorySlots.get(index).putStack(ItemStack.EMPTY);
-					//super.detectAndSendChanges();
 					return true;
 				}
 			}

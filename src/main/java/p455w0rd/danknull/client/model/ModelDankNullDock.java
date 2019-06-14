@@ -71,14 +71,12 @@ public class ModelDankNullDock extends ModelBase {
 	public void render(final Entity entity, final float f, final float f1, final float f2, final float f3, final float f4, final float f5) {
 		super.render(entity, f, f1, f2, f3, f4, f5);
 		setRotationAngles(f, f1, f2, f3, f4, f5, entity);
-		//RenderHelper.enableGUIStandardItemLighting();
 		base.render(f5);
 		base2.render(f5);
 		base2edge1.render(f5);
 		base2edge2.render(f5);
 		base2edge3.render(f5);
 		base2edge4.render(f5);
-		//RenderHelper.enableStandardItemLighting();
 	}
 
 	private void setRotation(final ModelRenderer model, final float x, final float y, final float z) {

@@ -8,25 +8,27 @@ import p455w0rdslib.LibGlobals;
 public class ModGlobals {
 
 	public static final String MODID_PWLIB = "p455w0rdslib";
-
 	public static final String MODID = "danknull";
-	public static final String VERSION = "1.5.59";
+	public static final String VERSION = "1.5.69";
 	public static final String NAME = "/dank/null";
 	public static final String SERVER_PROXY = "p455w0rd.danknull.proxy.CommonProxy";
 	public static final String CLIENT_PROXY = "p455w0rd.danknull.proxy.ClientProxy";
 	public static final String GUI_FACTORY = "p455w0rd.danknull.init.ModGuiFactory";
 	public static final String CONFIG_FILE = "config/DankNull.cfg";
 	public static final String DEPENDANCIES = LibGlobals.REQUIRE_DEP + "after:stg;after:jei;after:waila;after:theoneprobe;after:nei";
-
 	public static boolean GUI_DANKNULL_ISOPEN = false;
 	public static float TIME = 0.0F;
 
 	public static class Rarities {
 
-		private static final IRarity[] RARITY_CACHE = new IRarity[] {
-
-				createRarity("dn:redstone", TextFormatting.RED), createRarity("dn:redstone", TextFormatting.BLUE), createRarity("dn:redstone", TextFormatting.WHITE), createRarity("dn:redstone", TextFormatting.YELLOW), createRarity("dn:redstone", TextFormatting.AQUA), createRarity("dn:redstone", TextFormatting.GREEN), createRarity("dn:redstone", TextFormatting.LIGHT_PURPLE)
-
+		private static final IRarity[] RARITY_CACHE = new IRarity[] { //@formatter:off
+				createRarity("dn:redstone", TextFormatting.RED),
+				createRarity("dn:redstone", TextFormatting.BLUE),
+				createRarity("dn:redstone", TextFormatting.WHITE),
+				createRarity("dn:redstone", TextFormatting.YELLOW),
+				createRarity("dn:redstone", TextFormatting.AQUA),
+				createRarity("dn:redstone", TextFormatting.GREEN),
+				createRarity("dn:redstone", TextFormatting.LIGHT_PURPLE)//@formatter:on
 		};
 
 		public static IRarity getRarityFromMeta(final int meta) {

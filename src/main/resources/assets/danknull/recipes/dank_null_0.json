@@ -1,0 +1,17 @@
+{
+	"type": "forge:ore_shaped",
+	"pattern": [
+		" a ",
+		"aaa",
+		" a "
+	],
+	"key": {
+		"a": {
+			"item": "danknull:dank_null_panel_0"
+		}
+	},
+	"result": {
+		"item": "danknull:dank_null_0",
+		"data": 0
+	}
+}

@@ -22,10 +22,7 @@ public class ContainerDankNull extends Container {
 		final InventoryPlayer playerInv = player.inventory;
 		final ItemStack dankNull = inv.getDankNull();
 		int lockedSlot = -1;
-		final int numRows = DankNullUtils.getTier(dankNull).getNumRows();//DankNullUtils.getMeta(dankNull) + 1;
-		//if (DankNullUtils.isCreativeDankNull(dankNull)) {
-		//	numRows--;
-		//}
+		final int numRows = DankNullUtils.getTier(dankNull).getNumRows();
 		for (int i = 0; i < playerInv.getSizeInventory(); i++) {
 			final ItemStack currStack = playerInv.getStackInSlot(i);
 			if (!currStack.isEmpty() && currStack == dankNull) {
@@ -242,7 +239,6 @@ public class ContainerDankNull extends Container {
 				if (!thisStack.isEmpty() && clickTypeIn == ClickType.PICKUP) {
 					final int max = thisStack.getMaxStackSize();
 					final ItemStack newStack = thisStack.copy();
-
 					if (thisStack.getCount() >= max) {
 						newStack.setCount(max);
 					}

@@ -87,6 +87,21 @@ public class DankNullUtils {
 		return ItemStack.EMPTY;
 	}
 
+	public static void setDockedDankNull(final ItemStack dankNullDock, final ItemStack newDankNull) {
+		if (!dankNullDock.hasTagCompound()) {
+			dankNullDock.setTagCompound(new NBTTagCompound());
+		}
+		if (dankNullDock.getTagCompound().hasKey(NBT.BLOCKENTITYTAG, Constants.NBT.TAG_COMPOUND)) {
+			final NBTTagCompound nbt = dankNullDock.getTagCompound().getCompoundTag(NBT.BLOCKENTITYTAG);
+			nbt.setTag(NBT.DOCKEDSTACK, newDankNull.serializeNBT());
+		}
+		else {
+			final NBTTagCompound nbt = new NBTTagCompound();
+			nbt.setTag(NBT.DOCKEDSTACK, newDankNull.serializeNBT());
+			dankNullDock.getTagCompound().setTag(NBT.BLOCKENTITYTAG, nbt);
+		}
+	}
+
 	public static ItemStack getDockedDankNull(final TileEntity dankDock) {
 		if (isDankNullDock(dankDock)) {
 			return ((TileDankNullDock) dankDock).getDankNull();

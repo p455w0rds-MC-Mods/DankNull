@@ -81,11 +81,8 @@ public class DankNullPanelRenderer extends TileEntityItemStackRenderer implement
 			}
 			OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, pbx, pby);
 		}
-
 		GlStateManager.popMatrix();
-
 		GlStateManager.disableRescaleNormal();
-
 	}
 
 	@Override

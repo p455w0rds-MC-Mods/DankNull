@@ -1,0 +1,24 @@
+{
+	"type": "forge:ore_shaped",
+	"pattern": [
+		"aca",
+		"cbc",
+		"aca"
+	],
+	"key": {
+		"a": {
+			"type": "forge:ore_dict",
+			"ore": "gemLapis"
+		},
+		"b": {
+			"item": "minecraft:stained_glass_pane",
+			"data": 11
+		},
+		"c": {
+			"item": "minecraft:coal_block"
+		}
+	},
+	"result": {
+		"item": "danknull:dank_null_panel_1"
+	}
+}

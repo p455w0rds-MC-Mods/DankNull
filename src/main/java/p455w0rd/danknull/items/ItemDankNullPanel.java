@@ -14,7 +14,6 @@ import p455w0rd.danknull.client.render.DankNullPanelRenderer;
 import p455w0rd.danknull.init.ModGlobals.DankNullTier;
 import p455w0rd.danknull.integration.PwLib;
 import p455w0rdslib.api.client.*;
-import p455w0rdslib.capabilities.CapabilityLightEmitter;
 import p455w0rdslib.integration.Albedo;
 import p455w0rdslib.util.TextUtils;
 
@@ -40,7 +39,7 @@ public class ItemDankNullPanel extends Item implements IModelHolder/*, IBlockLig
 		return new ICapabilityProvider() {
 			@Override
 			public boolean hasCapability(final Capability<?> capability, final EnumFacing facing) {
-				return Albedo.albedoCapCheck(capability) || CapabilityLightEmitter.checkCap(capability);
+				return Albedo.albedoCapCheck(capability) || PwLib.checkCap(capability);
 			}
 
 			@Override
@@ -49,7 +48,7 @@ public class ItemDankNullPanel extends Item implements IModelHolder/*, IBlockLig
 					if (Albedo.albedoCapCheck(capability)) {
 						return p455w0rd.danknull.integration.Albedo.getStackCapability(stack);
 					}
-					else if (CapabilityLightEmitter.checkCap(capability)) {
+					else if (PwLib.checkCap(capability)) {
 						return PwLib.getStackCapability(stack);
 					}
 				}

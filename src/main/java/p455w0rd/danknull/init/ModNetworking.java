@@ -28,15 +28,12 @@ public class ModNetworking {
 	public static void init() {
 		getInstance().registerMessage(PacketConfigSync.Handler.class, PacketConfigSync.class, nextID(), Side.CLIENT);
 		getInstance().registerMessage(PacketSetSelectedItem.Handler.class, PacketSetSelectedItem.class, nextID(), Side.SERVER);
-		//getInstance().registerMessage(PacketSetSlotExtractionMode.Handler.class, PacketSetSlotExtractionMode.class, nextID(), Side.SERVER);
 		getInstance().registerMessage(PacketSyncDankNull.Handler.class, PacketSyncDankNull.class, nextID(), Side.CLIENT);
 		getInstance().registerMessage(PacketSyncDankNull.Handler.class, PacketSyncDankNull.class, nextID(), Side.SERVER);
 		getInstance().registerMessage(PacketEmptyDock.Handler.class, PacketEmptyDock.class, nextID(), Side.CLIENT);
 		getInstance().registerMessage(PacketSetDankNullInDock.Handler.class, PacketSetDankNullInDock.class, nextID(), Side.CLIENT);
-		//getInstance().registerMessage(PacketSyncDankNullDock.Handler.class, PacketSyncDankNullDock.class, nextID(), Side.CLIENT);
 		getInstance().registerMessage(PacketSyncDankNullDock.Handler.class, PacketSyncDankNullDock.class, nextID(), Side.SERVER);
 		getInstance().registerMessage(PacketOpenDankGui.Handler.class, PacketOpenDankGui.class, nextID(), Side.SERVER);
-		getInstance().registerMessage(PacketMouseWheel.Handler.class, PacketMouseWheel.class, nextID(), Side.SERVER);
-		//getInstance().registerMessage(PacketSetSelectedItemDock.Handler.class, PacketSetSelectedItemDock.class, nextID(), Side.SERVER);
+		//getInstance().registerMessage(PacketMouseWheel.Handler.class, PacketMouseWheel.class, nextID(), Side.SERVER);
 	}
 }

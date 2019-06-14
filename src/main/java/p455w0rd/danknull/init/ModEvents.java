@@ -23,6 +23,7 @@ import net.minecraftforge.client.event.*;
 import net.minecraftforge.client.event.GuiScreenEvent.MouseInputEvent;
 import net.minecraftforge.client.event.RenderGameOverlayEvent.ElementType;
 import net.minecraftforge.event.RegistryEvent;
+import net.minecraftforge.event.RegistryEvent.MissingMappings.Mapping;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.event.world.WorldEvent;
@@ -58,17 +59,17 @@ public class ModEvents {
 
 	@SubscribeEvent
 	public static void onRecipeRegistryReady(final RegistryEvent.Register<IRecipe> event) {
-		event.getRegistry().registerAll(ModRecipes.getInstance().getArray());
+		ModRecipes.register(event);
 	}
 
 	@SubscribeEvent
-	public static void onBlockRegistryReady(final RegistryEvent.Register<Block> e) {
-		ModBlocks.register(e);
+	public static void onBlockRegistryReady(final RegistryEvent.Register<Block> event) {
+		ModBlocks.register(event);
 	}
 
 	@SubscribeEvent
-	public static void onItemRegistryReady(final RegistryEvent.Register<Item> e) {
-		ModItems.register(e);
+	public static void onItemRegistryReady(final RegistryEvent.Register<Item> event) {
+		ModItems.register(event);
 	}
 
 	@SubscribeEvent
@@ -79,21 +80,28 @@ public class ModEvents {
 
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent
-	public static void renderOverlayEvent(final RenderGameOverlayEvent e) {
-		if (ModGlobals.GUI_DANKNULL_ISOPEN && (e.getType() == RenderGameOverlayEvent.ElementType.HOTBAR || e.getType() == RenderGameOverlayEvent.ElementType.CROSSHAIRS || e.getType() == RenderGameOverlayEvent.ElementType.EXPERIENCE || e.getType() == RenderGameOverlayEvent.ElementType.FOOD || e.getType() == RenderGameOverlayEvent.ElementType.HEALTH || e.getType() == RenderGameOverlayEvent.ElementType.ARMOR)) {
-			e.setCanceled(true);
+	public static void renderOverlayEvent(final RenderGameOverlayEvent event) {
+		if (ModGlobals.GUI_DANKNULL_ISOPEN && (//@formatter:off
+				event.getType() == RenderGameOverlayEvent.ElementType.HOTBAR ||
+				event.getType() == RenderGameOverlayEvent.ElementType.CROSSHAIRS ||
+				event.getType() == RenderGameOverlayEvent.ElementType.EXPERIENCE ||
+				event.getType() == RenderGameOverlayEvent.ElementType.FOOD ||
+				event.getType() == RenderGameOverlayEvent.ElementType.HEALTH ||
+				event.getType() == RenderGameOverlayEvent.ElementType.ARMOR)//@formatter:on
+		) {
+			event.setCanceled(true);
 		}
 	}
 
 	@SubscribeEvent
-	public static void onItemPickUp(final EntityItemPickupEvent e) {
-		final EntityPlayer player = e.getEntityPlayer();
-		final ItemStack entityStack = e.getItem().getItem();
+	public static void onItemPickUp(final EntityItemPickupEvent event) {
+		final EntityPlayer player = event.getEntityPlayer();
+		final ItemStack entityStack = event.getItem().getItem();
 		if (entityStack.isEmpty() || player == null) {
 			return;
 		}
 		// Demagnetize integration
-		if (e.getItem().getEntityData().hasKey("PreventRemoteMovement")) {
+		if (event.getItem().getEntityData().hasKey("PreventRemoteMovement")) {
 			return;
 		}
 		final PlayerSlot dankNull = DankNullUtils.getDankNullForStack(player, entityStack);
@@ -102,6 +110,22 @@ public class ModEvents {
 			if (inventory != null && DankNullUtils.addFilteredStackToDankNull(inventory, entityStack)) {
 				entityStack.setCount(0);
 				player.getEntityWorld().playSound(null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_ITEM_PICKUP, player.getSoundCategory(), 0.2F, ((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7F + 1.0F) * 2.0F);
+			}
+		}
+	}
+
+	@SubscribeEvent
+	public static void updateMappings(final RegistryEvent.MissingMappings<Item> event) {
+		for (final Mapping<Item> mapping : event.getAllMappings()) {
+			final String modId = mapping.key.getResourceDomain();
+			final String regPath = mapping.key.getResourcePath();
+			if (modId.equals(ModGlobals.MODID)) {
+				if (regPath.equals("dank_null")) {
+					mapping.remap(ModItems.REDSTONE_DANKNULL);
+				}
+				else if (regPath.equals("dank_null_panel")) {
+					mapping.remap(ModItems.REDSTONE_PANEL);
+				}
 			}
 		}
 	}
@@ -136,8 +160,8 @@ public class ModEvents {
 	}
 
 	@SubscribeEvent
-	public static void tickEvent(final TickEvent.PlayerTickEvent e) {
-		if (e.side == Side.CLIENT) {
+	public static void tickEvent(final TickEvent.PlayerTickEvent event) {
+		if (event.side == Side.CLIENT) {
 			if (ModGlobals.TIME >= 360.1F) {
 				ModGlobals.TIME = 0.0F;
 			}
@@ -290,8 +314,8 @@ public class ModEvents {
 
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
-	public static void onPostRenderOverlay(final RenderGameOverlayEvent.Post e) {
-		if (e.getType() == ElementType.HOTBAR) {
+	public static void onPostRenderOverlay(final RenderGameOverlayEvent.Post event) {
+		if (event.getType() == ElementType.HOTBAR) {
 			final Minecraft mc = Minecraft.getMinecraft();
 			DankNullUtils.renderHUD(mc, new ScaledResolution(mc));
 		}
@@ -299,9 +323,9 @@ public class ModEvents {
 
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
-	public static void onWorldLoaded(final WorldEvent.Load e) {
+	public static void onWorldLoaded(final WorldEvent.Load event) {
 		if (Mods.NEI.isLoaded() && FMLCommonHandler.instance().getSide().isClient()) {
-			//			NEI.init();
+			//NEI.init();
 		}
 	}
 
@@ -314,8 +338,8 @@ public class ModEvents {
 	}
 
 	@SubscribeEvent
-	public static void onConfigChange(final ConfigChangedEvent.OnConfigChangedEvent e) {
-		if (e.getModID().equals(ModGlobals.MODID)) {
+	public static void onConfigChange(final ConfigChangedEvent.OnConfigChangedEvent event) {
+		if (event.getModID().equals(ModGlobals.MODID)) {
 			ModConfig.init();
 		}
 	}

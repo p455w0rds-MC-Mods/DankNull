@@ -315,11 +315,9 @@ public class GuiDankNull extends GuiModular {
 	public Slot getSlotAtPos(final int x, final int y) {
 		final List<Slot> slots = inventorySlots.inventorySlots;
 		for (int i = 0; i < slots.size(); i++) {
-			//if (slots.get(i) instanceof SlotDankNull) {
 			if (isMouseHovering(slots.get(i), x, y)) {
 				return slots.get(i);
 			}
-			//}
 		}
 		return null;
 	}
@@ -357,7 +355,6 @@ public class GuiDankNull extends GuiModular {
 		final boolean flag = false;
 		boolean flag1 = slotIn == clickedSlot && draggedStack != null && !isRightMouseClick;
 		final ItemStack itemstack1 = EasyMappings.player().inventory.getItemStack();
-		//final String s = null;
 		if (slotIn == clickedSlot && draggedStack != null && isRightMouseClick && !itemstack.isEmpty()) {
 			itemstack = itemstack.copy();
 			itemstack.setCount(itemstack.getCount() / 2);
@@ -399,28 +396,22 @@ public class GuiDankNull extends GuiModular {
 			float inverseScaleFactor = 1.0F / scaleFactor;
 			int offset = -1;
 			String stackSize = "";
-
 			final boolean unicodeFlag = fontRenderer.getUnicodeFlag();
 			fontRenderer.setUnicodeFlag(false);
 			if (is.getItem().showDurabilityBar(is)) {
 				final double health = is.getItem().getDurabilityForDisplay(is);
 				final int j = (int) Math.round(13.0D - health * 13.0D);
 				final int i = (int) Math.round(255.0D - health * 255.0D);
-
 				GlStateManager.disableDepth();
 				GlStateManager.disableTexture2D();
-
 				final Tessellator tessellator = Tessellator.getInstance();
 				final BufferBuilder vertexbuffer = tessellator.getBuffer();
 				draw(vertexbuffer, par4 + 2, par5 + 13, 13, 2, 0, 0, 0, 255);
 				draw(vertexbuffer, par4 + 2, par5 + 13, 12, 1, (255 - i) / 4, 64, 0, 255);
 				draw(vertexbuffer, par4 + 2, par5 + 13, j, 1, 255 - i, i, 0, 255);
-
 				GlStateManager.enableTexture2D();
-
 				GlStateManager.enableDepth();
 			}
-
 			final int amount = getDankNullInventory().getSizeForSlot(DankNullUtils.getIndexForStack(getDankNullInventory(), is));
 			if (amount != 0) {
 				scaleFactor = 0.5F;
@@ -444,7 +435,6 @@ public class GuiDankNull extends GuiModular {
 			GlStateManager.enableBlend();
 			GlStateManager.enableAlpha();
 			GlStateManager.enableLighting();
-
 			fontRenderer.setUnicodeFlag(unicodeFlag);
 		}
 	}
@@ -484,9 +474,6 @@ public class GuiDankNull extends GuiModular {
 		if (keyCode == 1 || mc.gameSettings.keyBindInventory.isActiveAndMatches(keyCode)) {
 			mc.player.closeScreen();
 		}
-
-		//this.checkHotbarKeys(keyCode);
-
 		if (theSlot != null && theSlot.getHasStack()) {
 			if (mc.gameSettings.keyBindPickBlock.isActiveAndMatches(keyCode)) {
 				handleMouseClick(theSlot, theSlot.slotNumber, 0, ClickType.CLONE);
@@ -586,7 +573,6 @@ public class GuiDankNull extends GuiModular {
 	@Override
 	protected void renderToolTip(final ItemStack stack, final int x, final int y) {
 		final List<String> list = stack.isEmpty() ? Lists.newArrayList() : stack.getTooltip(EasyMappings.player(), mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL);
-
 		for (int i = 0; i < list.size(); ++i) {
 			if (i == 0) {
 				list.set(i, stack.getItem().getForgeRarity(stack).getColor() + list.get(i));
@@ -600,7 +586,6 @@ public class GuiDankNull extends GuiModular {
 			final boolean showOreDictMessage = DankNullUtils.isOreDictBlacklistEnabled() && !DankNullUtils.isItemOreDictBlacklisted(s.getStack()) || DankNullUtils.isOreDictWhitelistEnabled() && DankNullUtils.isItemOreDictWhitelisted(s.getStack()) || !DankNullUtils.isOreDictBlacklistEnabled() && !DankNullUtils.isOreDictWhitelistEnabled();
 			final ItemExtractionMode extractMode = DankNullUtils.getExtractionModeForStack(getDankNull(), s.getStack());
 			final ItemPlacementMode placementMode = DankNullUtils.getPlacementModeForStack(getDankNull(), s.getStack());
-
 			final Block selectedBlock = Block.getBlockFromItem(stack.getItem());
 			final boolean isSelectedStackABlock = selectedBlock != null && selectedBlock != Blocks.AIR;
 			if (extractMode != null) {
@@ -647,10 +632,8 @@ public class GuiDankNull extends GuiModular {
 				list.add(1, TextFormatting.GRAY + "" + TextFormatting.ITALIC + TextUtils.translate("dn.count.desc") + ": " + (DankNullUtils.isCreativeDankNull(getDankNull()) ? TextUtils.translate("dn.infinite.desc") : getDankNullInventory().getSizeForSlot(DankNullUtils.getIndexForStack(getDankNullInventory(), s.getStack()))));
 			}
 		}
-
 		net.minecraftforge.fml.client.config.GuiUtils.preItemToolTip(stack);
 		GuiUtils.drawToolTipWithBorderColor(this, list, x, y, tier.getHexColor(true), tier.getHexColor(false));
-
 		if (isShiftKeyDown() && Mods.THAUMCRAFT.isLoaded() && s != null && s.getHasStack()) {
 			int i = 0;
 			for (final String str : list) {

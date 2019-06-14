@@ -16,8 +16,7 @@ import p455w0rd.danknull.client.gui.GuiModConfig;
 public class ModGuiFactory implements IModGuiFactory {
 
 	@Override
-	public void initialize(Minecraft minecraftInstance) {
-
+	public void initialize(final Minecraft minecraftInstance) {
 	}
 
 	@Override
@@ -26,7 +25,7 @@ public class ModGuiFactory implements IModGuiFactory {
 	}
 
 	@Override
-	public GuiScreen createConfigGui(GuiScreen parentScreen) {
+	public GuiScreen createConfigGui(final GuiScreen parentScreen) {
 		return new GuiModConfig(parentScreen);
 	}
 

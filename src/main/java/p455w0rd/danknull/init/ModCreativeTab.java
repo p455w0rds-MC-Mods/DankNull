@@ -28,7 +28,6 @@ public class ModCreativeTab extends CreativeTabs {
 
 	@Override
 	public void displayAllRelevantItems(final NonNullList<ItemStack> items) {
-
 		for (final Item item : ModItems.getItems()) {
 			if (!(item instanceof ItemBlock)) {
 				items.add(new ItemStack(item));

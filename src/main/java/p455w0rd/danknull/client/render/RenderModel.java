@@ -23,6 +23,7 @@ import net.minecraftforge.client.model.pipeline.LightUtil;
  *
  */
 public class RenderModel {
+
 	public static void render(final IBakedModel model, @Nonnull final ItemStack stack) {
 		render(model, -1, stack);
 	}
@@ -57,7 +58,6 @@ public class RenderModel {
 				k |= 0xFF000000;
 			}
 			LightUtil.renderQuadColor(renderer, bakedquad, k);
-			//LightUtil.renderQuadColorSlow(renderer, bakedquad, k);
 		}
 	}
 

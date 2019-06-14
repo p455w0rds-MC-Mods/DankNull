@@ -16,7 +16,6 @@ import p455w0rd.danknull.integration.PwLib;
 import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rdslib.api.client.*;
 import p455w0rdslib.api.client.shader.IBlockLightEmitter;
-import p455w0rdslib.capabilities.CapabilityLightEmitter;
 import p455w0rdslib.integration.Albedo;
 import p455w0rdslib.util.TextUtils;
 
@@ -39,7 +38,7 @@ public class ItemBlockDankNullDock extends ItemBlock implements IModelHolder, IB
 		return new ICapabilityProvider() {
 			@Override
 			public boolean hasCapability(final Capability<?> capability, final EnumFacing facing) {
-				return Albedo.albedoCapCheck(capability) || CapabilityLightEmitter.checkCap(capability);
+				return Albedo.albedoCapCheck(capability) || PwLib.checkCap(capability);
 			}
 
 			@Override
@@ -48,7 +47,7 @@ public class ItemBlockDankNullDock extends ItemBlock implements IModelHolder, IB
 					if (Albedo.albedoCapCheck(capability)) {
 						return p455w0rd.danknull.integration.Albedo.getStackCapability(stack);
 					}
-					else if (CapabilityLightEmitter.checkCap(capability)) {
+					else if (PwLib.checkCap(capability)) {
 						return PwLib.getStackCapability(DankNullUtils.getDockedDankNull(stack));
 					}
 				}
@@ -97,7 +96,7 @@ public class ItemBlockDankNullDock extends ItemBlock implements IModelHolder, IB
 	/*private int brightness = 0;
 	private boolean brightnessDir = false;
 	private int step = 0;
-
+	
 	@Override
 	public void emitLight(final List<Light> lights, final Entity e) {
 		if (!Options.enabledColoredLightShaderSupport) {

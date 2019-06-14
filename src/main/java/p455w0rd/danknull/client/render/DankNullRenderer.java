@@ -63,7 +63,6 @@ public class DankNullRenderer extends TileEntityItemStackRenderer implements ICu
 			if (rm == null) {
 				return;
 			}
-
 			if (model == null) {
 				final IBakedModel baseModel = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel(item);
 				if (baseModel == null) {
@@ -165,7 +164,6 @@ public class DankNullRenderer extends TileEntityItemStackRenderer implements ICu
 						GlStateManager.rotate(ModGlobals.TIME, 1.0F, ModGlobals.TIME, 1.0F);
 					}
 					else if (containedStack.getItem() instanceof ItemDankNullPanel) {
-						//GlStateManager.translate(0.0D, 0.1D, 0.0D);
 						GlStateManager.rotate(ModGlobals.TIME, 1.0F, ModGlobals.TIME, 1.0F);
 					}
 					else if (containedStack.getItem() == Items.BANNER) {
@@ -174,7 +172,6 @@ public class DankNullRenderer extends TileEntityItemStackRenderer implements ICu
 					else {
 						GlStateManager.translate(-0.1D, 0.0D, -0.1D);
 						GlStateManager.rotate(ModGlobals.TIME, 1.0F, ModGlobals.TIME, 1.0F);
-						//GlStateManager.translate(0.05D, 0.0D, 0.05D);
 					}
 				}
 				else {
@@ -202,13 +199,11 @@ public class DankNullRenderer extends TileEntityItemStackRenderer implements ICu
 			if (item.hasEffect()) {
 				OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240F, 240F);
 			}
-			//GlStateManager.enableLighting();
 			renderItem(item, model);
 
 			if (item.hasEffect()) {
 				OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, pbx, pby);
 			}
-			//GlStateManager.enableLighting();
 			Minecraft.getMinecraft().getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, true);
 		}
 	}

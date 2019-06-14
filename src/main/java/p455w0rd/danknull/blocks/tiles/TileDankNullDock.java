@@ -12,6 +12,7 @@ import net.minecraft.network.play.server.SPacketUpdateTileEntity;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumFacing;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.datafix.FixTypes;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
@@ -26,23 +27,23 @@ import p455w0rd.danknull.items.ItemDankNull;
 import p455w0rd.danknull.network.VanillaPacketDispatcher;
 import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rd.danknull.util.DankNullUtils.ItemExtractionMode;
-import p455w0rdslib.capabilities.CapabilityLightEmitter;
 import p455w0rdslib.integration.Albedo;
 
 /**
  * @author p455w0rd
  *
  */
-public class TileDankNullDock extends TileEntity implements IRedstoneControllable, ISidedInventory/*, IBlockLightEmitter*/ {
+public class TileDankNullDock extends TileEntity implements IRedstoneControllable, ISidedInventory {
 
 	private RedstoneMode redstoneMode = RedstoneMode.REQUIRED;
 	private boolean hasRedstoneSignal = false;
 	private final NonNullList<ItemStack> slots = NonNullList.create();
 	ItemStack dankNull = ItemStack.EMPTY;
+	private final DankNullFixer fixer = new DankNullFixer(FixTypes.BLOCK_ENTITY);
 
 	@Override
 	public boolean hasCapability(final Capability<?> capability, final EnumFacing facing) {
-		return !getDankNull().isEmpty() && (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && (facing == EnumFacing.DOWN || facing == EnumFacing.UP) || Albedo.albedoCapCheck(capability) || CapabilityLightEmitter.checkCap(capability) || super.hasCapability(capability, facing));
+		return !getDankNull().isEmpty() && (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && (facing == EnumFacing.DOWN || facing == EnumFacing.UP) || Albedo.albedoCapCheck(capability) || PwLib.checkCap(capability) || super.hasCapability(capability, facing));
 	}
 
 	@Override
@@ -51,7 +52,7 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 			if (Albedo.albedoCapCheck(capability)) {
 				return p455w0rd.danknull.integration.Albedo.getTileCapability(getPos(), getDankNull());
 			}
-			if (CapabilityLightEmitter.checkCap(capability)) {
+			if (PwLib.checkCap(capability)) {
 				return PwLib.getTileCapability(this);
 			}
 			if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY && (facing == EnumFacing.DOWN || facing == EnumFacing.UP)) {
@@ -68,7 +69,7 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 	}
 
 	public void setDankNull(final ItemStack dankNull) {
-		this.dankNull = new ItemStack(DankNullFixer.getInstance().fixTagCompound(dankNull.serializeNBT()));
+		this.dankNull = new ItemStack(fixer.fixTagCompound(dankNull.serializeNBT()));
 		markDirty();
 	}
 
@@ -306,51 +307,5 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 	public enum RedstoneMode {
 			REQUIRED, REQUIRE_NONE, IGNORED
 	}
-
-	/*private int brightness = 0;
-	private boolean brightnessDir = false;
-	private int step = 0;
-	private boolean initLight = false;
-	
-	@Override
-	public void emitLight(final List<Light> lights, final TileEntity tile) {
-		if (!Options.enabledColoredLightShaderSupport) {
-			return;
-		}
-		if (!initLight) {
-			step = getWorld().rand.nextInt(4);
-			initLight = true;
-		}
-		final ItemStack lightStack = getDankNull();
-		if (getWorld() != null && getWorld().isRemote && !lightStack.isEmpty()) {
-			if (brightnessDir) {
-				brightness++;
-				if (brightness > DankNullUtils.STEPS_MOST[step]) {
-					brightnessDir = !brightnessDir;
-					step++;
-					if (step > 4) {
-						step = 0;
-					}
-				}
-			}
-			else {
-				brightness--;
-				if (brightness < DankNullUtils.STEPS_LEAST[step]) {
-					brightnessDir = !brightnessDir;
-					step++;
-					if (step > 4) {
-						step = 0;
-					}
-				}
-			}
-			final Vec3i c = RenderUtils.hexToRGB(DankNullUtils.getTier(getDankNull()).getHexColor(false));
-			lights.add(Light.builder().pos(tile.getPos()).color(c.getX(), c.getY(), c.getZ(), (float) (brightness * 0.001)).radius(2.5f).intensity(5).build());
-		}
-		else {
-			brightnessDir = false;
-			brightness = 0;
-			step = 0;
-		}
-	}*/
 
 }
