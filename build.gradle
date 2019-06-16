@@ -26,11 +26,4 @@ apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/itemscroller.g
 apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/itemscroller.gradle'
 apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/buildinggadgets.gradle'
 apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/enderio.gradle'
-
-minecraft {
-	serverJvmArgs += "-Dfml.doNotBackup=true"
-	serverJvmArgs += "-Dfml.queryResult=confirm"
-    clientJvmArgs += "-Dfml.doNotBackup=true"
-	//asm is only necessary client-side
-	clientJvmArgs += "-Dfml.coreMods.load=p455w0rdslib.asm.FMLPlugin,albedo.asm.FMLPlugin"
-}
+apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/demagnetize.gradle'
