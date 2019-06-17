@@ -43,10 +43,7 @@ public class RecipeDankNullUpgrade extends net.minecraftforge.registries.IForgeR
 
 	@Override
 	public ItemStack getRecipeOutput() {
-		oldNBT = getInputDankNull().serializeNBT();
-		final ItemStack newStack = new ItemStack(oldNBT);
-		newStack.setItemDamage(DankNullUtils.getMeta(getInputDankNull()) + 1);
-		return newStack;
+		return DankNullUtils.getTier(getInputDankNull()).getUpgradedVersion(getInputDankNull());
 	}
 
 	@Override

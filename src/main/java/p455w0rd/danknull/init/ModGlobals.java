@@ -1,15 +1,18 @@
 package p455w0rd.danknull.init;
 
+import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraftforge.common.IRarity;
+import net.minecraftforge.common.util.Constants;
 import p455w0rdslib.LibGlobals;
 
 public class ModGlobals {
 
 	public static final String MODID_PWLIB = "p455w0rdslib";
 	public static final String MODID = "danknull";
-	public static final String VERSION = "1.5.70";
+	public static final String VERSION = "1.5.72";
 	public static final String NAME = "/dank/null";
 	public static final String SERVER_PROXY = "p455w0rd.danknull.proxy.CommonProxy";
 	public static final String CLIENT_PROXY = "p455w0rd.danknull.proxy.ClientProxy";
@@ -23,12 +26,12 @@ public class ModGlobals {
 
 		private static final IRarity[] RARITY_CACHE = new IRarity[] { //@formatter:off
 				createRarity("dn:redstone", TextFormatting.RED),
-				createRarity("dn:redstone", TextFormatting.BLUE),
-				createRarity("dn:redstone", TextFormatting.WHITE),
-				createRarity("dn:redstone", TextFormatting.YELLOW),
-				createRarity("dn:redstone", TextFormatting.AQUA),
-				createRarity("dn:redstone", TextFormatting.GREEN),
-				createRarity("dn:redstone", TextFormatting.LIGHT_PURPLE)//@formatter:on
+				createRarity("dn:lapis", TextFormatting.BLUE),
+				createRarity("dn:iron", TextFormatting.WHITE),
+				createRarity("dn:gold", TextFormatting.YELLOW),
+				createRarity("dn:diamond", TextFormatting.AQUA),
+				createRarity("dn:emerald", TextFormatting.GREEN),
+				createRarity("dn:creative", TextFormatting.LIGHT_PURPLE)//@formatter:on
 		};
 
 		public static IRarity getRarityFromMeta(final int meta) {
@@ -167,6 +170,20 @@ public class ModGlobals {
 
 		public int getHexColor(final boolean opaque) {
 			return opaque ? OPAQUE_HEX_COLORS[ordinal()] : HEX_COLORS[ordinal()];
+		}
+
+		public ItemStack getUpgradedVersion(final ItemStack dankNull) {
+			if (ordinal() < 6) {
+				final NBTTagCompound raw = dankNull.serializeNBT();
+				if (raw.hasKey("id", Constants.NBT.TAG_STRING)) {
+					final String[] id = raw.getString("id").split(":");
+					if (id.length > 0 && id[1].startsWith("dank_null_")) {
+						raw.setString("id", id[0] + ":dank_null_" + (ordinal() + 1));
+						return new ItemStack(raw);
+					}
+				}
+			}
+			return dankNull.copy();
 		}
 
 	}
