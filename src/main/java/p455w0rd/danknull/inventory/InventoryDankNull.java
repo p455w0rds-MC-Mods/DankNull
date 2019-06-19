@@ -21,7 +21,7 @@ import p455w0rdslib.util.ItemNBTUtils;
 public class InventoryDankNull implements IInventory {
 
 	private final NonNullList<ItemStack> itemStacks;
-	private final int[] stackSizes;
+	private int[] stackSizes;
 	private EntityPlayer player;
 	private PlayerSlot dankNullSlot = null;
 	private String itemUUID = "";
@@ -61,7 +61,7 @@ public class InventoryDankNull implements IInventory {
 			tmp.setCount(Integer.MAX_VALUE);
 			return tmp;
 		}
-		return index < getSizeInventory() ? itemStacks.get(index) : ItemStack.EMPTY;
+		return index < itemStacks.size() ? itemStacks.get(index) : ItemStack.EMPTY;
 	}
 
 	@Override
@@ -180,6 +180,14 @@ public class InventoryDankNull implements IInventory {
 	public void setSizeForSlot(final int index, int size) {
 		if (DankNullUtils.isCreativeDankNull(getDankNull())) {
 			size = Integer.MAX_VALUE;
+		}
+		if (index >= stackSizes.length) {
+			final int[] oldSizes = stackSizes;
+			final int[] newSizes = new int[index - 1];
+			for (final int i : oldSizes) {
+				newSizes[i] = oldSizes[i];
+			}
+			stackSizes = newSizes;
 		}
 		stackSizes[index] = size < 0 ? 0 : size;
 	}
