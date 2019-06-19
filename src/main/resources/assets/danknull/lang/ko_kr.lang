@@ -1,0 +1,72 @@
+//dank/null KR Korean Localizations
+
+//Creative Tab
+itemGroup.danknull=/dank/null
+
+//Items
+item.dank_null_0.name=/dank/null/
+item.dank_null_1.name=/dank/null/MK II
+item.dank_null_2.name=/dank/null/MK III
+item.dank_null_3.name=/dank/null/MK IV
+item.dank_null_4.name=/dank/null/MK V
+item.dank_null_5.name=/dank/null/MK VI
+item.dank_null_6.name=/dank/null/Creative
+item.dank_null_panel.name=레드스톤 /dank/null 패널
+item.dank_null_panel_0.name=레드스톤 /dank/null 패널
+item.dank_null_panel_1.name=라피스 /dank/null 패널
+item.dank_null_panel_2.name=철 /dank/null 패널
+item.dank_null_panel_3.name=금 /dank/null 패널
+item.dank_null_panel_4.name=다이아몬드 /dank/null 패널
+item.dank_null_panel_5.name=에메랄드 /dank/null 패널
+
+//Blocks
+tile.danknull_dock.name=/dank/null 도킹 스테이션
+
+//JEI INTEGRATION
+jei.danknull.desc=/dank/null은 OpenBlocks 모드의 /dev/null/의 정신적인 계승작이며, 업그레이드된 버전이다.
+jei.danknull.desc0=\n§4§l레드스톤§r /dank/null (MK I)은 제일 낮은 티어로 9 슬롯이 있고, 각 슬롯당 2 스택을 가진다.
+jei.danknull.desc1=\n§9§l라피스§r /dank/null (MK II)은 두번째 티어로 18 슬롯이 있고, 각 슬롯당 최대 4 스택을 가진다.
+jei.danknull.desc2=\n§8§l철§r /dank/null (MK III)은 세번째 티어로 27 슬롯이 있고, 각 슬롯 당 8 스택을 가진다.
+jei.danknull.desc3=\n§6§l금§r /dank/null (MK IV)은 네번째 티어로 36 슬롯이 있고, 각 슬롯당 16 스택을 가진다.
+jei.danknull.desc4=\n§b§l다이아몬드§r /dank/null (MK IV)은 다섯번째 티어로 45 슬롯이 있고, 각 슬롯당 32 스택을 가진다.
+jei.danknull.desc5=§2§l에메랄드§r /dank/null (MK VI)은 최종 티어로 54 슬롯이 있고, 각 슬롯당 21억 4천만개의 아이템을 저장할 수 있다.
+jei.danknull_dock.desc=-/dank/null을 우클릭하여 도킹 스테이션에 /dank/null 배치\n-아이템은 /dank/null에서만 꺼낼 수 있으며, 바닥에 있는 것을 넣을 수 없다.\n-독에서 당기는 블록에 의해 속도가 결정된다.
+
+//KeyBindings
+key.categories.danknull=/dank/null
+key.next_item.desc=/dank/null의 다음 아이템으로 순환
+key.previous_item.desc=/dank/null의 이전 아이템으로 순환
+key.open_danknull.desc=가장 가까운 /dank/null 열기
+key.togglehud.desc=HUD 표시 토글
+
+//Misc
+dn.selected_item.desc=선택된 아이템
+dn.count.desc=갯수
+dn.extract.desc=꺼내기
+dn.place.desc=놓기
+dn.extract_mode.desc=추출 모드
+dn.placement_mode.desc=배치 모드
+dn.infinite.desc=무한
+dn.no_open_keybind.desc=키 설정이 열리지 않음
+dn.open_with.desc=Open with
+dn.ore_dictionary.desc=광물 사전(Ore Dictionary)
+dn.enabled.desc=활성화
+dn.disabled.desc=비활성화
+dn.not_oredicted.desc=광물 사전에 없는 아이템
+dn.ctrl_click_change.desc=Ctrl+Click 하여 추출 모드 변경
+dn.o_click_toggle.desc=O+Click 하여 광물 사전 모드 변경
+dn.p_click_toggle.desc=P+Click 하여 배치 모드 변경
+dn.alt_click_set.desc=Alt+Click 하여 선택된 아이템 설정
+dn.selected.desc=선택됨
+dn.will.desc=Will
+dn.from_slot.desc=from this slot
+dn.do.desc=Do
+dn.not_extract.desc=추출하지 않음
+dn.extract_all_but.desc=제외하고 모두 추출
+dn.extract_all.desc=모두 추출
+dn.right_click_with.desc=Right-click with
+dn.empty_hand_open.desc=GUI를 열기 위해 손을 비우세요
+dn.docked.desc=도킹됨
+dn.chisel_varient.desc=변종
+dn.lock.desc=잠금
+dn.unlock.desc=잠금 풀림
