@@ -218,6 +218,8 @@ public class InventoryDankNull implements IInventory {
 		return dankNullSlot.getSlotIndex();
 	}
 
+	public int getPlayerSlotCategoryIndex() { return dankNullSlot.getCatIndex(); }
+
 	public NBTTagCompound getDNTag() {
 		final ItemStack dn = getDankNull();
 		if (!dn.hasTagCompound()) {
