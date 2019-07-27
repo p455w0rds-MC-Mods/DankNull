@@ -1,5 +1,6 @@
 package p455w0rd.danknull.container;
 
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.*;
 import net.minecraft.inventory.*;
 import net.minecraft.item.ItemStack;
@@ -46,6 +47,11 @@ public class ContainerDankNullDock extends Container {
 			for (int j = 0; j < 9; j++) {
 				addSlotToContainer(new SlotDankNullDock(this, j + i * 9, j * 20 + 9 + j, 19 + i + i * 20));
 			}
+		}
+		if (tile.getWorld() != null) {
+			tile.markDirty();
+			final IBlockState s = tile.getWorld().getBlockState(tile.getPos());
+			tile.getWorld().notifyBlockUpdate(tile.getPos(), s, s, 3);
 		}
 	}
 
@@ -150,13 +156,46 @@ public class ContainerDankNullDock extends Container {
 				inventoryplayer.setItemStack(ItemStack.EMPTY);
 			}
 			else if (!thisStack.isEmpty()) {
+
+				final int max = thisStack.getMaxStackSize();
 				final ItemStack newStack = thisStack.copy();
-				final int realMaxStackSize = newStack.getMaxStackSize();
-				newStack.setCount(realMaxStackSize);
-				if (!(player instanceof EntityPlayerMP)) {
-					DankNullUtils.decrDankNullStackSize(tmpInv, thisStack, realMaxStackSize);
+				if (thisStack.getCount() >= max) {
+					newStack.setCount(max);
 				}
+				if (dragType == 1) {
+					final int returnSize = Math.min(newStack.getCount() / 2, newStack.getCount());
+					if (tmpInv != null) {
+						if (!(player instanceof EntityPlayerMP)) {
+
+							DankNullUtils.decrDankNullStackSize(tmpInv, thisStack, returnSize);
+						}
+						//else {
+						//returnSize = thisStack.getCount();
+						//}
+						newStack.setCount(returnSize + (newStack.getCount() % 2 == 0 ? 0 : 1));
+					}
+				}
+				else if (dragType == 0) {
+					if (tmpInv != null) {
+						if (!(player instanceof EntityPlayerMP)) {
+							DankNullUtils.decrDankNullStackSize(tmpInv, thisStack, newStack.getCount());
+						}
+						if (inventorySlots.get(index).getHasStack() && inventorySlots.get(index).getStack().getCount() <= 0) {
+							inventorySlots.get(index).putStack(ItemStack.EMPTY);
+						}
+					}
+				}
+
+				//if (!(player instanceof EntityPlayerMP)) {
+				//DankNullUtils.decrDankNullStackSize(tmpInv, thisStack, realMaxStackSize);
+				//}
 				inventoryplayer.setItemStack(newStack);
+				inventoryplayer.markDirty();
+				if (!(player instanceof EntityPlayerMP)) {
+					DankNullUtils.reArrangeStacks(tmpInv);
+					tmpInv.markDirty();
+					sync(getDankNull());
+				}
 
 			}
 		}
@@ -201,17 +240,19 @@ public class ContainerDankNullDock extends Container {
 					if (player instanceof EntityPlayerMP) {
 						player.inventory.setInventorySlotContents(index, newStack);
 						player.inventory.markDirty();
+						getTile().markDirty();
 					}
 				}
 				else {
 					newStack.setCount(DankNullUtils.isCreativeDankNull(getDankNull()) ? newStack.getMaxStackSize() : currentStackSize);
-					if (!(player instanceof EntityPlayerMP)) {
-						if (moveStackToInventory(newStack) && !(player instanceof EntityPlayerMP)) {
-							DankNullUtils.decrDankNullStackSize(inventory, clickSlot.getStack(), currentStackSize);
-							if (DankNullUtils.isCreativeDankNull(getDankNull()) && !DankNullUtils.isCreativeDankNullLocked(getDankNull())) {
-								clickSlot.putStack(ItemStack.EMPTY);
-							}
+					//if (!(player instanceof EntityPlayerMP)) {
+					if (moveStackToInventory(newStack) && !(player instanceof EntityPlayerMP)) {
+						DankNullUtils.decrDankNullStackSize(inventory, clickSlot.getStack(), currentStackSize);
+						if (DankNullUtils.isCreativeDankNull(getDankNull()) && !DankNullUtils.isCreativeDankNullLocked(getDankNull())) {
+							clickSlot.putStack(ItemStack.EMPTY);
 						}
+					}
+					if (!(player instanceof EntityPlayerMP)) {
 						sync(getDankNull());
 					}
 					if (player instanceof EntityPlayerMP) {
@@ -219,6 +260,7 @@ public class ContainerDankNullDock extends Container {
 						player.inventory.markDirty();
 					}
 					DankNullUtils.reArrangeStacks(inventory);
+
 				}
 			}
 		}

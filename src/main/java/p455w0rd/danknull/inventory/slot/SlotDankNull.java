@@ -5,7 +5,9 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import p455w0rd.danknull.inventory.InventoryDankNull;
+import p455w0rd.danknull.inventory.PlayerSlot;
 import p455w0rd.danknull.items.ItemDankNull;
+import p455w0rd.danknull.util.DankNullUtils;
 
 /**
  * @author p455w0rd
@@ -13,14 +15,8 @@ import p455w0rd.danknull.items.ItemDankNull;
  */
 public class SlotDankNull extends Slot {
 
-	//private Container myContainer = null;
-	//protected String backgroundName = null;
-	//protected ResourceLocation backgroundLocation = null;
-	//protected Object backgroundMap;
-	//public int slotNumber;
-
-	public SlotDankNull(final InventoryDankNull inv, final int idx, final int x, final int y) {
-		super(inv, idx, x, y);
+	public SlotDankNull(final PlayerSlot slot, final EntityPlayer player, final int idx, final int x, final int y) {
+		super(DankNullUtils.getNewDankNullInventory(slot, player), idx, x, y);
 	}
 
 	@Override
@@ -28,48 +24,23 @@ public class SlotDankNull extends Slot {
 		return !(itemStackIn.getItem() instanceof ItemDankNull);
 	}
 
-	/*
-	@Override
-	@SideOnly(Side.CLIENT)
-	public ResourceLocation getBackgroundLocation() {
-		return backgroundLocation == null ? TextureMap.LOCATION_BLOCKS_TEXTURE : backgroundLocation;
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void setBackgroundLocation(final ResourceLocation texture) {
-		backgroundLocation = texture;
-	}
-	
-	@Override
-	public void setBackgroundName(final String name) {
-		backgroundName = name;
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	public TextureAtlasSprite getBackgroundSprite() {
-		final String name = getSlotTexture();
-		return name == null ? null : getBackgroundMap().getAtlasSprite(name);
-	}
-	
-	@Override
-	@SideOnly(Side.CLIENT)
-	protected TextureMap getBackgroundMap() {
-		if (backgroundMap == null) {
-			backgroundMap = Minecraft.getMinecraft().getTextureMapBlocks();
-		}
-		return (TextureMap) backgroundMap;
-	}
-	*/
 	@Override
 	public boolean getHasStack() {
 		return !getStack().isEmpty();
 	}
 
 	@Override
-	public void putStack(final ItemStack stack) {
+	public ItemStack getStack() {
+		return DankNullUtils.getStackInDankNullSlotWithSize(((InventoryDankNull) inventory).getDankNull(), getSlotIndex());
+	}
+
+	@Override
+	public void putStack(ItemStack stack) {
+		if (!stack.isEmpty() && stack.getCount() <= 0) {
+			stack = ItemStack.EMPTY;
+		}
 		inventory.setInventorySlotContents(getSlotIndex(), stack);
+		inventory.markDirty();
 		onSlotChanged();
 	}
 
@@ -83,13 +54,6 @@ public class SlotDankNull extends Slot {
 		return getSlotStackLimit();
 	}
 
-	/*
-	@Override
-	@SideOnly(Side.CLIENT)
-	public String getSlotTexture() {
-		return backgroundName;
-	}
-	*/
 	@Override
 	public ItemStack decrStackSize(final int amount) {
 		return inventory.decrStackSize(getSlotIndex(), amount);
@@ -112,14 +76,5 @@ public class SlotDankNull extends Slot {
 	public int getY() {
 		return yPos;
 	}
-	/*
-	public Container getContainer() {
-		return myContainer;
-	}
 
-	public SlotDankNull setContainer(final Container myContainer) {
-		this.myContainer = myContainer;
-		return this;
-	}
-	*/
 }

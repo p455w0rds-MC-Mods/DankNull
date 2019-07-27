@@ -15,7 +15,6 @@ import p455w0rd.danknull.init.ModConfig.Options;
 import p455w0rd.danknull.integration.PwLib;
 import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rdslib.api.client.*;
-import p455w0rdslib.api.client.shader.IBlockLightEmitter;
 import p455w0rdslib.integration.Albedo;
 import p455w0rdslib.util.TextUtils;
 
@@ -23,8 +22,7 @@ import p455w0rdslib.util.TextUtils;
  * @author p455w0rd
  *
  */
-@SuppressWarnings("deprecation")
-public class ItemBlockDankNullDock extends ItemBlock implements IModelHolder, IBlockLightEmitter {
+public class ItemBlockDankNullDock extends ItemBlock implements IModelHolder {
 
 	ItemLayerWrapper wrappedModel;
 
@@ -96,7 +94,7 @@ public class ItemBlockDankNullDock extends ItemBlock implements IModelHolder, IB
 	/*private int brightness = 0;
 	private boolean brightnessDir = false;
 	private int step = 0;
-	
+
 	@Override
 	public void emitLight(final List<Light> lights, final Entity e) {
 		if (!Options.enabledColoredLightShaderSupport) {

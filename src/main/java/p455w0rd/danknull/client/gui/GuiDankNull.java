@@ -34,8 +34,7 @@ import p455w0rd.danknull.integration.Chisel;
 import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rd.danknull.inventory.slot.SlotDankNull;
 import p455w0rd.danknull.inventory.slot.SlotDankNullDock;
-import p455w0rd.danknull.network.PacketMouseWheel;
-import p455w0rd.danknull.network.PacketSyncDankNullDock;
+import p455w0rd.danknull.network.PacketRequestInitialUpdate;
 import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rd.danknull.util.DankNullUtils.ItemExtractionMode;
 import p455w0rd.danknull.util.DankNullUtils.ItemPlacementMode;
@@ -62,12 +61,17 @@ public class GuiDankNull extends GuiModular {
 	protected int ySize = 140;
 	private final DankNullTier tier;
 
-	public GuiDankNull(final Container c, final InventoryDankNull inventory, final EntityPlayer player) {
+	public GuiDankNull(final Container c, final DankNullTier tier, final EntityPlayer player) {
 		super(c);
-		tier = DankNullUtils.getTier(inventory);
+		this.tier = tier;
 		setWidth(210);
 		setHeight(tier.getGuiHeight());
 		setBackgroundTexture(tier.getGuiBackground());
+		ModNetworking.getInstance().sendToServer(new PacketRequestInitialUpdate());
+	}
+
+	public GuiDankNull(final ContainerDankNull c, final EntityPlayer player) {
+		this(c, DankNullUtils.getTier(c.getDankNullInPlayerSlot()), player);
 	}
 
 	@Override
@@ -153,7 +157,7 @@ public class GuiDankNull extends GuiModular {
 		if (isTile()) {
 			return DankNullUtils.getNewDankNullInventory(((ContainerDankNullDock) inventorySlots).getDankNull());
 		}
-		return ((ContainerDankNull) inventorySlots).getDankNullInventory();
+		return DankNullUtils.getNewDankNullInventory(((ContainerDankNull) inventorySlots).getPlayerSlot(), mc.player);
 	}
 
 	@Override
@@ -383,7 +387,9 @@ public class GuiDankNull extends GuiModular {
 				Gui.drawRect(i, j, i + 16, j + 16, -2130706433);
 			}
 			GlStateManager.enableDepth();
-			Minecraft.getMinecraft().getRenderItem().renderItemAndEffectIntoGUI(itemstack, i, j);
+			final ItemStack tempStack = itemstack.copy();
+			tempStack.setCount(1);
+			Minecraft.getMinecraft().getRenderItem().renderItemAndEffectIntoGUI(tempStack, i, j);
 			renderItemOverlayIntoGUI(RenderUtils.getFontRenderer(), itemstack, i, j);
 		}
 		itemRender.zLevel = 0.0F;
@@ -457,7 +463,7 @@ public class GuiDankNull extends GuiModular {
 		if (!EasyMappings.player().isEntityAlive() || EasyMappings.player().isDead) {
 			EasyMappings.player().closeScreen();
 		}
-		getDankNullInventory().loadInventory(getDankNullInventory().getDNTag());
+		//getDankNullInventory().loadInventory(getDankNullInventory().getDNTag());
 	}
 
 	@Override
@@ -498,7 +504,7 @@ public class GuiDankNull extends GuiModular {
 		*/
 	}
 
-	private void mouseWheelEvent(final int x, final int y, final int wheel) {
+	/*private void mouseWheelEvent(final int x, final int y, final int wheel) {
 		final Slot slot = getSlotAtPos(x, y);
 		if (slot instanceof SlotDankNull || slot instanceof SlotDankNullDock) {
 			final ItemStack item = slot.getStack();
@@ -506,9 +512,9 @@ public class GuiDankNull extends GuiModular {
 			for (int i = 0; i < times; i++) {
 				final Slot s = inventorySlots.inventorySlots.get(36 + slot.getSlotIndex());
 				if (s instanceof SlotDankNull || s instanceof SlotDankNullDock) {
-
+	
 					if (wheel < 0) { //add
-
+	
 						final ItemStack mouseStack = mc.player.inventory.getItemStack();
 						final ItemStack slotStack = s.getStack();
 						final InventoryDankNull tmpInv = DankNullUtils.getNewDankNullInventory(getDankNull());
@@ -550,14 +556,14 @@ public class GuiDankNull extends GuiModular {
 				ModNetworking.getInstance().sendToServer(new PacketMouseWheel(wheel, slot.getSlotIndex()));
 			}
 		}
-	}
+	}*/
 
-	private boolean addStack(final InventoryDankNull inventory, final ItemStack addedStack) {
+	/*private boolean addStack(final InventoryDankNull inventory, final ItemStack addedStack) {
 		if (inventorySlots instanceof ContainerDankNullDock) {
 			return ((ContainerDankNullDock) inventorySlots).addStack(inventory, addedStack);
 		}
-		return ((ContainerDankNull) inventorySlots).addStack(addedStack);
-	}
+		return ((ContainerDankNull) inventorySlots).addStack(inventory, addedStack);
+	}*/
 
 	@Override
 	protected void mouseReleased(final int mouseX, final int mouseY, final int state) {

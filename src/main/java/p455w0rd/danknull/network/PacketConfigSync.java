@@ -1,20 +1,13 @@
 package p455w0rd.danknull.network;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import com.google.common.base.Throwables;
-
 import io.netty.buffer.ByteBuf;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
-import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
-import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
+import net.minecraftforge.fml.common.network.simpleimpl.*;
 
 /**
  * @author p455w0rd
@@ -27,42 +20,42 @@ public class PacketConfigSync implements IMessage {
 	public PacketConfigSync() {
 	}
 
-	public PacketConfigSync(Map<String, Object> valuesIn) {
+	public PacketConfigSync(final Map<String, Object> valuesIn) {
 		values = valuesIn;
 	}
 
 	@SuppressWarnings("unchecked")
 	@Override
-	public void fromBytes(ByteBuf buf) {
-		short len = buf.readShort();
-		byte[] compressedBody = new byte[len];
+	public void fromBytes(final ByteBuf buf) {
+		final short len = buf.readShort();
+		final byte[] compressedBody = new byte[len];
 
 		for (short i = 0; i < len; i++) {
 			compressedBody[i] = buf.readByte();
 		}
 
 		try {
-			ObjectInputStream obj = new ObjectInputStream(new GZIPInputStream(new ByteArrayInputStream(compressedBody)));
+			final ObjectInputStream obj = new ObjectInputStream(new GZIPInputStream(new ByteArrayInputStream(compressedBody)));
 			values = (Map<String, Object>) obj.readObject();
 			obj.close();
 		}
-		catch (Exception e) {
-			Throwables.propagate(e);
+		catch (final Exception e) {
+			throw new RuntimeException(e);
 		}
 	}
 
 	@Override
-	public void toBytes(ByteBuf buf) {
-		ByteArrayOutputStream obj = new ByteArrayOutputStream();
+	public void toBytes(final ByteBuf buf) {
+		final ByteArrayOutputStream obj = new ByteArrayOutputStream();
 
 		try {
-			GZIPOutputStream gzip = new GZIPOutputStream(obj);
-			ObjectOutputStream objStream = new ObjectOutputStream(gzip);
+			final GZIPOutputStream gzip = new GZIPOutputStream(obj);
+			final ObjectOutputStream objStream = new ObjectOutputStream(gzip);
 			objStream.writeObject(values);
 			objStream.close();
 		}
-		catch (Exception e) {
-			Throwables.propagate(e);
+		catch (final Exception e) {
+			throw new RuntimeException(e);
 		}
 		buf.writeShort(obj.size());
 		buf.writeBytes(obj.toByteArray());
@@ -75,7 +68,7 @@ public class PacketConfigSync implements IMessage {
 			return null;
 		}
 
-		private void handle(PacketConfigSync message, MessageContext ctx) {
+		private void handle(final PacketConfigSync message, final MessageContext ctx) {
 			if (ctx.getClientHandler() != null) {
 				//Options.TEMP_REGULATOR_RADIUS = (Integer) message.values.get("TempRegulatorBlockRadius");
 			}

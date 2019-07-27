@@ -48,7 +48,7 @@ public class PacketMouseWheel implements IMessage {
 			FMLCommonHandler.instance().getWorldThread(ctx.netHandler).addScheduledTask(() -> {
 				final EntityPlayer player = ctx.getServerHandler().player;
 				if (player.openContainer instanceof ContainerDankNull || player.openContainer instanceof ContainerDankNullDock) {
-					final ItemStack dankNull = player.openContainer instanceof ContainerDankNull ? ((ContainerDankNull) player.openContainer).getDankNull() : ((ContainerDankNullDock) player.openContainer).getDankNull();
+					//final ItemStack dankNull = player.openContainer instanceof ContainerDankNull ? ((ContainerDankNull) player.openContainer).getDankNullInPlayerSlot() : ((ContainerDankNullDock) player.openContainer).getDankNull();
 					final Slot s = player.openContainer.inventorySlots.get(36 + message.values[1]);
 					if (s instanceof SlotDankNull || s instanceof SlotDankNullDock) {
 						if (message.values[0] == 0) { //add

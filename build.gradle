@@ -13,17 +13,20 @@ buildscript {
     }
 }
 
+plugins {
+	id "com.wynprice.cursemaven" version "1.1.0"
+}
+
 apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/base.gradle'
 apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/ccl.gradle'
 apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/thermal.gradle'
+apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/buildcraft.gradle'
 apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/thaumcraft.gradle'
 apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/baubles.gradle'
 apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/nei.gradle'
 apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/albedo.gradle'
 apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/ftb.gradle'
 apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/chisel.gradle'
-apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/mousetweaks.gradle'
-apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/itemscroller.gradle'
 apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/itemscroller.gradle'
 apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/buildinggadgets.gradle'
 apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/enderio.gradle'

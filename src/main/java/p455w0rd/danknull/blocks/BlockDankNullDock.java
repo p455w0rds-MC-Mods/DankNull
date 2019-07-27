@@ -129,7 +129,7 @@ public class BlockDankNullDock extends BlockContainer implements IModelHolder {
 			}
 			if (!player.isSneaking() && hand == MAIN_HAND) {
 				if (!dankDock.getDankNull().isEmpty()) {
-					ModGuiHandler.launchGui(GUIType.DANKNULL_TE, player, world, pos);
+					ModGuiHandler.launchGui(GUIType.DANKNULL_TE, player, world, pos, null);
 					return true;
 				}
 			}

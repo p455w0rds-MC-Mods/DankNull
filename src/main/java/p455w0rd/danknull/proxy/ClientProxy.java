@@ -3,9 +3,12 @@ package p455w0rd.danknull.proxy;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.event.*;
+import p455w0rd.danknull.client.gui.GuiDankNull;
 import p455w0rd.danknull.init.*;
+import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rdslib.util.EasyMappings;
 
 public class ClientProxy extends CommonProxy {
@@ -51,5 +54,15 @@ public class ClientProxy extends CommonProxy {
 
 	public GuiScreen getScreen() {
 		return Minecraft.getMinecraft().currentScreen;
+	}
+
+	@Override
+	public void setGuiInventory(final InventoryDankNull inventory) {
+		final GuiScreen gui = getScreen();
+		if (gui instanceof GuiDankNull) {
+			final GuiDankNull dankGui = (GuiDankNull) gui;
+			final InventoryDankNull currentInv = dankGui.getDankNullInventory();
+			currentInv.loadInventory(inventory.saveInventory(new NBTTagCompound()));
+		}
 	}
 }

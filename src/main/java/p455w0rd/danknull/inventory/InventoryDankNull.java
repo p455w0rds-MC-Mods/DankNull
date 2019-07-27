@@ -2,13 +2,17 @@ package p455w0rd.danknull.inventory;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.util.NonNullList;
+import net.minecraft.util.ResourceLocation;
 import net.minecraft.util.text.ITextComponent;
 import net.minecraft.util.text.TextComponentString;
+import net.minecraftforge.common.capabilities.CapabilityDispatcher;
 import net.minecraftforge.common.util.Constants;
+import net.minecraftforge.fml.common.ObfuscationReflectionHelper;
 import p455w0rd.danknull.init.ModGlobals.DankNullTier;
 import p455w0rd.danknull.init.ModGlobals.NBT;
 import p455w0rd.danknull.items.ItemDankNull;
@@ -95,7 +99,7 @@ public class InventoryDankNull implements IInventory {
 	@Override
 	public void setInventorySlotContents(final int index, final ItemStack itemStack) {
 		itemStacks.set(index, itemStack);
-		markDirty();
+		//markDirty();
 	}
 
 	@Override
@@ -210,12 +214,15 @@ public class InventoryDankNull implements IInventory {
 		if (tileStack != null) {
 			return tileStack;
 		}
-
 		return dankNullSlot.getStackInSlot(getPlayer());
 	}
 
 	public int getPlayerSlotIndex() {
 		return dankNullSlot.getSlotIndex();
+	}
+
+	public PlayerSlot getPlayerSlot() {
+		return dankNullSlot;
 	}
 
 	public NBTTagCompound getDNTag() {
@@ -248,7 +255,7 @@ public class InventoryDankNull implements IInventory {
 				final NBTTagCompound nbtTC = new NBTTagCompound();
 				nbtTC.setInteger(NBT.SLOT, i);
 				nbtTC.setInteger(NBT.REALCOUNT, getStackInSlot(i).getCount() <= getTier().getMaxStackSize() ? getStackInSlot(i).getCount() : getTier().getMaxStackSize());
-				getStackInSlot(i).writeToNBT(nbtTC);
+				writeStackToNBT(getStackInSlot(i), nbtTC);
 				nbtTL.appendTag(nbtTC);
 			}
 		}
@@ -257,6 +264,28 @@ public class InventoryDankNull implements IInventory {
 		}
 		compound.setTag(getName(), nbtTL);
 		return compound;
+	}
+
+	private NBTTagCompound writeStackToNBT(final ItemStack stack, final NBTTagCompound nbt) {
+		final ResourceLocation resourcelocation = Item.REGISTRY.getNameForObject(stack.getItem());
+		nbt.setString("id", resourcelocation == null ? "minecraft:air" : resourcelocation.toString());
+		nbt.setInteger("Count", stack.getCount());
+		nbt.setShort("Damage", (byte) stack.getItemDamage());
+		if (stack.hasTagCompound()) {
+			nbt.setTag("tag", stack.getTagCompound());
+		}
+		final CapabilityDispatcher caps = getStackCaps(stack);
+		if (caps != null) {
+			final NBTTagCompound cnbt = caps.serializeNBT();
+			if (!cnbt.hasNoTags()) {
+				nbt.setTag("ForgeCaps", cnbt);
+			}
+		}
+		return nbt;
+	}
+
+	private CapabilityDispatcher getStackCaps(final ItemStack stack) {
+		return ObfuscationReflectionHelper.getPrivateValue(ItemStack.class, stack, "capabilities");
 	}
 
 	public void loadInventory(final NBTTagCompound compound) {

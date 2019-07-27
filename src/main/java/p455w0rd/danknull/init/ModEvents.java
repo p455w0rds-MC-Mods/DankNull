@@ -133,29 +133,33 @@ public class ModEvents {
 	@SubscribeEvent
 	@SideOnly(Side.CLIENT)
 	public static void onKeyInput(final KeyInputEvent event) {
-		if (ModKeyBindings.getToggleHUDKeyBind().isPressed()) {
-			DankNullUtils.toggleHUD();
-		}
-		final EntityPlayer player = EasyMappings.player();
+		if (ModKeyBindings.isAnyModKeybindPressed()) {
+			if (ModKeyBindings.getToggleHUDKeyBind().isPressed()) {
+				DankNullUtils.toggleHUD();
+			}
+			final EntityPlayer player = EasyMappings.player();
+			if (!DankNullUtils.isDankNull(player.getHeldItemMainhand())) {
+				return;
+			}
+			final InventoryDankNull inventory = DankNullUtils.getInventoryFromHeld(player);
+			if (inventory == null) {
+				return;
+			}
 
-		final InventoryDankNull inventory = DankNullUtils.getInventoryFromHeld(player);
-		if (inventory == null) {
-			return;
-		}
-
-		if (ModKeyBindings.getOpenDankNullKeyBind().isPressed()) {
-			ModNetworking.getInstance().sendToServer(new PacketOpenDankGui());
-		}
-		final int currentIndex = DankNullUtils.getSelectedStackIndex(inventory);
-		final int totalSize = DankNullUtils.getItemCount(inventory);
-		if (currentIndex == -1 || totalSize <= 1) {
-			return;
-		}
-		if (ModKeyBindings.getNextItemKeyBind().isPressed()) {
-			DankNullUtils.setNextSelectedStack(inventory, player);
-		}
-		else if (ModKeyBindings.getPreviousItemKeyBind().isPressed()) {
-			DankNullUtils.setPreviousSelectedStack(inventory, player);
+			if (ModKeyBindings.getOpenDankNullKeyBind().isPressed()) {
+				ModNetworking.getInstance().sendToServer(new PacketOpenDankGui());
+			}
+			final int currentIndex = DankNullUtils.getSelectedStackIndex(inventory);
+			final int totalSize = DankNullUtils.getItemCount(inventory);
+			if (currentIndex == -1 || totalSize <= 1) {
+				return;
+			}
+			if (ModKeyBindings.getNextItemKeyBind().isPressed()) {
+				DankNullUtils.setNextSelectedStack(inventory, player);
+			}
+			else if (ModKeyBindings.getPreviousItemKeyBind().isPressed()) {
+				DankNullUtils.setPreviousSelectedStack(inventory, player);
+			}
 		}
 	}
 
@@ -227,13 +231,14 @@ public class ModEvents {
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public static void onMouseEvent(final MouseEvent event) {
 		final EntityPlayer player = EasyMappings.player();
-		final InventoryDankNull inventory = DankNullUtils.getInventoryFromHeld(player);
-		if (inventory == null) {
-			return;
-		}
+
 		final Minecraft mc = Minecraft.getMinecraft();
 		final World world = mc.world;
 		if (event.isButtonstate() && event.getButton() == 2 && event.getDwheel() == 0) {
+			final InventoryDankNull inventory = DankNullUtils.getInventoryFromHeld(player);
+			if (inventory == null) {
+				return;
+			}
 			final RayTraceResult target = mc.objectMouseOver;
 			if (target.typeOfHit == RayTraceResult.Type.BLOCK) {
 				final IBlockState state = world.getBlockState(target.getBlockPos());
@@ -249,7 +254,11 @@ public class ModEvents {
 				}
 			}
 		}
-		if (event.getDwheel() == 0) {
+		if (ModKeyBindings.isAnyModKeybindPressed() && event.getDwheel() == 0) {
+			final InventoryDankNull inventory = DankNullUtils.getInventoryFromHeld(player);
+			if (inventory == null) {
+				return;
+			}
 			final int currentIndex = DankNullUtils.getSelectedStackIndex(inventory);
 			final int totalSize = DankNullUtils.getItemCount(inventory);
 			if (currentIndex == -1 || totalSize <= 1) {
@@ -264,7 +273,12 @@ public class ModEvents {
 				event.setCanceled(true);
 			}
 		}
-		else if (player.isSneaking()) {
+		else if (event.getDwheel() != 0 && player.isSneaking()) {
+			// i do this multiple times to avoid constantly firing DankNullUtils#getInventoryFromHeld any time the mouse is used
+			final InventoryDankNull inventory = DankNullUtils.getInventoryFromHeld(player);
+			if (inventory == null) {
+				return;
+			}
 			final int currentIndex = DankNullUtils.getSelectedStackIndex(inventory);
 			final int totalSize = DankNullUtils.getItemCount(inventory);
 			if (currentIndex == -1 || totalSize <= 1) {

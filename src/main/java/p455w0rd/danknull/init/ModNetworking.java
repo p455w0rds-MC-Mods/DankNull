@@ -33,7 +33,8 @@ public class ModNetworking {
 		getInstance().registerMessage(PacketEmptyDock.Handler.class, PacketEmptyDock.class, nextID(), Side.CLIENT);
 		getInstance().registerMessage(PacketSetDankNullInDock.Handler.class, PacketSetDankNullInDock.class, nextID(), Side.CLIENT);
 		getInstance().registerMessage(PacketSyncDankNullDock.Handler.class, PacketSyncDankNullDock.class, nextID(), Side.SERVER);
-		getInstance().registerMessage(PacketOpenDankGui.Handler.class, PacketOpenDankGui.class, nextID(), Side.SERVER);
+		//getInstance().registerMessage(PacketOpenDankGui.Handler.class, PacketOpenDankGui.class, nextID(), Side.SERVER);
+		getInstance().registerMessage(PacketRequestInitialUpdate.Handler.class, PacketRequestInitialUpdate.class, nextID(), Side.SERVER);
 		//getInstance().registerMessage(PacketMouseWheel.Handler.class, PacketMouseWheel.class, nextID(), Side.SERVER);
 	}
 }

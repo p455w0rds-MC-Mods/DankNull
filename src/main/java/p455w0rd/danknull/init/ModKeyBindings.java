@@ -24,6 +24,13 @@ public class ModKeyBindings {
 		ClientRegistry.registerKeyBinding(getToggleHUDKeyBind());
 	}
 
+	public static boolean isAnyModKeybindPressed() {
+		return getNextItemKeyBind().isPressed() || //@formatter:off
+				getPreviousItemKeyBind().isPressed() ||
+				getOpenDankNullKeyBind().isPressed() ||
+				getToggleHUDKeyBind().isPressed();//@formatter:on
+	}
+
 	public static KeyBinding getNextItemKeyBind() {
 		if (nextItem == null) {
 			nextItem = new KeyBinding("key.next_item.desc", Keyboard.CHAR_NONE, CATEGORY);

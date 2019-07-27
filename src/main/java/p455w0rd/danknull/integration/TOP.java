@@ -115,11 +115,11 @@ public class TOP {
 						final ItemStack selectedStack = DankNullUtils.getSelectedStack(dankDock.getDankNull());
 						if (!selectedStack.isEmpty()) {
 							final ItemStack tmpStack = selectedStack.copy();
-							String countText = "";
+							/*String countText = "";
 							if (selectedStack.getCount() >= 100000) {
 								tmpStack.setCount(1);
 								countText = ", " + TextUtils.translate("dn.count.desc") + ": " + (DankNullUtils.isCreativeDankNull(dockedDankNull) ? TextUtils.translate("dn.infinite.desc") : "" + selectedStack.getCount());
-							}
+							}*/
 							topTip.horizontal(new LayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT).borderColor(0xFFFF0000).spacing(-1)).item(tmpStack);
 							//topTip.text(" " + TextUtils.translate("dn.selected.desc") + "" + countText);
 							topTip.text(TextUtils.translate("dn.extract_mode.desc") + ": " + DankNullUtils.getExtractionModeForStack(dockedDankNull, selectedStack).getTooltip());

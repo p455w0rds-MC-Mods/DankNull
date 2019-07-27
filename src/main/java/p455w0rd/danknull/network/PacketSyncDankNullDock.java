@@ -3,6 +3,7 @@ package p455w0rd.danknull.network;
 import javax.annotation.Nonnull;
 
 import io.netty.buffer.ByteBuf;
+import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.math.BlockPos;
@@ -72,6 +73,9 @@ public class PacketSyncDankNullDock implements IMessage {
 				final TileDankNullDock dankDock = (TileDankNullDock) world.getTileEntity(message.dockPos);
 				final ItemStack dankNull = message.dankNull;
 				dankDock.setDankNull(dankNull);
+				dankDock.markDirty();
+				final IBlockState s = world.getBlockState(dankDock.getPos());
+				world.notifyBlockUpdate(dankDock.getPos(), s, s, 3);
 			}
 		}
 	}

@@ -18,7 +18,6 @@ import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.entity.player.*;
-import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.IRecipe;
 import net.minecraft.nbt.NBTTagCompound;
@@ -170,7 +169,7 @@ public class DankNullUtils {
 
 	public static void reArrangeStacks(final TileDankNullDock dankDock) {
 		if (isDankDock(dankDock) && !dankDock.getDankNull().isEmpty()) {
-			final InventoryDankNull tmpInv = getNewDankNullInventory(dankDock.getDankNull());
+			//final InventoryDankNull tmpInv = getNewDankNullInventory(dankDock.getDankNull());
 			reArrangeStacks(dankDock.getDankNull());
 		}
 	}
@@ -214,7 +213,8 @@ public class DankNullUtils {
 			final ContainerDankNullDock c = (ContainerDankNullDock) gui.inventorySlots;
 			return new PacketSyncDankNullDock(c.getTile(), c.getDankNull());
 		}
-		return new PacketSyncDankNull(Pair.of(gui.getDankNullInventory().getPlayerSlotIndex(), gui.getDankNull()));
+		final ContainerDankNull c = (ContainerDankNull) gui.inventorySlots;
+		return new PacketSyncDankNull(Pair.of(c.getPlayerSlot().getSlotIndex(), gui.getDankNull()));
 	}
 
 	public static NonNullList<ItemStack> getInventoryListArray(final InventoryDankNull inventory) {
@@ -557,13 +557,13 @@ public class DankNullUtils {
 		return true;
 	}
 
-	public static boolean addUnfiliteredStackToDankNull(final ContainerDankNull container, final ItemStack stack) {
+	/*public static boolean addUnfiliteredStackToDankNull(final ContainerDankNull container, final ItemStack stack) {
 		if (container.getDankNullInventory() != null && canStackBeAdded(container.getDankNullInventory(), stack)) {
 			container.inventorySlots.get(getNextAvailableSlot(container)).putStack(stack);
 			return true;
 		}
 		return false;
-	}
+	}*/
 
 	//TODO remove when these classes get merged
 	public static boolean addUnfiliteredStackToDankNull(final InventoryDankNull inventory, final ItemStack stack) {
@@ -572,19 +572,6 @@ public class DankNullUtils {
 			return true;
 		}
 		return false;
-	}
-
-	public static int getNextAvailableSlot(final ContainerDankNull container) {
-		if (isCreativeDankNull(container.getDankNull()) && isCreativeDankNullLocked(container.getDankNull())) {
-			return -1;
-		}
-		for (int i = 36; i < container.inventorySlots.size(); i++) {
-			final Slot s = container.inventorySlots.get(i);
-			if (s != null && s.getStack().isEmpty()) {
-				return i;
-			}
-		}
-		return -1;
 	}
 
 	public static int getNextAvailableSlot(final InventoryDankNull inventory) {
@@ -624,6 +611,32 @@ public class DankNullUtils {
 		}
 		return false;
 	}
+
+	/*public static boolean addFilteredStackToDankNull(final ContainerDankNull container, ItemStack filteredStack) {
+		if (container.getDankNullInventory() != null && canStackBeAdded(container.getDankNullInventory(), filteredStack)) {
+			final InventoryDankNull inventory = container.getDankNullInventory();
+			if (getIndexForStack(inventory, filteredStack) >= 0) {
+				final ItemStack currentStack = getFilteredStack(inventory, filteredStack);
+				if (!currentStack.isEmpty() && !filteredStack.isEmpty() && !ItemUtils.areItemStacksEqualIgnoreSize(currentStack, filteredStack)) {
+					filteredStack = convertToOreDictedStack(filteredStack, currentStack);
+				}
+				if (filteredStack.getCount() < Integer.MAX_VALUE) {
+					final long currentSize = currentStack.getCount();
+					final long maxDankNullStackSize = getTier(inventory).getMaxStackSize();
+					if (currentSize + filteredStack.getCount() > maxDankNullStackSize) {
+						currentStack.setCount((int) maxDankNullStackSize);
+					}
+					else {
+						currentStack.setCount((int) currentSize + filteredStack.getCount());
+					}
+					inventory.setInventorySlotContents(getIndexForStack(inventory, filteredStack), currentStack);
+					container.inventorySlots.get(36 + getIndexForStack(inventory, filteredStack)).putStack(currentStack);
+					return true;
+				}
+			}
+		}
+		return false;
+	}*/
 
 	public static boolean addFilteredStackToDankNull(final InventoryDankNull inventory, ItemStack filteredStack) {
 		if (canStackBeAdded(inventory, filteredStack)) {

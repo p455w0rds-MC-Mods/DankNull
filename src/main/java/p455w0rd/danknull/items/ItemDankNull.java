@@ -37,6 +37,7 @@ import p455w0rd.danknull.init.ModGuiHandler.GUIType;
 import p455w0rd.danknull.integration.PwLib;
 import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rd.danknull.inventory.PlayerSlot;
+import p455w0rd.danknull.inventory.PlayerSlot.EnumInvCategory;
 import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rd.danknull.util.DankNullUtils.ItemPlacementMode;
 import p455w0rdslib.api.client.*;
@@ -148,7 +149,7 @@ public class ItemDankNull extends Item implements IModelHolder/*, IBlockLightEmi
 			ItemNBTUtils.setString(stack, NBT.UUID, UUID.randomUUID().toString());
 		}
 		if (player.isSneaking() && getBlockUnderPlayer(player) != Blocks.AIR && !world.isRemote) {
-			ModGuiHandler.launchGui(GUIType.DANKNULL, player, world, player.getPosition());
+			ModGuiHandler.launchGui(GUIType.DANKNULL, player, world, player.getPosition(), new PlayerSlot(player.inventory.currentItem, EnumInvCategory.MAIN));
 			return new ActionResult<>(EnumActionResult.FAIL, stack);
 		}
 		return new ActionResult<>(EnumActionResult.FAIL, stack);
@@ -209,14 +210,15 @@ public class ItemDankNull extends Item implements IModelHolder/*, IBlockLightEmi
 			return EnumActionResult.SUCCESS;
 		}
 		final ItemStack stack = player.getHeldItem(hand);
-		final InventoryDankNull inventory = new InventoryDankNull(new PlayerSlot(player.inventory.currentItem, MAIN), player);
+		final PlayerSlot playerSlot = new PlayerSlot(player.inventory.currentItem, MAIN);
+		final InventoryDankNull inventory = new InventoryDankNull(playerSlot, player);
 
 		final ItemStack selectedStack = DankNullUtils.getSelectedStack(inventory);
 		final Block selectedBlock = Block.getBlockFromItem(selectedStack.getItem());
 		final boolean isSelectedStackABlock = selectedBlock != null && selectedBlock != Blocks.AIR;
 		final Block blockUnderPlayer = getBlockUnderPlayer(player).getBlock();
 		if (player.isSneaking() && blockUnderPlayer != Blocks.AIR && isSelectedStackABlock && blockUnderPlayer != selectedBlock) {
-			ModGuiHandler.launchGui(GUIType.DANKNULL, player, world, player.getPosition());
+			ModGuiHandler.launchGui(GUIType.DANKNULL, player, world, player.getPosition(), playerSlot);
 			return EnumActionResult.SUCCESS;
 		}
 		final ItemPlacementMode placementMode = DankNullUtils.getPlacementModeForStack(stack, selectedStack);
@@ -401,7 +403,7 @@ public class ItemDankNull extends Item implements IModelHolder/*, IBlockLightEmi
 	private static boolean brightnessDir = false;
 	private static int step = 0;
 	private static boolean initLight = false;
-	
+
 	@Override
 	public void emitLight(final List<Light> lights, final Entity e) {
 		if (e == null || !Options.enabledColoredLightShaderSupport) {
@@ -452,7 +454,7 @@ public class ItemDankNull extends Item implements IModelHolder/*, IBlockLightEmi
 					}
 				}
 			}
-	
+
 			final Vec3i c = RenderUtils.hexToRGB(DankNullUtils.getTier(lightStack).getHexColor(false));
 			lights.add(Light.builder().pos(e).color(c.getX(), c.getY(), c.getZ(), (float) (brightness * 0.001)).radius(2.5f).intensity(5).build());
 		}

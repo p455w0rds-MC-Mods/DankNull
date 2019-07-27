@@ -6,14 +6,12 @@ import javax.annotation.Nonnull;
 
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.ModelPlayer;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.IBakedModel;
 import net.minecraft.client.renderer.color.ItemColors;
 import net.minecraft.client.renderer.texture.TextureUtil;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.model.pipeline.LightUtil;
@@ -63,9 +61,9 @@ public class RenderModel {
 
 	// =========
 
-	private static void render(final ModelPlayer model, final int color, final EntityPlayer player, final float partialTicks, final boolean multiPass) {
+	/*private static void render(final ModelPlayer model, final int color, final EntityPlayer player, final float partialTicks, final boolean multiPass) {
 		Minecraft.getMinecraft().getRenderManager().renderEntityStatic(player, partialTicks, false);
 		//rm.doRenderEntity(player, player.posX, player.posY, player.posZ, player.cameraYaw, partialTicks, multiPass);
-	}
+	}*/
 
 }

@@ -50,15 +50,6 @@ public class SlotDankNullDock extends Slot {
 	public void putStack(final ItemStack stack) {
 		final InventoryDankNull tmpInv = DankNullUtils.getNewDankNullInventory(getDankNull());
 		tmpInv.setInventorySlotContents(getSlotIndex(), stack);
-		//tmpInv.markDirty();
-		/*
-		if (DankNullUtils.isFiltered(getDankNull(), stack)) {
-			DankNullUtils.addFilteredStackToDankNull(getDankNull(), stack);
-		}
-		else {
-			DankNullUtils.addUnfiliteredStackToDankNull(DankNullUtils.getNewDankNullInventory(getDankNull()), stack);
-		}
-		*/
 		onSlotChanged();
 	}
 

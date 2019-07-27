@@ -12,7 +12,6 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
 import p455w0rd.danknull.init.ModBlocks;
-import p455w0rd.danknull.init.ModConfig.Options;
 import p455w0rd.danknull.init.ModGlobals;
 import p455w0rd.danknull.integration.WAILA;
 import p455w0rd.danknull.util.DankNullUtils;
@@ -45,8 +44,8 @@ public class WAILADankNullDockProvider implements IWailaDataProvider {
 	@Override
 	public List<String> getWailaBody(final ItemStack itemStack, final List<String> currenttip, final IWailaDataAccessor accessor, final IWailaConfigHandler config) {
 		final TileDankNullDock dankDock = (TileDankNullDock) accessor.getTileEntity();
-		final String dankNull = "/d" + (Options.callItDevNull ? "ev" : "ank") + "/null";
-		final String msg = TextUtils.translate("dn.right_click_with.desc") + (dankDock.getDankNull().isEmpty() ? " " + dankNull : " " + TextUtils.translate("dn.empty_hand_open.desc"));
+		//final String dankNull = "/d" + (Options.callItDevNull ? "ev" : "ank") + "/null";
+		//final String msg = TextUtils.translate("dn.right_click_with.desc") + (dankDock.getDankNull().isEmpty() ? " " + dankNull : " " + TextUtils.translate("dn.empty_hand_open.desc"));
 		//final InventoryDankNull dankDockInventory = dankDock.getInventory();
 		if (!dankDock.getDankNull().isEmpty()) {
 			final ItemStack dockedDankNull = dankDock.getDankNull();
