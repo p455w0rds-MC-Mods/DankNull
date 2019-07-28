@@ -34,6 +34,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.OreDictionary;
+import org.apache.commons.lang3.tuple.Triple;
 import p455w0rd.danknull.blocks.BlockDankNullDock;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
 import p455w0rd.danknull.client.gui.GuiDankNull;
@@ -214,7 +215,7 @@ public class DankNullUtils {
 			return new PacketSyncDankNullDock(c.getTile(), c.getDankNull());
 		}
 		final ContainerDankNull c = (ContainerDankNull) gui.inventorySlots;
-		return new PacketSyncDankNull(Pair.of(c.getPlayerSlot().getSlotIndex(), gui.getDankNull()));
+		return new PacketSyncDankNull(Triple.of(c.getPlayerSlot().getSlotIndex(), gui.getDankNullInventory().getPlayerSlotCategoryIndex(), gui.getDankNull()));
 	}
 
 	public static NonNullList<ItemStack> getInventoryListArray(final InventoryDankNull inventory) {
