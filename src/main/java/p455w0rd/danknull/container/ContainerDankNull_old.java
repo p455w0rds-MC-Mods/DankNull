@@ -100,13 +100,14 @@ public class ContainerDankNull_old extends Container {
 			return false;
 		}
 		if (DankNullUtils.isFiltered(getDankNullInventory(), stack)) {
-			ret = DankNullUtils.addFilteredStackToDankNull(getDankNullInventory(), stack);
+			//ret = DankNullUtils.addFilteredStackToDankNull(getDankNullInventory(), stack);
 		}
 		else {
-			if (ret = DankNullUtils.addFilteredStackToDankNull(getDankNullInventory(), stack)) {
+			//if (ret = DankNullUtils.addFilteredStackToDankNull(getDankNullInventory(), stack)) {
 				//noop
-			}
-			else if (DankNullUtils.getNextAvailableSlot(getDankNullInventory()) >= 0) {
+			//}
+			//else
+				if (DankNullUtils.getNextAvailableSlot(getDankNullInventory()) >= 0) {
 				final int nextSlot = DankNullUtils.getNextAvailableSlot(getDankNullInventory());
 				getDankNullInventory().setInventorySlotContents(nextSlot, stack);
 				inventorySlots.get(36 + nextSlot).putStack(stack);

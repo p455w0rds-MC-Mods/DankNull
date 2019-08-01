@@ -107,7 +107,8 @@ public class ModEvents {
 		final PlayerSlot dankNull = DankNullUtils.getDankNullForStack(player, entityStack);
 		if (dankNull != null) {
 			final InventoryDankNull inventory = DankNullUtils.getNewDankNullInventory(dankNull, player);
-			if (inventory != null && DankNullUtils.addFilteredStackToDankNull(inventory, entityStack)) {
+			ItemStack leftover = DankNullUtils.addFilteredStackToDankNull(inventory, entityStack);
+			if (inventory != null && leftover.isEmpty()) {
 				entityStack.setCount(0);
 				player.getEntityWorld().playSound(null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_ITEM_PICKUP, player.getSoundCategory(), 0.2F, ((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7F + 1.0F) * 2.0F);
 			}

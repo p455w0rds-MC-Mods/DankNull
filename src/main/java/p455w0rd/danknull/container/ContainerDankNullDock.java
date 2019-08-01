@@ -68,30 +68,23 @@ public class ContainerDankNullDock extends Container {
 		return getTile().getDankNull();
 	}
 
-	public boolean addStack(final InventoryDankNull inventory, final ItemStack stack) {
-		boolean ret = false;
+	private ItemStack addStack(final InventoryDankNull inventory, final ItemStack stack) {
+		ItemStack leftover = ItemStack.EMPTY;
 		if (DankNullUtils.isDankNull(stack)) {
-			return false;
+			return stack;
 		}
-		if (DankNullUtils.isFiltered(inventory, stack)) {
-			ret = DankNullUtils.addFilteredStackToDankNull(inventory, stack);
+		if (DankNullUtils.isFiltered(inventory, stack)) { // AKA Already exists in DankNull
+			leftover = DankNullUtils.addFilteredStackToDankNull(inventory, stack);
+		} else if (DankNullUtils.getNextAvailableSlot(inventory) >= 0) {
+			final int nextSlot = DankNullUtils.getNextAvailableSlot(inventory);
+			inventory.setInventorySlotContents(nextSlot, stack);
+			inventorySlots.get(36 + nextSlot).putStack(stack);
 		}
-		else {
-			if (ret = DankNullUtils.addFilteredStackToDankNull(inventory, stack)) {
-				//noop
-			}
-			else if (DankNullUtils.getNextAvailableSlot(inventory) >= 0) {
-				final int nextSlot = DankNullUtils.getNextAvailableSlot(inventory);
-				inventory.setInventorySlotContents(nextSlot, stack);
-				inventorySlots.get(36 + nextSlot).putStack(stack);
-				ret = true;
-			}
-			if (DankNullUtils.getSelectedStackIndex(inventory) == -1) {
-				DankNullUtils.setSelectedIndexApplicable(inventory);
-			}
+		if (DankNullUtils.getSelectedStackIndex(inventory) == -1) {
+			DankNullUtils.setSelectedIndexApplicable(inventory);
 		}
 		DankNullUtils.reArrangeStacks(inventory);
-		return ret;
+		return leftover;
 	}
 
 	private boolean isDankNullSlot(final Slot slot) {
@@ -143,10 +136,10 @@ public class ContainerDankNullDock extends Container {
 			}
 			if (!heldStack.isEmpty()) {
 				if (!(player instanceof EntityPlayerMP)) {
-					if (addStack(tmpInv, heldStack)) {
-						DankNullUtils.setSelectedIndexApplicable(tmpInv);
-						tmpInv.markDirty();
-					}
+					//if (addStack(tmpInv, heldStack)) { FIXME
+					//	DankNullUtils.setSelectedIndexApplicable(tmpInv);
+					//	tmpInv.markDirty();
+					//}
 					sync(getDankNull());
 				}
 				if (player instanceof EntityPlayerMP) {
@@ -210,8 +203,8 @@ public class ContainerDankNullDock extends Container {
 		final Slot clickSlot = inventorySlots.get(index);
 		if (clickSlot.getHasStack()) {
 			if (!isDankNullSlot(clickSlot)) {
-				if (!(player instanceof EntityPlayerMP)) {
-					if (addStack(inventory, clickSlot.getStack())) {
+				if (!(player instanceof EntityPlayerMP)) { // FIXME: The following code shouldn't run on Client
+					/*if (addStack(inventory, clickSlot.getStack())) {
 						clickSlot.putStack(ItemStack.EMPTY);
 						DankNullUtils.setSelectedIndexApplicable(inventory);
 						inventory.markDirty();
@@ -219,7 +212,7 @@ public class ContainerDankNullDock extends Container {
 					else {
 						moveStackWithinInventory(clickSlot.getStack(), index);
 					}
-					sync(getDankNull());
+					sync(getDankNull());*/
 				}
 				if (player instanceof EntityPlayerMP) {
 					player.inventory.setInventorySlotContents(index, ItemStack.EMPTY);
