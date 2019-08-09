@@ -34,6 +34,7 @@ import p455w0rd.danknull.integration.Chisel;
 import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rd.danknull.inventory.slot.SlotDankNull;
 import p455w0rd.danknull.inventory.slot.SlotDankNullDock;
+import p455w0rd.danknull.network.PacketChangeMode;
 import p455w0rd.danknull.network.PacketRequestInitialUpdate;
 import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rd.danknull.util.DankNullUtils.ItemExtractionMode;
@@ -90,15 +91,17 @@ public class GuiDankNull extends GuiModular {
 		if (btn.id == 0) {
 			final String lock = TextUtils.translate("dn.lock.desc");
 			final String unlock = TextUtils.translate("dn.unlock.desc");
+			boolean isLocked = false;
 			if (btn.displayString.equals(lock)) {
 				btn.displayString = unlock;
 				DankNullUtils.setLocked(getDankNull(), true);
+				isLocked = true;
 			}
 			else {
 				btn.displayString = lock;
 				DankNullUtils.setLocked(getDankNull(), false);
 			}
-			ModNetworking.getInstance().sendToServer(DankNullUtils.getSyncPacket(this));
+			ModNetworking.getInstance().sendToServer(new PacketChangeMode(isLocked ? PacketChangeMode.ChangeType.LOCK : PacketChangeMode.ChangeType.UNLOCK));
 		}
 	}
 
@@ -568,12 +571,7 @@ public class GuiDankNull extends GuiModular {
 	@Override
 	protected void mouseReleased(final int mouseX, final int mouseY, final int state) {
 		super.mouseReleased(mouseX, mouseY, state);
-		if (isTile()) {
-			((ContainerDankNullDock) inventorySlots).detectAndSendChanges();
-		}
-		else {
-			((ContainerDankNull) inventorySlots).detectAndSendChanges();
-		}
+		inventorySlots.detectAndSendChanges();
 	}
 
 	@Override

@@ -6,14 +6,12 @@ import net.minecraft.entity.player.*;
 import net.minecraft.inventory.*;
 import net.minecraft.item.ItemStack;
 
-import net.minecraftforge.fml.common.FMLCommonHandler;
-
-import p455w0rd.danknull.init.ModLogger;
 import p455w0rd.danknull.init.ModNetworking;
 import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rd.danknull.inventory.PlayerSlot;
 import p455w0rd.danknull.inventory.slot.SlotDankNull;
 import p455w0rd.danknull.inventory.slot.SlotHotbar;
+import p455w0rd.danknull.network.PacketChangeMode;
 import p455w0rd.danknull.network.PacketSyncDankNull;
 import p455w0rd.danknull.util.DankNullUtils;
 
@@ -255,21 +253,19 @@ public class ContainerDankNull extends Container {
 					}
 				}
 				else {
-					newStack.setCount(DankNullUtils.isCreativeDankNull(inventory.getDankNull()) ? newStack.getMaxStackSize() : currentStackSize);
-					if (moveStackToInventory(newStack) && !(player instanceof EntityPlayerMP)) {
-						DankNullUtils.decrDankNullStackSize(inventory, clickSlot.getStack(), currentStackSize);
-						if (DankNullUtils.isCreativeDankNull(inventory.getDankNull()) && !DankNullUtils.isCreativeDankNullLocked(inventory.getDankNull())) {
+					newStack.setCount(newStack.getMaxStackSize());
+					if (moveStackToInventory(newStack)) {
+						DankNullUtils.decrDankNullStackSize(inventory, clickSlot.getStack(), Integer.MAX_VALUE);
+						if (!DankNullUtils.isCreativeDankNullLocked(inventory.getDankNull())) {
 							clickSlot.putStack(ItemStack.EMPTY);
 						}
 					}
 
-					if (player instanceof EntityPlayerMP) {
-						player.inventory.setInventorySlotContents(index, newStack);
-						player.inventory.markDirty();
-					}
 					DankNullUtils.reArrangeStacks(inventory);
 					inventory.markDirty();
-					this.sync(inventory.getDankNull(), player);
+					if (player instanceof EntityPlayerMP) {
+						this.sync(inventory.getDankNull(), player);
+					}
 				}
 			}
 		}
@@ -320,6 +316,62 @@ public class ContainerDankNull extends Container {
 			}
 		}
 		return false;
+	}
+
+	public void handleModeUpdate(PacketChangeMode.ChangeType changeType, int slot) {
+		ItemStack dankNull = this.getDankNullInPlayerSlot();
+		ItemStack slotStack = slot >= 0 ? DankNullUtils.getItemByIndex(DankNullUtils.getNewDankNullInventory(dankNull), slot) : ItemStack.EMPTY;
+		switch (changeType) {
+			case SELECTED:
+				DankNullUtils.setSelectedStackIndex(dankNull, slot);
+			break;
+
+			case LOCK:
+				DankNullUtils.setLocked(dankNull, true);
+				break;
+			case UNLOCK:
+				DankNullUtils.setLocked(dankNull, false);
+				break;
+
+			case ORE_ON:
+				DankNullUtils.setOreDictModeForStack(dankNull, slotStack,true);
+				break;
+			case ORE_OFF:
+				DankNullUtils.setOreDictModeForStack(dankNull, slotStack,false);
+				break;
+
+			case EXTRACT_KEEP_ALL:
+				DankNullUtils.setExtractionModeForStack(dankNull, slotStack, DankNullUtils.ItemExtractionMode.KEEP_ALL);
+				break;
+			case EXTRACT_KEEP_1:
+				DankNullUtils.setExtractionModeForStack(dankNull, slotStack, DankNullUtils.ItemExtractionMode.KEEP_1);
+				break;
+			case EXTRACT_KEEP_16:
+				DankNullUtils.setExtractionModeForStack(dankNull, slotStack, DankNullUtils.ItemExtractionMode.KEEP_16);
+				break;
+			case EXTRACT_KEEP_64:
+				DankNullUtils.setExtractionModeForStack(dankNull, slotStack, DankNullUtils.ItemExtractionMode.KEEP_64);
+				break;
+			case EXTRACT_KEEP_NONE:
+				DankNullUtils.setExtractionModeForStack(dankNull, slotStack, DankNullUtils.ItemExtractionMode.KEEP_NONE);
+				break;
+
+			case PLACE_KEEP_ALL:
+				DankNullUtils.setPlacementModeForStack(dankNull, slotStack, DankNullUtils.ItemPlacementMode.KEEP_ALL);
+				break;
+			case PLACE_KEEP_1:
+				DankNullUtils.setPlacementModeForStack(dankNull, slotStack, DankNullUtils.ItemPlacementMode.KEEP_1);
+				break;
+			case PLACE_KEEP_16:
+				DankNullUtils.setPlacementModeForStack(dankNull, slotStack, DankNullUtils.ItemPlacementMode.KEEP_16);
+				break;
+			case PLACE_KEEP_64:
+				DankNullUtils.setPlacementModeForStack(dankNull, slotStack, DankNullUtils.ItemPlacementMode.KEEP_64);
+				break;
+			case PLACE_KEEP_NONE:
+				DankNullUtils.setPlacementModeForStack(dankNull, slotStack, DankNullUtils.ItemPlacementMode.KEEP_NONE);
+				break;
+		}
 	}
 
 }
