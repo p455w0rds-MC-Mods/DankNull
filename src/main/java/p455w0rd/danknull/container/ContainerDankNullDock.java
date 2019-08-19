@@ -179,7 +179,7 @@ public class ContainerDankNullDock extends Container {
 					this.sync(tmpInv.getDankNull(), player);
 				}
 			}
-			else if (!thisStack.isEmpty()) { // Want to take slot stack out of DankNull
+			else if (!thisStack.isEmpty()) { // Want to take stack out of DankNull
 				final int max = thisStack.getMaxStackSize();
 				final ItemStack newStack = thisStack.copy();
 				if (thisStack.getCount() >= max) {
@@ -188,9 +188,6 @@ public class ContainerDankNullDock extends Container {
 				if (dragType == 1) {
 					final int returnSize = Math.min(newStack.getCount() / 2, newStack.getCount());
 					DankNullUtils.decrDankNullStackSize(tmpInv, thisStack, returnSize);
-					//else {
-					//	returnSize = thisStack.getCount();
-					//}
 					newStack.setCount(returnSize + (newStack.getCount() % 2 == 0 ? 0 : 1));
 				}
 				else if (dragType == 0) {
