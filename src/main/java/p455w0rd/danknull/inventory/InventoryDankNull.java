@@ -99,7 +99,7 @@ public class InventoryDankNull implements IInventory {
 	@Override
 	public void setInventorySlotContents(final int index, final ItemStack itemStack) {
 		itemStacks.set(index, itemStack);
-		//markDirty();
+		markDirty();
 	}
 
 	@Override

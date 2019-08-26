@@ -638,7 +638,7 @@ public class DankNullUtils {
 		return false;
 	}*/
 
-	public static boolean addFilteredStackToDankNull(final InventoryDankNull inventory, ItemStack filteredStack) {
+	public static ItemStack addFilteredStackToDankNull(final InventoryDankNull inventory, ItemStack filteredStack) {
 		if (canStackBeAdded(inventory, filteredStack)) {
 			if (getIndexForStack(inventory, filteredStack) >= 0) {
 				final ItemStack currentStack = getFilteredStack(inventory, filteredStack);
@@ -648,18 +648,21 @@ public class DankNullUtils {
 				if (filteredStack.getCount() < Integer.MAX_VALUE) {
 					final long currentSize = currentStack.getCount();
 					final long maxDankNullStackSize = getTier(inventory).getMaxStackSize();
+					ItemStack leftover = filteredStack.copy();
 					if (currentSize + filteredStack.getCount() > maxDankNullStackSize) {
 						currentStack.setCount((int) maxDankNullStackSize);
+						leftover.shrink(Math.toIntExact(maxDankNullStackSize - currentSize));
 					}
 					else {
 						currentStack.setCount((int) currentSize + filteredStack.getCount());
+						leftover = ItemStack.EMPTY;
 					}
 					inventory.setInventorySlotContents(getIndexForStack(inventory, filteredStack), currentStack);
-					return true;
+					return leftover;
 				}
 			}
 		}
-		return false;
+		return ItemStack.EMPTY;
 	}
 
 	public static ItemStack getFilteredStack(final InventoryDankNull inventory, final ItemStack stack) {

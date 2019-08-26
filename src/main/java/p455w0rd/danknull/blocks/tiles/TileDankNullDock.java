@@ -1,5 +1,6 @@
 package p455w0rd.danknull.blocks.tiles;
 
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 import net.minecraft.block.state.IBlockState;
@@ -129,6 +130,7 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 	}
 
 	@Override
+	@Nonnull
 	public NBTTagCompound getUpdateTag() {
 		return writeToNBT(new NBTTagCompound());
 	}
@@ -141,7 +143,7 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 
 	@Override
 	public void onDataPacket(final NetworkManager net, final SPacketUpdateTileEntity pkt) {
-		readNBT(pkt.getNbtCompound());
+		this.handleUpdateTag(pkt.getNbtCompound());
 	}
 
 	@Override
@@ -150,19 +152,16 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 		super.markDirty();
 	}
 
-	private void readNBT(final NBTTagCompound nbt) {
+	@Override
+	public void readFromNBT(final NBTTagCompound nbt) {
+		super.readFromNBT(nbt);
 		if (nbt.hasKey(NBT.DOCKEDSTACK, Constants.NBT.TAG_COMPOUND)) {
 			setDankNull(new ItemStack(nbt.getCompoundTag(NBT.DOCKEDSTACK)));
 		}
 	}
 
 	@Override
-	public void readFromNBT(final NBTTagCompound nbt) {
-		super.readFromNBT(nbt);
-		readNBT(nbt);
-	}
-
-	@Override
+	@Nonnull
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		compound = super.writeToNBT(compound);
 		compound.setTag(NBT.DOCKEDSTACK, getDankNull().serializeNBT());

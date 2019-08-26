@@ -107,7 +107,8 @@ public class ModEvents {
 		final PlayerSlot dankNull = DankNullUtils.getDankNullForStack(player, entityStack);
 		if (dankNull != null) {
 			final InventoryDankNull inventory = DankNullUtils.getNewDankNullInventory(dankNull, player);
-			if (inventory != null && DankNullUtils.addFilteredStackToDankNull(inventory, entityStack)) {
+			ItemStack leftover = DankNullUtils.addFilteredStackToDankNull(inventory, entityStack);
+			if (inventory != null && leftover.isEmpty()) {
 				entityStack.setCount(0);
 				player.getEntityWorld().playSound(null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_ITEM_PICKUP, player.getSoundCategory(), 0.2F, ((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7F + 1.0F) * 2.0F);
 			}
@@ -191,9 +192,10 @@ public class ModEvents {
 			final int mouseY = height - Mouse.getEventY() * height / mc.displayHeight - 1;
 			final Slot hoveredSlot = dankNullGui.getSlotAtPos(mouseX, mouseY);
 			if ((hoveredSlot instanceof SlotDankNull || hoveredSlot instanceof SlotDankNullDock) && hoveredSlot.getHasStack() && Mouse.isButtonDown(0)) {
-				final IMessage syncPacket = DankNullUtils.getSyncPacket(dankNullGui);
+				IMessage syncPacket = null;
 				if (GuiScreen.isCtrlKeyDown() && !GuiScreen.isAltKeyDown()) {
 					DankNullUtils.cycleExtractionMode(dankNullGui.getDankNull(), hoveredSlot.getStack());
+					syncPacket = new PacketChangeMode(DankNullUtils.getExtractionModeForStack(dankNullGui.getDankNull(), hoveredSlot.getStack()), hoveredSlot.getSlotIndex());
 					shouldCancel = true;
 				}
 				else if (GuiScreen.isAltKeyDown() && !GuiScreen.isCtrlKeyDown()) {
@@ -204,6 +206,7 @@ public class ModEvents {
 							if (slotHovered.equals(hoveredSlot)) {
 								final int index = count - 1 - 36;
 								DankNullUtils.setSelectedStackIndex(dankNullGui.getDankNullInventory(), index);
+								syncPacket = new PacketChangeMode(PacketChangeMode.ChangeType.SELECTED, hoveredSlot.getSlotIndex());
 								shouldCancel = true;
 							}
 						}
@@ -212,14 +215,21 @@ public class ModEvents {
 				else if (Keyboard.isKeyDown(Keyboard.KEY_O) && !GuiScreen.isAltKeyDown() && !GuiScreen.isCtrlKeyDown()) {
 					if (DankNullUtils.isOreDictBlacklistEnabled() && !DankNullUtils.isItemOreDictBlacklisted(hoveredSlot.getStack()) || DankNullUtils.isOreDictWhitelistEnabled() && DankNullUtils.isItemOreDictWhitelisted(hoveredSlot.getStack()) || !DankNullUtils.isOreDictBlacklistEnabled() && !DankNullUtils.isOreDictWhitelistEnabled()) {
 						DankNullUtils.cycleOreDictModeForStack(dankNullGui.getDankNull(), hoveredSlot.getStack());
+						syncPacket = new PacketChangeMode(
+								DankNullUtils.getOreDictModeForStack(dankNullGui.getDankNull(), hoveredSlot.getStack())
+										? PacketChangeMode.ChangeType.ORE_ON
+										: PacketChangeMode.ChangeType.ORE_OFF,
+								hoveredSlot.getSlotIndex());
 						shouldCancel = true;
 					}
 				}
 				else if (Keyboard.isKeyDown(Keyboard.KEY_P) && !GuiScreen.isAltKeyDown() && !GuiScreen.isCtrlKeyDown()) {
 					DankNullUtils.cyclePlacementMode(dankNullGui.getDankNull(), hoveredSlot.getStack());
+					syncPacket = new PacketChangeMode(DankNullUtils.getPlacementModeForStack(dankNullGui.getDankNull(), hoveredSlot.getStack()), hoveredSlot.getSlotIndex());
 					shouldCancel = true;
 				}
-				ModNetworking.getInstance().sendToServer(syncPacket);
+				if (syncPacket != null)
+					ModNetworking.getInstance().sendToServer(syncPacket);
 				if (shouldCancel) {
 					event.setCanceled(true);
 				}
@@ -249,7 +259,7 @@ public class ModEvents {
 				if (!stackToSelect.isEmpty() && (DankNullUtils.isFiltered(inventory, stackToSelect) || DankNullUtils.isFilteredOreDict(inventory, stackToSelect))) {
 					final int newIndex = DankNullUtils.getIndexForStack(inventory, stackToSelect);
 					DankNullUtils.setSelectedStackIndex(inventory, newIndex);
-					ModNetworking.getInstance().sendToServer(new PacketSetSelectedItem(newIndex));
+					ModNetworking.getInstance().sendToServer(new PacketChangeMode(PacketChangeMode.ChangeType.SELECTED, newIndex));
 					event.setCanceled(true);
 				}
 			}
