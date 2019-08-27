@@ -206,9 +206,7 @@ public class ItemDankNull extends Item implements IModelHolder/*, IBlockLightEmi
 
 	@Override
 	public EnumActionResult onItemUse(final EntityPlayer player, final World world, final BlockPos posIn, final EnumHand hand, EnumFacing facing, final float hitX, final float hitY, final float hitZ) {
-		if (world.isRemote) {
-			return EnumActionResult.SUCCESS;
-		}
+
 		final ItemStack stack = player.getHeldItem(hand);
 		final PlayerSlot playerSlot = new PlayerSlot(player.inventory.currentItem, MAIN);
 		final InventoryDankNull inventory = new InventoryDankNull(playerSlot, player);
@@ -223,6 +221,9 @@ public class ItemDankNull extends Item implements IModelHolder/*, IBlockLightEmi
 		}
 		final ItemPlacementMode placementMode = DankNullUtils.getPlacementModeForStack(stack, selectedStack);
 		if (placementMode != null) {
+			if (placementMode == ItemPlacementMode.KEEP_ALL && !player.capabilities.isCreativeMode) {
+				return EnumActionResult.FAIL;
+			}
 			if (placementMode != ItemPlacementMode.KEEP_NONE) {
 				final int count = DankNullUtils.getSelectedStackSize(inventory);
 				final int amountToKeep = placementMode.getNumberToKeep();
@@ -403,7 +404,7 @@ public class ItemDankNull extends Item implements IModelHolder/*, IBlockLightEmi
 	private static boolean brightnessDir = false;
 	private static int step = 0;
 	private static boolean initLight = false;
-
+	
 	@Override
 	public void emitLight(final List<Light> lights, final Entity e) {
 		if (e == null || !Options.enabledColoredLightShaderSupport) {
@@ -454,7 +455,7 @@ public class ItemDankNull extends Item implements IModelHolder/*, IBlockLightEmi
 					}
 				}
 			}
-
+	
 			final Vec3i c = RenderUtils.hexToRGB(DankNullUtils.getTier(lightStack).getHexColor(false));
 			lights.add(Light.builder().pos(e).color(c.getX(), c.getY(), c.getZ(), (float) (brightness * 0.001)).radius(2.5f).intensity(5).build());
 		}
