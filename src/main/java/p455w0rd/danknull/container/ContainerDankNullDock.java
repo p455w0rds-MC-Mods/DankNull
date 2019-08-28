@@ -1,30 +1,34 @@
 package p455w0rd.danknull.container;
 
-import java.util.Objects;
-
-import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.*;
 import net.minecraft.inventory.*;
 import net.minecraft.item.ItemStack;
+import net.minecraftforge.items.IItemHandler;
+import net.minecraftforge.items.ItemHandlerHelper;
+import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
 import p455w0rd.danknull.init.ModNetworking;
-import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rd.danknull.inventory.slot.SlotDankNullDock;
 import p455w0rd.danknull.inventory.slot.SlotHotbar;
 import p455w0rd.danknull.network.PacketChangeMode;
-import p455w0rd.danknull.network.PacketSyncDankNullDock;
 import p455w0rd.danknull.network.PacketUpdateSlot;
 import p455w0rd.danknull.util.DankNullUtils;
+import p455w0rd.danknull.util.cap.CapabilityDankNull;
+import p455w0rd.danknull.util.cap.IDankNullHandler;
 
 /**
  * @author p455w0rd
  */
 public class ContainerDankNullDock extends Container {
 
+	private final EntityPlayer player;
 	private final TileDankNullDock tile;
+	private final IDankNullHandler handler;
 
 	public ContainerDankNullDock(final EntityPlayer player, final TileDankNullDock tile) {
+		this.player = player;
 		this.tile = tile;
+		this.handler = tile.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
 		final InventoryPlayer playerInv = player.inventory;
 		final ItemStack dankNull = tile.getDankNull();
 		int lockedSlot = -1;
@@ -49,13 +53,8 @@ public class ContainerDankNullDock extends Container {
 		}
 		for (int i = 0; i < numRows; i++) {
 			for (int j = 0; j < 9; j++) {
-				addSlotToContainer(new SlotDankNullDock(this, j + i * 9, j * 20 + 9 + j, 19 + i + i * 20));
+				addSlotToContainer(new SlotDankNullDock(handler, j + i * 9, j * 20 + 9 + j, 19 + i + i * 20));
 			}
-		}
-		if (tile.getWorld() != null) {
-			tile.markDirty();
-			final IBlockState s = tile.getWorld().getBlockState(tile.getPos());
-			tile.getWorld().notifyBlockUpdate(tile.getPos(), s, s, 3);
 		}
 	}
 
@@ -64,35 +63,21 @@ public class ContainerDankNullDock extends Container {
 	}
 
 	@Override
-	public boolean canInteractWith(final EntityPlayer playerIn) {
-		return DankNullUtils.getNewDankNullInventory(getDankNull()).isValid();
+	public boolean canInteractWith(final EntityPlayer player) {
+		return this.handler != null;
 	}
 
 	public ItemStack getDankNull() {
 		return getTile().getDankNull();
 	}
 
-	private ItemStack addStack(final InventoryDankNull inventory, final ItemStack stack) {
-		ItemStack leftover = ItemStack.EMPTY;
-		if (DankNullUtils.isDankNull(stack)) {
-			return stack;
+	private ItemStack addStack(final ItemStack stack) {
+		ItemStack leftover = stack.copy();
+		for (int i = 0; i < this.handler.getSlots(); i++) {
+			if (this.handler.isItemValid(i, leftover))
+				leftover = this.handler.insertItem(i, leftover, false);
 		}
-		if (DankNullUtils.isFiltered(inventory, stack)) { // AKA Already exists in DankNull
-			leftover = DankNullUtils.addFilteredStackToDankNull(inventory, stack);
-		} else if (DankNullUtils.getNextAvailableSlot(inventory) >= 0) {
-			final int nextSlot = DankNullUtils.getNextAvailableSlot(inventory);
-			inventory.setInventorySlotContents(nextSlot, stack);
-			inventorySlots.get(36 + nextSlot).putStack(stack);
-		}
-		if (DankNullUtils.getSelectedStackIndex(inventory) == -1) {
-			DankNullUtils.setSelectedIndexApplicable(inventory);
-		}
-		DankNullUtils.reArrangeStacks(inventory);
 		return leftover;
-	}
-
-	private boolean isDankNullSlot(final Slot slot) {
-		return slot instanceof SlotDankNullDock;
 	}
 
 	private boolean isInHotbar(final int index) {
@@ -133,140 +118,54 @@ public class ContainerDankNullDock extends Container {
 
 	@Override
 	public ItemStack slotClick(final int index, final int dragType, final ClickType clickType, final EntityPlayer player) {
-		final Slot s = getSlot(index);
-		if (s == null || index < 36 && clickType != ClickType.QUICK_MOVE || clickType == ClickType.CLONE) {
+		final Slot slot = this.getSlot(index);
+		if (slot == null || index < 36 && clickType != ClickType.QUICK_MOVE || clickType == ClickType.CLONE) {
 			return super.slotClick(index, dragType, clickType, player);
 		}
-		final InventoryDankNull tmpInv = DankNullUtils.getNewDankNullInventory(getDankNull());
-		Objects.requireNonNull(tmpInv, "Failed to create InventoryDankNull");
 		if (clickType == ClickType.QUICK_MOVE) {
-			return this.shiftClick(tmpInv, index, player);
+			return this.transferStackInSlot(player, index);
 		}
-		final InventoryPlayer inventoryplayer = player.inventory;
-		final ItemStack heldStack = inventoryplayer.getItemStack();
-		if (s instanceof SlotDankNullDock && clickType == ClickType.PICKUP) {
-			if (DankNullUtils.isDankNull(heldStack)) {
-				return ItemStack.EMPTY;
-			}
-			final ItemStack thisStack = s.getStack();
-			if (!thisStack.isEmpty() && DankNullUtils.isDankNull(thisStack)) {
+		final InventoryPlayer inventoryPlayer = player.inventory;
+		final ItemStack heldStack = inventoryPlayer.getItemStack();
+		if (slot instanceof SlotDankNullDock && clickType == ClickType.PICKUP) {
+			final ItemStack slotStack = slot.getStack();
+			if (DankNullUtils.isDankNull(slotStack)) {
 				return ItemStack.EMPTY;
 			}
 			if (!heldStack.isEmpty()) { // Want to insert held stack into DankNull
-				if (!DankNullUtils.canStackBeAdded(tmpInv, heldStack))
-					return ItemStack.EMPTY;
 				ItemStack toAdd = heldStack.copy();
 				if (dragType == 1) {
 					toAdd.setCount(1);
 				}
 
-				ItemStack leftover = this.addStack(tmpInv, toAdd);
+				ItemStack leftover = this.addStack(toAdd);
 				if (dragType == 0) {
 					if (!leftover.isEmpty()) {
-						inventoryplayer.setItemStack(leftover);
+						inventoryPlayer.setItemStack(leftover);
 					} else {
-						inventoryplayer.setItemStack(ItemStack.EMPTY);
+						inventoryPlayer.setItemStack(ItemStack.EMPTY);
 					}
 				} else if (dragType == 1 && leftover.isEmpty()) { // We right clicked and was able to add 1 to DankNull
 					heldStack.shrink(1);
-					inventoryplayer.setItemStack(heldStack);
+					inventoryPlayer.setItemStack(heldStack);
 				}
-				tmpInv.markDirty();
-				inventoryplayer.markDirty(); // Probably not needed
+				inventoryPlayer.markDirty(); // Probably not needed
 
 				if (player instanceof EntityPlayerMP) {
 					((EntityPlayerMP) player).updateHeldItem();
-					this.sync(tmpInv.getDankNull(), player);
 				}
-			}
-			else if (!thisStack.isEmpty()) { // Want to take stack out of DankNull
-				final int max = thisStack.getMaxStackSize();
-				final ItemStack newStack = thisStack.copy();
-				if (thisStack.getCount() >= max) {
-					newStack.setCount(max);
-				}
-				if (dragType == 1) {
-					final int returnSize = Math.min(newStack.getCount() / 2, newStack.getCount());
-					DankNullUtils.decrDankNullStackSize(tmpInv, thisStack, returnSize);
-					newStack.setCount(returnSize + (newStack.getCount() % 2 == 0 ? 0 : 1));
-				}
-				else if (dragType == 0) {
-					DankNullUtils.decrDankNullStackSize(tmpInv, thisStack, newStack.getCount());
-					if (inventorySlots.get(index).getHasStack() && inventorySlots.get(index).getStack().getCount() <= 0) {
-						inventorySlots.get(index).putStack(ItemStack.EMPTY);
-					}
-				}
+			} else if (!slotStack.isEmpty()) { // Want to take stack out of DankNull
+				int amount = Math.min(slotStack.getCount(), slotStack.getMaxStackSize());
+				if (dragType == 1)
+					amount = Math.floorDiv(amount, 2);
 
-				inventoryplayer.setItemStack(newStack);
-				inventoryplayer.markDirty();
-				DankNullUtils.reArrangeStacks(tmpInv);
-				tmpInv.markDirty();
+				ItemStack newStack = slot.decrStackSize(amount);
+
+				inventoryPlayer.setItemStack(newStack);
+				inventoryPlayer.markDirty();
 
 				if (player instanceof EntityPlayerMP) {
 					((EntityPlayerMP) player).updateHeldItem();
-					this.sync(tmpInv.getDankNull(), player);
-				}
-			}
-		}
-		return ItemStack.EMPTY;
-	}
-
-	private void sync(final ItemStack dankNull, EntityPlayer player) {
-		if (!(player instanceof EntityPlayerMP))
-			throw new RuntimeException("Only call on server!");
-		ModNetworking.getInstance().sendTo(new PacketSyncDankNullDock(getTile(), dankNull), (EntityPlayerMP) player);
-	}
-
-	private ItemStack shiftClick(final InventoryDankNull inventory, final int index, final EntityPlayer player) {
-		final Slot clickSlot = inventorySlots.get(index);
-		if (clickSlot.getHasStack()) {
-			if (!isDankNullSlot(clickSlot)) { // Shift click from Player Inventory
-				ItemStack leftover = this.addStack(inventory, clickSlot.getStack());
-				/*if (leftover.getCount() == clickSlot.getStack().getCount()) {
-					leftover = moveStackWithinInventory(clickSlot.getStack(), index));
-				}*/
-				clickSlot.putStack(leftover);
-				DankNullUtils.setSelectedIndexApplicable(inventory);
-				inventory.markDirty();
-				player.inventory.markDirty();
-				if (player instanceof EntityPlayerMP) {
-					this.sync(inventory.getDankNull(), player);
-				}
-				return ItemStack.EMPTY;
-			}
-			else {
-				final ItemStack newStack = clickSlot.getStack().copy();
-				final int realMaxStackSize = newStack.getMaxStackSize();
-				final int currentStackSize = newStack.getCount();
-				if (!DankNullUtils.isCreativeDankNull(getDankNull())) {
-					if (currentStackSize > realMaxStackSize) {
-						newStack.setCount(realMaxStackSize);
-					}
-					if (moveStackToInventory(newStack)) {
-						DankNullUtils.decrDankNullStackSize(inventory, clickSlot.getStack(), realMaxStackSize);
-					}
-					if (player instanceof EntityPlayerMP) {
-						this.sync(inventory.getDankNull(), player);
-					}
-				}
-				else {
-					newStack.setCount(DankNullUtils.isCreativeDankNull(getDankNull()) ? newStack.getMaxStackSize() : currentStackSize);
-					//if (!(player instanceof EntityPlayerMP)) {
-					if (moveStackToInventory(newStack) && !(player instanceof EntityPlayerMP)) {
-						DankNullUtils.decrDankNullStackSize(inventory, clickSlot.getStack(), currentStackSize);
-						if (DankNullUtils.isCreativeDankNull(getDankNull()) && !DankNullUtils.isCreativeDankNullLocked(getDankNull())) {
-							clickSlot.putStack(ItemStack.EMPTY);
-						}
-					}
-					if (!(player instanceof EntityPlayerMP)) {
-						this.sync(getDankNull(),player);
-					}
-					if (player instanceof EntityPlayerMP) {
-						player.inventory.setInventorySlotContents(index, newStack);
-						player.inventory.markDirty();
-					}
-					DankNullUtils.reArrangeStacks(inventory);
-
 				}
 			}
 		}
@@ -274,103 +173,100 @@ public class ContainerDankNullDock extends Container {
 	}
 
 	@Override
-	public ItemStack transferStackInSlot(final EntityPlayer playerIn, final int index) {
+	public ItemStack transferStackInSlot(final EntityPlayer player, final int index) {
+		final Slot clickSlot = inventorySlots.get(index);
+		if (clickSlot.getHasStack()) {
+			if (!(clickSlot instanceof SlotDankNullDock)) { // Shift click from Player Inventory
+				ItemStack leftover = this.addStack(clickSlot.getStack());
+				//if (leftover.getCount() == clickSlot.getStack().getCount()) {
+				//	leftover = moveStackWithinInventory(clickSlot.getStack(), index));
+				//}
+				clickSlot.putStack(leftover);
+				player.inventory.markDirty();
+				return ItemStack.EMPTY;
+			}
+			else {
+				int slotIndex = clickSlot.getSlotIndex();
+				ItemStack slotStack = this.handler.extractItem(slotIndex, this.handler.getStackInSlot(slotIndex).getMaxStackSize(), true);
+				if (!DankNullUtils.isCreativeDankNull(getDankNull())) {
+					IItemHandler playerHandler = new PlayerMainInvWrapper(player.inventory);
+					ItemStack notAdded = ItemHandlerHelper.insertItemStacked(playerHandler, slotStack, false);
+					if (notAdded.getCount() < slotStack.getCount())
+						this.handler.extractItem(slotIndex, slotStack.getCount()-notAdded.getCount(), false);
+				} else {
+//					newStack.setCount(DankNullUtils.isCreativeDankNull(getDankNull()) ? newStack.getMaxStackSize() : currentStackSize);
+//					//if (!(player instanceof EntityPlayerMP)) {
+//					if (moveStackToInventory(newStack) && !(player instanceof EntityPlayerMP)) {
+//						DankNullUtils.decrDankNullStackSize(inventory, clickSlot.getStack(), currentStackSize);
+//						if (DankNullUtils.isCreativeDankNull(getDankNull()) && !DankNullUtils.isCreativeDankNullLocked(getDankNull())) {
+//							clickSlot.putStack(ItemStack.EMPTY);
+//						}
+//					}
+//					if (!(player instanceof EntityPlayerMP)) {
+//						this.sync(getDankNull(),player);
+//					}
+//					if (player instanceof EntityPlayerMP) {
+//						player.inventory.setInventorySlotContents(index, newStack);
+//						player.inventory.markDirty();
+//					}
+//					DankNullUtils.reArrangeStacks(inventory);
+				}
+			}
+		}
 		return ItemStack.EMPTY;
 	}
 
-	private boolean moveStackWithinInventory(final ItemStack itemStackIn, final int index) {
-		if (isInHotbar(index)) {
-			if (mergeItemStack(itemStackIn, 9, 37, false)) {
-				return true;
-			}
-			for (int i = 9; i <= 36; i++) {
-				final Slot possiblyOpenSlot = inventorySlots.get(i);
-				if (!possiblyOpenSlot.getHasStack()) {
-					possiblyOpenSlot.putStack(itemStackIn);
-					inventorySlots.get(index).putStack(ItemStack.EMPTY);
-					return true;
-				}
-			}
-		}
-		else if (isInInventory(index)) {
-			if (mergeItemStack(itemStackIn, 0, 9, false)) {
-				return true;
-			}
-			for (int i = 0; i <= 8; i++) {
-				final Slot possiblyOpenSlot = inventorySlots.get(i);
-				if (!possiblyOpenSlot.getHasStack()) {
-					possiblyOpenSlot.putStack(itemStackIn);
-					inventorySlots.get(index).putStack(ItemStack.EMPTY);
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	private boolean moveStackToInventory(final ItemStack itemStackIn) {
-		for (int i = 0; i < 36; i++) {
-			final Slot possiblyOpenSlot = inventorySlots.get(i);
-			if (!possiblyOpenSlot.getHasStack()) {
-				possiblyOpenSlot.putStack(itemStackIn);
-				return true;
-			}
-		}
-		return false;
-	}
-
 	public void handleModeUpdate(PacketChangeMode.ChangeType changeType, int slot) {
-		ItemStack dankNull = this.getDankNull();
-		ItemStack slotStack = slot >= 0 ? DankNullUtils.getItemByIndex(DankNullUtils.getNewDankNullInventory(dankNull), slot) : ItemStack.EMPTY;
+		ItemStack slotStack = slot >= 0 && slot < this.handler.getSlots() ? this.handler.getStackInSlot(slot) : ItemStack.EMPTY;
 		switch (changeType) {
 			case SELECTED:
-				DankNullUtils.setSelectedStackIndex(dankNull, slot);
+				this.handler.setSelected(slot);
 				break;
 
 			case LOCK:
-				DankNullUtils.setLocked(dankNull, true);
+				this.handler.setLocked(true);
 				break;
 			case UNLOCK:
-				DankNullUtils.setLocked(dankNull, false);
+				this.handler.setLocked(false);
 				break;
 
 			case ORE_ON:
-				DankNullUtils.setOreDictModeForStack(dankNull, slotStack,true);
+				this.handler.setOre(slotStack, true);
 				break;
 			case ORE_OFF:
-				DankNullUtils.setOreDictModeForStack(dankNull, slotStack,false);
+				this.handler.setOre(slotStack, false);
 				break;
 
 			case EXTRACT_KEEP_ALL:
-				DankNullUtils.setExtractionModeForStack(dankNull, slotStack, DankNullUtils.ItemExtractionMode.KEEP_ALL);
+				this.handler.setExtractionMode(slotStack, DankNullUtils.ItemExtractionMode.KEEP_ALL);
 				break;
 			case EXTRACT_KEEP_1:
-				DankNullUtils.setExtractionModeForStack(dankNull, slotStack, DankNullUtils.ItemExtractionMode.KEEP_1);
+				this.handler.setExtractionMode(slotStack, DankNullUtils.ItemExtractionMode.KEEP_1);
 				break;
 			case EXTRACT_KEEP_16:
-				DankNullUtils.setExtractionModeForStack(dankNull, slotStack, DankNullUtils.ItemExtractionMode.KEEP_16);
+				this.handler.setExtractionMode(slotStack, DankNullUtils.ItemExtractionMode.KEEP_16);
 				break;
 			case EXTRACT_KEEP_64:
-				DankNullUtils.setExtractionModeForStack(dankNull, slotStack, DankNullUtils.ItemExtractionMode.KEEP_64);
+				this.handler.setExtractionMode(slotStack, DankNullUtils.ItemExtractionMode.KEEP_64);
 				break;
 			case EXTRACT_KEEP_NONE:
-				DankNullUtils.setExtractionModeForStack(dankNull, slotStack, DankNullUtils.ItemExtractionMode.KEEP_NONE);
+				this.handler.setExtractionMode(slotStack, DankNullUtils.ItemExtractionMode.KEEP_NONE);
 				break;
 
 			case PLACE_KEEP_ALL:
-				DankNullUtils.setPlacementModeForStack(dankNull, slotStack, DankNullUtils.ItemPlacementMode.KEEP_ALL);
+				this.handler.setPlacementMode(slotStack, DankNullUtils.ItemPlacementMode.KEEP_ALL);
 				break;
 			case PLACE_KEEP_1:
-				DankNullUtils.setPlacementModeForStack(dankNull, slotStack, DankNullUtils.ItemPlacementMode.KEEP_1);
+				this.handler.setPlacementMode(slotStack, DankNullUtils.ItemPlacementMode.KEEP_1);
 				break;
 			case PLACE_KEEP_16:
-				DankNullUtils.setPlacementModeForStack(dankNull, slotStack, DankNullUtils.ItemPlacementMode.KEEP_16);
+				this.handler.setPlacementMode(slotStack, DankNullUtils.ItemPlacementMode.KEEP_16);
 				break;
 			case PLACE_KEEP_64:
-				DankNullUtils.setPlacementModeForStack(dankNull, slotStack, DankNullUtils.ItemPlacementMode.KEEP_64);
+				this.handler.setPlacementMode(slotStack, DankNullUtils.ItemPlacementMode.KEEP_64);
 				break;
 			case PLACE_KEEP_NONE:
-				DankNullUtils.setPlacementModeForStack(dankNull, slotStack, DankNullUtils.ItemPlacementMode.KEEP_NONE);
+				this.handler.setPlacementMode(slotStack, DankNullUtils.ItemPlacementMode.KEEP_NONE);
 				break;
 		}
 	}

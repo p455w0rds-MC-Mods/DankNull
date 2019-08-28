@@ -5,7 +5,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.event.*;
 import p455w0rd.danknull.init.*;
-import p455w0rd.danknull.inventory.InventoryDankNull;
+import p455w0rd.danknull.util.cap.CapabilityDankNull;
 
 public class CommonProxy {
 
@@ -14,6 +14,7 @@ public class CommonProxy {
 		ModConfig.init();
 		ModIntegration.preInit();
 		ModNetworking.init();
+		CapabilityDankNull.register();
 	}
 
 	public void init(final FMLInitializationEvent e) {
@@ -39,9 +40,5 @@ public class CommonProxy {
 
 	public World getWorld(final int dimension) {
 		return FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(dimension);
-	}
-
-	public void setGuiInventory(final InventoryDankNull inventory) {
-
 	}
 }

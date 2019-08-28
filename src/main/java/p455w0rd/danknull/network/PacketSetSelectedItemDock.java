@@ -58,7 +58,7 @@ public class PacketSetSelectedItemDock implements IMessage {
 					TileDankNullDock dankDock = (TileDankNullDock) world.getTileEntity(message.pos);
 					ItemStack dankNull = dankDock.getDankNull();
 					if (!dankNull.isEmpty()) {
-						DankNullUtils.setSelectedStackIndex(DankNullUtils.getNewDankNullInventory(dankNull), message.index);
+						//DankNullUtils.setSelectedStackIndex(DankNullUtils.getNewDankNullInventory(dankNull), message.index);
 						//dankDock.setDankNull(dankNull);
 					}
 				}

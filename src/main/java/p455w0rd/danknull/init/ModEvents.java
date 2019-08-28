@@ -38,14 +38,17 @@ import net.minecraftforge.fml.common.gameevent.TickEvent;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+
+import p455w0rd.danknull.DankNull;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
 import p455w0rd.danknull.client.gui.GuiDankNull;
-import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rd.danknull.inventory.PlayerSlot;
 import p455w0rd.danknull.inventory.slot.SlotDankNull;
 import p455w0rd.danknull.inventory.slot.SlotDankNullDock;
 import p455w0rd.danknull.network.*;
 import p455w0rd.danknull.util.DankNullUtils;
+import p455w0rd.danknull.util.cap.CapabilityDankNull;
+import p455w0rd.danknull.util.cap.IDankNullHandler;
 import p455w0rdslib.LibGlobals.Mods;
 import p455w0rdslib.util.EasyMappings;
 import p455w0rdslib.util.ItemUtils;
@@ -104,15 +107,15 @@ public class ModEvents {
 		if (event.getItem().getEntityData().hasKey("PreventRemoteMovement")) {
 			return;
 		}
-		final PlayerSlot dankNull = DankNullUtils.getDankNullForStack(player, entityStack);
-		if (dankNull != null) {
-			final InventoryDankNull inventory = DankNullUtils.getNewDankNullInventory(dankNull, player);
-			ItemStack leftover = DankNullUtils.addFilteredStackToDankNull(inventory, entityStack);
-			if (inventory != null && leftover.isEmpty()) {
-				entityStack.setCount(0);
-				player.getEntityWorld().playSound(null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_ITEM_PICKUP, player.getSoundCategory(), 0.2F, ((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7F + 1.0F) * 2.0F);
-			}
-		}
+//		final PlayerSlot dankNull = DankNullUtils.getDankNullForStack(player, entityStack); FIXME
+//		if (dankNull != null) {
+//			IDankNullHandler dankNullHandler = dankNull.getStackInSlot(player).getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
+//			ItemStack leftover = dankNullHandler.insertItem(0, entityStack, false);
+//			if (leftover.isEmpty()) { // FIXME
+//				entityStack.setCount(0);
+//				player.getEntityWorld().playSound(null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_ITEM_PICKUP, player.getSoundCategory(), 0.2F, ((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7F + 1.0F) * 2.0F);
+//			}
+//		}
 	}
 
 	@SubscribeEvent
@@ -142,25 +145,25 @@ public class ModEvents {
 			if (!DankNullUtils.isDankNull(player.getHeldItemMainhand())) {
 				return;
 			}
-			final InventoryDankNull inventory = DankNullUtils.getInventoryFromHeld(player);
-			if (inventory == null) {
-				return;
-			}
-
-			if (ModKeyBindings.getOpenDankNullKeyBind().isPressed()) {
-				ModNetworking.getInstance().sendToServer(new PacketOpenDankGui());
-			}
-			final int currentIndex = DankNullUtils.getSelectedStackIndex(inventory);
-			final int totalSize = DankNullUtils.getItemCount(inventory);
-			if (currentIndex == -1 || totalSize <= 1) {
-				return;
-			}
-			if (ModKeyBindings.getNextItemKeyBind().isPressed()) {
-				DankNullUtils.setNextSelectedStack(inventory, player);
-			}
-			else if (ModKeyBindings.getPreviousItemKeyBind().isPressed()) {
-				DankNullUtils.setPreviousSelectedStack(inventory, player);
-			}
+//			final InventoryDankNull inventory = DankNullUtils.getInventoryFromHeld(player); TODO
+//			if (inventory == null) {
+//				return;
+//			}
+//
+//			if (ModKeyBindings.getOpenDankNullKeyBind().isPressed()) {
+//				ModNetworking.getInstance().sendToServer(new PacketOpenDankGui());
+//			}
+//			final int currentIndex = DankNullUtils.getSelectedStackIndex(inventory);
+//			final int totalSize = DankNullUtils.getItemCount(inventory);
+//			if (currentIndex == -1 || totalSize <= 1) {
+//				return;
+//			}
+//			if (ModKeyBindings.getNextItemKeyBind().isPressed()) {
+//				DankNullUtils.setNextSelectedStack(inventory, player);
+//			}
+//			else if (ModKeyBindings.getPreviousItemKeyBind().isPressed()) {
+//				DankNullUtils.setPreviousSelectedStack(inventory, player);
+//			}
 		}
 	}
 
@@ -186,6 +189,7 @@ public class ModEvents {
 			}
 			boolean shouldCancel = false;
 			final GuiDankNull dankNullGui = (GuiDankNull) mc.currentScreen;
+			IDankNullHandler dankNullHandler = dankNullGui.getDankNullHandler();
 			final int width = dankNullGui.width;
 			final int height = dankNullGui.height;
 			final int mouseX = Mouse.getEventX() * width / mc.displayWidth;
@@ -194,18 +198,18 @@ public class ModEvents {
 			if ((hoveredSlot instanceof SlotDankNull || hoveredSlot instanceof SlotDankNullDock) && hoveredSlot.getHasStack() && Mouse.isButtonDown(0)) {
 				IMessage syncPacket = null;
 				if (GuiScreen.isCtrlKeyDown() && !GuiScreen.isAltKeyDown()) {
-					DankNullUtils.cycleExtractionMode(dankNullGui.getDankNull(), hoveredSlot.getStack());
-					syncPacket = new PacketChangeMode(DankNullUtils.getExtractionModeForStack(dankNullGui.getDankNull(), hoveredSlot.getStack()), hoveredSlot.getSlotIndex());
+					dankNullHandler.cycleExtractionMode(hoveredSlot.getStack(), true);
+					syncPacket = new PacketChangeMode(dankNullHandler.getExtractionMode(hoveredSlot.getStack()), hoveredSlot.getSlotIndex());
 					shouldCancel = true;
 				}
 				else if (GuiScreen.isAltKeyDown() && !GuiScreen.isCtrlKeyDown()) {
-					if (!ItemUtils.areItemStacksEqualIgnoreSize(DankNullUtils.getSelectedStack(dankNullGui.getDankNullInventory()), hoveredSlot.getStack())) {
+					if (dankNullHandler.getSelected() < 0 || !ItemUtils.areItemStacksEqualIgnoreSize(dankNullHandler.getStackInSlot(dankNullHandler.getSelected()), hoveredSlot.getStack())) {
 						int count = 0;
 						for (final Slot slotHovered : dankNullGui.inventorySlots.inventorySlots) {
 							count++;
 							if (slotHovered.equals(hoveredSlot)) {
 								final int index = count - 1 - 36;
-								DankNullUtils.setSelectedStackIndex(dankNullGui.getDankNullInventory(), index);
+								dankNullHandler.setSelected(index);
 								syncPacket = new PacketChangeMode(PacketChangeMode.ChangeType.SELECTED, hoveredSlot.getSlotIndex());
 								shouldCancel = true;
 							}
@@ -214,9 +218,9 @@ public class ModEvents {
 				}
 				else if (Keyboard.isKeyDown(Keyboard.KEY_O) && !GuiScreen.isAltKeyDown() && !GuiScreen.isCtrlKeyDown()) {
 					if (DankNullUtils.isOreDictBlacklistEnabled() && !DankNullUtils.isItemOreDictBlacklisted(hoveredSlot.getStack()) || DankNullUtils.isOreDictWhitelistEnabled() && DankNullUtils.isItemOreDictWhitelisted(hoveredSlot.getStack()) || !DankNullUtils.isOreDictBlacklistEnabled() && !DankNullUtils.isOreDictWhitelistEnabled()) {
-						DankNullUtils.cycleOreDictModeForStack(dankNullGui.getDankNull(), hoveredSlot.getStack());
+						dankNullHandler.setOre(hoveredSlot.getStack(), !dankNullHandler.isOre(hoveredSlot.getStack()));
 						syncPacket = new PacketChangeMode(
-								DankNullUtils.getOreDictModeForStack(dankNullGui.getDankNull(), hoveredSlot.getStack())
+								dankNullHandler.isOre(hoveredSlot.getStack())
 										? PacketChangeMode.ChangeType.ORE_ON
 										: PacketChangeMode.ChangeType.ORE_OFF,
 								hoveredSlot.getSlotIndex());
@@ -224,8 +228,8 @@ public class ModEvents {
 					}
 				}
 				else if (Keyboard.isKeyDown(Keyboard.KEY_P) && !GuiScreen.isAltKeyDown() && !GuiScreen.isCtrlKeyDown()) {
-					DankNullUtils.cyclePlacementMode(dankNullGui.getDankNull(), hoveredSlot.getStack());
-					syncPacket = new PacketChangeMode(DankNullUtils.getPlacementModeForStack(dankNullGui.getDankNull(), hoveredSlot.getStack()), hoveredSlot.getSlotIndex());
+					dankNullHandler.cyclePlacementMode(hoveredSlot.getStack(), true);
+					syncPacket = new PacketChangeMode(dankNullHandler.getPlacementMode(hoveredSlot.getStack()), hoveredSlot.getSlotIndex());
 					shouldCancel = true;
 				}
 				if (syncPacket != null)
@@ -245,10 +249,9 @@ public class ModEvents {
 		final Minecraft mc = Minecraft.getMinecraft();
 		final World world = mc.world;
 		if (event.isButtonstate() && event.getButton() == 2 && event.getDwheel() == 0) {
-			final InventoryDankNull inventory = DankNullUtils.getInventoryFromHeld(player);
-			if (inventory == null) {
+			final IDankNullHandler dankNullHandler = DankNullUtils.getHandlerFromHeld(player);
+			if (dankNullHandler == null)
 				return;
-			}
 			final RayTraceResult target = mc.objectMouseOver;
 			if (target.typeOfHit == RayTraceResult.Type.BLOCK) {
 				final IBlockState state = world.getBlockState(target.getBlockPos());
@@ -256,51 +259,49 @@ public class ModEvents {
 					return;
 				}
 				final ItemStack stackToSelect = state.getBlock().getPickBlock(state, target, world, target.getBlockPos(), player);
-				if (!stackToSelect.isEmpty() && (DankNullUtils.isFiltered(inventory, stackToSelect) || DankNullUtils.isFilteredOreDict(inventory, stackToSelect))) {
-					final int newIndex = DankNullUtils.getIndexForStack(inventory, stackToSelect);
-					DankNullUtils.setSelectedStackIndex(inventory, newIndex);
+				if (!stackToSelect.isEmpty() && (dankNullHandler.containsItemStack(stackToSelect) || dankNullHandler.isOre(stackToSelect))) {
+					final int newIndex = dankNullHandler.findItemStack(stackToSelect);
+					dankNullHandler.setSelected(newIndex);
 					ModNetworking.getInstance().sendToServer(new PacketChangeMode(PacketChangeMode.ChangeType.SELECTED, newIndex));
 					event.setCanceled(true);
 				}
 			}
 		}
 		if (ModKeyBindings.isAnyModKeybindPressed() && event.getDwheel() == 0) {
-			final InventoryDankNull inventory = DankNullUtils.getInventoryFromHeld(player);
-			if (inventory == null) {
+			final IDankNullHandler dankNullHandler = DankNullUtils.getHandlerFromHeld(player);
+			if (dankNullHandler == null)
 				return;
-			}
-			final int currentIndex = DankNullUtils.getSelectedStackIndex(inventory);
-			final int totalSize = DankNullUtils.getItemCount(inventory);
+			final int currentIndex = dankNullHandler.getSelected();
+			final int totalSize = dankNullHandler.stackCount();
 			if (currentIndex == -1 || totalSize <= 1) {
 				return;
 			}
 			if (ModKeyBindings.getNextItemKeyBind().isPressed()) {
-				DankNullUtils.setNextSelectedStack(inventory, player);
+				dankNullHandler.cycleSelected(true);
 				event.setCanceled(true);
 			}
 			else if (ModKeyBindings.getPreviousItemKeyBind().isPressed()) {
-				DankNullUtils.setPreviousSelectedStack(inventory, player);
+				dankNullHandler.cycleSelected(false);
 				event.setCanceled(true);
 			}
 		}
 		else if (event.getDwheel() != 0 && player.isSneaking()) {
 			// i do this multiple times to avoid constantly firing DankNullUtils#getInventoryFromHeld any time the mouse is used
-			final InventoryDankNull inventory = DankNullUtils.getInventoryFromHeld(player);
-			if (inventory == null) {
+			final IDankNullHandler dankNullHandler = DankNullUtils.getHandlerFromHeld(player);
+			if (dankNullHandler == null)
 				return;
-			}
-			final int currentIndex = DankNullUtils.getSelectedStackIndex(inventory);
-			final int totalSize = DankNullUtils.getItemCount(inventory);
+			final int currentIndex = dankNullHandler.getSelected();
+			final int totalSize = dankNullHandler.stackCount();
 			if (currentIndex == -1 || totalSize <= 1) {
 				return;
 			}
 			final int scrollForward = event.getDwheel();
 			if (scrollForward < 0) {
-				DankNullUtils.setNextSelectedStack(inventory, player);
+				dankNullHandler.cycleSelected(true);
 				event.setCanceled(true);
 			}
 			else if (scrollForward > 0) {
-				DankNullUtils.setPreviousSelectedStack(inventory, player);
+				dankNullHandler.cycleSelected(false);
 				event.setCanceled(true);
 			}
 		}

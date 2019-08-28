@@ -24,7 +24,6 @@ import p455w0rd.danknull.container.ContainerDankNull;
 import p455w0rd.danknull.init.*;
 import p455w0rd.danknull.integration.jei.DankNullUpgradeWrapper;
 import p455w0rd.danknull.integration.jei.PacketVanllaRecipeTransfer;
-import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rd.danknull.inventory.PlayerSlot;
 import p455w0rd.danknull.recipes.RecipeDankNullUpgrade;
 import p455w0rd.danknull.util.DankNullUtils;
@@ -236,9 +235,9 @@ public class JEI implements IModPlugin {
 					continue;
 				}
 				for (final ItemStack dankNull : dankNullStacks) {
-					if (DankNullUtils.isFilteredOreDict(DankNullUtils.getNewDankNullInventory(dankNull), ingredient.getDisplayedIngredient())) {
-						matchingDankNulls++;
-					}
+//					if (DankNullUtils.isFilteredOreDict(DankNullUtils.getNewDankNullInventory(dankNull), ingredient.getDisplayedIngredient())) {
+//						matchingDankNulls++;
+//					}
 				}
 			}
 			boolean foundInDankNull = false;
@@ -249,9 +248,9 @@ public class JEI implements IModPlugin {
 						continue;
 					}
 					for (final ItemStack dankNull : dankNullStacks) {
-						if (DankNullUtils.isFilteredOreDict(DankNullUtils.getNewDankNullInventory(dankNull), filteredStack)) {
-							foundInDankNull = true;
-						}
+//						if (DankNullUtils.isFilteredOreDict(DankNullUtils.getNewDankNullInventory(dankNull), filteredStack)) {
+//							foundInDankNull = true;
+//						}
 					}
 				}
 				if (!foundInDankNull) {
@@ -556,7 +555,7 @@ public class JEI implements IModPlugin {
 				if (requiredStack.isEmpty()) {
 					continue;
 				}
-				final InventoryDankNull dankNullInv = null;
+//				final InventoryDankNull dankNullInv = null;
 				final Slot slot = getSlotWithStack(container, requiredStack, craftingSlots, inventorySlots);
 				/*
 				for (int slotNum : inventorySlots) {
@@ -592,9 +591,9 @@ public class JEI implements IModPlugin {
 					for (final int slotNum : inventorySlots) {
 						final Slot slot1 = container.getSlot(slotNum);
 						if (slot1 != null && slot1.getHasStack()) {
-							if (DankNullUtils.isDankNull(slot1.getStack()) && DankNullUtils.isFilteredOreDict(DankNullUtils.getNewDankNullInventory(slot1.getStack()), requiredStack)) {
-								DankNullUtils.decrDankNullStackSize(DankNullUtils.getNewDankNullInventory(slot1.getStack()), requiredStack, requiredStack.getCount());
-							}
+//							if (DankNullUtils.isDankNull(slot1.getStack()) && DankNullUtils.isFilteredOreDict(DankNullUtils.getNewDankNullInventory(slot1.getStack()), requiredStack)) {
+//								DankNullUtils.decrDankNullStackSize(DankNullUtils.getNewDankNullInventory(slot1.getStack()), requiredStack, requiredStack.getCount());
+//							}
 						}
 					}
 				}
@@ -621,39 +620,39 @@ public class JEI implements IModPlugin {
 					final Slot slot = container.getSlot(slotIndex);
 					final ItemStack inventoryStack = slot.getStack();
 					// Check that the slot's contents are stackable with this stack
-					if (!inventoryStack.isEmpty() && (inventoryStack.isStackable() && inventoryStack.isItemEqual(stack) && ItemStack.areItemStackTagsEqual(inventoryStack, stack) || DankNullUtils.isDankNull(inventoryStack) && DankNullUtils.isFiltered(DankNullUtils.getNewDankNullInventory(inventoryStack), stack))) {
-						boolean isDankNull = false;
-						if (DankNullUtils.isDankNull(inventoryStack)) {
-							isDankNull = true;
-						}
-						final int remain = stack.getCount() - added;
-						final int maxStackSize = Math.min(slot.getItemStackLimit(isDankNull ? stack : inventoryStack), isDankNull ? stack.getMaxStackSize() : inventoryStack.getMaxStackSize());
-						final int space = maxStackSize - (isDankNull ? stack.getCount() : inventoryStack.getCount());
-						if (space > 0) {
-
-							// Enough space
-							if (space >= remain) {
-								if (isDankNull) {
-									DankNullUtils.decrDankNullStackSize(DankNullUtils.getNewDankNullInventory(inventoryStack), stack, remain);
-									//DankNullUtils.addFilteredStackToDankNull(DankNullUtils.getNewDankNullInventory(inventoryStack), stack);
-									stack.grow(remain);
-								}
-								else {
-									inventoryStack.grow(remain);
-								}
-								return stack.getCount();
-							}
-
-							// Not enough space
-							if (!isDankNull) {
-								inventoryStack.setCount(inventoryStack.getMaxStackSize());
-							}
-							else {
-								//stack.setCount(size);
-							}
-							added += space;
-						}
-					}
+//					if (!inventoryStack.isEmpty() && (inventoryStack.isStackable() && inventoryStack.isItemEqual(stack) && ItemStack.areItemStackTagsEqual(inventoryStack, stack) || DankNullUtils.isDankNull(inventoryStack) && DankNullUtils.isFiltered(DankNullUtils.getNewDankNullInventory(inventoryStack), stack))) {
+//						boolean isDankNull = false;
+//						if (DankNullUtils.isDankNull(inventoryStack)) {
+//							isDankNull = true;
+//						}
+//						final int remain = stack.getCount() - added;
+//						final int maxStackSize = Math.min(slot.getItemStackLimit(isDankNull ? stack : inventoryStack), isDankNull ? stack.getMaxStackSize() : inventoryStack.getMaxStackSize());
+//						final int space = maxStackSize - (isDankNull ? stack.getCount() : inventoryStack.getCount());
+//						if (space > 0) {
+//
+//							// Enough space
+//							if (space >= remain) {
+//								if (isDankNull) {
+//									DankNullUtils.decrDankNullStackSize(DankNullUtils.getNewDankNullInventory(inventoryStack), stack, remain);
+//									//DankNullUtils.addFilteredStackToDankNull(DankNullUtils.getNewDankNullInventory(inventoryStack), stack);
+//									stack.grow(remain);
+//								}
+//								else {
+//									inventoryStack.grow(remain);
+//								}
+//								return stack.getCount();
+//							}
+//
+//							// Not enough space
+//							if (!isDankNull) {
+//								inventoryStack.setCount(inventoryStack.getMaxStackSize());
+//							}
+//							else {
+//								//stack.setCount(size);
+//							}
+//							added += space;
+//						}
+//					}
 				}
 			}
 

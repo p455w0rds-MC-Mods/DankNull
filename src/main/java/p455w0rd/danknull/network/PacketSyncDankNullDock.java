@@ -13,14 +13,13 @@ import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.*;
 import net.minecraftforge.fml.relauncher.Side;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
-import p455w0rd.danknull.inventory.InventoryDankNull;
-import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rdslib.util.EasyMappings;
 
 /**
  * @author p455w0rd
  *
  */
+@Deprecated
 public class PacketSyncDankNullDock implements IMessage {
 
 	private BlockPos dockPos;
@@ -43,11 +42,11 @@ public class PacketSyncDankNullDock implements IMessage {
 		buf.writeInt(dockPos.getY());
 		buf.writeInt(dockPos.getZ());
 		ByteBufUtils.writeItemStack(buf, dankNull);
-		final InventoryDankNull inv = DankNullUtils.getNewDankNullInventory(dankNull);
-		buf.writeInt(inv.getSizeInventory());
-		for (int i = 0; i < inv.getSizeInventory(); i++) {
-			buf.writeInt(inv.getSizeForSlot(i));
-		}
+//		final InventoryDankNull inv = DankNullUtils.getNewDankNullInventory(dankNull);
+//		buf.writeInt(inv.getSizeInventory());
+//		for (int i = 0; i < inv.getSizeInventory(); i++) {
+//			buf.writeInt(inv.getSizeForSlot(i));
+//		}
 	}
 
 	public PacketSyncDankNullDock() {

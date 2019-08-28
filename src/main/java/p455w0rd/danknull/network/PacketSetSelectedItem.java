@@ -5,7 +5,6 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.*;
-import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rd.danknull.util.DankNullUtils;
 
 /**
@@ -63,8 +62,8 @@ public class PacketSetSelectedItem implements IMessage {
 						dankNull = player.getHeldItemOffhand();
 					}
 
-					final InventoryDankNull inv = DankNullUtils.getNewDankNullInventory(dankNull);
-					DankNullUtils.setSelectedStackIndex(inv, message.index);
+					//final InventoryDankNull inv = DankNullUtils.getNewDankNullInventory(dankNull);
+					//DankNullUtils.setSelectedStackIndex(inv, message.index);
 				}
 			});
 			return null;
