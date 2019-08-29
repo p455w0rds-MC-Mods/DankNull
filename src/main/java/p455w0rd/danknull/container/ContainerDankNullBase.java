@@ -75,6 +75,7 @@ public abstract class ContainerDankNullBase extends Container {
 		}
 		return null;
 	}
+
 	@Override
 	public void detectAndSendChanges() {
 		//I'll take this, thanks
@@ -196,12 +197,18 @@ public abstract class ContainerDankNullBase extends Container {
 		return ItemStack.EMPTY;
 	}
 
-	protected ItemStack addStack(final ItemStack stack) {
+	private ItemStack addStack(final ItemStack stack) {
 		ItemStack leftover = stack.copy();
 		IDankNullHandler handler = this.getHandler();
 		for (int i = 0; i < handler.getSlots(); i++) {
 			if (handler.isItemValid(i, leftover))
 				leftover = handler.insertItem(i, leftover, false);
+		}
+		for (int i = 0; i < handler.getSlots(); i++) {
+			if (handler.getStackInSlot(i).isEmpty() && handler.isItemValid(i, leftover)) {
+				handler.setStackInSlot(i, leftover);
+				return ItemStack.EMPTY;
+			}
 		}
 		return leftover;
 	}

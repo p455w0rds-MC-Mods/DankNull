@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
@@ -84,30 +83,22 @@ public class DankNullHandler implements IDankNullHandler {
 			return stack;
 
 		ItemStack existing = this.stacks.get(slot);
-		int limit = this.getSlotLimit(slot);
-
-		if (!existing.isEmpty()) {
-			if (!ItemHandlerHelper.canItemStacksStack(stack, existing))
-				return stack;
-
-			limit -= existing.getCount();
-		}
-
-		if (limit <= 0)
+		if (existing.isEmpty() || !ItemHandlerHelper.canItemStacksStack(stack, existing)) // Replace canItemStacksStack with ore supported equivalent
 			return stack;
-
-		boolean reachedLimit = stack.getCount() > limit;
 
 		if (!simulate) {
 			if (existing.isEmpty()) {
-				this.stacks.set(slot, reachedLimit ? ItemHandlerHelper.copyStackWithSize(stack, limit) : stack);
+				this.stacks.set(slot, stack.copy());
 			} else {
-				existing.grow(reachedLimit ? limit : stack.getCount());
+				existing.grow(stack.getCount());
 			}
+			ItemStack slotStack = this.stacks.get(slot);
+			if (slotStack.getCount() > this.getSlotLimit(slot))
+				slotStack.setCount(this.getSlotLimit(slot));
 			onContentsChanged(slot);
 		}
 
-		return reachedLimit ? ItemHandlerHelper.copyStackWithSize(stack, stack.getCount() - limit) : ItemStack.EMPTY;
+		return ItemStack.EMPTY;
 	}
 
 	@Nonnull
@@ -385,7 +376,7 @@ public class DankNullHandler implements IDankNullHandler {
 
 	@Override
 	public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
-		return !(stack.getItem() instanceof ItemDankNull);
+		return !(stack.getItem() instanceof ItemDankNull); // Maybe consider and return based on the current inventory
 	}
 
 	public void sort() {
