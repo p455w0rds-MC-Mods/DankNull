@@ -30,6 +30,8 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
+import net.minecraftforge.items.CapabilityItemHandler;
+import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import p455w0rd.danknull.api.ITOPEntityInfoProvider;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
@@ -38,6 +40,8 @@ import p455w0rd.danknull.init.ModConfig.Options;
 import p455w0rd.danknull.init.ModGlobals.NBT;
 import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rd.danknull.util.DankNullUtils.ItemExtractionMode;
+import p455w0rd.danknull.util.cap.CapabilityDankNull;
+import p455w0rd.danknull.util.cap.IDankNullHandler;
 import p455w0rdslib.LibGlobals.Mods;
 import p455w0rdslib.util.TextUtils;
 
@@ -110,9 +114,12 @@ public class TOP {
 					final ItemStack dockedDankNull = te.getDankNull().isEmpty() ? ItemStack.EMPTY : te.getDankNull();
 					final IProbeInfo topTip = probeInfo.horizontal().item(stack).vertical().itemLabel(stack);
 					if (!dockedDankNull.isEmpty()) {
+						IDankNullHandler dankNullHandler = dockedDankNull.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
 						final String dockedMsg = ModGlobals.Rarities.getRarityFromMeta(DankNullUtils.getMeta(dockedDankNull)).getColor() + "" + dockedDankNull.getDisplayName() + "" + TextFormatting.WHITE + " " + TextUtils.translate("dn.docked.desc");
 						topTip.text(dockedMsg);
-						final ItemStack selectedStack = DankNullUtils.getSelectedStack(dankDock.getDankNull());
+						if (dankNullHandler.getSelected() < 0)
+							return;
+						final ItemStack selectedStack = dankNullHandler.getStackInSlot(dankNullHandler.getSelected());
 						if (!selectedStack.isEmpty()) {
 							final ItemStack tmpStack = selectedStack.copy();
 							/*String countText = "";
@@ -122,7 +129,7 @@ public class TOP {
 							}*/
 							topTip.horizontal(new LayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT).borderColor(0xFFFF0000).spacing(-1)).item(tmpStack);
 							//topTip.text(" " + TextUtils.translate("dn.selected.desc") + "" + countText);
-							topTip.text(TextUtils.translate("dn.extract_mode.desc") + ": " + DankNullUtils.getExtractionModeForStack(dockedDankNull, selectedStack).getTooltip());
+							topTip.text(TextUtils.translate("dn.extract_mode.desc") + ": " + dankNullHandler.getExtractionMode(selectedStack).getTooltip());
 						}
 					}
 					else {
@@ -280,9 +287,10 @@ public class TOP {
 				for (final ItemStack stackInSlot : stacks) {
 					horizontal = vertical.horizontal(new LayoutStyle().spacing(10).alignment(ElementAlignment.ALIGN_CENTER));
 					if (DankNullUtils.isDankNull(dankNull)) {
+						IDankNullHandler dankNullHandler = dankNull.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
 						final ItemStack tmpStack = stackInSlot.copy();
-						int extractable = stackInSlot.getCount() - DankNullUtils.getExtractionModeForStack(dankNull, stackInSlot).getNumberToKeep();
-						if (DankNullUtils.getExtractionModeForStack(dankNull, stackInSlot) == ItemExtractionMode.KEEP_ALL) {
+						int extractable = stackInSlot.getCount() - dankNullHandler.getExtractionMode(stackInSlot).getNumberToKeep();
+						if (dankNullHandler.getExtractionMode(stackInSlot) == ItemExtractionMode.KEEP_ALL) {
 							extractable = 0;
 						}
 						horizontal.item(tmpStack, new ItemStyle().width(16).height(16)).text(INFO + stackInSlot.getDisplayName() + " (" + extractable + " extractable)");
@@ -307,9 +315,10 @@ public class TOP {
 			final List<ItemStack> stacks = new ArrayList<>();
 			final TileEntity te = world.getTileEntity(pos);
 			final Set<Item> foundItems = Config.compactEqualStacks ? new HashSet<>() : null;
-			if (te instanceof TileDankNullDock) {
-				for (int i = 0; i < DankNullUtils.getTier(((TileDankNullDock) te).getDankNull()).getNumRows() * 9; i++) {
-					addItemStack(stacks, foundItems, ((TileDankNullDock) te).getActualStackInSlot(i));
+			if (te instanceof TileDankNullDock && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null)) {
+				IItemHandler handler = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+				for (int i = 0; i < handler.getSlots(); i++) {
+					addItemStack(stacks, foundItems, handler.getStackInSlot(i));
 				}
 			}
 			return stacks;

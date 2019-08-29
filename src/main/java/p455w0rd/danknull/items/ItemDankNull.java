@@ -23,7 +23,6 @@ import net.minecraft.util.math.*;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.IRarity;
-import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fluids.UniversalBucket;
 import net.minecraftforge.fml.relauncher.Side;
@@ -34,14 +33,14 @@ import p455w0rd.danknull.init.ModGlobals.DankNullTier;
 import p455w0rd.danknull.init.ModGlobals.NBT;
 import p455w0rd.danknull.init.ModGuiHandler;
 import p455w0rd.danknull.init.ModGuiHandler.GUIType;
-import p455w0rd.danknull.integration.PwLib;
-import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rd.danknull.inventory.PlayerSlot;
 import p455w0rd.danknull.inventory.PlayerSlot.EnumInvCategory;
 import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rd.danknull.util.DankNullUtils.ItemPlacementMode;
+import p455w0rd.danknull.util.cap.CapabilityDankNull;
+import p455w0rd.danknull.util.cap.DankNullCapabilityProvider;
+import p455w0rd.danknull.util.cap.IDankNullHandler;
 import p455w0rdslib.api.client.*;
-import p455w0rdslib.integration.Albedo;
 import p455w0rdslib.util.*;
 
 /**
@@ -53,11 +52,9 @@ import p455w0rdslib.util.*;
 })
 public class ItemDankNull extends Item implements IModelHolder/*, IBlockLightEmitter*/ {
 
-	InventoryDankNull inventory = null;
-	DankNullTier tier;
-
+	private DankNullTier tier;
 	@SideOnly(Side.CLIENT)
-	ItemLayerWrapper wrappedModel;
+	private ItemLayerWrapper wrappedModel;
 
 	public ItemDankNull(final DankNullTier tier) {
 		this.tier = tier;
@@ -73,29 +70,7 @@ public class ItemDankNull extends Item implements IModelHolder/*, IBlockLightEmi
 
 	@Override
 	public ICapabilityProvider initCapabilities(final ItemStack stack, final NBTTagCompound nbt) {
-		return new ICapabilityProvider() {
-			@Override
-			public boolean hasCapability(final Capability<?> capability, final EnumFacing facing) {
-				return CapabilityUtils.isItemHandler(capability) || Albedo.albedoCapCheck(capability) || PwLib.checkCap(capability);
-			}
-
-			@Override
-			public <T> T getCapability(final Capability<T> capability, final EnumFacing facing) {
-				if (hasCapability(capability, facing)) {
-					if (Albedo.albedoCapCheck(capability)) {
-						return p455w0rd.danknull.integration.Albedo.getStackCapability(stack);
-					}
-					else if (PwLib.checkCap(capability)) {
-						return PwLib.getStackCapability(stack);
-					}
-					else if (CapabilityUtils.isItemHandler(capability)) {
-						return CapabilityUtils.getWrappedItemHandler(new InventoryDankNull(stack));
-					}
-				}
-				return null;
-			}
-
-		};
+		return new DankNullCapabilityProvider(tier, stack);
 	}
 
 	@Override
@@ -209,9 +184,9 @@ public class ItemDankNull extends Item implements IModelHolder/*, IBlockLightEmi
 
 		final ItemStack stack = player.getHeldItem(hand);
 		final PlayerSlot playerSlot = new PlayerSlot(player.inventory.currentItem, MAIN);
-		final InventoryDankNull inventory = new InventoryDankNull(playerSlot, player);
+		final IDankNullHandler dankNullHandler = stack.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
 
-		final ItemStack selectedStack = DankNullUtils.getSelectedStack(inventory);
+		final ItemStack selectedStack = dankNullHandler.getSelected() > -1 ? dankNullHandler.getStackInSlot(dankNullHandler.getSelected()) : ItemStack.EMPTY;
 		final Block selectedBlock = Block.getBlockFromItem(selectedStack.getItem());
 		final boolean isSelectedStackABlock = selectedBlock != null && selectedBlock != Blocks.AIR;
 		final Block blockUnderPlayer = getBlockUnderPlayer(player).getBlock();
@@ -219,17 +194,15 @@ public class ItemDankNull extends Item implements IModelHolder/*, IBlockLightEmi
 			ModGuiHandler.launchGui(GUIType.DANKNULL, player, world, player.getPosition(), playerSlot);
 			return EnumActionResult.SUCCESS;
 		}
-		final ItemPlacementMode placementMode = DankNullUtils.getPlacementModeForStack(stack, selectedStack);
-		if (placementMode != null) {
-			if (placementMode == ItemPlacementMode.KEEP_ALL && !player.capabilities.isCreativeMode) {
+		final ItemPlacementMode placementMode = dankNullHandler.getPlacementMode(selectedStack);
+		if (placementMode == ItemPlacementMode.KEEP_ALL && !player.capabilities.isCreativeMode) {
+			return EnumActionResult.FAIL;
+		}
+		if (placementMode != ItemPlacementMode.KEEP_NONE) {
+			final int count = selectedStack.getCount();
+			final int amountToKeep = placementMode.getNumberToKeep();
+			if (count <= amountToKeep && !player.capabilities.isCreativeMode) {
 				return EnumActionResult.FAIL;
-			}
-			if (placementMode != ItemPlacementMode.KEEP_NONE) {
-				final int count = DankNullUtils.getSelectedStackSize(inventory);
-				final int amountToKeep = placementMode.getNumberToKeep();
-				if (count <= amountToKeep && !player.capabilities.isCreativeMode) {
-					return EnumActionResult.FAIL;
-				}
 			}
 		}
 		final IBlockState state = world.getBlockState(posIn);
@@ -245,7 +218,7 @@ public class ItemDankNull extends Item implements IModelHolder/*, IBlockLightEmi
 		else if (!block.isReplaceable(world, posIn) && selectedBlock != null && !selectedBlock.isFullBlock(selectedBlock.getStateFromMeta(selectedStack.getMetadata()))) {
 			pos = pos.offset(facing);
 		}
-		if (DankNullUtils.getSelectedStackSize(inventory) > 0 && player.canPlayerEdit(posIn, facing, stack)) {
+		if (selectedStack.getCount() > 0 && player.canPlayerEdit(posIn, facing, stack)) {
 			final int meta = selectedStack.getMetadata();
 			if (selectedBlock instanceof BlockStairs || selectedBlock instanceof BlockBanner) {
 				final IBlockState newState = selectedBlock.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, meta, player);
@@ -265,7 +238,7 @@ public class ItemDankNull extends Item implements IModelHolder/*, IBlockLightEmi
 					world.playSound((EntityPlayer) null, player.getPosition(), soundType.getPlaceSound(), SoundCategory.BLOCKS, 1.0F, 0.5F * ((world.rand.nextFloat() - world.rand.nextFloat()) * 0.7F + 2F));
 				}
 				if (!player.capabilities.isCreativeMode) {
-					DankNullUtils.decrSelectedStackSize(inventory, 1);
+					dankNullHandler.extractItem(dankNullHandler.getSelected(), 1, false);
 				}
 				return EnumActionResult.SUCCESS;
 			}
@@ -278,8 +251,8 @@ public class ItemDankNull extends Item implements IModelHolder/*, IBlockLightEmi
 			else {
 				final EnumActionResult result = placeItemIntoWorld(selectedStack.copy(), player, world, pos, facing, hitX, hitY, hitZ, hand);
 
-				if (result == EnumActionResult.SUCCESS && !player.capabilities.isCreativeMode && !DankNullUtils.isCreativeDankNull(stack)) {
-					DankNullUtils.decrSelectedStackSize(inventory, 1);
+				if (result == EnumActionResult.SUCCESS && !player.capabilities.isCreativeMode && !dankNullHandler.getTier().isCreative()) {
+					dankNullHandler.extractItem(dankNullHandler.getSelected(), 1, false);
 				}
 				return EnumActionResult.SUCCESS;
 			}

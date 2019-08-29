@@ -27,6 +27,8 @@ import p455w0rd.danknull.init.ModGlobals;
 import p455w0rd.danknull.items.ItemDankNull;
 import p455w0rd.danknull.items.ItemDankNullPanel;
 import p455w0rd.danknull.util.DankNullUtils;
+import p455w0rd.danknull.util.cap.CapabilityDankNull;
+import p455w0rd.danknull.util.cap.IDankNullHandler;
 import p455w0rdslib.api.client.*;
 import p455w0rdslib.util.EasyMappings;
 
@@ -81,8 +83,9 @@ public class DankNullRenderer extends TileEntityItemStackRenderer implements ICu
 				return;
 			}
 			final int view = options.thirdPersonView;
-			final int index = DankNullUtils.getSelectedStackIndex(item);
-			final ItemStack containedStack = DankNullUtils.getStackInDankNullSlotWithSize(item, index);
+			IDankNullHandler dankNullHandler = item.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
+			final int index = dankNullHandler.getSelected();
+			final ItemStack containedStack = index > -1 ? dankNullHandler.getStackInSlot(index) : ItemStack.EMPTY;
 
 			final float pbx = OpenGlHelper.lastBrightnessX;
 			final float pby = OpenGlHelper.lastBrightnessY;

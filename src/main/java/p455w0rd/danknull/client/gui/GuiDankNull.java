@@ -25,20 +25,20 @@ import net.minecraft.inventory.*;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextFormatting;
 import p455w0rd.danknull.container.ContainerDankNull;
+import p455w0rd.danknull.container.ContainerDankNullBase;
 import p455w0rd.danknull.container.ContainerDankNullDock;
 import p455w0rd.danknull.init.ModConfig.Options;
 import p455w0rd.danknull.init.ModGlobals;
 import p455w0rd.danknull.init.ModGlobals.DankNullTier;
 import p455w0rd.danknull.init.ModNetworking;
 import p455w0rd.danknull.integration.Chisel;
-import p455w0rd.danknull.inventory.InventoryDankNull;
 import p455w0rd.danknull.inventory.slot.SlotDankNull;
-import p455w0rd.danknull.inventory.slot.SlotDankNullDock;
 import p455w0rd.danknull.network.PacketChangeMode;
-import p455w0rd.danknull.network.PacketRequestInitialUpdate;
 import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rd.danknull.util.DankNullUtils.ItemExtractionMode;
 import p455w0rd.danknull.util.DankNullUtils.ItemPlacementMode;
+import p455w0rd.danknull.util.cap.CapabilityDankNull;
+import p455w0rd.danknull.util.cap.IDankNullHandler;
 import p455w0rdslib.LibGlobals.Mods;
 import p455w0rdslib.client.gui.GuiModular;
 import p455w0rdslib.integration.Thaumcraft;
@@ -62,17 +62,16 @@ public class GuiDankNull extends GuiModular {
 	protected int ySize = 140;
 	private final DankNullTier tier;
 
-	public GuiDankNull(final Container c, final DankNullTier tier, final EntityPlayer player) {
+	public GuiDankNull(final ContainerDankNullBase c) {
 		super(c);
-		this.tier = tier;
+		this.tier = c.getHandler().getTier();
 		setWidth(210);
-		setHeight(tier.getGuiHeight());
-		setBackgroundTexture(tier.getGuiBackground());
-		ModNetworking.getInstance().sendToServer(new PacketRequestInitialUpdate());
+		setHeight(this.tier.getGuiHeight());
+		setBackgroundTexture(this.tier.getGuiBackground());
 	}
 
-	public GuiDankNull(final ContainerDankNull c, final EntityPlayer player) {
-		this(c, DankNullUtils.getTier(c.getDankNullInPlayerSlot()), player);
+	public IDankNullHandler getDankNullHandler() {
+		return ((ContainerDankNullBase) this.inventorySlots).getHandler();
 	}
 
 	@Override
@@ -82,24 +81,25 @@ public class GuiDankNull extends GuiModular {
 		xSize = 201;
 		if (Minecraft.getMinecraft().player.capabilities.isCreativeMode && tier.isCreative()) {
 			buttonList.clear();
-			buttonList.add(new GuiButton(0, getX() + xSize / 2 - 25, getY() - 20, 50, 20, (DankNullUtils.isCreativeDankNullLocked(getDankNull()) ? "Unl" : "L") + "ock"));
+			buttonList.add(new GuiButton(0, getX() + xSize / 2 - 25, getY() - 20, 50, 20, (getDankNullHandler().isLocked() ? "Unl" : "L") + "ock"));
 		}
 	}
 
 	@Override
 	protected void actionPerformed(final GuiButton btn) {
+		IDankNullHandler dankNullHandler = this.getDankNullHandler();
 		if (btn.id == 0) {
 			final String lock = TextUtils.translate("dn.lock.desc");
 			final String unlock = TextUtils.translate("dn.unlock.desc");
 			boolean isLocked = false;
 			if (btn.displayString.equals(lock)) {
 				btn.displayString = unlock;
-				DankNullUtils.setLocked(getDankNull(), true);
+				dankNullHandler.setLocked(true);
 				isLocked = true;
 			}
 			else {
 				btn.displayString = lock;
-				DankNullUtils.setLocked(getDankNull(), false);
+				dankNullHandler.setLocked(false);
 			}
 			ModNetworking.getInstance().sendToServer(new PacketChangeMode(isLocked ? PacketChangeMode.ChangeType.LOCK : PacketChangeMode.ChangeType.UNLOCK));
 		}
@@ -115,12 +115,9 @@ public class GuiDankNull extends GuiModular {
 		super.onGuiClosed();
 	}
 
-	public ItemStack getDankNull() {
-		return getDankNullInventory().getDankNull();
-	}
-
 	@Override
 	protected void drawGuiContainerForegroundLayer(final int mouseX, final int mouseY) {
+		IDankNullHandler dankNullHandler = this.getDankNullHandler();
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		GlStateManager.disableLighting();
 		GlStateManager.disableBlend();
@@ -129,7 +126,7 @@ public class GuiDankNull extends GuiModular {
 		final String name = "/d" + (Options.callItDevNull ? "ev" : "ank") + "/null";
 		mc.fontRenderer.drawString(name, 7, 6, tier.getHexColor(true), true);
 		mc.fontRenderer.drawString(TextUtils.translate("container.inventory"), 7, yOffset, fontColor);
-		if (DankNullUtils.getItemCount(getDankNullInventory()) > 0) {
+		if (dankNullHandler.getSelected() > -1) {
 			mc.fontRenderer.drawString("=" + TextUtils.translate("dn.selected.desc"), xSize - 64, 6, fontColor);
 		}
 		GlStateManager.enableBlend();
@@ -141,7 +138,7 @@ public class GuiDankNull extends GuiModular {
 	}
 
 	public void drawSelectionBox(final int x) {
-		final int selectedBoxColor = DankNullUtils.getMeta(getDankNull()) == 0 ? 0xFFFFFF00 : -1140916224;
+		final int selectedBoxColor = getDankNullHandler().getTier().ordinal() == 0 ? 0xFFFFFF00 : -1140916224;
 		drawGradientRect(x - 75, 4, x - 66, 5, selectedBoxColor, selectedBoxColor);
 		drawGradientRect(x - 75, 4, x - 74, 14, selectedBoxColor, selectedBoxColor);
 		drawGradientRect(x - 75, 13, x - 66, 14, selectedBoxColor, selectedBoxColor);
@@ -149,23 +146,16 @@ public class GuiDankNull extends GuiModular {
 	}
 
 	public void drawSelectionBox(final int x, final int y) {
-		final int selectedBoxColor = DankNullUtils.getMeta(getDankNull()) == 0 ? 0xFFFFFF00 : -1140916224;
+		final int selectedBoxColor = getDankNullHandler().getTier().ordinal() == 0 ? 0xFFFFFF00 : -1140916224;
 		drawGradientRect(x - 1, y - 1, x + 16, y, selectedBoxColor, selectedBoxColor);
 		drawGradientRect(x - 1, y - 1, x, y + 17, selectedBoxColor, selectedBoxColor);
 		drawGradientRect(x + 16, y - 1, x + 17, y + 17, selectedBoxColor, selectedBoxColor);
 		drawGradientRect(x - 1, y + 16, x + 17, y + 17, selectedBoxColor, selectedBoxColor);
 	}
 
-	public InventoryDankNull getDankNullInventory() {
-		if (isTile()) {
-			return DankNullUtils.getNewDankNullInventory(((ContainerDankNullDock) inventorySlots).getDankNull());
-		}
-		return DankNullUtils.getNewDankNullInventory(((ContainerDankNull) inventorySlots).getPlayerSlot(), mc.player);
-	}
-
 	@Override
 	public void drawScreen(final int mouseX, final int mouseY, final float partialTicks) {
-
+		IDankNullHandler dankNullHandler = this.getDankNullHandler();
 		drawDefaultBackground();
 		final int i = guiLeft;
 		final int j = guiTop;
@@ -186,7 +176,7 @@ public class GuiDankNull extends GuiModular {
 		GlStateManager.translate(i, j, 0.0F);
 
 		GlStateManager.enableRescaleNormal();
-		if (DankNullUtils.getItemCount(getDankNullInventory()) > 0) {
+		if (dankNullHandler.getSelected() > -1) {
 			drawSelectionBox(xSize);
 		}
 		theSlot = null;
@@ -198,7 +188,7 @@ public class GuiDankNull extends GuiModular {
 			final Slot slot = inventorySlots.inventorySlots.get(i1);
 			final int j1 = EasyMappings.slotPosX(slot);
 			final int k1 = EasyMappings.slotPosY(slot);
-			if (slot instanceof SlotDankNull || slot instanceof SlotDankNullDock) {
+			if (slot instanceof SlotDankNull) {
 				drawDankNullSlot(slot);
 			}
 			else {
@@ -219,10 +209,10 @@ public class GuiDankNull extends GuiModular {
 				GlStateManager.enableBlend();
 			}
 
-			if (!getDankNullInventory().isEmpty() && DankNullUtils.getSelectedStackIndex(getDankNullInventory()) == i1 - 36) {
+			if (dankNullHandler.getSelected() == i1 - 36) {
 
 				GlStateManager.disableLighting();
-				final int index = DankNullUtils.getSelectedStackIndex(getDankNullInventory());
+				final int index = dankNullHandler.getSelected();
 				if (index != -1) {
 					if (getSlotByIndex(index) != null && getSlotByIndex(index).getHasStack()) {
 						drawSelectionBox(j1, k1);
@@ -421,7 +411,8 @@ public class GuiDankNull extends GuiModular {
 				GlStateManager.enableTexture2D();
 				GlStateManager.enableDepth();
 			}
-			final int amount = getDankNullInventory().getSizeForSlot(DankNullUtils.getIndexForStack(getDankNullInventory(), is));
+			//final int amount = getDankNullInventory().getSizeForSlot(DankNullUtils.getIndexForStack(getDankNullInventory(), is));
+			final int amount = is.getCount();
 			if (amount != 0) {
 				scaleFactor = 0.5F;
 				inverseScaleFactor = 1.0F / scaleFactor;
@@ -488,7 +479,7 @@ public class GuiDankNull extends GuiModular {
 				handleMouseClick(theSlot, theSlot.slotNumber, 0, ClickType.CLONE);
 			}
 			else if (mc.gameSettings.keyBindDrop.isActiveAndMatches(keyCode)) {
-				handleMouseClick(theSlot, theSlot.slotNumber, isCtrlKeyDown() && !(theSlot instanceof SlotDankNull || theSlot instanceof SlotDankNullDock) ? 1 : 0, ClickType.THROW);
+				handleMouseClick(theSlot, theSlot.slotNumber, isCtrlKeyDown() && !(theSlot instanceof SlotDankNull) ? 1 : 0, ClickType.THROW);
 			}
 		}
 	}
@@ -586,10 +577,11 @@ public class GuiDankNull extends GuiModular {
 			}
 		}
 		final Slot s = getSlotAtPos(x, y);
-		if (s != null && (s instanceof SlotDankNull || s instanceof SlotDankNullDock) && s.getHasStack()) {
+		IDankNullHandler dankNullHandler = this.getDankNullHandler();
+		if (s != null && (s instanceof SlotDankNull) && s.getHasStack()) {
 			final boolean showOreDictMessage = DankNullUtils.isOreDictBlacklistEnabled() && !DankNullUtils.isItemOreDictBlacklisted(s.getStack()) || DankNullUtils.isOreDictWhitelistEnabled() && DankNullUtils.isItemOreDictWhitelisted(s.getStack()) || !DankNullUtils.isOreDictBlacklistEnabled() && !DankNullUtils.isOreDictWhitelistEnabled();
-			final ItemExtractionMode extractMode = DankNullUtils.getExtractionModeForStack(getDankNull(), s.getStack());
-			final ItemPlacementMode placementMode = DankNullUtils.getPlacementModeForStack(getDankNull(), s.getStack());
+			final ItemExtractionMode extractMode = dankNullHandler.getExtractionMode(s.getStack());
+			final ItemPlacementMode placementMode = dankNullHandler.getPlacementMode(s.getStack());
 			final Block selectedBlock = Block.getBlockFromItem(stack.getItem());
 			final boolean isSelectedStackABlock = selectedBlock != null && selectedBlock != Blocks.AIR;
 			if (extractMode != null) {
@@ -600,14 +592,14 @@ public class GuiDankNull extends GuiModular {
 			if (isSelectedStackABlock) {
 				list.add(2, TextFormatting.GRAY + "" + TextFormatting.ITALIC + "  " + TextUtils.translate("dn.p_click_toggle.desc"));
 			}
-			if (DankNullUtils.getSelectedStackIndex(getDankNullInventory()) != s.getSlotIndex()) {
+			if (dankNullHandler.getSelected() != s.getSlotIndex()) {
 				list.add(3, TextFormatting.GRAY + "" + TextFormatting.ITALIC + "  " + TextUtils.translate("dn.alt_click_set.desc"));
 			}
 			if (placementMode != null && isSelectedStackABlock) {
 				list.add(1, TextUtils.translate("dn.placement_mode.desc") + ": " + placementMode.getTooltip().replace(TextUtils.translate("dn.extract.desc").toLowerCase(Locale.ENGLISH), TextUtils.translate("dn.place.desc").toLowerCase(Locale.ENGLISH)).replace(TextUtils.translate("dn.extract.desc"), TextUtils.translate("dn.place.desc")));
 			}
 			if (showOreDictMessage) {
-				final String oreDictMode = DankNullUtils.getOreDictModeForStack(getDankNull(), s.getStack()) ? TextUtils.translate("dn.enabled.desc") : TextUtils.translate("dn.disabled.desc");
+				final String oreDictMode = dankNullHandler.isOre(s.getStack()) ? TextUtils.translate("dn.enabled.desc") : TextUtils.translate("dn.disabled.desc");
 				final boolean oreDicted = DankNullUtils.isItemOreDicted(s.getStack());
 				if (oreDicted) {
 					list.add(2, TextUtils.translate("dn.ore_dictionary.desc") + ": " + oreDictMode);
@@ -633,7 +625,7 @@ public class GuiDankNull extends GuiModular {
 				}
 			}
 			if (s.getStack().getCount() > 1000) {
-				list.add(1, TextFormatting.GRAY + "" + TextFormatting.ITALIC + TextUtils.translate("dn.count.desc") + ": " + (DankNullUtils.isCreativeDankNull(getDankNull()) ? TextUtils.translate("dn.infinite.desc") : getDankNullInventory().getSizeForSlot(DankNullUtils.getIndexForStack(getDankNullInventory(), s.getStack()))));
+				list.add(1, TextFormatting.GRAY + "" + TextFormatting.ITALIC + TextUtils.translate("dn.count.desc") + ": " + (getDankNullHandler().getTier().isCreative() ? TextUtils.translate("dn.infinite.desc") : dankNullHandler.getStackInSlot(s.getSlotIndex()).getCount()));
 			}
 		}
 		net.minecraftforge.fml.client.config.GuiUtils.preItemToolTip(stack);

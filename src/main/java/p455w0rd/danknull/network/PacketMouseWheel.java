@@ -9,7 +9,6 @@ import net.minecraftforge.fml.common.network.simpleimpl.*;
 import p455w0rd.danknull.container.ContainerDankNull;
 import p455w0rd.danknull.container.ContainerDankNullDock;
 import p455w0rd.danknull.inventory.slot.SlotDankNull;
-import p455w0rd.danknull.inventory.slot.SlotDankNullDock;
 
 /**
  * @author p455w0rd
@@ -50,7 +49,7 @@ public class PacketMouseWheel implements IMessage {
 				if (player.openContainer instanceof ContainerDankNull || player.openContainer instanceof ContainerDankNullDock) {
 					//final ItemStack dankNull = player.openContainer instanceof ContainerDankNull ? ((ContainerDankNull) player.openContainer).getDankNullInPlayerSlot() : ((ContainerDankNullDock) player.openContainer).getDankNull();
 					final Slot s = player.openContainer.inventorySlots.get(36 + message.values[1]);
-					if (s instanceof SlotDankNull || s instanceof SlotDankNullDock) {
+					if (s instanceof SlotDankNull) {
 						if (message.values[0] == 0) { //add
 							final ItemStack mouseStack = player.inventory.getItemStack();
 							final ItemStack slotStack = s.getStack();
@@ -65,9 +64,9 @@ public class PacketMouseWheel implements IMessage {
 							if (!mouseStack.isEmpty()) {
 								final ItemStack tmpStack = mouseStack.copy();
 								tmpStack.setCount(1);
-								if (s instanceof SlotDankNullDock) {
+								//if (s instanceof SlotDankNullDock) {
 									//((ContainerDankNullDock) player.openContainer).addStack(DankNullUtils.getNewDankNullInventory(dankNull), tmpStack);
-								}
+								//}
 								final ItemStack tmpStack2 = mouseStack.copy();
 								tmpStack2.shrink(1);
 								player.inventory.setItemStack(tmpStack2);
