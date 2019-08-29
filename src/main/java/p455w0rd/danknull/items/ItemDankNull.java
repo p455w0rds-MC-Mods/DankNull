@@ -238,7 +238,7 @@ public class ItemDankNull extends Item implements IModelHolder/*, IBlockLightEmi
 					world.playSound((EntityPlayer) null, player.getPosition(), soundType.getPlaceSound(), SoundCategory.BLOCKS, 1.0F, 0.5F * ((world.rand.nextFloat() - world.rand.nextFloat()) * 0.7F + 2F));
 				}
 				if (!player.capabilities.isCreativeMode) {
-					dankNullHandler.extractItem(dankNullHandler.getSelected(), 1, true);
+					dankNullHandler.extractItem(dankNullHandler.getSelected(), 1, false);
 				}
 				return EnumActionResult.SUCCESS;
 			}
@@ -252,7 +252,7 @@ public class ItemDankNull extends Item implements IModelHolder/*, IBlockLightEmi
 				final EnumActionResult result = placeItemIntoWorld(selectedStack.copy(), player, world, pos, facing, hitX, hitY, hitZ, hand);
 
 				if (result == EnumActionResult.SUCCESS && !player.capabilities.isCreativeMode && !dankNullHandler.getTier().isCreative()) {
-					dankNullHandler.extractItem(dankNullHandler.getSelected(), 1, true);
+					dankNullHandler.extractItem(dankNullHandler.getSelected(), 1, false);
 				}
 				return EnumActionResult.SUCCESS;
 			}
