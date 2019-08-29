@@ -39,12 +39,10 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 
-import p455w0rd.danknull.DankNull;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
 import p455w0rd.danknull.client.gui.GuiDankNull;
 import p455w0rd.danknull.inventory.PlayerSlot;
 import p455w0rd.danknull.inventory.slot.SlotDankNull;
-import p455w0rd.danknull.inventory.slot.SlotDankNullDock;
 import p455w0rd.danknull.network.*;
 import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rd.danknull.util.cap.CapabilityDankNull;
@@ -197,7 +195,7 @@ public class ModEvents {
 			final int mouseX = Mouse.getEventX() * width / mc.displayWidth;
 			final int mouseY = height - Mouse.getEventY() * height / mc.displayHeight - 1;
 			final Slot hoveredSlot = dankNullGui.getSlotAtPos(mouseX, mouseY);
-			if ((hoveredSlot instanceof SlotDankNull || hoveredSlot instanceof SlotDankNullDock) && hoveredSlot.getHasStack() && Mouse.isButtonDown(0)) {
+			if (hoveredSlot instanceof SlotDankNull && hoveredSlot.getHasStack() && Mouse.isButtonDown(0)) {
 				IMessage syncPacket = null;
 				if (GuiScreen.isCtrlKeyDown() && !GuiScreen.isAltKeyDown()) {
 					dankNullHandler.cycleExtractionMode(hoveredSlot.getStack(), true);

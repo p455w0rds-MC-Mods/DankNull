@@ -62,7 +62,7 @@ public class ModGuiHandler implements IGuiHandler {
 			if (te instanceof TileDankNullDock) {
 				final TileDankNullDock dankDock = (TileDankNullDock) te;
 				if (!dankDock.getDankNull().isEmpty()) {
-					return new GuiDankNull(new ContainerDankNullDock(player, dankDock), DankNullUtils.getTier(dankDock.getDankNull()), player);
+					return new GuiDankNull(new ContainerDankNullDock(player, dankDock));
 				}
 			}
 		case DANKNULL:
@@ -70,7 +70,7 @@ public class ModGuiHandler implements IGuiHandler {
 			if (dankNull == null) {
 				return null;
 			}
-			return new GuiDankNull(new ContainerDankNull(player, dankNull), player);
+			return new GuiDankNull(new ContainerDankNull(player, dankNull));
 		default:
 			break;
 		}

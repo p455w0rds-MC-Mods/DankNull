@@ -25,6 +25,7 @@ import net.minecraft.inventory.*;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextFormatting;
 import p455w0rd.danknull.container.ContainerDankNull;
+import p455w0rd.danknull.container.ContainerDankNullBase;
 import p455w0rd.danknull.container.ContainerDankNullDock;
 import p455w0rd.danknull.init.ModConfig.Options;
 import p455w0rd.danknull.init.ModGlobals;
@@ -32,9 +33,7 @@ import p455w0rd.danknull.init.ModGlobals.DankNullTier;
 import p455w0rd.danknull.init.ModNetworking;
 import p455w0rd.danknull.integration.Chisel;
 import p455w0rd.danknull.inventory.slot.SlotDankNull;
-import p455w0rd.danknull.inventory.slot.SlotDankNullDock;
 import p455w0rd.danknull.network.PacketChangeMode;
-import p455w0rd.danknull.network.PacketRequestInitialUpdate;
 import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rd.danknull.util.DankNullUtils.ItemExtractionMode;
 import p455w0rd.danknull.util.DankNullUtils.ItemPlacementMode;
@@ -63,22 +62,16 @@ public class GuiDankNull extends GuiModular {
 	protected int ySize = 140;
 	private final DankNullTier tier;
 
-	public GuiDankNull(final Container c, final DankNullTier tier, final EntityPlayer player) {
+	public GuiDankNull(final ContainerDankNullBase c) {
 		super(c);
-		this.tier = tier;
+		this.tier = c.getHandler().getTier();
 		setWidth(210);
-		setHeight(tier.getGuiHeight());
-		setBackgroundTexture(tier.getGuiBackground());
+		setHeight(this.tier.getGuiHeight());
+		setBackgroundTexture(this.tier.getGuiBackground());
 	}
 
-	public IDankNullHandler getDankNullHandler() { // TODO Remove
-		if (this.isTile())
-			return ((ContainerDankNullDock)this.inventorySlots).getTile().getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
-		return ((ContainerDankNull)this.inventorySlots).getDankNullInPlayerSlot().getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
-	}
-
-	public GuiDankNull(final ContainerDankNull c, final EntityPlayer player) {
-		this(c, DankNullUtils.getTier(c.getDankNullInPlayerSlot()), player);
+	public IDankNullHandler getDankNullHandler() {
+		return ((ContainerDankNullBase) this.inventorySlots).getHandler();
 	}
 
 	@Override
@@ -195,7 +188,7 @@ public class GuiDankNull extends GuiModular {
 			final Slot slot = inventorySlots.inventorySlots.get(i1);
 			final int j1 = EasyMappings.slotPosX(slot);
 			final int k1 = EasyMappings.slotPosY(slot);
-			if (slot instanceof SlotDankNull || slot instanceof SlotDankNullDock) {
+			if (slot instanceof SlotDankNull) {
 				drawDankNullSlot(slot);
 			}
 			else {
@@ -486,7 +479,7 @@ public class GuiDankNull extends GuiModular {
 				handleMouseClick(theSlot, theSlot.slotNumber, 0, ClickType.CLONE);
 			}
 			else if (mc.gameSettings.keyBindDrop.isActiveAndMatches(keyCode)) {
-				handleMouseClick(theSlot, theSlot.slotNumber, isCtrlKeyDown() && !(theSlot instanceof SlotDankNull || theSlot instanceof SlotDankNullDock) ? 1 : 0, ClickType.THROW);
+				handleMouseClick(theSlot, theSlot.slotNumber, isCtrlKeyDown() && !(theSlot instanceof SlotDankNull) ? 1 : 0, ClickType.THROW);
 			}
 		}
 	}
@@ -585,7 +578,7 @@ public class GuiDankNull extends GuiModular {
 		}
 		final Slot s = getSlotAtPos(x, y);
 		IDankNullHandler dankNullHandler = this.getDankNullHandler();
-		if (s != null && (s instanceof SlotDankNull || s instanceof SlotDankNullDock) && s.getHasStack()) {
+		if (s != null && (s instanceof SlotDankNull) && s.getHasStack()) {
 			final boolean showOreDictMessage = DankNullUtils.isOreDictBlacklistEnabled() && !DankNullUtils.isItemOreDictBlacklisted(s.getStack()) || DankNullUtils.isOreDictWhitelistEnabled() && DankNullUtils.isItemOreDictWhitelisted(s.getStack()) || !DankNullUtils.isOreDictBlacklistEnabled() && !DankNullUtils.isOreDictWhitelistEnabled();
 			final ItemExtractionMode extractMode = dankNullHandler.getExtractionMode(s.getStack());
 			final ItemPlacementMode placementMode = dankNullHandler.getPlacementMode(s.getStack());
