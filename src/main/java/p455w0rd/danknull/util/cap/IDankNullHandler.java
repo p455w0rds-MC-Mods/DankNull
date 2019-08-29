@@ -2,6 +2,7 @@ package p455w0rd.danknull.util.cap;
 
 import java.util.Map;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import net.minecraft.item.ItemStack;
 
@@ -93,6 +94,21 @@ public interface IDankNullHandler extends IItemHandlerModifiable {
 	 * @return True if the DankNull can be locked
 	 */
 	boolean isLockingSupported();
+
+	/**
+	 * Sets the UUID for syncing
+	 *
+	 * @param uuid UUID
+	 */
+	void setUUID(@Nullable String uuid);
+
+	/**
+	 * Gets the UUID for syncing
+	 *
+	 * @return UUID
+	 */
+	@Nullable
+	String getUUID();
 
 	/**
 	 * Sets the ore mode for the given stack

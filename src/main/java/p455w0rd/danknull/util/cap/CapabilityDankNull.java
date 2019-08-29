@@ -1,8 +1,5 @@
 package p455w0rd.danknull.util.cap;
 
-import java.util.Map;
-import javax.annotation.Nullable;
-
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTBase;
 import net.minecraft.nbt.NBTTagCompound;
@@ -15,7 +12,6 @@ import net.minecraftforge.common.capabilities.CapabilityManager;
 import net.minecraftforge.common.util.Constants;
 
 import p455w0rd.danknull.init.ModGlobals;
-import p455w0rd.danknull.init.ModLogger;
 import p455w0rd.danknull.util.DankNullUtils;
 
 /**
@@ -74,6 +70,8 @@ public class CapabilityDankNull {
 					tag.setInteger(ModGlobals.NBT.SELECTEDINDEX, instance.getSelected());
 				if (instance.isLocked())
 					tag.setBoolean(ModGlobals.NBT.LOCKED, instance.isLocked());
+				if (instance.getUUID() != null && !instance.getUUID().isEmpty())
+					tag.setString(ModGlobals.NBT.UUID, instance.getUUID());
 				return tag;
 			}
 
@@ -122,6 +120,8 @@ public class CapabilityDankNull {
 					instance.setSelected(tag.getInteger(ModGlobals.NBT.SELECTEDINDEX));
 				if (tag.hasKey(ModGlobals.NBT.LOCKED))
 					instance.setLocked(tag.getBoolean(ModGlobals.NBT.LOCKED));
+				if (tag.hasKey(ModGlobals.NBT.UUID))
+					instance.setUUID(tag.getString(ModGlobals.NBT.UUID));
 			}
 		}, () -> null);
 	}

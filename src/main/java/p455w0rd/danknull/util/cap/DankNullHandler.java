@@ -3,6 +3,7 @@ package p455w0rd.danknull.util.cap;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
@@ -27,6 +28,7 @@ public class DankNullHandler implements IDankNullHandler {
 	private Map<ItemStack, DankNullUtils.ItemPlacementMode> placementStacks;
 	private int selected;
 	private boolean isLocked;
+	private String uuid;
 
 	public DankNullHandler(ModGlobals.DankNullTier tier) {
 		this.tier = tier;
@@ -171,12 +173,12 @@ public class DankNullHandler implements IDankNullHandler {
 		int newIndex = 0;
 		if (stackCount > 1) {
 			if (forward) {
-				if (current != stackCount-1) {
+				if (current != stackCount - 1) {
 					newIndex++;
 				}
 			} else {
 				if (current == 0) {
-					newIndex = stackCount-1;
+					newIndex = stackCount - 1;
 				} else {
 					newIndex = current - 1;
 				}
@@ -200,6 +202,17 @@ public class DankNullHandler implements IDankNullHandler {
 	@Override
 	public boolean isLockingSupported() {
 		return this.tier.isCreative();
+	}
+
+	@Override
+	public void setUUID(@Nullable String uuid) {
+		this.uuid = uuid;
+	}
+
+	@Nullable
+	@Override
+	public String getUUID() {
+		return this.uuid;
 	}
 
 	@Override
