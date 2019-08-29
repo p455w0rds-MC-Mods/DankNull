@@ -107,15 +107,17 @@ public class ModEvents {
 		if (event.getItem().getEntityData().hasKey("PreventRemoteMovement")) {
 			return;
 		}
-//		final PlayerSlot dankNull = DankNullUtils.getDankNullForStack(player, entityStack); FIXME
-//		if (dankNull != null) {
-//			IDankNullHandler dankNullHandler = dankNull.getStackInSlot(player).getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
-//			ItemStack leftover = dankNullHandler.insertItem(0, entityStack, false);
-//			if (leftover.isEmpty()) { // FIXME
-//				entityStack.setCount(0);
-//				player.getEntityWorld().playSound(null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_ITEM_PICKUP, player.getSoundCategory(), 0.2F, ((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7F + 1.0F) * 2.0F);
-//			}
-//		}
+		final PlayerSlot dankNull = DankNullUtils.getDankNullForStack(player, entityStack);
+		if (dankNull != null) {
+			IDankNullHandler dankNullHandler = dankNull.getStackInSlot(player).getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
+			ItemStack leftover = dankNullHandler.insertItem(0, entityStack, false);
+			if (entityStack.getCount() != leftover.getCount()) {
+				entityStack.setCount(leftover.getCount());
+				if (leftover.isEmpty()) { // Only play if its empty to prevent duplicate playback
+					player.getEntityWorld().playSound(null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_ITEM_PICKUP, player.getSoundCategory(), 0.2F, ((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7F + 1.0F) * 2.0F);
+				}
+			}
+		}
 	}
 
 	@SubscribeEvent

@@ -62,13 +62,24 @@ public class DankNullHandler implements IDankNullHandler {
 
 		// TODO Implement OreDict stuff
 
-		this.validateSlot(slot);
+		slot = -1;
+		// Check for existing stacks
 		for (int i = 0; i < this.stacks.size(); i++) {
 			if (this.stacks.get(i).isEmpty() || !ItemHandlerHelper.canItemStacksStack(stack, this.stacks.get(i)))
 				continue;
 			slot = i;
 			break;
 		}
+		if (slot == -1) { // Before checking for an empty slot
+			for (int i = 0; i < this.stacks.size(); i++) {
+				if (!this.stacks.get(i).isEmpty())
+					continue;
+				slot = i;
+				break;
+			}
+		}
+		if (slot < 0 || slot >= this.getSlots())
+			return stack;
 
 		ItemStack existing = this.stacks.get(slot);
 		int limit = this.getSlotLimit(slot);

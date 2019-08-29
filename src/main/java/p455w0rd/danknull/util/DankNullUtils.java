@@ -127,23 +127,24 @@ public class DankNullUtils {
 		return dankNullList;
 	}
 
-//	public static PlayerSlot getDankNullForStack(final EntityPlayer player, final ItemStack stack) {
-//		final List<PlayerSlot> dankNulls = getAllDankNulls(player);
-//
-//		for (final PlayerSlot slot : dankNulls) {
-//			final ItemStack itemStack = slot.getStackInSlot(player);
-//			if (itemStack.getItem() instanceof ItemDankNull) {
-//				if (isFiltered(getNewDankNullInventory(slot, player), stack)) {
+	public static PlayerSlot getDankNullForStack(final EntityPlayer player, final ItemStack stack) {
+		final List<PlayerSlot> dankNulls = getAllDankNulls(player);
+
+		for (final PlayerSlot slot : dankNulls) {
+			final ItemStack itemStack = slot.getStackInSlot(player);
+			if (itemStack.hasCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null)) {
+				IDankNullHandler dankNullHandler = itemStack.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
+				if (dankNullHandler.containsItemStack(stack)) {
+					return slot;
+				}
+//				if (isFilteredOreDict(getNewDankNullInventory(slot, player), stack)) { TODO
 //					return slot;
 //				}
-//				if (isFilteredOreDict(getNewDankNullInventory(slot, player), stack)) {
-//					return slot;
-//				}
-//			}
-//		}
-//
-//		return null;
-//	}
+			}
+		}
+
+		return null;
+	}
 
 //	public static void setStackInSlot(final ItemStack dankNull, final int index, final ItemStack stack) {
 //		final InventoryDankNull inv = getNewDankNullInventory(dankNull);
@@ -243,7 +244,7 @@ public class DankNullUtils {
 //	}
 
 	public static boolean isDankNull(final ItemStack stack) {
-		return !stack.isEmpty() && stack.getItem() instanceof ItemDankNull;
+		return !stack.isEmpty() && stack.getItem() instanceof ItemDankNull; // FIXME Check for capability instead of Item
 	}
 
 //	public static ItemStack makeDankNullCreative(final ItemStack dankNull) {
