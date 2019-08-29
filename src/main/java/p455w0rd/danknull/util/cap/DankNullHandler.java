@@ -2,6 +2,7 @@ package p455w0rd.danknull.util.cap;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
@@ -38,6 +39,7 @@ public class DankNullHandler implements IDankNullHandler {
 		this.placementStacks = new HashMap<>();
 		this.selected = -1;
 		this.isLocked = false;
+		this.uuid = UUID.randomUUID().toString();
 	}
 
 	@Nonnull
@@ -216,11 +218,11 @@ public class DankNullHandler implements IDankNullHandler {
 	}
 
 	@Override
-	public void setUUID(@Nullable String uuid) {
+	public void setUUID(@Nonnull String uuid) {
 		this.uuid = uuid;
 	}
 
-	@Nullable
+	@Nonnull
 	@Override
 	public String getUUID() {
 		return this.uuid;

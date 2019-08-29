@@ -77,6 +77,19 @@ public class DankNullUtils {
 		return null;
 	}
 
+	public static ItemStack findDankNull(EntityPlayer player, String uuid) {
+		List<PlayerSlot> dankNulls = getAllDankNulls(player);
+		for (PlayerSlot slot : dankNulls) {
+			final ItemStack itemStack = slot.getStackInSlot(player);
+			if (itemStack.hasCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null)) {
+				IDankNullHandler dankNullHandler = itemStack.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
+				if (dankNullHandler.getUUID().equalsIgnoreCase(uuid))
+					return itemStack;
+			}
+		}
+		return null;
+	}
+
 	public static ItemStack getDockedDankNull(final ItemStack dankNullDock) {
 		if (dankNullDock.hasTagCompound() && dankNullDock.getTagCompound().hasKey(NBT.BLOCKENTITYTAG, Constants.NBT.TAG_COMPOUND)) {
 			final NBTTagCompound nbt = dankNullDock.getTagCompound().getCompoundTag(NBT.BLOCKENTITYTAG);

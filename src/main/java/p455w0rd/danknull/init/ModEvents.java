@@ -262,7 +262,7 @@ public class ModEvents {
 				if (!stackToSelect.isEmpty() && (dankNullHandler.containsItemStack(stackToSelect) || dankNullHandler.isOre(stackToSelect))) {
 					final int newIndex = dankNullHandler.findItemStack(stackToSelect);
 					dankNullHandler.setSelected(newIndex);
-					ModNetworking.getInstance().sendToServer(new PacketChangeMode(PacketChangeMode.ChangeType.SELECTED, newIndex));
+					ModNetworking.getInstance().sendToServer(new PacketChangeMode(PacketChangeMode.ChangeType.SELECTED, newIndex, dankNullHandler.getUUID()));
 					event.setCanceled(true);
 				}
 			}
@@ -278,10 +278,12 @@ public class ModEvents {
 			}
 			if (ModKeyBindings.getNextItemKeyBind().isPressed()) {
 				dankNullHandler.cycleSelected(true);
+				ModNetworking.getInstance().sendToServer(new PacketChangeMode(PacketChangeMode.ChangeType.SELECTED, dankNullHandler.getSelected(), dankNullHandler.getUUID()));
 				event.setCanceled(true);
 			}
 			else if (ModKeyBindings.getPreviousItemKeyBind().isPressed()) {
 				dankNullHandler.cycleSelected(false);
+				ModNetworking.getInstance().sendToServer(new PacketChangeMode(PacketChangeMode.ChangeType.SELECTED, dankNullHandler.getSelected(), dankNullHandler.getUUID()));
 				event.setCanceled(true);
 			}
 		}
@@ -298,10 +300,12 @@ public class ModEvents {
 			final int scrollForward = event.getDwheel();
 			if (scrollForward < 0) {
 				dankNullHandler.cycleSelected(true);
+				ModNetworking.getInstance().sendToServer(new PacketChangeMode(PacketChangeMode.ChangeType.SELECTED, dankNullHandler.getSelected(), dankNullHandler.getUUID()));
 				event.setCanceled(true);
 			}
 			else if (scrollForward > 0) {
 				dankNullHandler.cycleSelected(false);
+				ModNetworking.getInstance().sendToServer(new PacketChangeMode(PacketChangeMode.ChangeType.SELECTED, dankNullHandler.getSelected(), dankNullHandler.getUUID()));
 				event.setCanceled(true);
 			}
 		}

@@ -70,7 +70,7 @@ public class CapabilityDankNull {
 					tag.setInteger(ModGlobals.NBT.SELECTEDINDEX, instance.getSelected());
 				if (instance.isLocked())
 					tag.setBoolean(ModGlobals.NBT.LOCKED, instance.isLocked());
-				if (instance.getUUID() != null && !instance.getUUID().isEmpty())
+				if (!instance.getUUID().isEmpty())
 					tag.setString(ModGlobals.NBT.UUID, instance.getUUID());
 				return tag;
 			}
@@ -78,6 +78,8 @@ public class CapabilityDankNull {
 			@Override
 			public void readNBT(Capability<IDankNullHandler> capability, IDankNullHandler instance, EnumFacing side, NBTBase base) {
 				NBTTagCompound tag = (NBTTagCompound) base;
+				if (tag.hasNoTags())
+					return;
 				if (tag.hasKey(ModGlobals.NBT.DANKNULL_INVENTORY)) {
 					NBTTagList items = tag.getTagList(ModGlobals.NBT.DANKNULL_INVENTORY, Constants.NBT.TAG_COMPOUND);
 					for (int i = 0; i < items.tagCount(); i++) {

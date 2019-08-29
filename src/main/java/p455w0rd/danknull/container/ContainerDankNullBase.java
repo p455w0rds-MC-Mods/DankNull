@@ -196,61 +196,6 @@ public abstract class ContainerDankNullBase extends Container {
 		return ItemStack.EMPTY;
 	}
 
-	public void handleModeUpdate(PacketChangeMode.ChangeType changeType, int slot) {
-		IDankNullHandler handler = this.getHandler();
-		ItemStack slotStack = slot >= 0 && slot < handler.getSlots() ? handler.getStackInSlot(slot) : ItemStack.EMPTY;
-		switch (changeType) {
-			case SELECTED:
-				handler.setSelected(slot);
-				break;
-
-			case LOCK:
-				handler.setLocked(true);
-				break;
-			case UNLOCK:
-				handler.setLocked(false);
-				break;
-
-			case ORE_ON:
-				handler.setOre(slotStack, true);
-				break;
-			case ORE_OFF:
-				handler.setOre(slotStack, false);
-				break;
-
-			case EXTRACT_KEEP_ALL:
-				handler.setExtractionMode(slotStack, DankNullUtils.ItemExtractionMode.KEEP_ALL);
-				break;
-			case EXTRACT_KEEP_1:
-				handler.setExtractionMode(slotStack, DankNullUtils.ItemExtractionMode.KEEP_1);
-				break;
-			case EXTRACT_KEEP_16:
-				handler.setExtractionMode(slotStack, DankNullUtils.ItemExtractionMode.KEEP_16);
-				break;
-			case EXTRACT_KEEP_64:
-				handler.setExtractionMode(slotStack, DankNullUtils.ItemExtractionMode.KEEP_64);
-				break;
-			case EXTRACT_KEEP_NONE:
-				handler.setExtractionMode(slotStack, DankNullUtils.ItemExtractionMode.KEEP_NONE);
-				break;
-
-			case PLACE_KEEP_ALL:
-				handler.setPlacementMode(slotStack, DankNullUtils.ItemPlacementMode.KEEP_ALL);
-				break;
-			case PLACE_KEEP_1:
-				handler.setPlacementMode(slotStack, DankNullUtils.ItemPlacementMode.KEEP_1);
-				break;
-			case PLACE_KEEP_16:
-				handler.setPlacementMode(slotStack, DankNullUtils.ItemPlacementMode.KEEP_16);
-				break;
-			case PLACE_KEEP_64:
-				handler.setPlacementMode(slotStack, DankNullUtils.ItemPlacementMode.KEEP_64);
-				break;
-			case PLACE_KEEP_NONE:
-				handler.setPlacementMode(slotStack, DankNullUtils.ItemPlacementMode.KEEP_NONE);
-				break;
-		}
-	}
 	protected ItemStack addStack(final ItemStack stack) {
 		ItemStack leftover = stack.copy();
 		IDankNullHandler handler = this.getHandler();
