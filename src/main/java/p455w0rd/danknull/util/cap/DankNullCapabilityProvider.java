@@ -22,17 +22,36 @@ public class DankNullCapabilityProvider implements /*ICapabilitySerializable<NBT
 	private ModGlobals.DankNullTier tier;
 	private ItemStack stack;
 	private IDankNullHandler dankNullHandler;
+	private boolean needsInitialNBT = false; // When a stack is copied the NBT isn't applied until after capabilities are initialized
 
 	public DankNullCapabilityProvider(ModGlobals.DankNullTier tier, ItemStack stack) {
 		this.tier = tier;
 		this.stack = stack;
-		this.dankNullHandler = new DankNullHandler(tier);
+		this.dankNullHandler = new DankNullHandler(tier) {
+			@Override
+			protected void onContentsChanged(int slot) {
+				super.onContentsChanged(slot);
+				stack.setTagCompound((NBTTagCompound) CapabilityDankNull.DANK_NULL_CAPABILITY.writeNBT(this, null));
+			}
+
+			@Override
+			protected void onSettingsChanged() {
+				super.onSettingsChanged();
+				stack.setTagCompound((NBTTagCompound) CapabilityDankNull.DANK_NULL_CAPABILITY.writeNBT(this, null));
+			}
+		};
 		if (stack.hasTagCompound())
 			CapabilityDankNull.DANK_NULL_CAPABILITY.readNBT(this.dankNullHandler, null, stack.getTagCompound());
+		else
+			needsInitialNBT = true;
 	}
 
 	@Override
 	public boolean hasCapability(final Capability<?> capability, final EnumFacing facing) {
+		if (this.needsInitialNBT && this.stack.hasTagCompound()) {
+			this.needsInitialNBT = false;
+			CapabilityDankNull.DANK_NULL_CAPABILITY.readNBT(this.dankNullHandler, null, stack.getTagCompound());
+		}
 		return capability == CapabilityDankNull.DANK_NULL_CAPABILITY || CapabilityUtils.isItemHandler(capability) || Albedo.albedoCapCheck(capability) || PwLib.checkCap(capability);
 	}
 
