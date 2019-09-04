@@ -28,8 +28,9 @@ import p455w0rd.danknull.init.*;
 import p455w0rd.danknull.init.ModGlobals.NBT;
 import p455w0rd.danknull.init.ModGuiHandler.GUIType;
 import p455w0rd.danknull.inventory.PlayerSlot;
+import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
+import p455w0rd.danknull.items.ItemDankNull;
 import p455w0rd.danknull.network.PacketSetDankNullInDock;
-import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rdslib.api.client.IModelHolder;
 import p455w0rdslib.util.ItemNBTUtils;
 
@@ -117,7 +118,7 @@ public class BlockDankNullDock extends BlockContainer implements IModelHolder {
 			final PlayerSlot slot = PlayerSlot.getHand(player, hand);
 			final ItemStack stack = slot.getStackInSlot(player);
 			if (dankDock.getDankNull().isEmpty()) {
-				if (DankNullUtils.isDankNull(stack)) {
+				if (ItemDankNull.isDankNull(stack)) {
 					if (ItemNBTUtils.getString(stack, NBT.UUID).isEmpty() && !world.isRemote) {
 						ItemNBTUtils.setString(stack, NBT.UUID, UUID.randomUUID().toString());
 					}
@@ -194,6 +195,17 @@ public class BlockDankNullDock extends BlockContainer implements IModelHolder {
 	@SideOnly(Side.CLIENT)
 	public boolean isOpaqueCube(final IBlockState blockState) {
 		return false;
+	}
+
+	public static ItemStack getDockedDankNull(final TileEntity dankDock) {
+		if (isDankNullDock(dankDock)) {
+			return ((TileDankNullDock) dankDock).getDankNull();
+		}
+		return ItemStack.EMPTY;
+	}
+
+	public static boolean isDankNullDock(final TileEntity tile) {
+		return tile.hasCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
 	}
 
 }

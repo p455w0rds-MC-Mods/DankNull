@@ -17,7 +17,6 @@ public class ModIntegration {
 		else {
 			ModLogger.info(Mods.TOP.getName() + " Integation: Disabled");
 		}
-
 	}
 
 	public static void init() {

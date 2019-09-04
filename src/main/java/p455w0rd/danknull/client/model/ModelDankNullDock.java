@@ -9,7 +9,7 @@ import net.minecraft.entity.Entity;
  *
  */
 public class ModelDankNullDock extends ModelBase {
-	//fields
+
 	ModelRenderer base;
 	ModelRenderer base2;
 	ModelRenderer base2edge1;
@@ -20,7 +20,6 @@ public class ModelDankNullDock extends ModelBase {
 	public ModelDankNullDock() {
 		textureWidth = 64;
 		textureHeight = 64;
-
 		base = new ModelRenderer(this, 0, 0);
 		base.addBox(0F, 0F, 0F, 16, 1, 16);
 		base.setRotationPoint(-8F, 23F, -8F);

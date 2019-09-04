@@ -1,12 +1,10 @@
 package p455w0rd.danknull.container;
 
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
-
+import p455w0rd.danknull.api.IDankNullHandler;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
-import p455w0rd.danknull.util.cap.CapabilityDankNull;
-import p455w0rd.danknull.util.cap.IDankNullHandler;
+import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
 
 /**
  * @author p455w0rd
@@ -19,17 +17,22 @@ public class ContainerDankNullDock extends ContainerDankNullBase {
 	public ContainerDankNullDock(final EntityPlayer player, final TileDankNullDock tile) {
 		super(player);
 		this.tile = tile;
-		this.handler = tile.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
-		this.init();
+		handler = tile.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
+		init();
+	}
+
+	@Override
+	protected boolean isDock() {
+		return true;
 	}
 
 	@Override
 	public IDankNullHandler getHandler() {
-		return this.handler;
+		return handler;
 	}
 
 	@Override
 	public ItemStack getDankNullStack() {
-		return this.tile.getDankNull();
+		return tile.getDankNull();
 	}
 }

@@ -7,8 +7,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.Vec3i;
 import net.minecraftforge.common.capabilities.Capability;
+import p455w0rd.danknull.blocks.BlockDankNullDock;
 import p455w0rd.danknull.init.ModConfig.Options;
 import p455w0rd.danknull.init.ModGlobals.DankNullTier;
+import p455w0rd.danknull.items.ItemDankNull;
+import p455w0rd.danknull.items.ItemDankNullPanel;
 import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rdslib.api.client.shader.Light;
 import p455w0rdslib.capabilities.CapabilityLightEmitter;
@@ -30,7 +33,7 @@ public class PwLib {
 
 					@Override
 					public List<Light> emitLight(final List<Light> lights, final Entity entity) {
-						if (Options.enableColoredLightShaderSupport && DankNullUtils.isDankNullPanel(stack) || DankNullUtils.isDankNull(stack)) {
+						if (Options.enableColoredLightShaderSupport && ItemDankNullPanel.isDankNullPanel(stack) || ItemDankNull.isDankNull(stack)) {
 							final ItemStack lightStack = stack.copy();
 							if (!lightStack.isEmpty() && DankNullUtils.getTier(lightStack) != DankNullTier.NONE) {
 								final Vec3i c = RenderUtils.hexToRGB(DankNullUtils.getTier(lightStack).getHexColor(false));
@@ -52,8 +55,8 @@ public class PwLib {
 
 					@Override
 					public List<Light> emitLight(final List<Light> lights, final TileEntity tile) {
-						if (Options.enableColoredLightShaderSupport && DankNullUtils.isDankNullDock(tile)) {
-							final ItemStack lightStack = DankNullUtils.getDockedDankNull(tile);
+						if (Options.enableColoredLightShaderSupport && BlockDankNullDock.isDankNullDock(tile)) {
+							final ItemStack lightStack = BlockDankNullDock.getDockedDankNull(tile);
 							if (!lightStack.isEmpty() && DankNullUtils.getTier(lightStack) != DankNullTier.NONE) {
 								final Vec3i c = RenderUtils.hexToRGB(DankNullUtils.getTier(lightStack).getHexColor(false));
 								lights.add(Light.builder().pos(tile.getPos()).color(c.getX(), c.getY(), c.getZ(), (float) (BrightnessHandler.getBrightness(tile).value() * 0.001)).radius(2f).intensity(5).build());

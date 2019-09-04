@@ -34,6 +34,10 @@ public class ItemDankNullPanel extends Item implements IModelHolder/*, IBlockLig
 		setMaxDamage(0);
 	}
 
+	public static boolean isDankNullPanel(final ItemStack stack) {
+		return stack.getItem() instanceof ItemDankNullPanel;
+	}
+
 	@Override
 	public ICapabilityProvider initCapabilities(final ItemStack stack, final NBTTagCompound nbt) {
 		return new ICapabilityProvider() {

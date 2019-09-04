@@ -11,7 +11,7 @@ import net.minecraftforge.common.util.*;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
 import p455w0rd.danknull.init.ModGlobals.NBT;
-import p455w0rd.danknull.util.DankNullUtils;
+import p455w0rd.danknull.items.ItemBlockDankNullDock;
 
 /**
  * @author p455w0rd
@@ -38,7 +38,7 @@ public class ModDataFixing {
 	}
 
 	/*public static class DankNullWalker implements IDataWalker {
-
+	
 		@Nonnull
 		@Override
 		public NBTTagCompound process(@Nonnull final IDataFixer fixer, @Nonnull final NBTTagCompound nbt, final int version) {
@@ -50,11 +50,11 @@ public class ModDataFixing {
 				}
 			}
 			else if (ModItems.DANK_NULL_DOCK_ITEM.getRegistryName().toString().equals(nbt.getString(NBT.ID))) {
-
+	
 			}
 			return nbt;
 		}
-
+	
 	}*/
 
 	public static class DankNullFixer implements IFixableData {
@@ -91,7 +91,7 @@ public class ModDataFixing {
 			}
 			if (nbt.hasKey(NBT.ID, Constants.NBT.TAG_STRING)) {
 				if (isDankNullDock(nbt)) {
-					if (!DankNullUtils.getDockedDankNull(new ItemStack(nbt)).isEmpty()) {
+					if (!ItemBlockDankNullDock.getDockedDankNull(new ItemStack(nbt)).isEmpty()) {
 						nbt = getNewDankDock(nbt);
 					}
 				}
@@ -106,7 +106,7 @@ public class ModDataFixing {
 					for (int i = 0; i < nbttaglist.tagCount(); ++i) {
 						NBTTagCompound currentNBT = nbttaglist.getCompoundTagAt(i);
 						if (isDankNullDock(currentNBT)) {
-							if (!DankNullUtils.getDockedDankNull(new ItemStack(currentNBT)).isEmpty()) {
+							if (!ItemBlockDankNullDock.getDockedDankNull(new ItemStack(currentNBT)).isEmpty()) {
 								currentNBT = getNewDankDock(currentNBT);
 							}
 						}
@@ -126,11 +126,26 @@ public class ModDataFixing {
 
 		private NBTTagCompound getNewDankDock(final NBTTagCompound dockNBT) {
 			final ItemStack dankDock = new ItemStack(dockNBT);
-			final ItemStack dankNull = DankNullUtils.getDockedDankNull(new ItemStack(dockNBT));
+			final ItemStack dankNull = ItemBlockDankNullDock.getDockedDankNull(new ItemStack(dockNBT));
 			if (!dankNull.isEmpty()) {
-				DankNullUtils.setDockedDankNull(dankDock, new ItemStack(getNewDankNull(dankNull.serializeNBT())));
+				setDockedDankNull(dankDock, new ItemStack(getNewDankNull(dankNull.serializeNBT())));
 			}
 			return dankDock.serializeNBT();
+		}
+
+		private static void setDockedDankNull(final ItemStack dankNullDock, final ItemStack newDankNull) {
+			if (!dankNullDock.hasTagCompound()) {
+				dankNullDock.setTagCompound(new NBTTagCompound());
+			}
+			if (dankNullDock.getTagCompound().hasKey(NBT.BLOCKENTITYTAG, Constants.NBT.TAG_COMPOUND)) {
+				final NBTTagCompound nbt = dankNullDock.getTagCompound().getCompoundTag(NBT.BLOCKENTITYTAG);
+				nbt.setTag(NBT.DOCKEDSTACK, newDankNull.serializeNBT());
+			}
+			else {
+				final NBTTagCompound nbt = new NBTTagCompound();
+				nbt.setTag(NBT.DOCKEDSTACK, newDankNull.serializeNBT());
+				dankNullDock.getTagCompound().setTag(NBT.BLOCKENTITYTAG, nbt);
+			}
 		}
 
 		private NBTTagCompound getNewDankNull(final NBTTagCompound dankNullNBT) {

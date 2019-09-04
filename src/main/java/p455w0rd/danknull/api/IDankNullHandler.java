@@ -1,13 +1,12 @@
-package p455w0rd.danknull.util.cap;
+package p455w0rd.danknull.api;
 
 import java.util.Map;
+
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 import net.minecraft.item.ItemStack;
-
+import net.minecraft.util.NonNullList;
 import net.minecraftforge.items.IItemHandlerModifiable;
-
 import p455w0rd.danknull.init.ModGlobals;
 import p455w0rd.danknull.util.DankNullUtils;
 
@@ -17,6 +16,61 @@ import p455w0rd.danknull.util.DankNullUtils;
  * @author BrockWS
  */
 public interface IDankNullHandler extends IItemHandlerModifiable {
+
+	/**
+	 * Gets the raw list of ItemStacks contained within this handler
+	 *
+	 * @return List of ItemStacks
+	 */
+	NonNullList<ItemStack> getStackList();
+
+	/**
+	 * Override to implement slot validation
+	 *
+	 * @param slot Slot index
+	 * @return The ItemStack that resides in this slot
+	 */
+	@Nonnull
+	@Override
+	default ItemStack getStackInSlot(final int slot) {
+		validateSlot(slot);
+		return getStackList().get(slot);
+	}
+
+	/**
+	 * Returns the stack in the given slot with<br>
+	 * extraction rules applied
+	 *
+	 * @param slot Slot index
+	 * @return extractable stack
+	 */
+	@Nonnull
+	ItemStack getExtractableStackInSlot(int slot);
+
+	/**
+	 * Returns the stack in slot "<i>slot</>" with<br>
+	 * actual stack size
+	 */
+	@Nonnull
+	ItemStack getFullStackInSlot(int slot);
+
+	/**
+	 * Creates a stack with a size of 1 for rendering purposes
+	 *
+	 * @param slot Slot index
+	 * @return visual stack
+	 */
+	@Nonnull
+	ItemStack getRenderableStackForSlot(int slot);
+
+	/**
+	 * Checks whether the stack matches any stacks in the<br>
+	 * itemHandler with OreDictionary mode enabled
+	 *
+	 * @param stack The stack being checked
+	 * @return is it is filtered by this itemHandler
+	 */
+	boolean isOreDictFiltered(ItemStack stack);
 
 	/**
 	 * Checks if the given ItemStack is contained in the inventory
@@ -209,4 +263,10 @@ public interface IDankNullHandler extends IItemHandlerModifiable {
 	 * @return ItemStack PlacementMode Map
 	 */
 	Map<ItemStack, DankNullUtils.ItemPlacementMode> getPlacementMode();
+
+	default void validateSlot(final int slot) {
+		if (slot < 0 || slot >= getSlots()) {
+			throw new RuntimeException("Slot " + slot + " not in valid range - [0," + getSlots() + ")");
+		}
+	}
 }

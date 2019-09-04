@@ -1,8 +1,13 @@
 package p455w0rd.danknull.init;
 
+import static p455w0rd.danknull.inventory.PlayerSlot.EnumInvCategory.MAIN;
+import static p455w0rd.danknull.inventory.PlayerSlot.EnumInvCategory.OFF_HAND;
+
 import javax.annotation.Nullable;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.InventoryPlayer;
+import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
@@ -14,7 +19,7 @@ import p455w0rd.danknull.client.gui.GuiDankNull;
 import p455w0rd.danknull.container.ContainerDankNull;
 import p455w0rd.danknull.container.ContainerDankNullDock;
 import p455w0rd.danknull.inventory.PlayerSlot;
-import p455w0rd.danknull.util.DankNullUtils;
+import p455w0rd.danknull.items.ItemDankNull;
 
 /**
  * @author p455w0rd
@@ -33,7 +38,7 @@ public class ModGuiHandler implements IGuiHandler {
 	public Object getServerGuiElement(final int id, final EntityPlayer player, final World world, final int x, final int y, final int z) {
 		switch (GUIType.VALUES[id]) {
 		case DANKNULL:
-			final PlayerSlot dankNull = DankNullUtils.getDankNullSlot(player);
+			final PlayerSlot dankNull = getDankNullSlot(player);
 			if (dankNull == null) {
 				return null;
 			}
@@ -66,7 +71,7 @@ public class ModGuiHandler implements IGuiHandler {
 				}
 			}
 		case DANKNULL:
-			final PlayerSlot dankNull = DankNullUtils.getDankNullSlot(player);
+			final PlayerSlot dankNull = getDankNullSlot(player);
 			if (dankNull == null) {
 				return null;
 			}
@@ -88,6 +93,27 @@ public class ModGuiHandler implements IGuiHandler {
 			}*/
 			player.openGui(DankNull.INSTANCE, type.ordinal(), world, pos.getX(), pos.getY(), pos.getZ());
 		}
+	}
+
+	private static PlayerSlot getDankNullSlot(final EntityPlayer player) {
+		final InventoryPlayer playerInv = player.inventory;
+		final ItemStack mainHand = player.getHeldItemMainhand();
+		final ItemStack offHand = player.getHeldItemOffhand();
+
+		if (mainHand.getItem() instanceof ItemDankNull) {
+			return new PlayerSlot(playerInv.currentItem, MAIN);
+		}
+		else if (offHand.getItem() instanceof ItemDankNull) {
+			return new PlayerSlot(0, OFF_HAND);
+		}
+
+		for (int i = 0; i < playerInv.mainInventory.size(); i++) {
+			final ItemStack stack = playerInv.mainInventory.get(i);
+			if (stack.getItem() instanceof ItemDankNull) {
+				return new PlayerSlot(i, MAIN);
+			}
+		}
+		return null;
 	}
 
 	public static enum GUIType {

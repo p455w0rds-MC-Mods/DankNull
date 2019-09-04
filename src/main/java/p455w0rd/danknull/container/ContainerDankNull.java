@@ -3,10 +3,9 @@ package p455w0rd.danknull.container;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
-
+import p455w0rd.danknull.api.IDankNullHandler;
 import p455w0rd.danknull.inventory.PlayerSlot;
-import p455w0rd.danknull.util.cap.CapabilityDankNull;
-import p455w0rd.danknull.util.cap.IDankNullHandler;
+import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
 
 /**
  * @author p455w0rd
@@ -14,24 +13,24 @@ import p455w0rd.danknull.util.cap.IDankNullHandler;
 public class ContainerDankNull extends ContainerDankNullBase {
 
 	private final PlayerSlot playerSlot;
-	private IDankNullHandler handler;
+	private final IDankNullHandler handler;
 
 	public ContainerDankNull(final EntityPlayer player, final PlayerSlot slot) {
 		super(player);
-		this.playerSlot = slot;
-		InventoryPlayer playerInv = player.inventory;
-		ItemStack dankNull = playerInv.getStackInSlot(slot.getSlotIndex());
-		this.handler = dankNull.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
-		this.init();
+		playerSlot = slot;
+		final InventoryPlayer playerInv = player.inventory;
+		final ItemStack dankNull = playerInv.getStackInSlot(slot.getSlotIndex());
+		handler = dankNull.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
+		init();
 	}
 
 	@Override
 	public IDankNullHandler getHandler() {
-		return this.handler;
+		return handler;
 	}
 
 	@Override
 	public ItemStack getDankNullStack() {
-		return this.player.inventory.getStackInSlot(this.playerSlot.getSlotIndex());
+		return player.inventory.getStackInSlot(playerSlot.getSlotIndex());
 	}
 }

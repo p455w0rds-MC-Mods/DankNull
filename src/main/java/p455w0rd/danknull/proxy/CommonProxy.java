@@ -5,7 +5,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.event.*;
 import p455w0rd.danknull.init.*;
-import p455w0rd.danknull.util.cap.CapabilityDankNull;
+import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
 
 public class CommonProxy {
 
@@ -13,7 +13,7 @@ public class CommonProxy {
 		ModDataFixing.registerWalkers();
 		ModConfig.init();
 		ModIntegration.preInit();
-		ModNetworking.init();
+		ModNetworking.registerMessages();
 		CapabilityDankNull.register();
 	}
 

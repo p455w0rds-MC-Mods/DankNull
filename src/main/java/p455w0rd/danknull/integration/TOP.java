@@ -19,7 +19,6 @@ import mcjty.theoneprobe.apiimpl.styles.LayoutStyle;
 import mcjty.theoneprobe.config.Config;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.*;
@@ -30,18 +29,16 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
-import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
-import p455w0rd.danknull.api.ITOPEntityInfoProvider;
+import p455w0rd.danknull.api.IDankNullHandler;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
 import p455w0rd.danknull.init.*;
 import p455w0rd.danknull.init.ModConfig.Options;
 import p455w0rd.danknull.init.ModGlobals.NBT;
+import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
+import p455w0rd.danknull.items.ItemDankNull;
 import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rd.danknull.util.DankNullUtils.ItemExtractionMode;
-import p455w0rd.danknull.util.cap.CapabilityDankNull;
-import p455w0rd.danknull.util.cap.IDankNullHandler;
 import p455w0rdslib.LibGlobals.Mods;
 import p455w0rdslib.util.TextUtils;
 
@@ -64,27 +61,13 @@ public class TOP {
 
 	public static class GetTheOneProbe implements com.google.common.base.Function<ITheOneProbe, Void> {
 
-		public static ITheOneProbe probe;
+		//private static ITheOneProbe probe;
 
 		@Nullable
 		@Override
 		public Void apply(final ITheOneProbe theOneProbe) {
-			probe = theOneProbe;
-			probe.registerEntityProvider(new IProbeInfoEntityProvider() {
-				@Override
-				public String getID() {
-					return ModGlobals.MODID + ":default";
-				}
-
-				@Override
-				public void addProbeEntityInfo(final ProbeMode mode, final IProbeInfo probeInfo, final EntityPlayer player, final World world, final Entity entity, final IProbeHitEntityData data) {
-					if (entity instanceof ITOPEntityInfoProvider) {
-						final ITOPEntityInfoProvider provider = (ITOPEntityInfoProvider) entity;
-						provider.addProbeInfo(mode, probeInfo, player, world, entity, data);
-					}
-				}
-			});
-			probe.registerProvider(new DankNullProbeInfoProvider());
+			//probe = theOneProbe;
+			theOneProbe.registerProvider(new DankNullProbeInfoProvider());
 			return null;
 		}
 	}
@@ -114,20 +97,20 @@ public class TOP {
 					final ItemStack dockedDankNull = te.getDankNull().isEmpty() ? ItemStack.EMPTY : te.getDankNull();
 					final IProbeInfo topTip = probeInfo.horizontal().item(stack).vertical().itemLabel(stack);
 					if (!dockedDankNull.isEmpty()) {
-						IDankNullHandler dankNullHandler = dockedDankNull.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
-						final String dockedMsg = ModGlobals.Rarities.getRarityFromMeta(DankNullUtils.getMeta(dockedDankNull)).getColor() + "" + dockedDankNull.getDisplayName() + "" + TextFormatting.WHITE + " " + TextUtils.translate("dn.docked.desc");
+						final IDankNullHandler dankNullHandler = dankDock.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
+						final String dockedMsg = ModGlobals.Rarities.getRarityFromMeta(DankNullUtils.getTier(dockedDankNull).ordinal()).getColor() + "" + dockedDankNull.getDisplayName() + "" + TextFormatting.WHITE + " " + TextUtils.translate("dn.docked.desc");
 						topTip.text(dockedMsg);
-						if (dankNullHandler.getSelected() < 0)
+						if (dankNullHandler.getSelected() < 0) {
 							return;
-						final ItemStack selectedStack = dankNullHandler.getStackInSlot(dankNullHandler.getSelected());
+						}
+						final ItemStack selectedStack = dankNullHandler.getFullStackInSlot(dankNullHandler.getSelected());
 						if (!selectedStack.isEmpty()) {
-							final ItemStack tmpStack = selectedStack.copy();
 							/*String countText = "";
 							if (selectedStack.getCount() >= 100000) {
 								tmpStack.setCount(1);
 								countText = ", " + TextUtils.translate("dn.count.desc") + ": " + (DankNullUtils.isCreativeDankNull(dockedDankNull) ? TextUtils.translate("dn.infinite.desc") : "" + selectedStack.getCount());
 							}*/
-							topTip.horizontal(new LayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT).borderColor(0xFFFF0000).spacing(-1)).item(tmpStack);
+							topTip.horizontal(new LayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT).borderColor(0xFFFF0000).spacing(-1)).item(selectedStack);
 							//topTip.text(" " + TextUtils.translate("dn.selected.desc") + "" + countText);
 							topTip.text(TextUtils.translate("dn.extract_mode.desc") + ": " + dankNullHandler.getExtractionMode(selectedStack).getTooltip());
 						}
@@ -286,8 +269,8 @@ public class TOP {
 			if (detailed) {
 				for (final ItemStack stackInSlot : stacks) {
 					horizontal = vertical.horizontal(new LayoutStyle().spacing(10).alignment(ElementAlignment.ALIGN_CENTER));
-					if (DankNullUtils.isDankNull(dankNull)) {
-						IDankNullHandler dankNullHandler = dankNull.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
+					if (ItemDankNull.isDankNull(dankNull)) {
+						final IDankNullHandler dankNullHandler = dankNull.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
 						final ItemStack tmpStack = stackInSlot.copy();
 						int extractable = stackInSlot.getCount() - dankNullHandler.getExtractionMode(stackInSlot).getNumberToKeep();
 						if (dankNullHandler.getExtractionMode(stackInSlot) == ItemExtractionMode.KEEP_ALL) {
@@ -315,10 +298,10 @@ public class TOP {
 			final List<ItemStack> stacks = new ArrayList<>();
 			final TileEntity te = world.getTileEntity(pos);
 			final Set<Item> foundItems = Config.compactEqualStacks ? new HashSet<>() : null;
-			if (te instanceof TileDankNullDock && te.hasCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null)) {
-				IItemHandler handler = te.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null);
+			if (te instanceof TileDankNullDock && te.hasCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null)) {
+				final IDankNullHandler handler = te.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
 				for (int i = 0; i < handler.getSlots(); i++) {
-					addItemStack(stacks, foundItems, handler.getStackInSlot(i));
+					addItemStack(stacks, foundItems, handler.getFullStackInSlot(i));
 				}
 			}
 			return stacks;

@@ -1,35 +1,32 @@
-package p455w0rd.danknull.util.cap;
+package p455w0rd.danknull.inventory.cap;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
-
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.common.capabilities.ICapabilitySerializable;
 import net.minecraftforge.items.CapabilityItemHandler;
-
+import p455w0rd.danknull.api.IDankNullHandler;
 import p455w0rd.danknull.init.ModGlobals;
 import p455w0rd.danknull.integration.PwLib;
+import p455w0rd.danknull.inventory.DankNullHandler;
 import p455w0rdslib.integration.Albedo;
 import p455w0rdslib.util.CapabilityUtils;
 
 /**
  * @author BrockWS
  */
-public class DankNullCapabilityProvider implements /*ICapabilitySerializable<NBTTagCompound>*/ ICapabilityProvider {
+public class DankNullCapabilityProvider implements ICapabilityProvider {
 
-	private ModGlobals.DankNullTier tier;
-	private ItemStack stack;
-	private IDankNullHandler dankNullHandler;
+	private final ItemStack stack;
+	private final IDankNullHandler dankNullHandler;
 	private boolean needsInitialNBT = false; // When a stack is copied the NBT isn't applied until after capabilities are initialized
 
-	public DankNullCapabilityProvider(ModGlobals.DankNullTier tier, ItemStack stack) {
-		this.tier = tier;
+	public DankNullCapabilityProvider(final ModGlobals.DankNullTier tier, final ItemStack stack) {
 		this.stack = stack;
-		this.dankNullHandler = new DankNullHandler(tier) {
+		dankNullHandler = new DankNullHandler(tier) {
 			@Override
-			protected void onContentsChanged(int slot) {
+			protected void onContentsChanged(final int slot) {
 				super.onContentsChanged(slot);
 				stack.setTagCompound((NBTTagCompound) CapabilityDankNull.DANK_NULL_CAPABILITY.writeNBT(this, null));
 			}
@@ -40,17 +37,19 @@ public class DankNullCapabilityProvider implements /*ICapabilitySerializable<NBT
 				stack.setTagCompound((NBTTagCompound) CapabilityDankNull.DANK_NULL_CAPABILITY.writeNBT(this, null));
 			}
 		};
-		if (stack.hasTagCompound())
-			CapabilityDankNull.DANK_NULL_CAPABILITY.readNBT(this.dankNullHandler, null, stack.getTagCompound());
-		else
+		if (stack.hasTagCompound()) {
+			CapabilityDankNull.DANK_NULL_CAPABILITY.readNBT(dankNullHandler, null, stack.getTagCompound());
+		}
+		else {
 			needsInitialNBT = true;
+		}
 	}
 
 	@Override
 	public boolean hasCapability(final Capability<?> capability, final EnumFacing facing) {
-		if (this.needsInitialNBT && this.stack.hasTagCompound()) {
-			this.needsInitialNBT = false;
-			CapabilityDankNull.DANK_NULL_CAPABILITY.readNBT(this.dankNullHandler, null, stack.getTagCompound());
+		if (needsInitialNBT && stack.hasTagCompound()) {
+			needsInitialNBT = false;
+			CapabilityDankNull.DANK_NULL_CAPABILITY.readNBT(dankNullHandler, null, stack.getTagCompound());
 		}
 		return capability == CapabilityDankNull.DANK_NULL_CAPABILITY || CapabilityUtils.isItemHandler(capability) || Albedo.albedoCapCheck(capability) || PwLib.checkCap(capability);
 	}
@@ -60,24 +59,18 @@ public class DankNullCapabilityProvider implements /*ICapabilitySerializable<NBT
 		if (hasCapability(capability, facing)) {
 			if (Albedo.albedoCapCheck(capability)) {
 				return p455w0rd.danknull.integration.Albedo.getStackCapability(stack);
-			} else if (PwLib.checkCap(capability)) {
+			}
+			else if (PwLib.checkCap(capability)) {
 				return PwLib.getStackCapability(stack);
-			} else if (CapabilityUtils.isItemHandler(capability)) {
-				return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(this.dankNullHandler);
-			} else if (capability == CapabilityDankNull.DANK_NULL_CAPABILITY) {
-				return CapabilityDankNull.DANK_NULL_CAPABILITY.cast(this.dankNullHandler);
+			}
+			else if (CapabilityUtils.isItemHandler(capability)) {
+				return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(dankNullHandler);
+			}
+			else if (capability == CapabilityDankNull.DANK_NULL_CAPABILITY) {
+				return CapabilityDankNull.DANK_NULL_CAPABILITY.cast(dankNullHandler);
 			}
 		}
 		return null;
 	}
 
-//	@Override
-//	public NBTTagCompound serializeNBT() {
-//		return (NBTTagCompound) CapabilityDankNull.DANK_NULL_CAPABILITY.writeNBT(this.dankNullHandler, null);
-//	}
-//
-//	@Override
-//	public void deserializeNBT(NBTTagCompound nbt) {
-//		CapabilityDankNull.DANK_NULL_CAPABILITY.readNBT(this.dankNullHandler, null, nbt);
-//	}
 }

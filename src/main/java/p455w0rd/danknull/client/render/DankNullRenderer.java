@@ -21,14 +21,14 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.item.*;
 import net.minecraftforge.client.ForgeHooksClient;
+import p455w0rd.danknull.api.IDankNullHandler;
 import p455w0rd.danknull.init.ModBlocks;
 import p455w0rd.danknull.init.ModConfig.Options;
+import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
 import p455w0rd.danknull.init.ModGlobals;
 import p455w0rd.danknull.items.ItemDankNull;
 import p455w0rd.danknull.items.ItemDankNullPanel;
 import p455w0rd.danknull.util.DankNullUtils;
-import p455w0rd.danknull.util.cap.CapabilityDankNull;
-import p455w0rd.danknull.util.cap.IDankNullHandler;
 import p455w0rdslib.api.client.*;
 import p455w0rdslib.util.EasyMappings;
 

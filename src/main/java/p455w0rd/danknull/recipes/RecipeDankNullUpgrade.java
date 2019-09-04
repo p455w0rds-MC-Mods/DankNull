@@ -66,7 +66,7 @@ public class RecipeDankNullUpgrade extends net.minecraftforge.registries.IForgeR
 
 	public ItemStack getInputDankNull() {
 		for (final Ingredient item : getIngredients()) {
-			if (item.getMatchingStacks().length > 0 && DankNullUtils.isDankNull(item.getMatchingStacks()[0])) {
+			if (item.getMatchingStacks().length > 0 && ItemDankNull.isDankNull(item.getMatchingStacks()[0])) {
 				return item.getMatchingStacks()[0];
 			}
 		}
@@ -135,7 +135,7 @@ public class RecipeDankNullUpgrade extends net.minecraftforge.registries.IForgeR
 	@Override
 	public ItemStack getCraftingResult(final InventoryCrafting inv) {
 		for (int i = 0; i < inv.getSizeInventory(); i++) {
-			if (DankNullUtils.isDankNull(inv.getStackInSlot(i))) {
+			if (ItemDankNull.isDankNull(inv.getStackInSlot(i))) {
 				oldNBT = inv.getStackInSlot(i).getTagCompound();
 				final ItemStack newStack = getNewNextTierStack(inv.getStackInSlot(i));
 				newStack.setTagCompound(oldNBT);
@@ -147,7 +147,7 @@ public class RecipeDankNullUpgrade extends net.minecraftforge.registries.IForgeR
 	}
 
 	private ItemStack getNewNextTierStack(final ItemStack dankNull) {
-		final int tier = DankNullUtils.getMeta(dankNull);
+		final int tier = DankNullUtils.getTier(dankNull).ordinal();
 		if (tier < 5) {
 			ItemDankNull item = null;
 			switch (tier) {

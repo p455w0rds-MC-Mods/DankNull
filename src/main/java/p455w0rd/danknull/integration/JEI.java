@@ -25,8 +25,8 @@ import p455w0rd.danknull.init.*;
 import p455w0rd.danknull.integration.jei.DankNullUpgradeWrapper;
 import p455w0rd.danknull.integration.jei.PacketVanllaRecipeTransfer;
 import p455w0rd.danknull.inventory.PlayerSlot;
+import p455w0rd.danknull.items.ItemDankNull;
 import p455w0rd.danknull.recipes.RecipeDankNullUpgrade;
-import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rdslib.LibGlobals.Mods;
 import p455w0rdslib.util.TextUtils;
 
@@ -166,7 +166,7 @@ public class JEI implements IModPlugin {
 			for (int i = 10; i < 46; i++) {
 				final Slot slot = container.getSlot(i);
 				inventorySlots.put(slot.slotNumber, slot);
-				if (slot.getHasStack() && DankNullUtils.isDankNull(slot.getStack())) {
+				if (slot.getHasStack() && ItemDankNull.isDankNull(slot.getStack())) {
 					dankNullStacks.add(slot.getStack());
 				}
 			}
@@ -229,18 +229,18 @@ public class JEI implements IModPlugin {
 				final int slotNum = (int) itemStackGroup.getGuiIngredients().keySet().toArray()[i];
 				recipe.put(slotNum, itemStackGroup.getGuiIngredients().get(slotNum).getDisplayedIngredient());
 			}
-			int matchingDankNulls = 0;
+			final int matchingDankNulls = 0;
 			for (final IGuiIngredient<ItemStack> ingredient : itemStackGroup.getGuiIngredients().values()) {
 				if (ingredient.getDisplayedIngredient() == null || ingredient.getDisplayedIngredient().isEmpty()) {
 					continue;
 				}
 				for (final ItemStack dankNull : dankNullStacks) {
-//					if (DankNullUtils.isFilteredOreDict(DankNullUtils.getNewDankNullInventory(dankNull), ingredient.getDisplayedIngredient())) {
-//						matchingDankNulls++;
-//					}
+					//					if (DankNullUtils.isFilteredOreDict(DankNullUtils.getNewDankNullInventory(dankNull), ingredient.getDisplayedIngredient())) {
+					//						matchingDankNulls++;
+					//					}
 				}
 			}
-			boolean foundInDankNull = false;
+			final boolean foundInDankNull = false;
 			if (matchingItemsResult.missingItems.size() > 0 || matchingDankNulls > 0) {
 				for (final IGuiIngredient<ItemStack> filteredIngredient : itemStackGroup.getGuiIngredients().values()) {
 					final ItemStack filteredStack = filteredIngredient.getDisplayedIngredient();
@@ -248,9 +248,9 @@ public class JEI implements IModPlugin {
 						continue;
 					}
 					for (final ItemStack dankNull : dankNullStacks) {
-//						if (DankNullUtils.isFilteredOreDict(DankNullUtils.getNewDankNullInventory(dankNull), filteredStack)) {
-//							foundInDankNull = true;
-//						}
+						//						if (DankNullUtils.isFilteredOreDict(DankNullUtils.getNewDankNullInventory(dankNull), filteredStack)) {
+						//							foundInDankNull = true;
+						//						}
 					}
 				}
 				if (!foundInDankNull) {
@@ -325,7 +325,7 @@ public class JEI implements IModPlugin {
 
 			boolean needsDankNull = false;
 			if (slotMap.isEmpty()) {
-				final List<PlayerSlot> dankNulls = DankNullUtils.getAllDankNulls(player);
+				final List<PlayerSlot> dankNulls = ItemDankNull.getDankNullsForPlayer(player);
 				for (final PlayerSlot slot : dankNulls) {
 					needsDankNull = true;
 					maxRemovedSets++;
@@ -339,7 +339,7 @@ public class JEI implements IModPlugin {
 			// remove required recipe items
 			/*
 			int removedSets = removeSetsFromInventory(container, slotIdMap.values(), craftingSlots, inventorySlots, maxRemovedSets);
-			
+
 			if (removedSets == 0) {
 				return;
 			}
@@ -476,9 +476,9 @@ public class JEI implements IModPlugin {
 				stack.setCount(1);
 				//slotMap.put(entry.getKey(), stack);
 			}
-			
+
 			int maxRemovedSets = maxTransfer ? 64 : 1;
-			
+
 			for (Map.Entry<Integer, ItemStack> entry : slotMap.entrySet()) {
 				ItemStack stack = entry.getValue();
 				if (stack.isStackable()) {
@@ -492,7 +492,7 @@ public class JEI implements IModPlugin {
 					maxRemovedSets = 1;
 				}
 			}
-			
+
 			boolean needsDankNull = false;
 			if (slotMap.isEmpty()) {
 				List<ItemStack> dankNulls = DankNullUtils.getAllDankNulls(player);
@@ -501,11 +501,11 @@ public class JEI implements IModPlugin {
 					maxRemovedSets++;
 				}
 			}
-			
+
 			if (maxRemovedSets <= 0) {
 				return;
 			}
-			
+
 			if (!removeSetsFromInventory(container, slotIdMap.values(), craftingSlots, inventorySlots)) {
 				return;
 			}
@@ -555,7 +555,7 @@ public class JEI implements IModPlugin {
 				if (requiredStack.isEmpty()) {
 					continue;
 				}
-//				final InventoryDankNull dankNullInv = null;
+				//				final InventoryDankNull dankNullInv = null;
 				final Slot slot = getSlotWithStack(container, requiredStack, craftingSlots, inventorySlots);
 				/*
 				for (int slotNum : inventorySlots) {
@@ -591,9 +591,9 @@ public class JEI implements IModPlugin {
 					for (final int slotNum : inventorySlots) {
 						final Slot slot1 = container.getSlot(slotNum);
 						if (slot1 != null && slot1.getHasStack()) {
-//							if (DankNullUtils.isDankNull(slot1.getStack()) && DankNullUtils.isFilteredOreDict(DankNullUtils.getNewDankNullInventory(slot1.getStack()), requiredStack)) {
-//								DankNullUtils.decrDankNullStackSize(DankNullUtils.getNewDankNullInventory(slot1.getStack()), requiredStack, requiredStack.getCount());
-//							}
+							//							if (DankNullUtils.isDankNull(slot1.getStack()) && DankNullUtils.isFilteredOreDict(DankNullUtils.getNewDankNullInventory(slot1.getStack()), requiredStack)) {
+							//								DankNullUtils.decrDankNullStackSize(DankNullUtils.getNewDankNullInventory(slot1.getStack()), requiredStack, requiredStack.getCount());
+							//							}
 						}
 					}
 				}
@@ -613,46 +613,46 @@ public class JEI implements IModPlugin {
 		}
 
 		private static int addStack(final Container container, final Collection<Integer> slotIndexes, final ItemStack stack) {
-			int added = 0;
+			final int added = 0;
 			// Add to existing stacks first
 			for (final Integer slotIndex : slotIndexes) {
 				if (slotIndex >= 0 && slotIndex < container.inventorySlots.size()) {
 					final Slot slot = container.getSlot(slotIndex);
 					final ItemStack inventoryStack = slot.getStack();
 					// Check that the slot's contents are stackable with this stack
-//					if (!inventoryStack.isEmpty() && (inventoryStack.isStackable() && inventoryStack.isItemEqual(stack) && ItemStack.areItemStackTagsEqual(inventoryStack, stack) || DankNullUtils.isDankNull(inventoryStack) && DankNullUtils.isFiltered(DankNullUtils.getNewDankNullInventory(inventoryStack), stack))) {
-//						boolean isDankNull = false;
-//						if (DankNullUtils.isDankNull(inventoryStack)) {
-//							isDankNull = true;
-//						}
-//						final int remain = stack.getCount() - added;
-//						final int maxStackSize = Math.min(slot.getItemStackLimit(isDankNull ? stack : inventoryStack), isDankNull ? stack.getMaxStackSize() : inventoryStack.getMaxStackSize());
-//						final int space = maxStackSize - (isDankNull ? stack.getCount() : inventoryStack.getCount());
-//						if (space > 0) {
-//
-//							// Enough space
-//							if (space >= remain) {
-//								if (isDankNull) {
-//									DankNullUtils.decrDankNullStackSize(DankNullUtils.getNewDankNullInventory(inventoryStack), stack, remain);
-//									//DankNullUtils.addFilteredStackToDankNull(DankNullUtils.getNewDankNullInventory(inventoryStack), stack);
-//									stack.grow(remain);
-//								}
-//								else {
-//									inventoryStack.grow(remain);
-//								}
-//								return stack.getCount();
-//							}
-//
-//							// Not enough space
-//							if (!isDankNull) {
-//								inventoryStack.setCount(inventoryStack.getMaxStackSize());
-//							}
-//							else {
-//								//stack.setCount(size);
-//							}
-//							added += space;
-//						}
-//					}
+					//					if (!inventoryStack.isEmpty() && (inventoryStack.isStackable() && inventoryStack.isItemEqual(stack) && ItemStack.areItemStackTagsEqual(inventoryStack, stack) || DankNullUtils.isDankNull(inventoryStack) && DankNullUtils.isFiltered(DankNullUtils.getNewDankNullInventory(inventoryStack), stack))) {
+					//						boolean isDankNull = false;
+					//						if (DankNullUtils.isDankNull(inventoryStack)) {
+					//							isDankNull = true;
+					//						}
+					//						final int remain = stack.getCount() - added;
+					//						final int maxStackSize = Math.min(slot.getItemStackLimit(isDankNull ? stack : inventoryStack), isDankNull ? stack.getMaxStackSize() : inventoryStack.getMaxStackSize());
+					//						final int space = maxStackSize - (isDankNull ? stack.getCount() : inventoryStack.getCount());
+					//						if (space > 0) {
+					//
+					//							// Enough space
+					//							if (space >= remain) {
+					//								if (isDankNull) {
+					//									DankNullUtils.decrDankNullStackSize(DankNullUtils.getNewDankNullInventory(inventoryStack), stack, remain);
+					//									//DankNullUtils.addFilteredStackToDankNull(DankNullUtils.getNewDankNullInventory(inventoryStack), stack);
+					//									stack.grow(remain);
+					//								}
+					//								else {
+					//									inventoryStack.grow(remain);
+					//								}
+					//								return stack.getCount();
+					//							}
+					//
+					//							// Not enough space
+					//							if (!isDankNull) {
+					//								inventoryStack.setCount(inventoryStack.getMaxStackSize());
+					//							}
+					//							else {
+					//								//stack.setCount(size);
+					//							}
+					//							added += space;
+					//						}
+					//					}
 				}
 			}
 

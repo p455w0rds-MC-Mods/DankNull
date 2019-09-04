@@ -16,23 +16,24 @@ public class DankNull {
 	public static DankNull INSTANCE;
 
 	@Mod.EventHandler
-	public void preInit(final FMLPreInitializationEvent e) {
+	public void preInit(final FMLPreInitializationEvent event) {
 		INSTANCE = this;
-		PROXY.preInit(e);
+		PROXY.preInit(event);
 	}
 
 	@Mod.EventHandler
-	public void init(final FMLInitializationEvent e) {
-		PROXY.init(e);
+	public void init(final FMLInitializationEvent event) {
+		PROXY.init(event);
 	}
 
 	@Mod.EventHandler
-	public void postInit(final FMLPostInitializationEvent e) {
-		PROXY.postInit(e);
+	public void postInit(final FMLPostInitializationEvent event) {
+		PROXY.postInit(event);
 	}
 
 	@Mod.EventHandler
-	public void serverStarting(final FMLServerStartingEvent e) {
-		PROXY.serverStarting(e);
+	public void serverStarting(final FMLServerStartingEvent event) {
+		PROXY.serverStarting(event);
 	}
+
 }

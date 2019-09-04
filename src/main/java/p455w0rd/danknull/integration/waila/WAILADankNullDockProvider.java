@@ -10,13 +10,14 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
+import p455w0rd.danknull.api.IDankNullHandler;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
 import p455w0rd.danknull.init.ModBlocks;
 import p455w0rd.danknull.init.ModGlobals;
+import p455w0rd.danknull.init.ModGlobals.DankNullTier;
 import p455w0rd.danknull.integration.WAILA;
+import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
 import p455w0rd.danknull.util.DankNullUtils;
-import p455w0rd.danknull.util.cap.CapabilityDankNull;
-import p455w0rd.danknull.util.cap.IDankNullHandler;
 import p455w0rdslib.util.TextUtils;
 
 /**
@@ -52,15 +53,16 @@ public class WAILADankNullDockProvider implements IWailaDataProvider {
 		if (!dankDock.getDankNull().isEmpty()) {
 			final ItemStack dockedDankNull = dankDock.getDankNull();
 			if (!dockedDankNull.isEmpty()) {
-				IDankNullHandler dankNullHandler = dockedDankNull.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
+				final IDankNullHandler dankNullHandler = dockedDankNull.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
 				currenttip.add(WAILA.toolTipEnclose);
-				currenttip.add(ModGlobals.Rarities.getRarityFromMeta(DankNullUtils.getMeta(dockedDankNull)).getColor() + "" + dockedDankNull.getDisplayName() + "" + TextFormatting.GRAY + " Docked");
-				if (dankNullHandler.getSelected() < 0)
+				currenttip.add(ModGlobals.Rarities.getRarityFromMeta(DankNullUtils.getTier(dockedDankNull).ordinal()).getColor() + "" + dockedDankNull.getDisplayName() + "" + TextFormatting.GRAY + " Docked");
+				if (dankNullHandler.getSelected() < 0) {
 					return currenttip;
+				}
 				final ItemStack selectedStack = dankNullHandler.getStackInSlot(dankNullHandler.getSelected());
 				if (!selectedStack.isEmpty()) {
 					currenttip.add(selectedStack.getDisplayName() + " " + TextUtils.translate("dn.selected.desc"));
-					currenttip.add(TextUtils.translate("dn.count.desc") + ": " + (DankNullUtils.isCreativeDankNull(dockedDankNull) ? TextUtils.translate("dn.infinite.desc") : selectedStack.getCount()));
+					currenttip.add(TextUtils.translate("dn.count.desc") + ": " + (DankNullUtils.getTier(dockedDankNull) == DankNullTier.CREATIVE ? TextUtils.translate("dn.infinite.desc") : selectedStack.getCount()));
 					currenttip.add(TextUtils.translate("dn.extract_mode.desc") + ": " + dankNullHandler.getExtractionMode(selectedStack).getTooltip());
 				}
 				currenttip.add(WAILA.toolTipEnclose);

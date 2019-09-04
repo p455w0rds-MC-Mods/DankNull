@@ -18,27 +18,23 @@ import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.*;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextFormatting;
-import p455w0rd.danknull.container.ContainerDankNull;
+import p455w0rd.danknull.api.IDankNullHandler;
 import p455w0rd.danknull.container.ContainerDankNullBase;
 import p455w0rd.danknull.container.ContainerDankNullDock;
+import p455w0rd.danknull.init.*;
 import p455w0rd.danknull.init.ModConfig.Options;
-import p455w0rd.danknull.init.ModGlobals;
 import p455w0rd.danknull.init.ModGlobals.DankNullTier;
-import p455w0rd.danknull.init.ModNetworking;
 import p455w0rd.danknull.integration.Chisel;
 import p455w0rd.danknull.inventory.slot.SlotDankNull;
 import p455w0rd.danknull.network.PacketChangeMode;
 import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rd.danknull.util.DankNullUtils.ItemExtractionMode;
 import p455w0rd.danknull.util.DankNullUtils.ItemPlacementMode;
-import p455w0rd.danknull.util.cap.CapabilityDankNull;
-import p455w0rd.danknull.util.cap.IDankNullHandler;
 import p455w0rdslib.LibGlobals.Mods;
 import p455w0rdslib.client.gui.GuiModular;
 import p455w0rdslib.integration.Thaumcraft;
@@ -64,14 +60,14 @@ public class GuiDankNull extends GuiModular {
 
 	public GuiDankNull(final ContainerDankNullBase c) {
 		super(c);
-		this.tier = c.getHandler().getTier();
+		tier = c.getHandler().getTier();
 		setWidth(210);
-		setHeight(this.tier.getGuiHeight());
-		setBackgroundTexture(this.tier.getGuiBackground());
+		setHeight(tier.getGuiHeight());
+		setBackgroundTexture(tier.getGuiBackground());
 	}
 
 	public IDankNullHandler getDankNullHandler() {
-		return ((ContainerDankNullBase) this.inventorySlots).getHandler();
+		return ((ContainerDankNullBase) inventorySlots).getHandler();
 	}
 
 	@Override
@@ -87,7 +83,7 @@ public class GuiDankNull extends GuiModular {
 
 	@Override
 	protected void actionPerformed(final GuiButton btn) {
-		IDankNullHandler dankNullHandler = this.getDankNullHandler();
+		final IDankNullHandler dankNullHandler = getDankNullHandler();
 		if (btn.id == 0) {
 			final String lock = TextUtils.translate("dn.lock.desc");
 			final String unlock = TextUtils.translate("dn.unlock.desc");
@@ -117,7 +113,7 @@ public class GuiDankNull extends GuiModular {
 
 	@Override
 	protected void drawGuiContainerForegroundLayer(final int mouseX, final int mouseY) {
-		IDankNullHandler dankNullHandler = this.getDankNullHandler();
+		final IDankNullHandler dankNullHandler = getDankNullHandler();
 		GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);
 		GlStateManager.disableLighting();
 		GlStateManager.disableBlend();
@@ -155,12 +151,11 @@ public class GuiDankNull extends GuiModular {
 
 	@Override
 	public void drawScreen(final int mouseX, final int mouseY, final float partialTicks) {
-		IDankNullHandler dankNullHandler = this.getDankNullHandler();
+		final IDankNullHandler dankNullHandler = getDankNullHandler();
 		drawDefaultBackground();
 		final int i = guiLeft;
 		final int j = guiTop;
 		drawGuiContainerBackgroundLayer(partialTicks, mouseX, mouseY);
-
 		GlStateManager.disableRescaleNormal();
 		RenderHelper.disableStandardItemLighting();
 		GlStateManager.disableLighting();
@@ -194,13 +189,11 @@ public class GuiDankNull extends GuiModular {
 			else {
 				GuiUtils.drawSlot(this, slot);
 			}
-
 			if (isMouseHovering(slot, mouseX, mouseY)) {
 				theSlot = slot;
 				GlStateManager.disableLighting();
 				GlStateManager.disableDepth();
 				GlStateManager.disableBlend();
-
 				GlStateManager.colorMask(true, true, true, false);
 				drawGradientRect(j1, k1, j1 + 16, k1 + 16, -2130706433, 2457);
 				GlStateManager.colorMask(true, true, true, true);
@@ -208,9 +201,7 @@ public class GuiDankNull extends GuiModular {
 				GlStateManager.enableDepth();
 				GlStateManager.enableBlend();
 			}
-
 			if (dankNullHandler.getSelected() == i1 - 36) {
-
 				GlStateManager.disableLighting();
 				final int index = dankNullHandler.getSelected();
 				if (index != -1) {
@@ -236,11 +227,8 @@ public class GuiDankNull extends GuiModular {
 				}
 				GlStateManager.enableLighting();
 			}
-
 		}
-
 		drawGuiContainerForegroundLayer(mouseX, mouseY);
-
 		final InventoryPlayer inventoryplayer = EasyMappings.player().inventory;
 		ItemStack itemstack = draggedStack.isEmpty() ? inventoryplayer.getItemStack() : draggedStack;
 		if (!itemstack.isEmpty()) {
@@ -266,7 +254,6 @@ public class GuiDankNull extends GuiModular {
 				f = 1.0F;
 				returningStack = ItemStack.EMPTY;
 			}
-
 			final int l2 = EasyMappings.slotPosX(returningStackDestSlot) - touchUpX;
 			final int i3 = EasyMappings.slotPosY(returningStackDestSlot) - touchUpY;
 			final int l1 = touchUpX + (int) (l2 * f);
@@ -274,7 +261,7 @@ public class GuiDankNull extends GuiModular {
 			drawStack(returningStack, l1, i2, (String) null);
 		}
 		GlStateManager.popMatrix();
-		if (inventoryplayer.getItemStack().isEmpty() && theSlot != null) {// && (theSlot.getHasStack())) {
+		if (inventoryplayer.getItemStack().isEmpty() && theSlot != null) {
 			final ItemStack itemstack1 = theSlot.getStack();
 			renderToolTip(itemstack1, mouseX, mouseY);
 		}
@@ -321,30 +308,24 @@ public class GuiDankNull extends GuiModular {
 
 	public void updateDragSplitting() {
 		final ItemStack itemstack = EasyMappings.player().inventory.getItemStack();
-
 		if (itemstack != null && dragSplitting) {
 			dragSplittingRemnant = itemstack.getCount();
-
 			for (final Slot slot : dragSplittingSlots) {
 				final ItemStack itemstack1 = itemstack.copy();
 				final int i = slot.getStack() == null ? 0 : slot.getStack().getCount();
 				Container.computeStackSize(dragSplittingSlots, dragSplittingLimit, itemstack1, i);
-
 				if (itemstack1.getCount() > itemstack1.getMaxStackSize()) {
 					itemstack1.setCount(itemstack1.getMaxStackSize());
 				}
-
 				if (itemstack1.getCount() > slot.getItemStackLimit(itemstack1)) {
 					itemstack1.setCount(slot.getItemStackLimit(itemstack1));
 				}
-
 				dragSplittingRemnant = dragSplittingRemnant - (itemstack1.getCount() - i);
 			}
 		}
 	}
 
 	private void drawDankNullSlot(final Slot slotIn) {
-
 		final GuiContainer gui = this;
 		final int i = EasyMappings.slotPosX(slotIn);
 		final int j = EasyMappings.slotPosY(slotIn);
@@ -361,7 +342,6 @@ public class GuiDankNull extends GuiModular {
 				return;
 			}
 			dragSplittingSlots.remove(slotIn);
-			//updateDragSplitting();
 		}
 		zLevel = 100.0F;
 		itemRender.zLevel = 100.0F;
@@ -411,7 +391,6 @@ public class GuiDankNull extends GuiModular {
 				GlStateManager.enableTexture2D();
 				GlStateManager.enableDepth();
 			}
-			//final int amount = getDankNullInventory().getSizeForSlot(DankNullUtils.getIndexForStack(getDankNullInventory(), is));
 			final int amount = is.getCount();
 			if (amount != 0) {
 				scaleFactor = 0.5F;
@@ -457,7 +436,6 @@ public class GuiDankNull extends GuiModular {
 		if (!EasyMappings.player().isEntityAlive() || EasyMappings.player().isDead) {
 			EasyMappings.player().closeScreen();
 		}
-		//getDankNullInventory().loadInventory(getDankNullInventory().getDNTag());
 	}
 
 	@Override
@@ -552,13 +530,6 @@ public class GuiDankNull extends GuiModular {
 		}
 	}*/
 
-	/*private boolean addStack(final InventoryDankNull inventory, final ItemStack addedStack) {
-		if (inventorySlots instanceof ContainerDankNullDock) {
-			return ((ContainerDankNullDock) inventorySlots).addStack(inventory, addedStack);
-		}
-		return ((ContainerDankNull) inventorySlots).addStack(inventory, addedStack);
-	}*/
-
 	@Override
 	protected void mouseReleased(final int mouseX, final int mouseY, final int state) {
 		super.mouseReleased(mouseX, mouseY, state);
@@ -577,9 +548,9 @@ public class GuiDankNull extends GuiModular {
 			}
 		}
 		final Slot s = getSlotAtPos(x, y);
-		IDankNullHandler dankNullHandler = this.getDankNullHandler();
-		if (s != null && (s instanceof SlotDankNull) && s.getHasStack()) {
-			final boolean showOreDictMessage = DankNullUtils.isOreDictBlacklistEnabled() && !DankNullUtils.isItemOreDictBlacklisted(s.getStack()) || DankNullUtils.isOreDictWhitelistEnabled() && DankNullUtils.isItemOreDictWhitelisted(s.getStack()) || !DankNullUtils.isOreDictBlacklistEnabled() && !DankNullUtils.isOreDictWhitelistEnabled();
+		final IDankNullHandler dankNullHandler = getDankNullHandler();
+		if (s != null && s instanceof SlotDankNull && s.getHasStack()) {
+			final boolean showOreDictMessage = ModConfig.isOreDictBlacklistEnabled() && !ModConfig.isItemOreDictBlacklisted(s.getStack()) || ModConfig.isOreDictWhitelistEnabled() && ModConfig.isItemOreDictWhitelisted(s.getStack()) || !ModConfig.isOreDictBlacklistEnabled() && !ModConfig.isOreDictWhitelistEnabled();
 			final ItemExtractionMode extractMode = dankNullHandler.getExtractionMode(s.getStack());
 			final ItemPlacementMode placementMode = dankNullHandler.getPlacementMode(s.getStack());
 			final Block selectedBlock = Block.getBlockFromItem(stack.getItem());

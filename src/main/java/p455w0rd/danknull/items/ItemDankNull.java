@@ -2,9 +2,12 @@ package p455w0rd.danknull.items;
 
 import static p455w0rd.danknull.inventory.PlayerSlot.EnumInvCategory.MAIN;
 
+import java.util.List;
 import java.util.UUID;
 
 import javax.annotation.Nonnull;
+
+import com.google.common.collect.Lists;
 
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.*;
@@ -12,8 +15,7 @@ import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.*;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.*;
 import net.minecraft.nbt.NBTTagCompound;
@@ -27,6 +29,7 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fluids.UniversalBucket;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import p455w0rd.danknull.api.IDankNullHandler;
 import p455w0rd.danknull.client.render.DankNullRenderer;
 import p455w0rd.danknull.init.ModConfig.Options;
 import p455w0rd.danknull.init.ModGlobals.DankNullTier;
@@ -35,13 +38,13 @@ import p455w0rd.danknull.init.ModGuiHandler;
 import p455w0rd.danknull.init.ModGuiHandler.GUIType;
 import p455w0rd.danknull.inventory.PlayerSlot;
 import p455w0rd.danknull.inventory.PlayerSlot.EnumInvCategory;
+import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
+import p455w0rd.danknull.inventory.cap.DankNullCapabilityProvider;
 import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rd.danknull.util.DankNullUtils.ItemPlacementMode;
-import p455w0rd.danknull.util.cap.CapabilityDankNull;
-import p455w0rd.danknull.util.cap.DankNullCapabilityProvider;
-import p455w0rd.danknull.util.cap.IDankNullHandler;
 import p455w0rdslib.api.client.*;
-import p455w0rdslib.util.*;
+import p455w0rdslib.util.ItemNBTUtils;
+import p455w0rdslib.util.TextUtils;
 
 /**
  * @author p455w0rd
@@ -50,9 +53,9 @@ import p455w0rdslib.util.*;
 @SuppressWarnings({
 		"unchecked", "deprecation"
 })
-public class ItemDankNull extends Item implements IModelHolder/*, IBlockLightEmitter*/ {
+public class ItemDankNull extends Item implements IModelHolder {
 
-	private DankNullTier tier;
+	private final DankNullTier tier;
 	@SideOnly(Side.CLIENT)
 	private ItemLayerWrapper wrappedModel;
 
@@ -62,6 +65,26 @@ public class ItemDankNull extends Item implements IModelHolder/*, IBlockLightEmi
 		setUnlocalizedName(tier.getUnlocalizedNameForDankNull());
 		setMaxStackSize(1);
 		setMaxDamage(0);
+	}
+
+	public static List<PlayerSlot> getDankNullsForPlayer(final EntityPlayer player) {
+		final InventoryPlayer playerInv = player.inventory;
+		final List<PlayerSlot> dankNullList = Lists.newArrayList();
+		for (int i = 0; i < playerInv.mainInventory.size(); i++) {
+			if (isDankNull(playerInv.mainInventory.get(i))) {
+				dankNullList.add(new PlayerSlot(i, MAIN));
+			}
+		}
+		for (int i = 0; i < playerInv.offHandInventory.size(); i++) {
+			if (isDankNull(playerInv.offHandInventory.get(i))) {
+				dankNullList.add(new PlayerSlot(i, MAIN));
+			}
+		}
+		return dankNullList;
+	}
+
+	public static boolean isDankNull(final ItemStack stack) {
+		return !stack.isEmpty() && stack.hasCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
 	}
 
 	public DankNullTier getTier() {
@@ -186,7 +209,7 @@ public class ItemDankNull extends Item implements IModelHolder/*, IBlockLightEmi
 		final PlayerSlot playerSlot = new PlayerSlot(player.inventory.currentItem, MAIN);
 		final IDankNullHandler dankNullHandler = stack.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
 
-		final ItemStack selectedStack = dankNullHandler.getSelected() > -1 ? dankNullHandler.getStackInSlot(dankNullHandler.getSelected()) : ItemStack.EMPTY;
+		final ItemStack selectedStack = dankNullHandler.getSelected() > -1 ? dankNullHandler.getFullStackInSlot(dankNullHandler.getSelected()) : ItemStack.EMPTY;
 		final Block selectedBlock = Block.getBlockFromItem(selectedStack.getItem());
 		final boolean isSelectedStackABlock = selectedBlock != null && selectedBlock != Blocks.AIR;
 		final Block blockUnderPlayer = getBlockUnderPlayer(player).getBlock();
@@ -372,71 +395,5 @@ public class ItemDankNull extends Item implements IModelHolder/*, IBlockLightEmi
 	public boolean shouldCauseReequipAnimation(final ItemStack oldStack, final ItemStack newStack, final boolean slotChanged) {
 		return !oldStack.isItemEqual(newStack) || slotChanged;
 	}
-
-	/*private static int brightness = 0;
-	private static boolean brightnessDir = false;
-	private static int step = 0;
-	private static boolean initLight = false;
-	
-	@Override
-	public void emitLight(final List<Light> lights, final Entity e) {
-		if (e == null || !Options.enabledColoredLightShaderSupport) {
-			return;
-		}
-		if (!initLight) {
-			step = e.getEntityWorld().rand.nextInt(4);
-			initLight = true;
-		}
-		ItemStack lightStack = ItemStack.EMPTY;
-		if (e instanceof EntityPlayer) {
-			for (final ItemStack stack : ((EntityPlayer) e).getHeldEquipment()) {
-				if (DankNullUtils.isDankNull(stack)) {
-					lightStack = stack.copy();
-					break;
-				}
-				else if (stack.getItem() instanceof ItemBlockDankNullDock) {
-					lightStack = DankNullUtils.getDockedDankNull(stack);
-				}
-			}
-		}
-		else if (e instanceof EntityItem) {
-			if (DankNullUtils.isDankNull(((EntityItem) e).getItem())) {
-				lightStack = ((EntityItem) e).getItem();
-			}
-			else if (((EntityItem) e).getItem().getItem() instanceof ItemBlockDankNullDock) {
-				lightStack = DankNullUtils.getDockedDankNull(((EntityItem) e).getItem());
-			}
-		}
-		if (!lightStack.isEmpty() && lightStack.hasEffect()) {
-			if (brightnessDir) {
-				brightness++;
-				if (brightness > DankNullUtils.STEPS_MOST[step]) {
-					brightnessDir = !brightnessDir;
-					step++;
-					if (step > 4) {
-						step = 0;
-					}
-				}
-			}
-			else {
-				brightness--;
-				if (brightness < DankNullUtils.STEPS_LEAST[step]) {
-					brightnessDir = !brightnessDir;
-					step++;
-					if (step > 4) {
-						step = 0;
-					}
-				}
-			}
-	
-			final Vec3i c = RenderUtils.hexToRGB(DankNullUtils.getTier(lightStack).getHexColor(false));
-			lights.add(Light.builder().pos(e).color(c.getX(), c.getY(), c.getZ(), (float) (brightness * 0.001)).radius(2.5f).intensity(5).build());
-		}
-		else {
-			brightnessDir = false;
-			brightness = 0;
-			step = 0;
-		}
-	}*/
 
 }

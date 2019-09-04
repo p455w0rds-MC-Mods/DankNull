@@ -16,20 +16,16 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.ItemStackHandler;
-
+import net.minecraftforge.items.ItemHandlerHelper;
+import p455w0rd.danknull.api.IDankNullHandler;
 import p455w0rd.danknull.api.IRedstoneControllable;
 import p455w0rd.danknull.init.ModDataFixing.DankNullFixer;
-import p455w0rd.danknull.init.ModGlobals;
 import p455w0rd.danknull.init.ModGlobals.NBT;
-import p455w0rd.danknull.init.ModLogger;
 import p455w0rd.danknull.integration.PwLib;
-import p455w0rd.danknull.inventory.DankNullItemStackHandler;
+import p455w0rd.danknull.inventory.DankNullHandler;
+import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
 import p455w0rd.danknull.network.VanillaPacketDispatcher;
 import p455w0rd.danknull.util.DankNullUtils;
-import p455w0rd.danknull.util.cap.CapabilityDankNull;
-import p455w0rd.danknull.util.cap.DankNullHandler;
-import p455w0rd.danknull.util.cap.IDankNullHandler;
 import p455w0rdslib.integration.Albedo;
 
 /**
@@ -59,10 +55,10 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 				return PwLib.getTileCapability(this);
 			}
 			if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
-				return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(this.dankNullHandler);
+				return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(dankNullHandler);
 			}
 			if (capability == CapabilityDankNull.DANK_NULL_CAPABILITY) {
-				return CapabilityDankNull.DANK_NULL_CAPABILITY.cast(this.dankNullHandler);
+				return CapabilityDankNull.DANK_NULL_CAPABILITY.cast(dankNullHandler);
 			}
 		}
 		return super.getCapability(capability, facing);
@@ -70,18 +66,53 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 
 	public void removeDankNull() {
 		if (!getDankNull().isEmpty()) {
-			this.dankNull = ItemStack.EMPTY;
-			this.dankNullHandler = null;
-			this.markDirty();
+			dankNull = ItemStack.EMPTY;
+			dankNullHandler = null;
+			markDirty();
 		}
 	}
 
 	public void setDankNull(final ItemStack dankNull) {
 		this.dankNull = new ItemStack(fixer.fixTagCompound(dankNull.serializeNBT()));
 		if (!this.dankNull.isEmpty()) {
-			this.dankNullHandler = new DankNullHandler(DankNullUtils.getTier(this.dankNull)) {
+			dankNullHandler = new DankNullHandler(DankNullUtils.getTier(this.dankNull)) {
+
 				@Override
-				protected void onContentsChanged(int slot) {
+				public ItemStack getStackInSlot(final int slot) {
+					return getExtractableStackInSlot(slot);
+				}
+
+				@Nonnull
+				@Override
+				public ItemStack extractItem(final int slot, final int amount, final boolean simulate) {
+					if (amount < 1) {
+						return ItemStack.EMPTY;
+					}
+					validateSlot(slot);
+					final ItemStack existing = getFullStackInSlot(slot);
+					if (existing.isEmpty()) {
+						return ItemStack.EMPTY;
+					}
+					final int existingCount = existing.getCount();
+					final int extract = Math.min(amount, existing.getMaxStackSize());
+					if (existingCount <= extract) {
+						if (!simulate) {
+							getStackList().set(slot, ItemStack.EMPTY);
+							onContentsChanged(slot);
+						}
+						return existing;
+					}
+					else {
+						if (!simulate) {
+							getStackList().set(slot, ItemHandlerHelper.copyStackWithSize(existing, existingCount - extract));
+							onContentsChanged(slot);
+						}
+						return ItemHandlerHelper.copyStackWithSize(existing, extract);
+					}
+				}
+
+				@Override
+				protected void onContentsChanged(final int slot) {
 					super.onContentsChanged(slot);
 					TileDankNullDock.this.markDirty();
 				}
@@ -92,9 +123,9 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 					TileDankNullDock.this.markDirty();
 				}
 			};
-			CapabilityDankNull.DANK_NULL_CAPABILITY.readNBT(this.dankNullHandler, null, this.dankNull.getTagCompound());
+			CapabilityDankNull.DANK_NULL_CAPABILITY.readNBT(dankNullHandler, null, this.dankNull.getTagCompound());
 		}
-		this.markDirty();
+		markDirty();
 	}
 
 	public ItemStack getDankNull() {
@@ -143,18 +174,18 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 	@Override
 	@Nonnull
 	public NBTTagCompound getUpdateTag() {
-		return this.writeToNBT(new NBTTagCompound());
+		return writeToNBT(new NBTTagCompound());
 	}
 
 	@Override
 	@Nullable
 	public SPacketUpdateTileEntity getUpdatePacket() {
-		return new SPacketUpdateTileEntity(this.getPos(), -1, this.getUpdateTag());
+		return new SPacketUpdateTileEntity(getPos(), -1, getUpdateTag());
 	}
 
 	@Override
 	public void onDataPacket(final NetworkManager net, final SPacketUpdateTileEntity pkt) {
-		this.handleUpdateTag(pkt.getNbtCompound());
+		handleUpdateTag(pkt.getNbtCompound());
 	}
 
 	@Override
@@ -164,7 +195,7 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 		if (world != null) { // Shouldn't be null
 			world.markBlockRangeForRenderUpdate(pos, pos);
 			world.notifyBlockUpdate(pos, world.getBlockState(pos), world.getBlockState(pos), 3);
-			world.scheduleBlockUpdate(pos, this.getBlockType(), 0, 0);
+			world.scheduleBlockUpdate(pos, getBlockType(), 0, 0);
 		}
 	}
 
@@ -172,11 +203,12 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 	public void readFromNBT(final NBTTagCompound nbt) {
 		super.readFromNBT(nbt);
 		if (nbt.hasKey(NBT.DOCKEDSTACK, Constants.NBT.TAG_COMPOUND)) {
-			NBTTagCompound dockedTag = nbt.getCompoundTag(NBT.DOCKEDSTACK);
-			ItemStack dankNull = new ItemStack(dockedTag);
-			this.setDankNull(dankNull);
-			if (!dankNull.isEmpty() && dankNull.hasTagCompound())
-				CapabilityDankNull.DANK_NULL_CAPABILITY.readNBT(this.dankNullHandler, null, dankNull.getTagCompound());
+			final NBTTagCompound dockedTag = nbt.getCompoundTag(NBT.DOCKEDSTACK);
+			final ItemStack dankNull = new ItemStack(dockedTag);
+			setDankNull(dankNull);
+			if (!dankNull.isEmpty() && dankNull.hasTagCompound()) {
+				CapabilityDankNull.DANK_NULL_CAPABILITY.readNBT(dankNullHandler, null, dankNull.getTagCompound());
+			}
 		}
 	}
 
@@ -184,9 +216,9 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 	@Nonnull
 	public NBTTagCompound writeToNBT(NBTTagCompound compound) {
 		compound = super.writeToNBT(compound);
-		ItemStack dankNull = this.getDankNull();
-		if (this.dankNullHandler != null) {
-			dankNull.setTagCompound((NBTTagCompound) CapabilityDankNull.DANK_NULL_CAPABILITY.writeNBT(this.dankNullHandler, null));
+		final ItemStack dankNull = getDankNull();
+		if (dankNullHandler != null) {
+			dankNull.setTagCompound((NBTTagCompound) CapabilityDankNull.DANK_NULL_CAPABILITY.writeNBT(dankNullHandler, null));
 		}
 		compound.setTag(NBT.DOCKEDSTACK, dankNull.serializeNBT());
 		return compound;

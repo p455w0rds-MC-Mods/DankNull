@@ -7,13 +7,14 @@ import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import p455w0rd.danknull.client.render.TESRDankNullDock.DankNullDockItemRenderer;
 import p455w0rd.danknull.init.ModBlocks;
 import p455w0rd.danknull.init.ModConfig.Options;
+import p455w0rd.danknull.init.ModGlobals.NBT;
 import p455w0rd.danknull.integration.PwLib;
-import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rdslib.api.client.*;
 import p455w0rdslib.integration.Albedo;
 import p455w0rdslib.util.TextUtils;
@@ -46,12 +47,27 @@ public class ItemBlockDankNullDock extends ItemBlock implements IModelHolder {
 						return p455w0rd.danknull.integration.Albedo.getStackCapability(stack);
 					}
 					else if (PwLib.checkCap(capability)) {
-						return PwLib.getStackCapability(DankNullUtils.getDockedDankNull(stack));
+						return PwLib.getStackCapability(getDockedDankNull(stack));
 					}
 				}
 				return null;
 			}
 		};
+	}
+
+	public static ItemStack getDockedDankNull(final ItemStack dankDock) {
+		ItemStack dockedDank = ItemStack.EMPTY;
+		if (dankDock.hasTagCompound() && dankDock.getTagCompound().hasKey(NBT.BLOCKENTITYTAG, Constants.NBT.TAG_COMPOUND)) {
+			final NBTTagCompound nbt = dankDock.getTagCompound().getCompoundTag(NBT.BLOCKENTITYTAG);
+			if (!nbt.hasNoTags()) {
+				dockedDank = new ItemStack(nbt.getCompoundTag(NBT.DOCKEDSTACK));
+			}
+		}
+		return dockedDank;
+	}
+
+	public static boolean isDankNullDock(final ItemStack stack) {
+		return stack.getItem() instanceof ItemBlockDankNullDock;
 	}
 
 	@Override

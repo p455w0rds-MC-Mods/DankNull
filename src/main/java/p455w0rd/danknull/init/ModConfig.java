@@ -57,6 +57,36 @@ public class ModConfig {
 		}
 	}
 
+	public static boolean isOreDictBlacklistEnabled() {
+		return !Options.getOreBlacklist().isEmpty() && !isOreDictWhitelistEnabled();
+	}
+
+	public static boolean isOreDictWhitelistEnabled() {
+		return !Options.getOreWhitelist().isEmpty();
+	}
+
+	public static boolean isItemOreDictBlacklisted(final ItemStack stack) {
+		if (isOreDictBlacklistEnabled()) {
+			for (final int id : OreDictionary.getOreIDs(stack)) {
+				if (Options.getOreBlacklist().contains(OreDictionary.getOreName(id))) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	public static boolean isItemOreDictWhitelisted(final ItemStack stack) {
+		if (isOreDictWhitelistEnabled()) {
+			for (final int id : OreDictionary.getOreIDs(stack)) {
+				if (Options.getOreWhitelist().contains(OreDictionary.getOreName(id))) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	public static class Options {
 
 		public static boolean enableColoredLightShaderSupport = true;
