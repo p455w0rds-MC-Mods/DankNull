@@ -12,7 +12,7 @@ import p455w0rdslib.api.client.IModelHolder;
 public class ModBlocks {
 
 	public static final BlockDankNullDock DANKNULL_DOCK = new BlockDankNullDock();
-	public static final Block[] BLOCK_ARRAY = new Block[] {
+	private static final Block[] BLOCK_ARRAY = new Block[] {
 			DANKNULL_DOCK
 	};
 

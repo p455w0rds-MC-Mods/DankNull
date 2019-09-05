@@ -8,6 +8,8 @@ import java.util.zip.GZIPOutputStream;
 import io.netty.buffer.ByteBuf;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.*;
+import p455w0rd.danknull.init.ModConfig;
+import p455w0rd.danknull.init.ModConfig.Options;
 
 /**
  * @author p455w0rd
@@ -70,7 +72,11 @@ public class PacketConfigSync implements IMessage {
 
 		private void handle(final PacketConfigSync message, final MessageContext ctx) {
 			if (ctx.getClientHandler() != null) {
-				//Options.TEMP_REGULATOR_RADIUS = (Integer) message.values.get("TempRegulatorBlockRadius");
+				Options.creativeBlacklist = (String) message.values.get(ModConfig.CONST_CREATIVE_BLACKLIST);
+				Options.creativeWhitelist = (String) message.values.get(ModConfig.CONST_CREATIVE_WHITELIST);
+				Options.oreBlacklist = (String) message.values.get(ModConfig.CONST_OREDICT_BLACKLIST);
+				Options.oreWhitelist = (String) message.values.get(ModConfig.CONST_OREDICT_WHITELIST);
+				Options.disableOreDictMode = (Boolean) message.values.get(ModConfig.CONST_DISABLE_OREDICT);
 			}
 		}
 	}

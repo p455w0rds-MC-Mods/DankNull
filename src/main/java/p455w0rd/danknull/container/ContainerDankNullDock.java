@@ -9,7 +9,7 @@ import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
 /**
  * @author p455w0rd
  */
-public class ContainerDankNullDock extends ContainerDankNullBase {
+public class ContainerDankNullDock extends ContainerDankNull {
 
 	private final TileDankNullDock tile;
 	private final IDankNullHandler handler;
@@ -22,8 +22,8 @@ public class ContainerDankNullDock extends ContainerDankNullBase {
 	}
 
 	@Override
-	public boolean canInteractWith(EntityPlayer player) {
-		return tile.hasCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null) && super.canInteractWith(player) ;
+	public boolean canInteractWith(final EntityPlayer player) {
+		return tile.hasCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null) && super.canInteractWith(player);
 	}
 
 	@Override
@@ -40,4 +40,5 @@ public class ContainerDankNullDock extends ContainerDankNullBase {
 	public ItemStack getDankNullStack() {
 		return tile.getDankNull();
 	}
+
 }

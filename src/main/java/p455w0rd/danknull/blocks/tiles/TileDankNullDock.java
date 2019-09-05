@@ -18,7 +18,6 @@ import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import p455w0rd.danknull.api.IDankNullHandler;
-import p455w0rd.danknull.api.IRedstoneControllable;
 import p455w0rd.danknull.init.ModDataFixing.DankNullFixer;
 import p455w0rd.danknull.init.ModGlobals.NBT;
 import p455w0rd.danknull.integration.PwLib;
@@ -32,10 +31,8 @@ import p455w0rdslib.integration.Albedo;
  * @author p455w0rd
  *
  */
-public class TileDankNullDock extends TileEntity implements IRedstoneControllable {
+public class TileDankNullDock extends TileEntity {
 
-	private RedstoneMode redstoneMode = RedstoneMode.REQUIRED;
-	private boolean hasRedstoneSignal = false;
 	private ItemStack dankNull = ItemStack.EMPTY;
 	private final DankNullFixer fixer = new DankNullFixer(FixTypes.BLOCK_ENTITY);
 	private IDankNullHandler dankNullHandler = null;
@@ -133,40 +130,6 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 	}
 
 	@Override
-	public RedstoneMode getRedstoneMode() {
-		return redstoneMode;
-	}
-
-	@Override
-	public void setRedstoneMode(final RedstoneMode mode) {
-		redstoneMode = mode;
-		markDirty();
-	}
-
-	@Override
-	public boolean isRedstoneRequirementMet() {
-		switch (getRedstoneMode()) {
-		default:
-		case IGNORED:
-			return true;
-		case REQUIRED:
-			return hasRSSignal();
-		case REQUIRE_NONE:
-			return !hasRSSignal();
-		}
-	}
-
-	@Override
-	public boolean hasRSSignal() {
-		return hasRedstoneSignal;
-	}
-
-	@Override
-	public void setRSSignal(final boolean isPowered) {
-		hasRedstoneSignal = isPowered;
-	}
-
-	@Override
 	public boolean shouldRefresh(final World world, final BlockPos pos, final IBlockState oldState, final IBlockState newSate) {
 		return super.shouldRefresh(world, pos, oldState, newSate);
 	}
@@ -222,10 +185,6 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 		}
 		compound.setTag(NBT.DOCKEDSTACK, dankNull.serializeNBT());
 		return compound;
-	}
-
-	public enum RedstoneMode {
-			REQUIRED, REQUIRE_NONE, IGNORED
 	}
 
 }

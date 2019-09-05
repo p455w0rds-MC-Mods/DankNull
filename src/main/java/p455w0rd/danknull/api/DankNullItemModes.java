@@ -16,6 +16,7 @@ public class DankNullItemModes {
 			KEEP_64(64, TextUtils.translate("dn.extract_all_but.desc") + " 64"),
 			KEEP_NONE(0, TextUtils.translate("dn.extract_all.desc"));
 
+		public static ItemExtractionMode[] VALUES = values();
 		int number = 0;
 		String msg;
 
@@ -49,6 +50,7 @@ public class DankNullItemModes {
 			KEEP_64(64, TextUtils.translate("dn.place_all_but.desc") + " 64"),
 			KEEP_NONE(0, TextUtils.translate("dn.place_all.desc"));
 
+		public static ItemPlacementMode[] VALUES = values();
 		int number = 0;
 		String msg;
 

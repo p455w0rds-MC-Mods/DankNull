@@ -12,7 +12,7 @@ import net.minecraftforge.fml.common.network.simpleimpl.*;
 import p455w0rd.danknull.api.DankNullItemModes.ItemExtractionMode;
 import p455w0rd.danknull.api.DankNullItemModes.ItemPlacementMode;
 import p455w0rd.danknull.api.IDankNullHandler;
-import p455w0rd.danknull.container.ContainerDankNullBase;
+import p455w0rd.danknull.container.ContainerDankNull;
 import p455w0rd.danknull.inventory.PlayerSlot;
 import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
 import p455w0rd.danknull.items.ItemDankNull;
@@ -97,7 +97,7 @@ public class PacketChangeMode implements IMessage {
 
 	@Override
 	public void fromBytes(final ByteBuf buf) {
-		changeType = ChangeType.values()[buf.readInt()];
+		changeType = ChangeType.VALUES[buf.readInt()];
 		slot = buf.readInt();
 		uuid = ByteBufUtils.readUTF8String(buf);
 	}
@@ -129,8 +129,8 @@ public class PacketChangeMode implements IMessage {
 		public IMessage onMessage(final PacketChangeMode message, final MessageContext ctx) {
 			FMLCommonHandler.instance().getWorldThread(ctx.netHandler).addScheduledTask(() -> {
 				final Container container = ctx.getServerHandler().player.openContainer;
-				if (container instanceof ContainerDankNullBase) {
-					PacketChangeMode.handleModeUpdate(((ContainerDankNullBase) container).getHandler(), message.changeType, message.slot);
+				if (container instanceof ContainerDankNull) {
+					PacketChangeMode.handleModeUpdate(((ContainerDankNull) container).getHandler(), message.changeType, message.slot);
 				}
 				else if (message.uuid != null && !message.uuid.isEmpty()) {
 					final ItemStack stack = findDankNull(ctx.getServerHandler().player, message.uuid);
@@ -199,6 +199,7 @@ public class PacketChangeMode implements IMessage {
 	}
 
 	public enum ChangeType {
+
 			LOCK,
 			UNLOCK,
 			SELECTED,
@@ -213,6 +214,9 @@ public class PacketChangeMode implements IMessage {
 			PLACE_KEEP_1,
 			PLACE_KEEP_16,
 			PLACE_KEEP_64,
-			PLACE_KEEP_NONE
+			PLACE_KEEP_NONE;
+
+		public static ChangeType[] VALUES = values(); //Learned this from McJty..if your Enum won't be modified later, cache the values
+
 	}
 }

@@ -21,7 +21,7 @@ import p455w0rdslib.util.TextUtils;
  * @author p455w0rd
  *
  */
-public class ItemDankNullPanel extends Item implements IModelHolder/*, IBlockLightEmitter*/ {
+public class ItemDankNullPanel extends Item implements IModelHolder {
 
 	@SideOnly(Side.CLIENT)
 	ItemLayerWrapper wrappedModel;

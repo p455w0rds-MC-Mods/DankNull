@@ -34,7 +34,7 @@ public class RenderModel {
 		final Tessellator tessellator = Tessellator.getInstance();
 		final BufferBuilder vertexbuffer = tessellator.getBuffer();
 		vertexbuffer.begin(7, DefaultVertexFormats.ITEM);
-		for (final EnumFacing enumfacing : EnumFacing.values()) {
+		for (final EnumFacing enumfacing : EnumFacing.VALUES) {
 			renderQuads(vertexbuffer, model.getQuads((IBlockState) null, enumfacing, 0L), color, stack);
 		}
 		renderQuads(vertexbuffer, model.getQuads((IBlockState) null, (EnumFacing) null, 0L), color, stack);

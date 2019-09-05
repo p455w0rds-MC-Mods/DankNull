@@ -60,12 +60,9 @@ public class TOP {
 
 	public static class GetTheOneProbe implements com.google.common.base.Function<ITheOneProbe, Void> {
 
-		//private static ITheOneProbe probe;
-
 		@Nullable
 		@Override
 		public Void apply(final ITheOneProbe theOneProbe) {
-			//probe = theOneProbe;
 			theOneProbe.registerProvider(new DankNullProbeInfoProvider());
 			return null;
 		}
@@ -77,7 +74,7 @@ public class TOP {
 
 		@Override
 		public String getID() {
-			return TheOneProbe.MODID/*ModGlobals.MODID*/ + ":default";
+			return TheOneProbe.MODID + ":default";
 		}
 
 		@Override
@@ -104,13 +101,7 @@ public class TOP {
 						}
 						final ItemStack selectedStack = dankNullHandler.getFullStackInSlot(dankNullHandler.getSelected());
 						if (!selectedStack.isEmpty()) {
-							/*String countText = "";
-							if (selectedStack.getCount() >= 100000) {
-								tmpStack.setCount(1);
-								countText = ", " + TextUtils.translate("dn.count.desc") + ": " + (DankNullUtils.isCreativeDankNull(dockedDankNull) ? TextUtils.translate("dn.infinite.desc") : "" + selectedStack.getCount());
-							}*/
 							topTip.horizontal(new LayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT).borderColor(0xFFFF0000).spacing(-1)).item(selectedStack);
-							//topTip.text(" " + TextUtils.translate("dn.selected.desc") + "" + countText);
 							topTip.text(TextUtils.translate("dn.extract_mode.desc") + ": " + dankNullHandler.getExtractionMode(selectedStack).getTooltip());
 						}
 					}

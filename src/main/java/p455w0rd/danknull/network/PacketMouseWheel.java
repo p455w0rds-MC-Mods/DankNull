@@ -6,7 +6,7 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.*;
-import p455w0rd.danknull.container.ContainerDankNull;
+import p455w0rd.danknull.container.ContainerDankNullItem;
 import p455w0rd.danknull.container.ContainerDankNullDock;
 import p455w0rd.danknull.inventory.slot.SlotDankNull;
 
@@ -46,7 +46,7 @@ public class PacketMouseWheel implements IMessage {
 		public IMessage onMessage(final PacketMouseWheel message, final MessageContext ctx) {
 			FMLCommonHandler.instance().getWorldThread(ctx.netHandler).addScheduledTask(() -> {
 				final EntityPlayer player = ctx.getServerHandler().player;
-				if (player.openContainer instanceof ContainerDankNull || player.openContainer instanceof ContainerDankNullDock) {
+				if (player.openContainer instanceof ContainerDankNullItem || player.openContainer instanceof ContainerDankNullDock) {
 					//final ItemStack dankNull = player.openContainer instanceof ContainerDankNull ? ((ContainerDankNull) player.openContainer).getDankNullInPlayerSlot() : ((ContainerDankNullDock) player.openContainer).getDankNull();
 					final Slot s = player.openContainer.inventorySlots.get(36 + message.values[1]);
 					if (s instanceof SlotDankNull) {

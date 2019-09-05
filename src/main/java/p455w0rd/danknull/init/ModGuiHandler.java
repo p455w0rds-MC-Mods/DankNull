@@ -16,8 +16,8 @@ import net.minecraftforge.fml.common.network.NetworkRegistry;
 import p455w0rd.danknull.DankNull;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
 import p455w0rd.danknull.client.gui.GuiDankNull;
-import p455w0rd.danknull.container.ContainerDankNull;
 import p455w0rd.danknull.container.ContainerDankNullDock;
+import p455w0rd.danknull.container.ContainerDankNullItem;
 import p455w0rd.danknull.inventory.PlayerSlot;
 import p455w0rd.danknull.items.ItemDankNull;
 
@@ -26,8 +26,6 @@ import p455w0rd.danknull.items.ItemDankNull;
  *
  */
 public class ModGuiHandler implements IGuiHandler {
-
-	//private static PlayerSlot PLAYER_SLOT;
 
 	public static void init() {
 		ModLogger.info("Registering GUI Handler");
@@ -42,7 +40,7 @@ public class ModGuiHandler implements IGuiHandler {
 			if (dankNull == null) {
 				return null;
 			}
-			return new ContainerDankNull(player, dankNull);
+			return new ContainerDankNullItem(player, dankNull);
 		case DANKNULL_TE:
 			final TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
 			if (te instanceof TileDankNullDock) {
@@ -59,8 +57,6 @@ public class ModGuiHandler implements IGuiHandler {
 
 	@Override
 	public Object getClientGuiElement(final int id, final EntityPlayer player, final World world, final int x, final int y, final int z) {
-		//final Container c = (Container) getServerGuiElement(id, player, world, x, y, z);
-		//if (c != null) {
 		switch (GUIType.VALUES[id]) {
 		case DANKNULL_TE:
 			final TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
@@ -75,22 +71,15 @@ public class ModGuiHandler implements IGuiHandler {
 			if (dankNull == null) {
 				return null;
 			}
-			return new GuiDankNull(new ContainerDankNull(player, dankNull));
+			return new GuiDankNull(new ContainerDankNullItem(player, dankNull));
 		default:
 			break;
 		}
-		//}
 		return null;
 	}
 
 	public static void launchGui(final GUIType type, final EntityPlayer player, final World world, final BlockPos pos, @Nullable final PlayerSlot playerSlot) {
 		if (!world.isRemote) {
-			/*if (playerSlot == null) {
-				PLAYER_SLOT = null;
-			}
-			else {
-				PLAYER_SLOT = playerSlot;
-			}*/
 			player.openGui(DankNull.INSTANCE, type.ordinal(), world, pos.getX(), pos.getY(), pos.getZ());
 		}
 	}
@@ -120,9 +109,7 @@ public class ModGuiHandler implements IGuiHandler {
 
 			DANKNULL, DANKNULL_TE;
 
-		public static final GUIType[] VALUES = new GUIType[] {
-				DANKNULL, DANKNULL_TE
-		};
+		public static final GUIType[] VALUES = values();
 
 	}
 

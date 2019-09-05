@@ -27,7 +27,7 @@ import net.minecraftforge.oredict.OreDictionary;
 import p455w0rd.danknull.api.DankNullItemModes.ItemExtractionMode;
 import p455w0rd.danknull.api.DankNullItemModes.ItemPlacementMode;
 import p455w0rd.danknull.api.IDankNullHandler;
-import p455w0rd.danknull.container.ContainerDankNullBase;
+import p455w0rd.danknull.container.ContainerDankNull;
 import p455w0rd.danknull.container.ContainerDankNullDock;
 import p455w0rd.danknull.init.*;
 import p455w0rd.danknull.init.ModConfig.Options;
@@ -58,7 +58,7 @@ public class GuiDankNull extends GuiModular {
 	protected int ySize = 140;
 	private final DankNullTier tier;
 
-	public GuiDankNull(final ContainerDankNullBase c) {
+	public GuiDankNull(final ContainerDankNull c) {
 		super(c);
 		tier = c.getHandler().getTier();
 		setWidth(210);
@@ -67,7 +67,7 @@ public class GuiDankNull extends GuiModular {
 	}
 
 	public IDankNullHandler getDankNullHandler() {
-		return ((ContainerDankNullBase) inventorySlots).getHandler();
+		return ((ContainerDankNull) inventorySlots).getHandler();
 	}
 
 	@Override
@@ -133,7 +133,7 @@ public class GuiDankNull extends GuiModular {
 		return slots;
 	}
 
-	public void drawSelectionBox(final int x) {
+	private void drawSelectionBox(final int x) {
 		final int selectedBoxColor = getDankNullHandler().getTier().ordinal() == 0 ? 0xFFFFFF00 : -1140916224;
 		drawGradientRect(x - 75, 4, x - 66, 5, selectedBoxColor, selectedBoxColor);
 		drawGradientRect(x - 75, 4, x - 74, 14, selectedBoxColor, selectedBoxColor);
@@ -141,7 +141,7 @@ public class GuiDankNull extends GuiModular {
 		drawGradientRect(x - 66, 4, x - 65, 14, selectedBoxColor, selectedBoxColor);
 	}
 
-	public void drawSelectionBox(final int x, final int y) {
+	private void drawSelectionBox(final int x, final int y) {
 		final int selectedBoxColor = getDankNullHandler().getTier().ordinal() == 0 ? 0xFFFFFF00 : -1140916224;
 		drawGradientRect(x - 1, y - 1, x + 16, y, selectedBoxColor, selectedBoxColor);
 		drawGradientRect(x - 1, y - 1, x, y + 17, selectedBoxColor, selectedBoxColor);
@@ -484,9 +484,9 @@ public class GuiDankNull extends GuiModular {
 			for (int i = 0; i < times; i++) {
 				final Slot s = inventorySlots.inventorySlots.get(36 + slot.getSlotIndex());
 				if (s instanceof SlotDankNull || s instanceof SlotDankNullDock) {
-	
+
 					if (wheel < 0) { //add
-	
+
 						final ItemStack mouseStack = mc.player.inventory.getItemStack();
 						final ItemStack slotStack = s.getStack();
 						final InventoryDankNull tmpInv = DankNullUtils.getNewDankNullInventory(getDankNull());

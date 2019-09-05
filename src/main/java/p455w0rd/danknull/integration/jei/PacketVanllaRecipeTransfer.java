@@ -34,7 +34,7 @@ public class PacketVanllaRecipeTransfer extends PacketJei {
 		this.maxTransfer = maxTransfer;
 	}
 	*/
-	public PacketVanllaRecipeTransfer(Map<Integer, ItemStack> recipeMap, boolean maxTransfer) {
+	public PacketVanllaRecipeTransfer(final Map<Integer, ItemStack> recipeMap, final boolean maxTransfer) {
 		this.recipeMap = recipeMap;
 		this.maxTransfer = maxTransfer;
 	}
@@ -45,9 +45,9 @@ public class PacketVanllaRecipeTransfer extends PacketJei {
 	}
 
 	@Override
-	public void writePacketData(PacketBuffer buf) {
+	public void writePacketData(final PacketBuffer buf) {
 		buf.writeVarInt(recipeMap.size());
-		for (Map.Entry<Integer, ItemStack> recipeMapEntry : recipeMap.entrySet()) {
+		for (final Map.Entry<Integer, ItemStack> recipeMapEntry : recipeMap.entrySet()) {
 			buf.writeVarInt(recipeMapEntry.getKey());
 			ByteBufUtils.writeItemStack(buf, recipeMapEntry.getValue() == null ? ItemStack.EMPTY : recipeMapEntry.getValue());
 		}
@@ -56,7 +56,7 @@ public class PacketVanllaRecipeTransfer extends PacketJei {
 				for (Integer craftingSlot : craftingSlots) {
 					buf.writeVarInt(craftingSlot);
 				}
-		
+
 				buf.writeVarInt(inventorySlots.size());
 				for (Integer inventorySlot : inventorySlots) {
 					buf.writeVarInt(inventorySlot);
@@ -65,12 +65,12 @@ public class PacketVanllaRecipeTransfer extends PacketJei {
 		buf.writeBoolean(maxTransfer);
 	}
 
-	public static void readPacketData(PacketBuffer buf, EntityPlayer player) throws IOException {
-		int recipeMapSize = buf.readVarInt();
-		Map<Integer, ItemStack> recipeMap = new HashMap<>(recipeMapSize);
+	public static void readPacketData(final PacketBuffer buf, final EntityPlayer player) throws IOException {
+		final int recipeMapSize = buf.readVarInt();
+		final Map<Integer, ItemStack> recipeMap = new HashMap<>(recipeMapSize);
 		for (int i = 0; i < recipeMapSize; i++) {
-			int slotIndex = buf.readVarInt();
-			ItemStack recipeItem = ByteBufUtils.readItemStack(buf);
+			final int slotIndex = buf.readVarInt();
+			final ItemStack recipeItem = ByteBufUtils.readItemStack(buf);
 			recipeMap.put(slotIndex, recipeItem);
 		}
 		/*
@@ -80,7 +80,7 @@ public class PacketVanllaRecipeTransfer extends PacketJei {
 					int slotIndex = buf.readVarInt();
 					craftingSlots.add(slotIndex);
 				}
-		
+
 				int inventorySlotsSize = buf.readVarInt();
 				List<Integer> inventorySlots = new ArrayList<>(inventorySlotsSize);
 				for (int i = 0; i < inventorySlotsSize; i++) {
@@ -88,7 +88,7 @@ public class PacketVanllaRecipeTransfer extends PacketJei {
 					inventorySlots.add(slotIndex);
 				}
 				*/
-		boolean maxTransfer = buf.readBoolean();
+		final boolean maxTransfer = buf.readBoolean();
 		/*
 				VanillaRecipeTransferHandlerServer.setItems(player, recipeMap, craftingSlots, inventorySlots, maxTransfer);
 				*/

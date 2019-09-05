@@ -18,6 +18,8 @@ import net.minecraft.item.crafting.*;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.*;
 import net.minecraft.world.World;
+import net.minecraftforge.common.crafting.IShapedRecipe;
+import net.minecraftforge.registries.IForgeRegistryEntry;
 import p455w0rd.danknull.init.ModGlobals;
 import p455w0rd.danknull.init.ModItems;
 import p455w0rd.danknull.items.ItemDankNull;
@@ -26,7 +28,7 @@ import p455w0rd.danknull.items.ItemDankNull;
  * @author p455w0rd
  *
  */
-public class RecipeDankNullUpgrade extends net.minecraftforge.registries.IForgeRegistryEntry.Impl<IRecipe> implements net.minecraftforge.common.crafting.IShapedRecipe {
+public class RecipeDankNullUpgrade extends IForgeRegistryEntry.Impl<IRecipe> implements IShapedRecipe {
 
 	public final NonNullList<Ingredient> recipeItems;
 	private NBTTagCompound oldNBT = new NBTTagCompound();

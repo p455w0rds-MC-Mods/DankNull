@@ -48,8 +48,7 @@ import p455w0rd.danknull.inventory.PlayerSlot;
 import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
 import p455w0rd.danknull.inventory.slot.SlotDankNull;
 import p455w0rd.danknull.items.ItemDankNull;
-import p455w0rd.danknull.network.PacketChangeMode;
-import p455w0rd.danknull.network.PacketEmptyDock;
+import p455w0rd.danknull.network.*;
 import p455w0rdslib.LibGlobals.Mods;
 import p455w0rdslib.util.EasyMappings;
 import p455w0rdslib.util.ItemUtils;
@@ -162,28 +161,13 @@ public class ModEvents {
 				HUDRenderer.toggleHUD();
 			}
 			final EntityPlayer player = EasyMappings.player();
-			if (!ItemDankNull.isDankNull(player.getHeldItemMainhand())) {
-				return;
+			// Open GUI of first /dank/null found in player's inventory
+			if (ModKeyBindings.getOpenDankNullKeyBind().isPressed()) {
+				final List<PlayerSlot> dankNulls = ItemDankNull.getDankNullsForPlayer(player);
+				if (!dankNulls.isEmpty()) {
+					ModNetworking.getInstance().sendToServer(new PacketOpenGui(dankNulls.get(0)));
+				}
 			}
-			//			final InventoryDankNull inventory = DankNullUtils.getInventoryFromHeld(player); TODO
-			//			if (inventory == null) {
-			//				return;
-			//			}
-			//
-			//			if (ModKeyBindings.getOpenDankNullKeyBind().isPressed()) {
-			//				ModNetworking.getInstance().sendToServer(new PacketOpenDankGui());
-			//			}
-			//			final int currentIndex = DankNullUtils.getSelectedStackIndex(inventory);
-			//			final int totalSize = DankNullUtils.getItemCount(inventory);
-			//			if (currentIndex == -1 || totalSize <= 1) {
-			//				return;
-			//			}
-			//			if (ModKeyBindings.getNextItemKeyBind().isPressed()) {
-			//				DankNullUtils.setNextSelectedStack(inventory, player);
-			//			}
-			//			else if (ModKeyBindings.getPreviousItemKeyBind().isPressed()) {
-			//				DankNullUtils.setPreviousSelectedStack(inventory, player);
-			//			}
 		}
 	}
 

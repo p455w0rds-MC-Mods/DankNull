@@ -55,11 +55,7 @@ public class PacketSetDankNullInDock implements IMessage {
 				final TileEntity te = world.getTileEntity(message.pos);
 				if (te != null && te instanceof TileDankNullDock) {
 					final TileDankNullDock dankDock = (TileDankNullDock) te;
-					//final InventoryDankNull inv = DankNullUtils.getNewDankNullInventory(message.dankNull);
-					//dankDock.removeDankNull();
 					dankDock.setDankNull(message.dankNull);
-					//world.updateComparatorOutputLevel(message.pos, te.getBlockType());
-					//dankDock.markDirty();
 				}
 			});
 			return null;

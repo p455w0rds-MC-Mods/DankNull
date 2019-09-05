@@ -3,10 +3,8 @@ package p455w0rd.danknull.proxy;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.event.*;
-import p455w0rd.danknull.client.gui.GuiDankNull;
 import p455w0rd.danknull.init.*;
 import p455w0rdslib.util.EasyMappings;
 

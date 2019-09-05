@@ -11,7 +11,7 @@ import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.*;
 import p455w0rd.danknull.DankNull;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
-import p455w0rd.danknull.container.ContainerDankNull;
+import p455w0rd.danknull.container.ContainerDankNullItem;
 
 /**
  * @author p455w0rd
@@ -48,7 +48,7 @@ public class PacketEmptyDock implements IMessage {
 		public IMessage onMessage(final PacketEmptyDock message, final MessageContext ctx) {
 			FMLCommonHandler.instance().getWorldThread(ctx.netHandler).addScheduledTask(() -> {
 				final EntityPlayer player = DankNull.PROXY.getPlayer();
-				if (player.openContainer instanceof ContainerDankNull) {
+				if (player.openContainer instanceof ContainerDankNullItem) {
 					player.closeScreen();
 				}
 				final World world = player.getEntityWorld();

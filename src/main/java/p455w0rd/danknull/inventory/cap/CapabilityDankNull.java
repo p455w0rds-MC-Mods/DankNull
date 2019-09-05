@@ -112,7 +112,7 @@ public class CapabilityDankNull {
 						final NBTTagCompound item = items.getCompoundTagAt(i);
 						final int mode = item.getInteger(ModGlobals.NBT.MODE);
 						final ItemStack stack = new ItemStack(item.getCompoundTag(ModGlobals.NBT.STACK));
-						instance.setExtractionMode(stack, ItemExtractionMode.values()[mode]);
+						instance.setExtractionMode(stack, ItemExtractionMode.VALUES[mode]);
 					}
 				}
 				if (tag.hasKey(ModGlobals.NBT.PLACEMENT_MODES)) {
@@ -121,7 +121,7 @@ public class CapabilityDankNull {
 						final NBTTagCompound item = items.getCompoundTagAt(i);
 						final int mode = item.getInteger(ModGlobals.NBT.MODE);
 						final ItemStack stack = new ItemStack(item.getCompoundTag(ModGlobals.NBT.STACK));
-						instance.setPlacementMode(stack, ItemPlacementMode.values()[mode]);
+						instance.setPlacementMode(stack, ItemPlacementMode.VALUES[mode]);
 					}
 				}
 				if (tag.hasKey(ModGlobals.NBT.SELECTEDINDEX)) {

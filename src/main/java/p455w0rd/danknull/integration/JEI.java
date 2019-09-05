@@ -20,7 +20,7 @@ import mezz.jei.startup.StackHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.*;
 import net.minecraft.item.ItemStack;
-import p455w0rd.danknull.container.ContainerDankNull;
+import p455w0rd.danknull.container.ContainerDankNullItem;
 import p455w0rd.danknull.init.*;
 import p455w0rd.danknull.integration.jei.DankNullUpgradeWrapper;
 import p455w0rd.danknull.integration.jei.PacketVanllaRecipeTransfer;
@@ -276,7 +276,6 @@ public class JEI implements IModPlugin {
 			}
 
 			if (doTransfer) {
-				//PacketVanllaRecipeTransfer packet = new PacketVanllaRecipeTransfer(recipe, craftingSlotIndexes, inventorySlotIndexes, maxTransfer);
 				final PacketVanllaRecipeTransfer packet = new PacketVanllaRecipeTransfer(recipe, maxTransfer);
 				JustEnoughItems.getProxy().sendPacketToServer(packet);
 			}
@@ -336,14 +335,6 @@ public class JEI implements IModPlugin {
 				return;
 			}
 
-			// remove required recipe items
-			/*
-			int removedSets = removeSetsFromInventory(container, slotIdMap.values(), craftingSlots, inventorySlots, maxRemovedSets);
-
-			if (removedSets == 0) {
-				return;
-			}
-			*/
 			if (!removeSetsFromInventory(container, slotIdMap.values(), craftingSlots, inventorySlots)) {
 				return;
 			}
@@ -390,8 +381,8 @@ public class JEI implements IModPlugin {
 					}
 				}
 			}
-			if (container instanceof ContainerDankNull) {
-				((ContainerDankNull) container).detectAndSendChanges();
+			if (container instanceof ContainerDankNullItem) {
+				((ContainerDankNullItem) container).detectAndSendChanges();
 			}
 		}
 

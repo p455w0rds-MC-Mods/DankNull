@@ -47,9 +47,6 @@ public class WAILADankNullDockProvider implements IWailaDataProvider {
 	@Override
 	public List<String> getWailaBody(final ItemStack itemStack, final List<String> currenttip, final IWailaDataAccessor accessor, final IWailaConfigHandler config) {
 		final TileDankNullDock dankDock = (TileDankNullDock) accessor.getTileEntity();
-		//final String dankNull = "/d" + (Options.callItDevNull ? "ev" : "ank") + "/null";
-		//final String msg = TextUtils.translate("dn.right_click_with.desc") + (dankDock.getDankNull().isEmpty() ? " " + dankNull : " " + TextUtils.translate("dn.empty_hand_open.desc"));
-		//final InventoryDankNull dankDockInventory = dankDock.getInventory();
 		if (!dankDock.getDankNull().isEmpty()) {
 			final ItemStack dockedDankNull = dankDock.getDankNull();
 			if (!dockedDankNull.isEmpty()) {
@@ -80,4 +77,5 @@ public class WAILADankNullDockProvider implements IWailaDataProvider {
 	public NBTTagCompound getNBTData(final EntityPlayerMP player, final TileEntity te, final NBTTagCompound tag, final World world, final BlockPos pos) {
 		return null;
 	}
+
 }

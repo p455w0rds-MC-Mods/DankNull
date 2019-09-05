@@ -37,26 +37,6 @@ public class ModDataFixing {
 		fixs.registerFix(FixTypes.PLAYER, new DankNullFixer(FixTypes.PLAYER));
 	}
 
-	/*public static class DankNullWalker implements IDataWalker {
-	
-		@Nonnull
-		@Override
-		public NBTTagCompound process(@Nonnull final IDataFixer fixer, @Nonnull final NBTTagCompound nbt, final int version) {
-			if (ModBlocks.DANKNULL_DOCK.getRegistryName().toString().equals(nbt.getString(NBT.ID))) {
-				if (nbt.hasKey(NBT.DANKNULL_INVENTORY, Constants.NBT.TAG_COMPOUND)) {
-					final NBTTagCompound itemstackHandler = nbt.getCompoundTag(NBT.DANKNULL_INVENTORY);
-					DataFixesManager.processInventory(fixer, itemstackHandler, version, "Items");
-					ModLogger.debug("Ran DankNullWalker on inventory {} of TileEntity {}", NBT.DANKNULL_INVENTORY, nbt.getString(NBT.ID));
-				}
-			}
-			else if (ModItems.DANK_NULL_DOCK_ITEM.getRegistryName().toString().equals(nbt.getString(NBT.ID))) {
-	
-			}
-			return nbt;
-		}
-	
-	}*/
-
 	public static class DankNullFixer implements IFixableData {
 
 		private static final ResourceLocation oldDankNull = new ResourceLocation(ModGlobals.MODID, "dank_null");
@@ -150,13 +130,11 @@ public class ModDataFixing {
 
 		private NBTTagCompound getNewDankNull(final NBTTagCompound dankNullNBT) {
 			final ResourceLocation regName = new ResourceLocation(dankNullNBT.getString(NBT.ID));
-			//if (dankNullNBT.hasKey(NBT.DAMAGE, Constants.NBT.TAG_SHORT)) {
 			final int dmg = dankNullNBT.getShort(NBT.DAMAGE);
 			final String newName = regName.equals(oldDankNull) ? getNewDNRegName(dmg) : getNewPanelRegName(dmg);
 			dankNullNBT.setString(NBT.ID, newName);
 			dankNullNBT.setShort(NBT.DAMAGE, (short) 0);
 			ModLogger.debug("Item with id {}:{} found. Updated to {}:0", regName.toString(), dmg, newName);
-			//}
 			return dankNullNBT;
 		}
 
