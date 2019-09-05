@@ -6,13 +6,18 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
+import net.minecraftforge.fml.relauncher.Side;
+import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.OreDictionary;
+import p455w0rd.danknull.network.PacketConfigSync;
 import p455w0rd.danknull.util.NonNullListSerializable;
+import p455w0rd.danknull.util.WeakHashMapSerializable;
 
 /**
  * @author p455w0rd
@@ -55,6 +60,17 @@ public class ModConfig {
 		if (CONFIG.hasChanged()) {
 			CONFIG.save();
 		}
+	}
+
+	@SideOnly(Side.SERVER)
+	public static void sendConfigsToClient(final EntityPlayerMP player) {
+		final WeakHashMapSerializable<String, Object> map = new WeakHashMapSerializable<>();
+		map.put(ModConfig.CONST_CREATIVE_BLACKLIST, Options.creativeBlacklist);
+		map.put(ModConfig.CONST_CREATIVE_WHITELIST, Options.creativeWhitelist);
+		map.put(ModConfig.CONST_OREDICT_BLACKLIST, Options.oreBlacklist);
+		map.put(ModConfig.CONST_OREDICT_WHITELIST, Options.oreWhitelist);
+		map.put(ModConfig.CONST_DISABLE_OREDICT, Options.disableOreDictMode);
+		ModNetworking.getInstance().sendTo(new PacketConfigSync(map), player);
 	}
 
 	public static boolean isOreDictBlacklistEnabled() {

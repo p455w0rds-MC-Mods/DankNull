@@ -43,13 +43,13 @@ import net.minecraftforge.fml.relauncher.SideOnly;
 import p455w0rd.danknull.api.IDankNullHandler;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
 import p455w0rd.danknull.client.gui.GuiDankNull;
+import p455w0rd.danknull.client.render.HUDRenderer;
 import p455w0rd.danknull.inventory.PlayerSlot;
 import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
 import p455w0rd.danknull.inventory.slot.SlotDankNull;
 import p455w0rd.danknull.items.ItemDankNull;
 import p455w0rd.danknull.network.PacketChangeMode;
 import p455w0rd.danknull.network.PacketEmptyDock;
-import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rdslib.LibGlobals.Mods;
 import p455w0rdslib.util.EasyMappings;
 import p455w0rdslib.util.ItemUtils;
@@ -159,7 +159,7 @@ public class ModEvents {
 	public static void onKeyInput(final KeyInputEvent event) {
 		if (ModKeyBindings.isAnyModKeybindPressed()) {
 			if (ModKeyBindings.getToggleHUDKeyBind().isPressed()) {
-				DankNullUtils.toggleHUD();
+				HUDRenderer.toggleHUD();
 			}
 			final EntityPlayer player = EasyMappings.player();
 			if (!ItemDankNull.isDankNull(player.getHeldItemMainhand())) {
@@ -366,7 +366,7 @@ public class ModEvents {
 	public static void onPostRenderOverlay(final RenderGameOverlayEvent.Post event) {
 		if (event.getType() == ElementType.HOTBAR) {
 			final Minecraft mc = Minecraft.getMinecraft();
-			DankNullUtils.renderHUD(mc, new ScaledResolution(mc));
+			HUDRenderer.renderHUD(mc, new ScaledResolution(mc));
 		}
 	}
 
@@ -382,7 +382,7 @@ public class ModEvents {
 	@SideOnly(Side.SERVER)
 	public static void onPlayerLoggedIn(final PlayerEvent.PlayerLoggedInEvent event) {
 		if (event.player != null && event.player instanceof EntityPlayerMP) {
-			DankNullUtils.sendConfigsToClient((EntityPlayerMP) event.player);
+			ModConfig.sendConfigsToClient((EntityPlayerMP) event.player);
 		}
 	}
 

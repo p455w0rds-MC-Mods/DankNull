@@ -21,7 +21,6 @@ import net.minecraft.world.World;
 import p455w0rd.danknull.init.ModGlobals;
 import p455w0rd.danknull.init.ModItems;
 import p455w0rd.danknull.items.ItemDankNull;
-import p455w0rd.danknull.util.DankNullUtils;
 
 /**
  * @author p455w0rd
@@ -43,7 +42,7 @@ public class RecipeDankNullUpgrade extends net.minecraftforge.registries.IForgeR
 
 	@Override
 	public ItemStack getRecipeOutput() {
-		return DankNullUtils.getTier(getInputDankNull()).getUpgradedVersion(getInputDankNull());
+		return ItemDankNull.getTier(getInputDankNull()).getUpgradedVersion(getInputDankNull());
 	}
 
 	@Override
@@ -147,7 +146,7 @@ public class RecipeDankNullUpgrade extends net.minecraftforge.registries.IForgeR
 	}
 
 	private ItemStack getNewNextTierStack(final ItemStack dankNull) {
-		final int tier = DankNullUtils.getTier(dankNull).ordinal();
+		final int tier = ItemDankNull.getTier(dankNull).ordinal();
 		if (tier < 5) {
 			ItemDankNull item = null;
 			switch (tier) {

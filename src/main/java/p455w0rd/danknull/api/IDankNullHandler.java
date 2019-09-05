@@ -7,8 +7,9 @@ import javax.annotation.Nonnull;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.items.IItemHandlerModifiable;
+import p455w0rd.danknull.api.DankNullItemModes.ItemExtractionMode;
+import p455w0rd.danknull.api.DankNullItemModes.ItemPlacementMode;
 import p455w0rd.danknull.init.ModGlobals;
-import p455w0rd.danknull.util.DankNullUtils;
 
 /**
  * Capability that is attached to every DankNull
@@ -203,7 +204,7 @@ public interface IDankNullHandler extends IItemHandlerModifiable {
 	 * @param stack Stack
 	 * @param mode  Mode
 	 */
-	void setExtractionMode(@Nonnull ItemStack stack, @Nonnull DankNullUtils.ItemExtractionMode mode);
+	void setExtractionMode(@Nonnull ItemStack stack, @Nonnull ItemExtractionMode mode);
 
 	/**
 	 * Cycles the Extraction Mode for the given Stack
@@ -220,7 +221,7 @@ public interface IDankNullHandler extends IItemHandlerModifiable {
 	 * @return Extraction Mode
 	 */
 	@Nonnull
-	DankNullUtils.ItemExtractionMode getExtractionMode(@Nonnull ItemStack stack);
+	ItemExtractionMode getExtractionMode(@Nonnull ItemStack stack);
 
 	/**
 	 * Get the ItemStack ExtractionMode Map
@@ -229,7 +230,7 @@ public interface IDankNullHandler extends IItemHandlerModifiable {
 	 * @return ItemStack ExtractionMode Map
 	 */
 	@Nonnull
-	Map<ItemStack, DankNullUtils.ItemExtractionMode> getExtractionModes();
+	Map<ItemStack, ItemExtractionMode> getExtractionModes();
 
 	/**
 	 * Sets the Placement Mode for the given Stack
@@ -237,7 +238,7 @@ public interface IDankNullHandler extends IItemHandlerModifiable {
 	 * @param stack Stack
 	 * @param mode  Placement Mode
 	 */
-	void setPlacementMode(@Nonnull ItemStack stack, @Nonnull DankNullUtils.ItemPlacementMode mode);
+	void setPlacementMode(@Nonnull ItemStack stack, @Nonnull ItemPlacementMode mode);
 
 	/**
 	 * Cycles the Placement Mode for the given stack
@@ -254,7 +255,7 @@ public interface IDankNullHandler extends IItemHandlerModifiable {
 	 * @return Placement Mode
 	 */
 	@Nonnull
-	DankNullUtils.ItemPlacementMode getPlacementMode(@Nonnull ItemStack stack);
+	ItemPlacementMode getPlacementMode(@Nonnull ItemStack stack);
 
 	/**
 	 * Gets the ItemStack PlacementMode Map
@@ -262,7 +263,7 @@ public interface IDankNullHandler extends IItemHandlerModifiable {
 	 *
 	 * @return ItemStack PlacementMode Map
 	 */
-	Map<ItemStack, DankNullUtils.ItemPlacementMode> getPlacementMode();
+	Map<ItemStack, ItemPlacementMode> getPlacementMode();
 
 	default void validateSlot(final int slot) {
 		if (slot < 0 || slot >= getSlots()) {

@@ -30,6 +30,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
 import net.minecraftforge.items.ItemHandlerHelper;
+import p455w0rd.danknull.api.DankNullItemModes.ItemExtractionMode;
 import p455w0rd.danknull.api.IDankNullHandler;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
 import p455w0rd.danknull.init.*;
@@ -37,8 +38,6 @@ import p455w0rd.danknull.init.ModConfig.Options;
 import p455w0rd.danknull.init.ModGlobals.NBT;
 import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
 import p455w0rd.danknull.items.ItemDankNull;
-import p455w0rd.danknull.util.DankNullUtils;
-import p455w0rd.danknull.util.DankNullUtils.ItemExtractionMode;
 import p455w0rdslib.LibGlobals.Mods;
 import p455w0rdslib.util.TextUtils;
 
@@ -98,7 +97,7 @@ public class TOP {
 					final IProbeInfo topTip = probeInfo.horizontal().item(stack).vertical().itemLabel(stack);
 					if (!dockedDankNull.isEmpty()) {
 						final IDankNullHandler dankNullHandler = dankDock.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
-						final String dockedMsg = ModGlobals.Rarities.getRarityFromMeta(DankNullUtils.getTier(dockedDankNull).ordinal()).getColor() + "" + dockedDankNull.getDisplayName() + "" + TextFormatting.WHITE + " " + TextUtils.translate("dn.docked.desc");
+						final String dockedMsg = ModGlobals.Rarities.getRarityFromMeta(ItemDankNull.getTier(dockedDankNull).ordinal()).getColor() + "" + dockedDankNull.getDisplayName() + "" + TextFormatting.WHITE + " " + TextUtils.translate("dn.docked.desc");
 						topTip.text(dockedMsg);
 						if (dankNullHandler.getSelected() < 0) {
 							return;

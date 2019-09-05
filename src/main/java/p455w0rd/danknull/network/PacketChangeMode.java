@@ -9,12 +9,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.*;
+import p455w0rd.danknull.api.DankNullItemModes.ItemExtractionMode;
+import p455w0rd.danknull.api.DankNullItemModes.ItemPlacementMode;
 import p455w0rd.danknull.api.IDankNullHandler;
 import p455w0rd.danknull.container.ContainerDankNullBase;
 import p455w0rd.danknull.inventory.PlayerSlot;
 import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
 import p455w0rd.danknull.items.ItemDankNull;
-import p455w0rd.danknull.util.DankNullUtils;
 
 /**
  * @author BrockWS
@@ -32,7 +33,7 @@ public class PacketChangeMode implements IMessage {
 		this.changeType = changeType;
 	}
 
-	public PacketChangeMode(final DankNullUtils.ItemPlacementMode mode, final int slot) {
+	public PacketChangeMode(final ItemPlacementMode mode, final int slot) {
 		switch (mode) {
 		case KEEP_NONE:
 			changeType = ChangeType.PLACE_KEEP_NONE;
@@ -55,7 +56,7 @@ public class PacketChangeMode implements IMessage {
 		this.slot = slot;
 	}
 
-	public PacketChangeMode(final DankNullUtils.ItemExtractionMode mode, final int slot) {
+	public PacketChangeMode(final ItemExtractionMode mode, final int slot) {
 		switch (mode) {
 		case KEEP_NONE:
 			changeType = ChangeType.EXTRACT_KEEP_NONE;
@@ -164,35 +165,35 @@ public class PacketChangeMode implements IMessage {
 			break;
 
 		case EXTRACT_KEEP_ALL:
-			handler.setExtractionMode(slotStack, DankNullUtils.ItemExtractionMode.KEEP_ALL);
+			handler.setExtractionMode(slotStack, ItemExtractionMode.KEEP_ALL);
 			break;
 		case EXTRACT_KEEP_1:
-			handler.setExtractionMode(slotStack, DankNullUtils.ItemExtractionMode.KEEP_1);
+			handler.setExtractionMode(slotStack, ItemExtractionMode.KEEP_1);
 			break;
 		case EXTRACT_KEEP_16:
-			handler.setExtractionMode(slotStack, DankNullUtils.ItemExtractionMode.KEEP_16);
+			handler.setExtractionMode(slotStack, ItemExtractionMode.KEEP_16);
 			break;
 		case EXTRACT_KEEP_64:
-			handler.setExtractionMode(slotStack, DankNullUtils.ItemExtractionMode.KEEP_64);
+			handler.setExtractionMode(slotStack, ItemExtractionMode.KEEP_64);
 			break;
 		case EXTRACT_KEEP_NONE:
-			handler.setExtractionMode(slotStack, DankNullUtils.ItemExtractionMode.KEEP_NONE);
+			handler.setExtractionMode(slotStack, ItemExtractionMode.KEEP_NONE);
 			break;
 
 		case PLACE_KEEP_ALL:
-			handler.setPlacementMode(slotStack, DankNullUtils.ItemPlacementMode.KEEP_ALL);
+			handler.setPlacementMode(slotStack, ItemPlacementMode.KEEP_ALL);
 			break;
 		case PLACE_KEEP_1:
-			handler.setPlacementMode(slotStack, DankNullUtils.ItemPlacementMode.KEEP_1);
+			handler.setPlacementMode(slotStack, ItemPlacementMode.KEEP_1);
 			break;
 		case PLACE_KEEP_16:
-			handler.setPlacementMode(slotStack, DankNullUtils.ItemPlacementMode.KEEP_16);
+			handler.setPlacementMode(slotStack, ItemPlacementMode.KEEP_16);
 			break;
 		case PLACE_KEEP_64:
-			handler.setPlacementMode(slotStack, DankNullUtils.ItemPlacementMode.KEEP_64);
+			handler.setPlacementMode(slotStack, ItemPlacementMode.KEEP_64);
 			break;
 		case PLACE_KEEP_NONE:
-			handler.setPlacementMode(slotStack, DankNullUtils.ItemPlacementMode.KEEP_NONE);
+			handler.setPlacementMode(slotStack, ItemPlacementMode.KEEP_NONE);
 			break;
 		}
 	}

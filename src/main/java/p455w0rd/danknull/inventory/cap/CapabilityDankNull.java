@@ -5,9 +5,10 @@ import net.minecraft.nbt.*;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.*;
 import net.minecraftforge.common.util.Constants;
+import p455w0rd.danknull.api.DankNullItemModes.ItemExtractionMode;
+import p455w0rd.danknull.api.DankNullItemModes.ItemPlacementMode;
 import p455w0rd.danknull.api.IDankNullHandler;
 import p455w0rd.danknull.init.ModGlobals;
-import p455w0rd.danknull.util.DankNullUtils;
 
 /**
  * @author BrockWS
@@ -111,7 +112,7 @@ public class CapabilityDankNull {
 						final NBTTagCompound item = items.getCompoundTagAt(i);
 						final int mode = item.getInteger(ModGlobals.NBT.MODE);
 						final ItemStack stack = new ItemStack(item.getCompoundTag(ModGlobals.NBT.STACK));
-						instance.setExtractionMode(stack, DankNullUtils.ItemExtractionMode.values()[mode]);
+						instance.setExtractionMode(stack, ItemExtractionMode.values()[mode]);
 					}
 				}
 				if (tag.hasKey(ModGlobals.NBT.PLACEMENT_MODES)) {
@@ -120,7 +121,7 @@ public class CapabilityDankNull {
 						final NBTTagCompound item = items.getCompoundTagAt(i);
 						final int mode = item.getInteger(ModGlobals.NBT.MODE);
 						final ItemStack stack = new ItemStack(item.getCompoundTag(ModGlobals.NBT.STACK));
-						instance.setPlacementMode(stack, DankNullUtils.ItemPlacementMode.values()[mode]);
+						instance.setPlacementMode(stack, ItemPlacementMode.values()[mode]);
 					}
 				}
 				if (tag.hasKey(ModGlobals.NBT.SELECTEDINDEX)) {

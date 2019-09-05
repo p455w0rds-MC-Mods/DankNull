@@ -23,6 +23,9 @@ import net.minecraft.init.Blocks;
 import net.minecraft.inventory.*;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraftforge.oredict.OreDictionary;
+import p455w0rd.danknull.api.DankNullItemModes.ItemExtractionMode;
+import p455w0rd.danknull.api.DankNullItemModes.ItemPlacementMode;
 import p455w0rd.danknull.api.IDankNullHandler;
 import p455w0rd.danknull.container.ContainerDankNullBase;
 import p455w0rd.danknull.container.ContainerDankNullDock;
@@ -32,9 +35,6 @@ import p455w0rd.danknull.init.ModGlobals.DankNullTier;
 import p455w0rd.danknull.integration.Chisel;
 import p455w0rd.danknull.inventory.slot.SlotDankNull;
 import p455w0rd.danknull.network.PacketChangeMode;
-import p455w0rd.danknull.util.DankNullUtils;
-import p455w0rd.danknull.util.DankNullUtils.ItemExtractionMode;
-import p455w0rd.danknull.util.DankNullUtils.ItemPlacementMode;
 import p455w0rdslib.LibGlobals.Mods;
 import p455w0rdslib.client.gui.GuiModular;
 import p455w0rdslib.integration.Thaumcraft;
@@ -571,7 +571,7 @@ public class GuiDankNull extends GuiModular {
 			}
 			if (showOreDictMessage) {
 				final String oreDictMode = dankNullHandler.isOre(s.getStack()) ? TextUtils.translate("dn.enabled.desc") : TextUtils.translate("dn.disabled.desc");
-				final boolean oreDicted = DankNullUtils.isItemOreDicted(s.getStack());
+				final boolean oreDicted = OreDictionary.getOreIDs(s.getStack()).length > 0;
 				if (oreDicted) {
 					list.add(2, TextUtils.translate("dn.ore_dictionary.desc") + ": " + oreDictMode);
 				}

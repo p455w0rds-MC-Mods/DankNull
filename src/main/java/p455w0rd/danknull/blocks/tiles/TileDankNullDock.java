@@ -24,8 +24,8 @@ import p455w0rd.danknull.init.ModGlobals.NBT;
 import p455w0rd.danknull.integration.PwLib;
 import p455w0rd.danknull.inventory.DankNullHandler;
 import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
+import p455w0rd.danknull.items.ItemDankNull;
 import p455w0rd.danknull.network.VanillaPacketDispatcher;
-import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rdslib.integration.Albedo;
 
 /**
@@ -75,7 +75,7 @@ public class TileDankNullDock extends TileEntity implements IRedstoneControllabl
 	public void setDankNull(final ItemStack dankNull) {
 		this.dankNull = new ItemStack(fixer.fixTagCompound(dankNull.serializeNBT()));
 		if (!this.dankNull.isEmpty()) {
-			dankNullHandler = new DankNullHandler(DankNullUtils.getTier(this.dankNull)) {
+			dankNullHandler = new DankNullHandler(ItemDankNull.getTier(this.dankNull)) {
 
 				@Override
 				public ItemStack getStackInSlot(final int slot) {

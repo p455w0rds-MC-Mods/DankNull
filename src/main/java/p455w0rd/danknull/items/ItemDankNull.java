@@ -29,6 +29,7 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fluids.UniversalBucket;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import p455w0rd.danknull.api.DankNullItemModes.ItemPlacementMode;
 import p455w0rd.danknull.api.IDankNullHandler;
 import p455w0rd.danknull.client.render.DankNullRenderer;
 import p455w0rd.danknull.init.ModConfig.Options;
@@ -40,8 +41,6 @@ import p455w0rd.danknull.inventory.PlayerSlot;
 import p455w0rd.danknull.inventory.PlayerSlot.EnumInvCategory;
 import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
 import p455w0rd.danknull.inventory.cap.DankNullCapabilityProvider;
-import p455w0rd.danknull.util.DankNullUtils;
-import p455w0rd.danknull.util.DankNullUtils.ItemPlacementMode;
 import p455w0rdslib.api.client.*;
 import p455w0rdslib.util.ItemNBTUtils;
 import p455w0rdslib.util.TextUtils;
@@ -81,6 +80,22 @@ public class ItemDankNull extends Item implements IModelHolder {
 			}
 		}
 		return dankNullList;
+	}
+
+	public static DankNullTier getTier(final ItemStack dankNull) {
+		int meta = -1;
+		if (ItemDankNull.isDankNull(dankNull)) {
+			meta = ((ItemDankNull) dankNull.getItem()).getTier().ordinal();
+		}
+		else if (ItemDankNullPanel.isDankNullPanel(dankNull)) {
+			meta = ((ItemDankNullPanel) dankNull.getItem()).getTier().ordinal();
+		}
+		else if (ItemBlockDankNullDock.isDankNullDock(dankNull)) {
+			final ItemStack dockedDank = ItemBlockDankNullDock.getDockedDankNull(dankNull);
+			final boolean isEmpty = ItemBlockDankNullDock.isDankNullDock(dankNull) && dockedDank.isEmpty();
+			meta = !isEmpty ? ((ItemDankNull) dockedDank.getItem()).getTier().ordinal() : -1;
+		}
+		return meta == -1 ? DankNullTier.NONE : DankNullTier.VALUES[meta];
 	}
 
 	public static boolean isDankNull(final ItemStack stack) {
@@ -245,7 +260,7 @@ public class ItemDankNull extends Item implements IModelHolder {
 			final int meta = selectedStack.getMetadata();
 			if (selectedBlock instanceof BlockStairs || selectedBlock instanceof BlockBanner) {
 				final IBlockState newState = selectedBlock.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, meta, player);
-				final EnumActionResult result = DankNullUtils.placeBlock(newState, world, pos);
+				final EnumActionResult result = placeBlock(newState, world, pos);
 				if (world.getTileEntity(pos) != null && world.getTileEntity(pos) instanceof TileEntityBanner) {
 					if (facing == EnumFacing.UP) {
 						final int i = MathHelper.floor((player.rotationYaw + 180.0F) * 16.0F / 360.0F + 0.5D) & 15;
@@ -281,6 +296,10 @@ public class ItemDankNull extends Item implements IModelHolder {
 			}
 		}
 		return EnumActionResult.SUCCESS;
+	}
+
+	public static EnumActionResult placeBlock(@Nonnull final IBlockState state, final World world, final BlockPos pos) {
+		return world.setBlockState(pos, state, 2) ? EnumActionResult.SUCCESS : EnumActionResult.FAIL;
 	}
 
 	public EnumActionResult placeItemIntoWorld(@Nonnull final ItemStack itemstack, @Nonnull final EntityPlayer player, @Nonnull final World world, @Nonnull final BlockPos pos, @Nonnull final EnumFacing facing, final float hitX, final float hitY, final float hitZ, @Nonnull final EnumHand hand) {

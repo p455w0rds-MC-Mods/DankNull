@@ -8,10 +8,11 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.oredict.OreDictionary;
+import p455w0rd.danknull.api.DankNullItemModes.ItemExtractionMode;
+import p455w0rd.danknull.api.DankNullItemModes.ItemPlacementMode;
 import p455w0rd.danknull.api.IDankNullHandler;
 import p455w0rd.danknull.init.ModGlobals;
 import p455w0rd.danknull.items.ItemDankNull;
-import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rdslib.util.ItemUtils;
 
 /**
@@ -22,8 +23,8 @@ public class DankNullHandler implements IDankNullHandler {
 	private final ModGlobals.DankNullTier tier;
 	private final NonNullList<ItemStack> stacks;
 	private final Map<ItemStack, Boolean> oreStacks;
-	private final Map<ItemStack, DankNullUtils.ItemExtractionMode> extractionStacks;
-	private final Map<ItemStack, DankNullUtils.ItemPlacementMode> placementStacks;
+	private final Map<ItemStack, ItemExtractionMode> extractionStacks;
+	private final Map<ItemStack, ItemPlacementMode> placementStacks;
 	private int selected;
 	private boolean isLocked;
 	private String uuid;
@@ -45,7 +46,7 @@ public class DankNullHandler implements IDankNullHandler {
 		validateSlot(slot);
 		ItemStack slotStack = getStackList().get(slot).copy();
 		if (!slotStack.isEmpty()) {
-			if (getExtractionMode(slotStack) == DankNullUtils.ItemExtractionMode.KEEP_NONE) {
+			if (getExtractionMode(slotStack) == ItemExtractionMode.KEEP_NONE) {
 				slotStack = ItemStack.EMPTY;
 			}
 			else {
@@ -351,7 +352,7 @@ public class DankNullHandler implements IDankNullHandler {
 	}
 
 	@Override
-	public void setExtractionMode(@Nonnull ItemStack stack, @Nonnull final DankNullUtils.ItemExtractionMode mode) {
+	public void setExtractionMode(@Nonnull ItemStack stack, @Nonnull final ItemExtractionMode mode) {
 		if (stack.isEmpty()) {
 			return;
 		}
@@ -370,8 +371,8 @@ public class DankNullHandler implements IDankNullHandler {
 
 	@Override
 	public void cycleExtractionMode(@Nonnull final ItemStack stack, final boolean forward) {
-		DankNullUtils.ItemExtractionMode current = getExtractionMode(stack);
-		final DankNullUtils.ItemExtractionMode[] values = DankNullUtils.ItemExtractionMode.values();
+		ItemExtractionMode current = getExtractionMode(stack);
+		final ItemExtractionMode[] values = ItemExtractionMode.values();
 		if (forward) {
 			if (current.ordinal() == values.length - 1) {
 				current = values[0];
@@ -393,23 +394,23 @@ public class DankNullHandler implements IDankNullHandler {
 
 	@Nonnull
 	@Override
-	public DankNullUtils.ItemExtractionMode getExtractionMode(@Nonnull final ItemStack stack) {
+	public ItemExtractionMode getExtractionMode(@Nonnull final ItemStack stack) {
 		for (final ItemStack currentStack : extractionStacks.keySet()) {
 			if (ItemUtils.areItemStacksEqualIgnoreSize(currentStack, stack)) {
 				return extractionStacks.get(currentStack);
 			}
 		}
-		return DankNullUtils.ItemExtractionMode.KEEP_ALL;
+		return ItemExtractionMode.KEEP_ALL;
 	}
 
 	@Nonnull
 	@Override
-	public Map<ItemStack, DankNullUtils.ItemExtractionMode> getExtractionModes() {
+	public Map<ItemStack, ItemExtractionMode> getExtractionModes() {
 		return extractionStacks;
 	}
 
 	@Override
-	public void setPlacementMode(@Nonnull ItemStack stack, @Nonnull final DankNullUtils.ItemPlacementMode mode) {
+	public void setPlacementMode(@Nonnull ItemStack stack, @Nonnull final ItemPlacementMode mode) {
 		if (stack.isEmpty()) {
 			return;
 		}
@@ -428,8 +429,8 @@ public class DankNullHandler implements IDankNullHandler {
 
 	@Override
 	public void cyclePlacementMode(@Nonnull final ItemStack stack, final boolean forward) {
-		DankNullUtils.ItemPlacementMode current = this.getPlacementMode(stack);
-		final DankNullUtils.ItemPlacementMode[] values = DankNullUtils.ItemPlacementMode.values();
+		ItemPlacementMode current = this.getPlacementMode(stack);
+		final ItemPlacementMode[] values = ItemPlacementMode.values();
 		if (forward) {
 			if (current.ordinal() == values.length - 1) {
 				current = values[0];
@@ -451,17 +452,17 @@ public class DankNullHandler implements IDankNullHandler {
 
 	@Nonnull
 	@Override
-	public DankNullUtils.ItemPlacementMode getPlacementMode(@Nonnull final ItemStack stack) {
+	public ItemPlacementMode getPlacementMode(@Nonnull final ItemStack stack) {
 		for (final ItemStack currentStack : placementStacks.keySet()) {
 			if (ItemUtils.areItemStacksEqualIgnoreSize(currentStack, stack)) {
 				return placementStacks.get(currentStack);
 			}
 		}
-		return DankNullUtils.ItemPlacementMode.KEEP_1;
+		return ItemPlacementMode.KEEP_1;
 	}
 
 	@Override
-	public Map<ItemStack, DankNullUtils.ItemPlacementMode> getPlacementMode() {
+	public Map<ItemStack, ItemPlacementMode> getPlacementMode() {
 		return placementStacks;
 	}
 

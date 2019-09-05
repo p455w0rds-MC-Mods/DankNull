@@ -24,11 +24,10 @@ import net.minecraftforge.client.ForgeHooksClient;
 import p455w0rd.danknull.api.IDankNullHandler;
 import p455w0rd.danknull.init.ModBlocks;
 import p455w0rd.danknull.init.ModConfig.Options;
-import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
 import p455w0rd.danknull.init.ModGlobals;
+import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
 import p455w0rd.danknull.items.ItemDankNull;
 import p455w0rd.danknull.items.ItemDankNullPanel;
-import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rdslib.api.client.*;
 import p455w0rdslib.util.EasyMappings;
 
@@ -83,7 +82,7 @@ public class DankNullRenderer extends TileEntityItemStackRenderer implements ICu
 				return;
 			}
 			final int view = options.thirdPersonView;
-			IDankNullHandler dankNullHandler = item.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
+			final IDankNullHandler dankNullHandler = item.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
 			final int index = dankNullHandler.getSelected();
 			final ItemStack containedStack = index > -1 ? dankNullHandler.getStackInSlot(index) : ItemStack.EMPTY;
 
@@ -237,7 +236,7 @@ public class DankNullRenderer extends TileEntityItemStackRenderer implements ICu
 							GlintEffectRenderer.apply(model, meta);
 						}
 						else {
-							GlintEffectRenderer.apply2(model, DankNullUtils.getTier(stack).getHexColor(false));
+							GlintEffectRenderer.apply2(model, ItemDankNull.getTier(stack).getHexColor(false));
 						}
 					}
 					else {

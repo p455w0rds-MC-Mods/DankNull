@@ -14,8 +14,8 @@ import net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import p455w0rd.danknull.init.ModConfig.Options;
+import p455w0rd.danknull.items.ItemDankNull;
 import p455w0rd.danknull.items.ItemDankNullPanel;
-import p455w0rd.danknull.util.DankNullUtils;
 import p455w0rdslib.api.client.*;
 
 /**
@@ -74,7 +74,7 @@ public class DankNullPanelRenderer extends TileEntityItemStackRenderer implement
 		if (stack.hasEffect()) {
 			final int meta = ((ItemDankNullPanel) stack.getItem()).getTier().ordinal();
 			if (Options.superShine) {
-				GlintEffectRenderer.apply2(model, DankNullUtils.getTier(stack).getHexColor(false));
+				GlintEffectRenderer.apply2(model, ItemDankNull.getTier(stack).getHexColor(false));
 			}
 			else {
 				GlintEffectRenderer.apply(model, meta);
