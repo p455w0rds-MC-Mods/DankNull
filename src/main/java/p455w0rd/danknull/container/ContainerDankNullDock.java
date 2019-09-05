@@ -22,6 +22,11 @@ public class ContainerDankNullDock extends ContainerDankNullBase {
 	}
 
 	@Override
+	public boolean canInteractWith(EntityPlayer player) {
+		return tile.hasCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null) && super.canInteractWith(player) ;
+	}
+
+	@Override
 	protected boolean isDock() {
 		return true;
 	}

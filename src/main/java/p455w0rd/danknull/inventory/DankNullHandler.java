@@ -140,7 +140,7 @@ public class DankNullHandler implements IDankNullHandler {
 	@Override
 	public boolean isOreDictFiltered(final ItemStack stack) {
 		for (final ItemStack storedStack : getStackList()) {
-			if (oreMatches(storedStack, stack)) {
+			if (!storedStack.isEmpty() && oreMatches(storedStack, stack)) {
 				return true;
 			}
 		}
@@ -268,7 +268,7 @@ public class DankNullHandler implements IDankNullHandler {
 		if (stackCount > 1) {
 			if (forward) {
 				if (current != stackCount - 1) {
-					newIndex++;
+					newIndex = current + 1;
 				}
 			}
 			else {
