@@ -19,7 +19,7 @@ public class ContainerDankNull extends ContainerDankNullBase {
 		super(player);
 		playerSlot = slot;
 		final InventoryPlayer playerInv = player.inventory;
-		final ItemStack dankNull = playerInv.getStackInSlot(slot.getSlotIndex());
+		final ItemStack dankNull = playerInv.getStackInSlot(slot.getCatIndex() == 2 ? 40 : slot.getSlotIndex());
 		handler = dankNull.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
 		init();
 	}

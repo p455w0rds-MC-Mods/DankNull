@@ -1,6 +1,7 @@
 package p455w0rd.danknull.items;
 
 import static p455w0rd.danknull.inventory.PlayerSlot.EnumInvCategory.MAIN;
+import static p455w0rd.danknull.inventory.PlayerSlot.EnumInvCategory.OFF_HAND;
 
 import java.util.List;
 import java.util.UUID;
@@ -77,7 +78,7 @@ public class ItemDankNull extends Item implements IModelHolder {
 		}
 		for (int i = 0; i < playerInv.offHandInventory.size(); i++) {
 			if (isDankNull(playerInv.offHandInventory.get(i))) {
-				dankNullList.add(new PlayerSlot(i, MAIN));
+				dankNullList.add(new PlayerSlot(i, OFF_HAND));
 			}
 		}
 		return dankNullList;
@@ -206,7 +207,7 @@ public class ItemDankNull extends Item implements IModelHolder {
 	public EnumActionResult onItemUse(final EntityPlayer player, final World world, final BlockPos posIn, final EnumHand hand, EnumFacing facing, final float hitX, final float hitY, final float hitZ) {
 
 		final ItemStack stack = player.getHeldItem(hand);
-		final PlayerSlot playerSlot = new PlayerSlot(player.inventory.currentItem, MAIN);
+		final PlayerSlot playerSlot = new PlayerSlot(player.inventory.currentItem, hand == EnumHand.MAIN_HAND ? MAIN : OFF_HAND);
 		final IDankNullHandler dankNullHandler = stack.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
 
 		final ItemStack selectedStack = dankNullHandler.getSelected() > -1 ? dankNullHandler.getFullStackInSlot(dankNullHandler.getSelected()) : ItemStack.EMPTY;
