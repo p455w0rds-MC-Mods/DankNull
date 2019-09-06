@@ -76,6 +76,7 @@ public class TileDankNullDock extends TileEntity {
 
 				@Override
 				public ItemStack getStackInSlot(final int slot) {
+					validateSlot(slot);
 					return getExtractableStackInSlot(slot);
 				}
 
@@ -86,10 +87,12 @@ public class TileDankNullDock extends TileEntity {
 						return ItemStack.EMPTY;
 					}
 					validateSlot(slot);
-					final ItemStack existing = getFullStackInSlot(slot);
+
+					final ItemStack existing = getStackList().get(slot);
 					if (existing.isEmpty()) {
 						return ItemStack.EMPTY;
 					}
+
 					final int existingCount = existing.getCount();
 					final int extract = Math.min(amount, existing.getMaxStackSize());
 					if (existingCount <= extract) {

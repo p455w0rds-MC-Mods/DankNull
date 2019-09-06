@@ -46,15 +46,20 @@ public class DankNullHandler implements IDankNullHandler {
 		validateSlot(slot);
 		ItemStack slotStack = getStackList().get(slot).copy();
 		if (!slotStack.isEmpty()) {
-			if (getExtractionMode(slotStack) == ItemExtractionMode.KEEP_NONE) {
+			if (getExtractionMode(slotStack) == ItemExtractionMode.KEEP_ALL) {
 				slotStack = ItemStack.EMPTY;
 			}
 			else {
-				final int amountToBeKept = getExtractionMode(slotStack).getNumberToKeep();
-				if (slotStack.getCount() > amountToBeKept) {
-					final ItemStack availableStack = slotStack.copy();
-					availableStack.setCount(slotStack.getCount() - amountToBeKept);
-					return availableStack;
+				if (getExtractionMode(slotStack) != ItemExtractionMode.KEEP_NONE) {
+					final int amountToBeKept = getExtractionMode(slotStack).getNumberToKeep();
+					if (slotStack.getCount() > amountToBeKept) {
+						final ItemStack availableStack = slotStack.copy();
+						availableStack.setCount(slotStack.getCount() - amountToBeKept);
+						return availableStack;
+					}
+					else {
+						return ItemStack.EMPTY;
+					}
 				}
 			}
 		}
@@ -193,12 +198,10 @@ public class DankNullHandler implements IDankNullHandler {
 			return ItemStack.EMPTY;
 		}
 		validateSlot(slot);
-
-		final ItemStack existing = getStackList().get(slot);
+		final ItemStack existing = getFullStackInSlot(slot);
 		if (existing.isEmpty()) {
 			return ItemStack.EMPTY;
 		}
-
 		final int existingCount = existing.getCount();
 		final int extract = Math.min(amount, existing.getMaxStackSize());
 		if (existingCount <= extract) {

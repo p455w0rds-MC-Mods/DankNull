@@ -35,7 +35,7 @@ public interface IDankNullHandler extends IItemHandlerModifiable {
 	@Override
 	default ItemStack getStackInSlot(final int slot) {
 		validateSlot(slot);
-		return getStackList().get(slot);
+		return getExtractableStackInSlot(slot);
 	}
 
 	/**
