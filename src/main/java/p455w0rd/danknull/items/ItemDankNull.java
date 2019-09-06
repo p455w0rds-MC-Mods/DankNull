@@ -253,8 +253,6 @@ public class ItemDankNull extends Item implements IModelHolder {
 		if (isBucket(selectedStack)) {
 			if (tryUseBucket(world, player, selectedStack) == EnumActionResult.SUCCESS) {
 				dankNullHandler.extractItem(dankNullHandler.getSelected(), 1, false);
-				//dankNullHandler.getFullStackInSlot(dankNullHandler.getSelected()).shrink(1);
-				//dankNullHandler.getStackInSlot(dankNullHandler.getSelected()).shrink(1);
 				return EnumActionResult.SUCCESS;
 			}
 		}
@@ -290,12 +288,6 @@ public class ItemDankNull extends Item implements IModelHolder {
 					dankNullHandler.extractItem(dankNullHandler.getSelected(), 1, false);
 				}
 				return EnumActionResult.SUCCESS;
-			}
-			else if (isBucket(selectedStack)) {
-				if (tryUseBucket(world, player, selectedStack) == EnumActionResult.SUCCESS) {
-					dankNullHandler.extractItem(dankNullHandler.getSelected(), 1, false);
-					return EnumActionResult.SUCCESS;
-				}
 			}
 			else if (selectedStack.getItem() instanceof ItemSnowball || selectedStack.getItem() instanceof ItemEnderPearl || selectedStack.getItem() instanceof ItemEgg) {
 				//TODO soon!
