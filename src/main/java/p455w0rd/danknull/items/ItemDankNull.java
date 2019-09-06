@@ -18,6 +18,7 @@ import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.*;
 import net.minecraft.init.Blocks;
+import net.minecraft.init.Items;
 import net.minecraft.item.*;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntityBanner;
@@ -27,9 +28,11 @@ import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.IRarity;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.fluids.UniversalBucket;
+import net.minecraftforge.fluids.*;
+import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
+import net.minecraftforge.items.ItemHandlerHelper;
 import p455w0rd.danknull.api.DankNullItemModes.ItemPlacementMode;
 import p455w0rd.danknull.api.IDankNullHandler;
 import p455w0rd.danknull.client.render.DankNullRenderer;
@@ -247,7 +250,14 @@ public class ItemDankNull extends Item implements IModelHolder {
 		final IBlockState state = world.getBlockState(posIn);
 		final Block block = state.getBlock();
 		BlockPos pos = posIn;
-
+		if (isBucket(selectedStack)) {
+			if (tryUseBucket(world, player, selectedStack) == EnumActionResult.SUCCESS) {
+				dankNullHandler.extractItem(dankNullHandler.getSelected(), 1, false);
+				//dankNullHandler.getFullStackInSlot(dankNullHandler.getSelected()).shrink(1);
+				//dankNullHandler.getStackInSlot(dankNullHandler.getSelected()).shrink(1);
+				return EnumActionResult.SUCCESS;
+			}
+		}
 		if (selectedStack.isEmpty() || !(selectedStack.getItem() instanceof ItemBlock) && !(selectedStack.getItem() instanceof ItemBlockSpecial)) { //TODO I do have an idea
 			//return EnumActionResult.PASS;
 		}
@@ -281,8 +291,11 @@ public class ItemDankNull extends Item implements IModelHolder {
 				}
 				return EnumActionResult.SUCCESS;
 			}
-			else if (selectedStack.getItem() instanceof ItemBucket || selectedStack.getItem() instanceof UniversalBucket) {
-				//TODO soon!
+			else if (isBucket(selectedStack)) {
+				if (tryUseBucket(world, player, selectedStack) == EnumActionResult.SUCCESS) {
+					dankNullHandler.extractItem(dankNullHandler.getSelected(), 1, false);
+					return EnumActionResult.SUCCESS;
+				}
 			}
 			else if (selectedStack.getItem() instanceof ItemSnowball || selectedStack.getItem() instanceof ItemEnderPearl || selectedStack.getItem() instanceof ItemEgg) {
 				//TODO soon!
@@ -297,6 +310,38 @@ public class ItemDankNull extends Item implements IModelHolder {
 			}
 		}
 		return EnumActionResult.SUCCESS;
+	}
+
+	private boolean isBucket(final ItemStack stack) {
+		return stack.getItem() == Items.WATER_BUCKET || stack.getItem() == Items.LAVA_BUCKET || stack.getItem() instanceof UniversalBucket;
+	}
+
+	@Nonnull
+	public EnumActionResult tryUseBucket(@Nonnull final World world, @Nonnull final EntityPlayer player, final ItemStack bucket) {
+		if (!isBucket(bucket)) {
+			return EnumActionResult.FAIL;
+		}
+		final FluidStack fluidStack = getFluid(bucket);
+		if (fluidStack == null) {
+			return EnumActionResult.PASS;
+		}
+		final RayTraceResult mop = this.rayTrace(world, player, false);
+		if (mop == null || mop.typeOfHit != RayTraceResult.Type.BLOCK) {
+			return EnumActionResult.PASS;
+		}
+		final BlockPos clickPos = mop.getBlockPos();
+		if (FluidUtil.tryPlaceFluid(player, world, clickPos.offset(mop.sideHit), bucket.copy(), FluidUtil.getFluidContained(bucket)).success) {
+			ItemHandlerHelper.giveItemToPlayer(player, new ItemStack(Items.BUCKET));
+			return EnumActionResult.SUCCESS;
+		}
+		return EnumActionResult.FAIL;
+	}
+
+	private FluidStack getFluid(final ItemStack stack) {
+		if (isBucket(stack)) {
+			return stack.getCapability(CapabilityFluidHandler.FLUID_HANDLER_ITEM_CAPABILITY, null).getTankProperties()[0].getContents();
+		}
+		return null;
 	}
 
 	public static EnumActionResult placeBlock(@Nonnull final IBlockState state, final World world, final BlockPos pos) {
