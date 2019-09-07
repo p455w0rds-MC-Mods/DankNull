@@ -12,12 +12,10 @@ import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
 public class ContainerDankNullDock extends ContainerDankNull {
 
 	private final TileDankNullDock tile;
-	private final IDankNullHandler handler;
 
 	public ContainerDankNullDock(final EntityPlayer player, final TileDankNullDock tile) {
 		super(player);
 		this.tile = tile;
-		handler = tile.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
 		init();
 	}
 
@@ -33,7 +31,7 @@ public class ContainerDankNullDock extends ContainerDankNull {
 
 	@Override
 	public IDankNullHandler getHandler() {
-		return handler;
+		return tile.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
 	}
 
 	@Override
