@@ -596,7 +596,7 @@ public class GuiDankNull extends GuiModular {
 				}
 			}
 			if (s.getStack().getCount() > 1000) {
-				list.add(1, TextFormatting.GRAY + "" + TextFormatting.ITALIC + TextUtils.translate("dn.count.desc") + ": " + (getDankNullHandler().getTier().isCreative() ? TextUtils.translate("dn.infinite.desc") : dankNullHandler.getStackInSlot(s.getSlotIndex()).getCount()));
+				list.add(1, TextFormatting.GRAY + "" + TextFormatting.ITALIC + TextUtils.translate("dn.count.desc") + ": " + (getDankNullHandler().getTier().isCreative() ? TextUtils.translate("dn.infinite.desc") : dankNullHandler.getFullStackInSlot(s.getSlotIndex()).getCount()));
 			}
 		}
 		net.minecraftforge.fml.client.config.GuiUtils.preItemToolTip(stack);

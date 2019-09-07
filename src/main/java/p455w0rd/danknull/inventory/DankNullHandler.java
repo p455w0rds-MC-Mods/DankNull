@@ -506,20 +506,20 @@ public class DankNullHandler implements IDankNullHandler {
 
 	public void updateSelectedSlot() {
 		final int selected = getSelected();
-		if (selected >= 0 && !getStackInSlot(selected).isEmpty()) {
+		if (selected >= 0 && !getFullStackInSlot(selected).isEmpty()) {
 			return;
 		}
 		int newSelected = -1;
 		if (selected > 0) {
 			for (int i = selected; i > -1; i--) {
-				if (getStackInSlot(i).isEmpty()) {
+				if (getFullStackInSlot(i).isEmpty()) {
 					continue;
 				}
 				newSelected = i;
 				break;
 			}
 		}
-		else if (!getStackInSlot(0).isEmpty()) {
+		else if (!getFullStackInSlot(0).isEmpty()) {
 			newSelected = 0;
 		}
 

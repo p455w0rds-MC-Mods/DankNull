@@ -207,7 +207,7 @@ public class ModEvents {
 					shouldCancel = true;
 				}
 				else if (GuiScreen.isAltKeyDown() && !GuiScreen.isCtrlKeyDown()) {
-					if (dankNullHandler.getSelected() < 0 || !ItemUtils.areItemStacksEqualIgnoreSize(dankNullHandler.getStackInSlot(dankNullHandler.getSelected()), hoveredSlot.getStack())) {
+					if (dankNullHandler.getSelected() < 0 || !ItemUtils.areItemStacksEqualIgnoreSize(dankNullHandler.getFullStackInSlot(dankNullHandler.getSelected()), hoveredSlot.getStack())) {
 						int count = 0;
 						for (final Slot slotHovered : dankNullGui.inventorySlots.inventorySlots) {
 							count++;

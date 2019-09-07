@@ -84,7 +84,7 @@ public class DankNullRenderer extends TileEntityItemStackRenderer implements ICu
 			final int view = options.thirdPersonView;
 			final IDankNullHandler dankNullHandler = item.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
 			final int index = dankNullHandler.getSelected();
-			final ItemStack containedStack = index > -1 ? dankNullHandler.getStackInSlot(index) : ItemStack.EMPTY;
+			final ItemStack containedStack = index > -1 ? dankNullHandler.getFullStackInSlot(index) : ItemStack.EMPTY;
 
 			final float pbx = OpenGlHelper.lastBrightnessX;
 			final float pby = OpenGlHelper.lastBrightnessY;

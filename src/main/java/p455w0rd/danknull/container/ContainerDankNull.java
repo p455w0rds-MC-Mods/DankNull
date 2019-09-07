@@ -164,7 +164,7 @@ public abstract class ContainerDankNull extends Container {
 			}
 			else {
 				final int slotIndex = clickSlot.getSlotIndex();
-				final ItemStack slotStack = getHandler().extractItem(slotIndex, getHandler().getStackInSlot(slotIndex).getMaxStackSize(), true);
+				final ItemStack slotStack = getHandler().extractItem(slotIndex, getHandler().getFullStackInSlot(slotIndex).getMaxStackSize(), true);
 				if (!getHandler().getTier().isCreative()) {
 					final IItemHandler playerHandler = new PlayerMainInvWrapper(player.inventory);
 					final ItemStack notAdded = ItemHandlerHelper.insertItemStacked(playerHandler, slotStack, false);
@@ -186,7 +186,7 @@ public abstract class ContainerDankNull extends Container {
 			}
 		}
 		for (int i = 0; i < handler.getSlots(); i++) {
-			if (handler.getStackInSlot(i).isEmpty() && handler.isItemValid(i, leftover)) {
+			if (handler.getFullStackInSlot(i).isEmpty() && handler.isItemValid(i, leftover)) {
 				handler.setStackInSlot(i, leftover);
 				return ItemStack.EMPTY;
 			}

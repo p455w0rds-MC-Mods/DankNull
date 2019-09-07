@@ -40,7 +40,7 @@ public class HUDRenderer {
 			if (dankNullHandler.getSelected() < 0) {
 				return;
 			}
-			final ItemStack selectedStack = dankNullHandler.getStackInSlot(dankNullHandler.getSelected());
+			final ItemStack selectedStack = dankNullHandler.getFullStackInSlot(dankNullHandler.getSelected());
 			if (!selectedStack.isEmpty()) {
 				Minecraft.getMinecraft().renderEngine.bindTexture(new ResourceLocation(ModGlobals.MODID, "textures/gui/danknullscreen0.png"));
 				GlStateManager.enableBlend();

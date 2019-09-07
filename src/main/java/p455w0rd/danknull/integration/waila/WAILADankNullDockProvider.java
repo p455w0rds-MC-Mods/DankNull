@@ -56,7 +56,7 @@ public class WAILADankNullDockProvider implements IWailaDataProvider {
 				if (dankNullHandler.getSelected() < 0) {
 					return currenttip;
 				}
-				final ItemStack selectedStack = dankNullHandler.getStackInSlot(dankNullHandler.getSelected());
+				final ItemStack selectedStack = dankNullHandler.getFullStackInSlot(dankNullHandler.getSelected());
 				if (!selectedStack.isEmpty()) {
 					currenttip.add(selectedStack.getDisplayName() + " " + TextUtils.translate("dn.selected.desc"));
 					currenttip.add(TextUtils.translate("dn.count.desc") + ": " + (ItemDankNull.getTier(dockedDankNull) == DankNullTier.CREATIVE ? TextUtils.translate("dn.infinite.desc") : selectedStack.getCount()));

@@ -144,7 +144,7 @@ public class PacketChangeMode implements IMessage {
 	}
 
 	private static void handleModeUpdate(final IDankNullHandler handler, final PacketChangeMode.ChangeType changeType, final int slot) {
-		final ItemStack slotStack = slot >= 0 && slot < handler.getSlots() ? handler.getStackInSlot(slot) : ItemStack.EMPTY;
+		final ItemStack slotStack = slot >= 0 && slot < handler.getSlots() ? handler.getFullStackInSlot(slot) : ItemStack.EMPTY;
 		switch (changeType) {
 		case SELECTED:
 			handler.setSelected(slot);
