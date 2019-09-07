@@ -74,8 +74,8 @@ public class PacketConfigSync implements IMessage {
 			if (ctx.getClientHandler() != null) {
 				Options.creativeBlacklist = (String) message.values.get(ModConfig.CONST_CREATIVE_BLACKLIST);
 				Options.creativeWhitelist = (String) message.values.get(ModConfig.CONST_CREATIVE_WHITELIST);
-				Options.oreBlacklist = (String) message.values.get(ModConfig.CONST_OREDICT_BLACKLIST);
-				Options.oreWhitelist = (String) message.values.get(ModConfig.CONST_OREDICT_WHITELIST);
+				Options.oreBlacklist = (String) message.values.getOrDefault(ModConfig.CONST_OREDICT_BLACKLIST, "");
+				Options.oreWhitelist = (String) message.values.getOrDefault(ModConfig.CONST_OREDICT_WHITELIST, "");
 				Options.disableOreDictMode = (Boolean) message.values.get(ModConfig.CONST_DISABLE_OREDICT);
 			}
 		}
