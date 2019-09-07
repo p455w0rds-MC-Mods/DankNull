@@ -24,7 +24,6 @@ import p455w0rd.danknull.integration.PwLib;
 import p455w0rd.danknull.inventory.DankNullHandler;
 import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
 import p455w0rd.danknull.items.ItemDankNull;
-import p455w0rd.danknull.network.VanillaPacketDispatcher;
 import p455w0rdslib.integration.Albedo;
 
 /**
@@ -87,7 +86,7 @@ public class TileDankNullDock extends TileEntity {
 						return ItemStack.EMPTY;
 					}
 					validateSlot(slot);
-					final ItemStack existing = getExtractableStackInSlot(slot);
+					final ItemStack existing = getFullStackInSlot(slot);
 					if (existing.isEmpty()) {
 						return ItemStack.EMPTY;
 					}
@@ -155,7 +154,7 @@ public class TileDankNullDock extends TileEntity {
 	@Override
 	public void markDirty() {
 		super.markDirty();
-		VanillaPacketDispatcher.dispatchTEToNearbyPlayers(this);
+		//VanillaPacketDispatcher.dispatchTEToNearbyPlayers(this);
 		if (world != null) { // Shouldn't be null
 			world.markBlockRangeForRenderUpdate(pos, pos);
 			world.notifyBlockUpdate(pos, world.getBlockState(pos), world.getBlockState(pos), 3);

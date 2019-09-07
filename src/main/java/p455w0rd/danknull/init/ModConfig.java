@@ -37,6 +37,7 @@ public class ModConfig {
 	public static final String CONST_OREDICT_WHITELIST = "OreDictWhitelist";
 	public static final String CONST_DISABLE_OREDICT = "DisableOreDictMode";
 	public static final String CONST_ENABLE_COLORED_LIGHTING = "EnableColorShaders";
+	static boolean init = false;
 
 	public static void init() {
 		if (CONFIG == null) {
@@ -82,7 +83,7 @@ public class ModConfig {
 	}
 
 	public static boolean isItemOreDictBlacklisted(final ItemStack stack) {
-		if (isOreDictBlacklistEnabled()) {
+		if (isOreDictBlacklistEnabled() && !Options.getOreBlacklist().isEmpty()) {
 			for (final int id : OreDictionary.getOreIDs(stack)) {
 				if (Options.getOreBlacklist().contains(OreDictionary.getOreName(id))) {
 					return true;
@@ -93,7 +94,7 @@ public class ModConfig {
 	}
 
 	public static boolean isItemOreDictWhitelisted(final ItemStack stack) {
-		if (isOreDictWhitelistEnabled()) {
+		if (isOreDictWhitelistEnabled() && !Options.getOreWhitelist().isEmpty()) {
 			for (final int id : OreDictionary.getOreIDs(stack)) {
 				if (Options.getOreWhitelist().contains(OreDictionary.getOreName(id))) {
 					return true;
@@ -108,20 +109,40 @@ public class ModConfig {
 		public static boolean enableColoredLightShaderSupport = true;
 		public static boolean callItDevNull = false;
 		public static boolean superShine = false;
-		public static String creativeBlacklist = "";
-		public static String creativeWhitelist = "";
-		public static String oreBlacklist = "";
-		public static String oreWhitelist = "";
-		public static boolean showHUD = true;
-		private static NonNullListSerializable<ItemStack> creativeItemBlacklist = null; // cache it..
-		private static NonNullListSerializable<ItemStack> creativeItemWhitelist = null;
-		private static ArrayList<String> oreStringBlacklist = Lists.<String>newArrayList();
-		private static ArrayList<String> oreStringWhitelist = Lists.<String>newArrayList();
-		public static Boolean disableOreDictMode = false;
+		public static String creativeBlacklist;
+		public static String creativeWhitelist;
+		public static String oreBlacklist;
+		public static String oreWhitelist;
+		public static boolean showHUD;
+		private static NonNullListSerializable<ItemStack> creativeItemBlacklist; // cache it..
+		private static NonNullListSerializable<ItemStack> creativeItemWhitelist;
+		private static ArrayList<String> oreStringBlacklist;
+		private static ArrayList<String> oreStringWhitelist;
+		public static Boolean disableOreDictMode;
+
+		private static void initDefaults() {
+			if (!ModConfig.init) {
+				enableColoredLightShaderSupport = true;
+				callItDevNull = false;
+				superShine = false;
+				creativeBlacklist = "";
+				creativeWhitelist = "";
+				oreBlacklist = "";
+				oreWhitelist = "";
+				showHUD = true;
+				creativeItemBlacklist = null; // cache it..
+				creativeItemWhitelist = null;
+				oreStringBlacklist = Lists.<String>newArrayList();
+				oreStringWhitelist = Lists.<String>newArrayList();
+				disableOreDictMode = false;
+				ModConfig.init = true;
+			}
+		}
 
 		public static List<String> getOreBlacklist() {
+			initDefaults();
 			String[] tmpList = null;
-			if (oreStringBlacklist.isEmpty() && !oreBlacklist.isEmpty() && getOreWhitelist().size() == 0) {
+			if (oreStringBlacklist.isEmpty() && !oreBlacklist.isEmpty() && getOreWhitelist().isEmpty()) {
 				tmpList = oreBlacklist.split(";");
 			}
 			if (tmpList != null) {
@@ -135,6 +156,7 @@ public class ModConfig {
 		}
 
 		public static List<String> getOreWhitelist() {
+			initDefaults();
 			String[] tmpList = null;
 			if (oreStringWhitelist.isEmpty() && !oreWhitelist.isEmpty()) {
 				tmpList = oreWhitelist.split(";");
@@ -150,6 +172,7 @@ public class ModConfig {
 		}
 
 		public static NonNullListSerializable<ItemStack> getCreativeBlacklistedItems() throws Exception {
+			initDefaults();
 			if (creativeItemBlacklist == null && getCreativeWhitelistedItems().isEmpty()) {
 				creativeItemBlacklist = (NonNullListSerializable<ItemStack>) NonNullListSerializable.<ItemStack>create();
 				if (!creativeBlacklist.isEmpty()) {
@@ -197,6 +220,7 @@ public class ModConfig {
 		}
 
 		public static NonNullListSerializable<ItemStack> getCreativeWhitelistedItems() throws Exception {
+			initDefaults();
 			if (creativeItemWhitelist == null) {
 				creativeItemWhitelist = (NonNullListSerializable<ItemStack>) NonNullListSerializable.<ItemStack>create();
 				if (!creativeWhitelist.isEmpty()) {
