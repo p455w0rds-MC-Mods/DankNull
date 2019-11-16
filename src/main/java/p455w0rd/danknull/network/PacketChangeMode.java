@@ -1,21 +1,14 @@
 package p455w0rd.danknull.network;
 
-import java.util.List;
-
 import io.netty.buffer.ByteBuf;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.FMLCommonHandler;
-import net.minecraftforge.fml.common.network.ByteBufUtils;
 import net.minecraftforge.fml.common.network.simpleimpl.*;
 import p455w0rd.danknull.api.DankNullItemModes.ItemExtractionMode;
 import p455w0rd.danknull.api.DankNullItemModes.ItemPlacementMode;
 import p455w0rd.danknull.api.IDankNullHandler;
 import p455w0rd.danknull.container.ContainerDankNull;
-import p455w0rd.danknull.inventory.PlayerSlot;
-import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
-import p455w0rd.danknull.items.ItemDankNull;
 
 /**
  * @author BrockWS
@@ -24,7 +17,7 @@ public class PacketChangeMode implements IMessage {
 
 	private ChangeType changeType;
 	private int slot = -1;
-	private String uuid = "";
+	//private String uuid = "";
 
 	public PacketChangeMode() {
 	}
@@ -84,34 +77,34 @@ public class PacketChangeMode implements IMessage {
 		this.slot = slot;
 	}
 
-	public PacketChangeMode(final ChangeType type, final int slot, final String uuid) {
+	/*public PacketChangeMode(final ChangeType type, final int slot, final String uuid) {
 		changeType = type;
 		this.slot = slot;
 		this.uuid = uuid;
 	}
-
+	
 	public PacketChangeMode(final ChangeType type, final String uuid) {
 		changeType = type;
 		this.uuid = uuid;
-	}
+	}*/
 
 	@Override
 	public void fromBytes(final ByteBuf buf) {
 		changeType = ChangeType.VALUES[buf.readInt()];
 		slot = buf.readInt();
-		uuid = ByteBufUtils.readUTF8String(buf);
+		//uuid = ByteBufUtils.readUTF8String(buf);
 	}
 
 	@Override
 	public void toBytes(final ByteBuf buf) {
 		buf.writeInt(changeType.ordinal());
 		buf.writeInt(slot);
-		ByteBufUtils.writeUTF8String(buf, uuid);
+		//ByteBufUtils.writeUTF8String(buf, uuid);
 	}
 
 	public static class Handler implements IMessageHandler<PacketChangeMode, IMessage> {
 
-		private static ItemStack findDankNull(final EntityPlayer player, final String uuid) {
+		/*private static ItemStack findDankNull(final EntityPlayer player, final String uuid) {
 			final List<PlayerSlot> dankNulls = ItemDankNull.getDankNullsForPlayer(player);
 			for (final PlayerSlot slot : dankNulls) {
 				final ItemStack itemStack = slot.getStackInSlot(player);
@@ -123,7 +116,7 @@ public class PacketChangeMode implements IMessage {
 				}
 			}
 			return null;
-		}
+		}*/
 
 		@Override
 		public IMessage onMessage(final PacketChangeMode message, final MessageContext ctx) {
@@ -132,12 +125,12 @@ public class PacketChangeMode implements IMessage {
 				if (container instanceof ContainerDankNull) {
 					PacketChangeMode.handleModeUpdate(((ContainerDankNull) container).getHandler(), message.changeType, message.slot);
 				}
-				else if (message.uuid != null && !message.uuid.isEmpty()) {
+				/*else if (message.uuid != null && !message.uuid.isEmpty()) {
 					final ItemStack stack = findDankNull(ctx.getServerHandler().player, message.uuid);
 					if (stack != null && stack.hasCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null)) {
 						PacketChangeMode.handleModeUpdate(stack.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null), message.changeType, message.slot);
 					}
-				}
+				}*/
 			});
 			return null;
 		}

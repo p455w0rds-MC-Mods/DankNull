@@ -2,19 +2,13 @@ package p455w0rd.danknull.items;
 
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.EnumFacing;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.IRarity;
-import net.minecraftforge.common.capabilities.Capability;
-import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import p455w0rd.danknull.client.render.DankNullPanelRenderer;
 import p455w0rd.danknull.init.ModGlobals.DankNullTier;
-import p455w0rd.danknull.integration.PwLib;
 import p455w0rdslib.api.client.*;
-import p455w0rdslib.integration.Albedo;
 import p455w0rdslib.util.TextUtils;
 
 /**
@@ -36,29 +30,6 @@ public class ItemDankNullPanel extends Item implements IModelHolder {
 
 	public static boolean isDankNullPanel(final ItemStack stack) {
 		return stack.getItem() instanceof ItemDankNullPanel;
-	}
-
-	@Override
-	public ICapabilityProvider initCapabilities(final ItemStack stack, final NBTTagCompound nbt) {
-		return new ICapabilityProvider() {
-			@Override
-			public boolean hasCapability(final Capability<?> capability, final EnumFacing facing) {
-				return Albedo.albedoCapCheck(capability) || PwLib.checkCap(capability);
-			}
-
-			@Override
-			public <T> T getCapability(final Capability<T> capability, final EnumFacing facing) {
-				if (hasCapability(capability, facing)) {
-					if (Albedo.albedoCapCheck(capability)) {
-						return p455w0rd.danknull.integration.Albedo.getStackCapability(stack);
-					}
-					else if (PwLib.checkCap(capability)) {
-						return PwLib.getStackCapability(stack);
-					}
-				}
-				return null;
-			}
-		};
 	}
 
 	public DankNullTier getTier() {

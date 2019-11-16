@@ -74,9 +74,9 @@ public class CapabilityDankNull {
 				if (instance.isLocked()) {
 					tag.setBoolean(ModGlobals.NBT.LOCKED, instance.isLocked());
 				}
-				if (!instance.getUUID().isEmpty()) {
-					tag.setString(ModGlobals.NBT.UUID, instance.getUUID());
-				}
+				//if (!instance.getUUID().isEmpty()) {
+				//	tag.setString(ModGlobals.NBT.UUID, instance.getUUID());
+				//}
 				return tag;
 			}
 
@@ -130,9 +130,9 @@ public class CapabilityDankNull {
 				if (tag.hasKey(ModGlobals.NBT.LOCKED)) {
 					instance.setLocked(tag.getBoolean(ModGlobals.NBT.LOCKED));
 				}
-				if (tag.hasKey(ModGlobals.NBT.UUID)) {
-					instance.setUUID(tag.getString(ModGlobals.NBT.UUID));
-				}
+				//if (tag.hasKey(ModGlobals.NBT.UUID)) {
+				//	instance.setUUID(tag.getString(ModGlobals.NBT.UUID));
+				//}
 			}
 		}, () -> null);
 	}

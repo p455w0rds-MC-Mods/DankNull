@@ -8,9 +8,7 @@ import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.items.CapabilityItemHandler;
 import p455w0rd.danknull.api.IDankNullHandler;
 import p455w0rd.danknull.init.ModGlobals;
-import p455w0rd.danknull.integration.PwLib;
 import p455w0rd.danknull.inventory.DankNullHandler;
-import p455w0rdslib.integration.Albedo;
 import p455w0rdslib.util.CapabilityUtils;
 
 /**
@@ -51,19 +49,13 @@ public class DankNullCapabilityProvider implements ICapabilityProvider {
 			needsInitialNBT = false;
 			CapabilityDankNull.DANK_NULL_CAPABILITY.readNBT(dankNullHandler, null, stack.getTagCompound());
 		}
-		return capability == CapabilityDankNull.DANK_NULL_CAPABILITY || CapabilityUtils.isItemHandler(capability) || Albedo.albedoCapCheck(capability) || PwLib.checkCap(capability);
+		return capability == CapabilityDankNull.DANK_NULL_CAPABILITY || CapabilityUtils.isItemHandler(capability);
 	}
 
 	@Override
 	public <T> T getCapability(final Capability<T> capability, final EnumFacing facing) {
 		if (hasCapability(capability, facing)) {
-			if (Albedo.albedoCapCheck(capability)) {
-				return p455w0rd.danknull.integration.Albedo.getStackCapability(stack);
-			}
-			else if (PwLib.checkCap(capability)) {
-				return PwLib.getStackCapability(stack);
-			}
-			else if (CapabilityUtils.isItemHandler(capability)) {
+			if (CapabilityUtils.isItemHandler(capability)) {
 				return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(dankNullHandler);
 			}
 			else if (capability == CapabilityDankNull.DANK_NULL_CAPABILITY) {

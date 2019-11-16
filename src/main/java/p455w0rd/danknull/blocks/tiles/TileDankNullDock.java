@@ -20,11 +20,9 @@ import net.minecraftforge.items.ItemHandlerHelper;
 import p455w0rd.danknull.api.IDankNullHandler;
 import p455w0rd.danknull.init.ModDataFixing.DankNullFixer;
 import p455w0rd.danknull.init.ModGlobals.NBT;
-import p455w0rd.danknull.integration.PwLib;
 import p455w0rd.danknull.inventory.DankNullHandler;
 import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
 import p455w0rd.danknull.items.ItemDankNull;
-import p455w0rdslib.integration.Albedo;
 
 /**
  * @author p455w0rd
@@ -38,18 +36,12 @@ public class TileDankNullDock extends TileEntity {
 
 	@Override
 	public boolean hasCapability(final Capability<?> capability, final EnumFacing facing) {
-		return !getDankNull().isEmpty() && (capability == CapabilityDankNull.DANK_NULL_CAPABILITY || capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY || Albedo.albedoCapCheck(capability) || PwLib.checkCap(capability) || super.hasCapability(capability, facing));
+		return !getDankNull().isEmpty() && (capability == CapabilityDankNull.DANK_NULL_CAPABILITY || capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY || super.hasCapability(capability, facing));
 	}
 
 	@Override
 	public <T> T getCapability(final Capability<T> capability, final EnumFacing facing) {
 		if (!getDankNull().isEmpty()) {
-			if (Albedo.albedoCapCheck(capability)) {
-				return p455w0rd.danknull.integration.Albedo.getTileCapability(getPos(), getDankNull());
-			}
-			if (PwLib.checkCap(capability)) {
-				return PwLib.getTileCapability(this);
-			}
 			if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
 				return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(dankNullHandler);
 			}
@@ -86,7 +78,7 @@ public class TileDankNullDock extends TileEntity {
 						return ItemStack.EMPTY;
 					}
 					validateSlot(slot);
-					final ItemStack existing = getFullStackInSlot(slot);
+					final ItemStack existing = getExtractableStackInSlot(slot);
 					if (existing.isEmpty()) {
 						return ItemStack.EMPTY;
 					}

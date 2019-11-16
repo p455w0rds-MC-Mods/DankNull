@@ -5,6 +5,7 @@ import java.util.*;
 import javax.annotation.Nonnull;
 
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.oredict.OreDictionary;
@@ -12,6 +13,7 @@ import p455w0rd.danknull.api.DankNullItemModes.ItemExtractionMode;
 import p455w0rd.danknull.api.DankNullItemModes.ItemPlacementMode;
 import p455w0rd.danknull.api.IDankNullHandler;
 import p455w0rd.danknull.init.ModGlobals;
+import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
 import p455w0rd.danknull.items.ItemDankNull;
 import p455w0rdslib.util.ItemUtils;
 
@@ -20,14 +22,18 @@ import p455w0rdslib.util.ItemUtils;
  */
 public class DankNullHandler implements IDankNullHandler {
 
-	private final ModGlobals.DankNullTier tier;
-	private final NonNullList<ItemStack> stacks;
-	private final Map<ItemStack, Boolean> oreStacks;
-	private final Map<ItemStack, ItemExtractionMode> extractionStacks;
-	private final Map<ItemStack, ItemPlacementMode> placementStacks;
+	private ModGlobals.DankNullTier tier;
+	private NonNullList<ItemStack> stacks;
+	private Map<ItemStack, Boolean> oreStacks;
+	private Map<ItemStack, ItemExtractionMode> extractionStacks;
+	private Map<ItemStack, ItemPlacementMode> placementStacks;
 	private int selected;
 	private boolean isLocked;
-	private String uuid;
+	//private String uuid;
+
+	public DankNullHandler(final NBTTagCompound nbt) {
+		CapabilityDankNull.DANK_NULL_CAPABILITY.readNBT(this, null, nbt);
+	}
 
 	public DankNullHandler(final ModGlobals.DankNullTier tier) {
 		this.tier = tier;
@@ -37,7 +43,7 @@ public class DankNullHandler implements IDankNullHandler {
 		placementStacks = new HashMap<>();
 		selected = -1;
 		isLocked = false;
-		uuid = UUID.randomUUID().toString();
+		//uuid = UUID.randomUUID().toString();
 	}
 
 	@Nonnull
@@ -302,17 +308,6 @@ public class DankNullHandler implements IDankNullHandler {
 	@Override
 	public boolean isLockingSupported() {
 		return tier.isCreative();
-	}
-
-	@Override
-	public void setUUID(@Nonnull final String uuid) {
-		this.uuid = uuid;
-	}
-
-	@Nonnull
-	@Override
-	public String getUUID() {
-		return uuid;
 	}
 
 	@Override

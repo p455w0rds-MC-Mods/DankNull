@@ -155,7 +155,7 @@ public interface IDankNullHandler extends IItemHandlerModifiable {
 	 *
 	 * @param uuid UUID
 	 */
-	void setUUID(@Nonnull String uuid);
+	//void setUUID(@Nonnull String uuid);
 
 	/**
 	 * Gets the UUID for syncing
@@ -163,7 +163,7 @@ public interface IDankNullHandler extends IItemHandlerModifiable {
 	 * @return UUID
 	 */
 	@Nonnull
-	String getUUID();
+	//String getUUID();
 
 	/**
 	 * Sets the ore mode for the given stack

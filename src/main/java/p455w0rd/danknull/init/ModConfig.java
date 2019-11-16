@@ -31,12 +31,13 @@ public class ModConfig {
 	public static final String SERVER_CAT = "Server Rules";
 	public static final boolean DEBUG_RESET = false;
 
-	public static final String CONST_CREATIVE_BLACKLIST = "CreativeBlacklist";
-	public static final String CONST_CREATIVE_WHITELIST = "CreativeWhitelist";
-	public static final String CONST_OREDICT_BLACKLIST = "OreDictBlacklist";
-	public static final String CONST_OREDICT_WHITELIST = "OreDictWhitelist";
-	public static final String CONST_DISABLE_OREDICT = "DisableOreDictMode";
-	public static final String CONST_ENABLE_COLORED_LIGHTING = "EnableColorShaders";
+	public static final String NAME_CREATIVE_BLACKLIST = "CreativeBlacklist";
+	public static final String NAME_CREATIVE_WHITELIST = "CreativeWhitelist";
+	public static final String NAME_OREDICT_BLACKLIST = "OreDictBlacklist";
+	public static final String NAME_OREDICT_WHITELIST = "OreDictWhitelist";
+	public static final String NAME_DISABLE_OREDICT = "DisableOreDictMode";
+	public static final String NAME_ENABLE_COLORED_LIGHTING = "EnableColorShaders";
+	public static final String NAME_ALLOW_DOCK_INSERTION = "AllowDockInsertion";
 	static boolean init = false;
 
 	public static void init() {
@@ -49,15 +50,16 @@ public class ModConfig {
 			CONFIG.load();
 		}
 
-		Options.callItDevNull = CONFIG.getBoolean("CallItDevNull", CLIENT_CAT, false, "Call it a /dev/null in-game ");
+		Options.callItDevNull = CONFIG.getBoolean("CallItDevNull", CLIENT_CAT, false, "Call it a /dev/null in-game (Requested by TheMattaBase)");
 		Options.superShine = CONFIG.getBoolean("SuperShine", CLIENT_CAT, false, "Make items ultra shiny!");
-		Options.creativeBlacklist = CONFIG.getString(CONST_CREATIVE_BLACKLIST, SERVER_CAT, "", "A semicolon separated list of items that are not allowed to be placed into the creative /dank/null\nFormat: modid:name:meta (meta optional: modid:name is acceptable) - Example: minecraft:diamond;minecraft:coal:1").trim();
-		Options.creativeWhitelist = CONFIG.getString(CONST_CREATIVE_WHITELIST, SERVER_CAT, "", "A semicolon separated list of items that are allowed to be placed into the creative /dank/null\nSame format as Blacklist and whitelist superceeds blacklist.\nIf whitelist is non-empty, then ONLY whitelisted items can be added to the Creative /dank/null").trim();
-		Options.oreBlacklist = CONFIG.getString(CONST_OREDICT_BLACKLIST, SERVER_CAT, "itemSkull", "A semicolon separated list of Ore Dictionary entries (strings) which WILL NOT be allowed to be used with /dank/null's Ore Dictionary functionality.");
-		Options.oreWhitelist = CONFIG.getString(CONST_OREDICT_WHITELIST, SERVER_CAT, "", "A semicolon separated list of Ore Dictionary entries (strings) which WILL BE allowed to be used with /dank/null's Ore Dictionary functionality. Whitelist superceeds blacklist.\nIf whitelist is non-empty, then ONLY Ore Dictionary items matching the entries will\nbe able to take advantage of /dank/null's Ore Dictionary functionality.");
-		Options.disableOreDictMode = CONFIG.getBoolean(CONST_DISABLE_OREDICT, SERVER_CAT, false, "If set to true, then Ore Dictionary Mode will not be available (overrides Ore Dictionary White/Black lists)");
-		Options.enableColoredLightShaderSupport = CONFIG.getBoolean(CONST_ENABLE_COLORED_LIGHTING, CLIENT_CAT, true, "If true, /dank/nulls and panels will emit colored light");
+		Options.creativeBlacklist = CONFIG.getString(NAME_CREATIVE_BLACKLIST, SERVER_CAT, "", "A semicolon separated list of items that are not allowed to be placed into the creative /dank/null\nFormat: modid:name:meta (meta optional: modid:name is acceptable) - Example: minecraft:diamond;minecraft:coal:1").trim();
+		Options.creativeWhitelist = CONFIG.getString(NAME_CREATIVE_WHITELIST, SERVER_CAT, "", "A semicolon separated list of items that are allowed to be placed into the creative /dank/null\nSame format as Blacklist and whitelist superceeds blacklist.\nIf whitelist is non-empty, then ONLY whitelisted items can be added to the Creative /dank/null").trim();
+		Options.oreBlacklist = CONFIG.getString(NAME_OREDICT_BLACKLIST, SERVER_CAT, "itemSkull", "A semicolon separated list of Ore Dictionary entries (strings) which WILL NOT be allowed to be used with /dank/null's Ore Dictionary functionality.");
+		Options.oreWhitelist = CONFIG.getString(NAME_OREDICT_WHITELIST, SERVER_CAT, "", "A semicolon separated list of Ore Dictionary entries (strings) which WILL BE allowed to be used with /dank/null's Ore Dictionary functionality. Whitelist superceeds blacklist.\nIf whitelist is non-empty, then ONLY Ore Dictionary items matching the entries will\nbe able to take advantage of /dank/null's Ore Dictionary functionality.");
+		Options.disableOreDictMode = CONFIG.getBoolean(NAME_DISABLE_OREDICT, SERVER_CAT, false, "If set to true, then Ore Dictionary Mode will not be available (overrides Ore Dictionary White/Black lists)");
+		Options.enableColoredLightShaderSupport = CONFIG.getBoolean(NAME_ENABLE_COLORED_LIGHTING, CLIENT_CAT, true, "If true, /dank/nulls and panels will emit colored light");
 		Options.showHUD = CONFIG.getBoolean("showHUD", CLIENT_CAT, true, "Show the /dank/null HUD overlay?");
+		Options.allowDockInserting = CONFIG.getBoolean(NAME_ALLOW_DOCK_INSERTION, SERVER_CAT, true, "If true, you will be able to pipe items into the /dank/null Docking Station");
 		if (CONFIG.hasChanged()) {
 			CONFIG.save();
 		}
@@ -66,11 +68,11 @@ public class ModConfig {
 	@SideOnly(Side.SERVER)
 	public static void sendConfigsToClient(final EntityPlayerMP player) {
 		final WeakHashMapSerializable<String, Object> map = new WeakHashMapSerializable<>();
-		map.put(ModConfig.CONST_CREATIVE_BLACKLIST, Options.creativeBlacklist);
-		map.put(ModConfig.CONST_CREATIVE_WHITELIST, Options.creativeWhitelist);
-		map.put(ModConfig.CONST_OREDICT_BLACKLIST, Options.oreBlacklist);
-		map.put(ModConfig.CONST_OREDICT_WHITELIST, Options.oreWhitelist);
-		map.put(ModConfig.CONST_DISABLE_OREDICT, Options.disableOreDictMode);
+		map.put(ModConfig.NAME_CREATIVE_BLACKLIST, Options.creativeBlacklist);
+		map.put(ModConfig.NAME_CREATIVE_WHITELIST, Options.creativeWhitelist);
+		map.put(ModConfig.NAME_OREDICT_BLACKLIST, Options.oreBlacklist);
+		map.put(ModConfig.NAME_OREDICT_WHITELIST, Options.oreWhitelist);
+		map.put(ModConfig.NAME_DISABLE_OREDICT, Options.disableOreDictMode);
 		ModNetworking.getInstance().sendTo(new PacketConfigSync(map), player);
 	}
 
@@ -119,6 +121,7 @@ public class ModConfig {
 		private static ArrayList<String> oreStringBlacklist;
 		private static ArrayList<String> oreStringWhitelist;
 		public static Boolean disableOreDictMode;
+		public static boolean allowDockInserting;
 
 		private static void initDefaults() {
 			if (!ModConfig.init) {
@@ -135,6 +138,7 @@ public class ModConfig {
 				oreStringBlacklist = Lists.<String>newArrayList();
 				oreStringWhitelist = Lists.<String>newArrayList();
 				disableOreDictMode = false;
+				allowDockInserting = true;
 				ModConfig.init = true;
 			}
 		}

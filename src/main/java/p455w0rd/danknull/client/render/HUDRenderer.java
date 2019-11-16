@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.GlStateManager;
 import net.minecraft.client.renderer.RenderHelper;
+import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
@@ -41,8 +42,10 @@ public class HUDRenderer {
 				return;
 			}
 			final ItemStack selectedStack = dankNullHandler.getFullStackInSlot(dankNullHandler.getSelected());
-			if (!selectedStack.isEmpty()) {
-				Minecraft.getMinecraft().renderEngine.bindTexture(new ResourceLocation(ModGlobals.MODID, "textures/gui/danknullscreen0.png"));
+			final TextureManager tm = mc.renderEngine;
+			if (tm != null && !selectedStack.isEmpty()) {
+
+				tm.bindTexture(new ResourceLocation(ModGlobals.MODID, "textures/gui/danknullscreen0.png"));
 				GlStateManager.enableBlend();
 				GlStateManager.enableAlpha();
 				GuiUtils.drawTexturedModalRect(scaledRes.getScaledWidth() - 106, scaledRes.getScaledHeight() - 45, 0, 210, 106, 45, 0);
