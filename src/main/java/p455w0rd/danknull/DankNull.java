@@ -1,15 +1,16 @@
 package p455w0rd.danknull;
 
+import net.minecraft.init.Blocks;
+import net.minecraft.item.ItemStack;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.*;
+import net.minecraftforge.oredict.OreDictionary;
 import p455w0rd.danknull.init.ModGlobals;
 import p455w0rd.danknull.proxy.CommonProxy;
 
 @Mod(modid = ModGlobals.MODID, name = ModGlobals.NAME, version = ModGlobals.VERSION, dependencies = ModGlobals.DEPENDANCIES, guiFactory = ModGlobals.GUI_FACTORY, acceptedMinecraftVersions = "[1.12.2]", certificateFingerprint = "@FINGERPRINT@")
 public class DankNull {
-
-	static ClassLoader CLASS_LOADER_INSTANCE;
 
 	@SidedProxy(clientSide = ModGlobals.CLIENT_PROXY, serverSide = ModGlobals.SERVER_PROXY)
 	public static CommonProxy PROXY;
@@ -19,9 +20,9 @@ public class DankNull {
 
 	@Mod.EventHandler
 	public void preInit(final FMLPreInitializationEvent event) {
-		INSTANCE = this;
-		CLASS_LOADER_INSTANCE = this.getClass().getClassLoader();
 		PROXY.preInit(event);
+		OreDictionary.registerOre("railBed", new ItemStack(Blocks.LOG, 1, OreDictionary.WILDCARD_VALUE));
+		OreDictionary.registerOre("railBed", new ItemStack(Blocks.BEDROCK));
 	}
 
 	@Mod.EventHandler
@@ -37,12 +38,6 @@ public class DankNull {
 	@Mod.EventHandler
 	public void serverStarting(final FMLServerStartingEvent event) {
 		PROXY.serverStarting(event);
-	}
-
-	public static void resetClassLoader() {
-		if (CLASS_LOADER_INSTANCE != null) {
-			Thread.currentThread().setContextClassLoader(CLASS_LOADER_INSTANCE);
-		}
 	}
 
 }

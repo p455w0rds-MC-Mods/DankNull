@@ -48,6 +48,7 @@ public class ModConfig {
 			}
 			CONFIG = new Configuration(configFile);
 			CONFIG.load();
+			Options.initDefaults();
 		}
 
 		Options.callItDevNull = CONFIG.getBoolean("CallItDevNull", CLIENT_CAT, false, "Call it a /dev/null in-game (Requested by TheMattaBase)");
@@ -57,7 +58,6 @@ public class ModConfig {
 		Options.oreBlacklist = CONFIG.getString(NAME_OREDICT_BLACKLIST, SERVER_CAT, "itemSkull", "A semicolon separated list of Ore Dictionary entries (strings) which WILL NOT be allowed to be used with /dank/null's Ore Dictionary functionality.");
 		Options.oreWhitelist = CONFIG.getString(NAME_OREDICT_WHITELIST, SERVER_CAT, "", "A semicolon separated list of Ore Dictionary entries (strings) which WILL BE allowed to be used with /dank/null's Ore Dictionary functionality. Whitelist superceeds blacklist.\nIf whitelist is non-empty, then ONLY Ore Dictionary items matching the entries will\nbe able to take advantage of /dank/null's Ore Dictionary functionality.");
 		Options.disableOreDictMode = CONFIG.getBoolean(NAME_DISABLE_OREDICT, SERVER_CAT, false, "If set to true, then Ore Dictionary Mode will not be available (overrides Ore Dictionary White/Black lists)");
-		Options.enableColoredLightShaderSupport = CONFIG.getBoolean(NAME_ENABLE_COLORED_LIGHTING, CLIENT_CAT, true, "If true, /dank/nulls and panels will emit colored light");
 		Options.showHUD = CONFIG.getBoolean("showHUD", CLIENT_CAT, true, "Show the /dank/null HUD overlay?");
 		Options.allowDockInserting = CONFIG.getBoolean(NAME_ALLOW_DOCK_INSERTION, SERVER_CAT, true, "If true, you will be able to pipe items into the /dank/null Docking Station");
 		if (CONFIG.hasChanged()) {
@@ -84,11 +84,49 @@ public class ModConfig {
 		return !Options.getOreWhitelist().isEmpty();
 	}
 
+	public static boolean isOreBlacklisted(final String oreName) {
+		for (final String currentOre : Options.getOreBlacklist()) {
+			if (currentOre.equals(oreName)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static boolean isOreWhitelisted(final String oreName) {
+		for (final String currentOre : Options.getOreWhitelist()) {
+			if (currentOre.equals(oreName)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public static boolean isValidOre(final String oreName) {
+		boolean isValid = true;
+		if (isOreConfigEnabled()) {
+			isValid = isOreDictWhitelistEnabled() && isOreWhitelisted(oreName);
+			if (!isValid) {
+				isValid = isOreDictBlacklistEnabled() && !isOreBlacklisted(oreName);
+			}
+		}
+		return isValid;
+	}
+
+	public static boolean isOreConfigEnabled() {
+		return !Options.disableOreDictMode && isOreDictBlacklistEnabled() || isOreDictWhitelistEnabled();
+	}
+
 	public static boolean isItemOreDictBlacklisted(final ItemStack stack) {
-		if (isOreDictBlacklistEnabled() && !Options.getOreBlacklist().isEmpty()) {
+		if (isOreConfigEnabled() && isOreDictBlacklistEnabled()) {
 			for (final int id : OreDictionary.getOreIDs(stack)) {
-				if (Options.getOreBlacklist().contains(OreDictionary.getOreName(id))) {
-					return true;
+				final String currentOreName = OreDictionary.getOreName(id);
+				if (isValidOre(currentOreName)) {
+					for (final String oreName : Options.getOreBlacklist()) {
+						if (isValidOre(oreName) && oreName.equals(currentOreName)) {
+							return true;
+						}
+					}
 				}
 			}
 		}
@@ -96,10 +134,15 @@ public class ModConfig {
 	}
 
 	public static boolean isItemOreDictWhitelisted(final ItemStack stack) {
-		if (isOreDictWhitelistEnabled() && !Options.getOreWhitelist().isEmpty()) {
+		if (isOreConfigEnabled() && isOreDictWhitelistEnabled()) {
 			for (final int id : OreDictionary.getOreIDs(stack)) {
-				if (Options.getOreWhitelist().contains(OreDictionary.getOreName(id))) {
-					return true;
+				final String currentOreName = OreDictionary.getOreName(id);
+				if (isValidOre(currentOreName)) {
+					for (final String oreName : Options.getOreWhitelist()) {
+						if (isValidOre(oreName) && oreName.equals(OreDictionary.getOreName(id))) {
+							return true;
+						}
+					}
 				}
 			}
 		}
@@ -108,7 +151,6 @@ public class ModConfig {
 
 	public static class Options {
 
-		public static boolean enableColoredLightShaderSupport = true;
 		public static boolean callItDevNull = false;
 		public static boolean superShine = false;
 		public static String creativeBlacklist;
@@ -123,9 +165,8 @@ public class ModConfig {
 		public static Boolean disableOreDictMode;
 		public static boolean allowDockInserting;
 
-		private static void initDefaults() {
+		public static void initDefaults() {
 			if (!ModConfig.init) {
-				enableColoredLightShaderSupport = true;
 				callItDevNull = false;
 				superShine = false;
 				creativeBlacklist = "";

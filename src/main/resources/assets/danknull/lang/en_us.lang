@@ -73,3 +73,5 @@ dn.docked.desc=Docked
 dn.chisel_varient.desc=Variant
 dn.lock.desc=Lock
 dn.unlock.desc=Unlock
+dn.items_per_slot.desc=items per slot
+dn.number_of_slots.desc=Number of slots

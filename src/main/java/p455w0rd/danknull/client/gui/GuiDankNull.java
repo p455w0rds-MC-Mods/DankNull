@@ -33,6 +33,7 @@ import p455w0rd.danknull.init.*;
 import p455w0rd.danknull.init.ModConfig.Options;
 import p455w0rd.danknull.init.ModGlobals.DankNullTier;
 import p455w0rd.danknull.integration.Chisel;
+import p455w0rd.danknull.inventory.DankNullHandler;
 import p455w0rd.danknull.inventory.slot.SlotDankNull;
 import p455w0rd.danknull.network.PacketChangeMode;
 import p455w0rdslib.LibGlobals.Mods;
@@ -572,12 +573,28 @@ public class GuiDankNull extends GuiModular {
 			if (showOreDictMessage) {
 				final String oreDictMode = dankNullHandler.isOre(s.getStack()) ? TextUtils.translate("dn.enabled.desc") : TextUtils.translate("dn.disabled.desc");
 				final boolean oreDicted = OreDictionary.getOreIDs(s.getStack()).length > 0;
+				int lineOffset = 0;
 				if (oreDicted) {
 					list.add(2, TextUtils.translate("dn.ore_dictionary.desc") + ": " + oreDictMode);
+					final List<String> oreNames = DankNullHandler.getOreNames(stack);
+					if (oreNames.size() > 0 && GuiScreen.isShiftKeyDown()) {
+						list.add(3, "" + TextFormatting.YELLOW + TextFormatting.UNDERLINE + TextFormatting.BOLD + " Enabled OreDict Conversions: ");
+					}
+					if (GuiScreen.isShiftKeyDown()) {
+						for (int i = 0; i < oreNames.size(); i++) {
+							lineOffset = 5 + i;
+							list.add(4 + i, "" + TextFormatting.GRAY + TextFormatting.ITALIC + "   - " + oreNames.get(i));
+						}
+					}
 				}
 				if (oreDicted) {
-					list.add(4, TextFormatting.GRAY + "" + TextFormatting.ITALIC + "  " + TextUtils.translate("dn.o_click_toggle.desc"));
+					list.add(GuiScreen.isShiftKeyDown() ? lineOffset + 1 : 4, TextFormatting.GRAY + "" + TextFormatting.ITALIC + "  " + TextUtils.translate("dn.o_click_toggle.desc"));
+					/*final List<String> oreNames = DankNullHandler.getOreNames(stack);
+					for (int i = 0; i < oreNames.size(); i++) {
+						list.add(5 + i, TextFormatting.ITALIC + " - " + oreNames.get(i));
+					}*/
 				}
+
 			}
 			if (Mods.CHISEL.isLoaded()) {
 				int lineToRemove = -1;

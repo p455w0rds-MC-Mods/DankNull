@@ -157,12 +157,12 @@ public interface IDankNullHandler extends IItemHandlerModifiable {
 	 */
 	//void setUUID(@Nonnull String uuid);
 
-	/**
-	 * Gets the UUID for syncing
-	 *
-	 * @return UUID
-	 */
-	@Nonnull
+	///**
+	// * Gets the UUID for syncing
+	// *
+	// * @return UUID
+	// */
+	//@Nonnull
 	//String getUUID();
 
 	/**

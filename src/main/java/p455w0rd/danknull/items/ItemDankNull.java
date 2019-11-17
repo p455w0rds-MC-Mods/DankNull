@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.UUID;
 
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 
 import com.google.common.collect.Lists;
 
@@ -14,6 +15,8 @@ import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.block.*;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
+import net.minecraft.client.resources.I18n;
+import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.*;
@@ -24,6 +27,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntityBanner;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
+import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.IRarity;
@@ -68,6 +72,14 @@ public class ItemDankNull extends Item implements IModelHolder {
 		setUnlocalizedName(tier.getUnlocalizedNameForDankNull());
 		setMaxStackSize(1);
 		setMaxDamage(0);
+	}
+
+	@Override
+	@SideOnly(Side.CLIENT)
+	public void addInformation(final ItemStack stack, @Nullable final World world, final List<String> tooltip, final ITooltipFlag advanced) {
+		tooltip.add(I18n.format("dn.number_of_slots.desc") + ": " + getTier(stack).getNumRows() * 9);
+		final String maxMsg = getTier(stack) == DankNullTier.CREATIVE ? "" + TextFormatting.DARK_PURPLE + I18n.format("dn.infinite.desc") + TextFormatting.GRAY : "" + getTier(stack).getMaxStackSize();
+		tooltip.add(maxMsg + " " + I18n.format("dn.items_per_slot.desc"));
 	}
 
 	public static List<PlayerSlot> getDankNullsForPlayer(final EntityPlayer player) {

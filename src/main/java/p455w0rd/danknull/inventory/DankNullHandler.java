@@ -12,6 +12,7 @@ import net.minecraftforge.oredict.OreDictionary;
 import p455w0rd.danknull.api.DankNullItemModes.ItemExtractionMode;
 import p455w0rd.danknull.api.DankNullItemModes.ItemPlacementMode;
 import p455w0rd.danknull.api.IDankNullHandler;
+import p455w0rd.danknull.init.ModConfig;
 import p455w0rd.danknull.init.ModGlobals;
 import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
 import p455w0rd.danknull.items.ItemDankNull;
@@ -171,22 +172,26 @@ public class DankNullHandler implements IDankNullHandler {
 		final List<String> oreNamesForStoredStack = getOreNames(storedStack);
 		final List<String> oreNamesForIncomingStack = getOreNames(incomingStack);
 		for (final String currentStoredName : oreNamesForStoredStack) {
-			for (final String currentIncomingName : oreNamesForIncomingStack) {
-				if (currentIncomingName.equals(currentStoredName)) {
-					return true;
+			if (ModConfig.isValidOre(currentStoredName)) {
+				for (final String currentIncomingName : oreNamesForIncomingStack) {
+					if (ModConfig.isValidOre(currentIncomingName)) {
+						if (currentIncomingName.equals(currentStoredName)) {
+							return true;
+						}
+					}
 				}
 			}
 		}
 		return false;
 	}
 
-	private List<String> getOreNames(final ItemStack stack) {
+	public static List<String> getOreNames(final ItemStack stack) {
 		final int[] oreIds = OreDictionary.getOreIDs(stack);
 		if (oreIds.length > 0) {
 			final List<String> nameList = new ArrayList<>();
 			for (final int oreId : oreIds) {
 				final String name = OreDictionary.getOreName(oreId);
-				if (!name.equals("Unknown")) {
+				if (!name.equals("Unknown") && ModConfig.isValidOre(name)) {
 					nameList.add(name);
 				}
 			}

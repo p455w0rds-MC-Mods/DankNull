@@ -11,12 +11,12 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
-import net.minecraftforge.oredict.OreDictionary;
 import p455w0rd.danknull.api.DankNullItemModes.ItemPlacementMode;
 import p455w0rd.danknull.api.IDankNullHandler;
 import p455w0rd.danknull.init.*;
 import p455w0rd.danknull.init.ModConfig.Options;
 import p455w0rd.danknull.init.ModGlobals.DankNullTier;
+import p455w0rd.danknull.inventory.DankNullHandler;
 import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
 import p455w0rd.danknull.items.ItemDankNull;
 import p455w0rdslib.util.*;
@@ -67,29 +67,26 @@ public class HUDRenderer {
 				final String keyBind = ModKeyBindings.getOpenDankNullKeyBind().getDisplayName();
 				mc.fontRenderer.drawStringWithShadow(keyBind.equalsIgnoreCase("none") ? TextUtils.translate("dn.no_open_keybind.desc") : TextUtils.translate("dn.open_with.desc") + " " + keyBind, scaledRes.getScaledWidth() * 2 - 212 + 45, scaledRes.getScaledHeight() * 2 - 29, 16777215);
 				String oreDictMode = TextUtils.translate("dn.ore_dictionary.desc") + ": " + (dankNullHandler.isOre(selectedStack) ? TextUtils.translate("dn.enabled.desc") : TextUtils.translate("dn.disabled.desc"));
-				final boolean idOreDicted = OreDictionary.getOreIDs(selectedStack).length > 0;
-				if (idOreDicted) {
+				final boolean isOreDicted = DankNullHandler.getOreNames(selectedStack).size() > 0;
+				if (!isOreDicted) {
 					oreDictMode = TextUtils.translate("dn.not_oredicted.desc");
 				}
+
 				mc.fontRenderer.drawStringWithShadow(oreDictMode, scaledRes.getScaledWidth() * 2 - 212 + 45, scaledRes.getScaledHeight() * 2 - 18, 16777215);
+
 				RenderHelper.enableGUIStandardItemLighting();
 				GlStateManager.popMatrix();
 				GlStateManager.pushMatrix();
 				GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
 				RenderUtils.getRenderItem().renderItemAndEffectIntoGUI(currentItem, scaledRes.getScaledWidth() - 106 + 5, scaledRes.getScaledHeight() - 20);
 				GlStateManager.popMatrix();
-				//String oreNames = "";
-				if (idOreDicted) {
-					for (int i = 0; i < OreDictionary.getOreIDs(selectedStack).length; i++) {
-						//oreNames += OreDictionary.getOreName(OreDictionary.getOreIDs(selectedStack)[i]) + " ";
-					}
-				}
 			}
 		}
 	}
 
 	public static void toggleHUD() {
 		Options.showHUD = !Options.showHUD;
+		ModConfig.CONFIG.get(ModConfig.CLIENT_CAT, "showHUD", true).setValue(Options.showHUD);
 		ModConfig.CONFIG.save();
 	}
 
