@@ -2,8 +2,6 @@ package p455w0rd.danknull.blocks;
 
 import static net.minecraft.util.EnumHand.MAIN_HAND;
 
-import java.util.UUID;
-
 import javax.annotation.Nullable;
 
 import net.minecraft.block.BlockContainer;
@@ -32,7 +30,6 @@ import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
 import p455w0rd.danknull.items.ItemDankNull;
 import p455w0rd.danknull.network.PacketSetDankNullInDock;
 import p455w0rdslib.api.client.IModelHolder;
-import p455w0rdslib.util.ItemNBTUtils;
 
 /**
  * @author p455w0rd
@@ -119,9 +116,6 @@ public class BlockDankNullDock extends BlockContainer implements IModelHolder {
 			final ItemStack stack = slot.getStackInSlot(player);
 			if (dankDock.getDankNull().isEmpty()) {
 				if (ItemDankNull.isDankNull(stack)) {
-					if (ItemNBTUtils.getString(stack, NBT.UUID).isEmpty() && !world.isRemote) {
-						ItemNBTUtils.setString(stack, NBT.UUID, UUID.randomUUID().toString());
-					}
 					dankDock.setDankNull(stack);
 					player.setHeldItem(hand, ItemStack.EMPTY);
 					ModNetworking.getInstance().sendToDimension(new PacketSetDankNullInDock(dankDock, stack), world.provider.getDimension());

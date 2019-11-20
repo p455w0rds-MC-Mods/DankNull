@@ -8,6 +8,7 @@ import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 import p455w0rd.danknull.api.IDankNullHandler;
 import p455w0rd.danknull.init.ModNetworking;
+import p455w0rd.danknull.inventory.DankNullHandler;
 import p455w0rd.danknull.inventory.slot.*;
 import p455w0rd.danknull.items.ItemDankNull;
 import p455w0rd.danknull.network.PacketUpdateSlot;
@@ -180,17 +181,22 @@ public abstract class ContainerDankNull extends Container {
 	private ItemStack addStack(final ItemStack stack) {
 		ItemStack leftover = stack.copy();
 		final IDankNullHandler handler = getHandler();
-		for (int i = 0; i < handler.getSlots(); i++) {
-			if (handler.isItemValid(i, leftover)) {
-				leftover = handler.insertItem(i, leftover, false);
+		if (handler instanceof DankNullHandler) {
+			for (int i = 0; i < handler.getSlots(); i++) {
+				if (handler.isItemValid(i, leftover)) {
+					leftover = handler.insertItem(i, leftover, false);
+					((DankNullHandler) handler).updateSelectedSlot();
+				}
+			}
+			for (int i = 0; i < handler.getSlots(); i++) {
+				if (handler.getFullStackInSlot(i).isEmpty() && handler.isItemValid(i, leftover)) {
+					handler.setStackInSlot(i, leftover);
+					((DankNullHandler) handler).updateSelectedSlot();
+					return ItemStack.EMPTY;
+				}
 			}
 		}
-		for (int i = 0; i < handler.getSlots(); i++) {
-			if (handler.getFullStackInSlot(i).isEmpty() && handler.isItemValid(i, leftover)) {
-				handler.setStackInSlot(i, leftover);
-				return ItemStack.EMPTY;
-			}
-		}
+
 		return leftover;
 	}
 

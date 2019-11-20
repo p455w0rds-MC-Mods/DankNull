@@ -4,7 +4,6 @@ import static p455w0rd.danknull.inventory.PlayerSlot.EnumInvCategory.MAIN;
 import static p455w0rd.danknull.inventory.PlayerSlot.EnumInvCategory.OFF_HAND;
 
 import java.util.List;
-import java.util.UUID;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -17,7 +16,6 @@ import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.*;
 import net.minecraft.init.Blocks;
@@ -42,15 +40,15 @@ import p455w0rd.danknull.api.IDankNullHandler;
 import p455w0rd.danknull.client.render.DankNullRenderer;
 import p455w0rd.danknull.init.ModConfig.Options;
 import p455w0rd.danknull.init.ModGlobals.DankNullTier;
-import p455w0rd.danknull.init.ModGlobals.NBT;
 import p455w0rd.danknull.init.ModGuiHandler;
 import p455w0rd.danknull.init.ModGuiHandler.GUIType;
+import p455w0rd.danknull.integration.ExtraUtilities;
 import p455w0rd.danknull.inventory.PlayerSlot;
 import p455w0rd.danknull.inventory.PlayerSlot.EnumInvCategory;
 import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
 import p455w0rd.danknull.inventory.cap.DankNullCapabilityProvider;
+import p455w0rdslib.LibGlobals.Mods;
 import p455w0rdslib.api.client.*;
-import p455w0rdslib.util.ItemNBTUtils;
 import p455w0rdslib.util.TextUtils;
 
 /**
@@ -174,29 +172,22 @@ public class ItemDankNull extends Item implements IModelHolder {
 	@Override
 	public ActionResult<ItemStack> onItemRightClick(final World world, final EntityPlayer player, final EnumHand hand) {
 		final ItemStack stack = player.getHeldItem(hand);
-		if (ItemNBTUtils.getString(stack, NBT.UUID).isEmpty() && !world.isRemote) {
-			ItemNBTUtils.setString(stack, NBT.UUID, UUID.randomUUID().toString());
-		}
+		//if (ItemNBTUtils.getString(stack, NBT.UUID).isEmpty() && !world.isRemote) {
+		//	ItemNBTUtils.setString(stack, NBT.UUID, UUID.randomUUID().toString());
+		//}
 		if (player.isSneaking() && getBlockUnderPlayer(player) != Blocks.AIR && !world.isRemote) {
 			ModGuiHandler.launchGui(GUIType.DANKNULL, player, world, player.getPosition(), new PlayerSlot(player.inventory.currentItem, EnumInvCategory.MAIN));
-			return new ActionResult<>(EnumActionResult.FAIL, stack);
+			return ActionResult.newResult(EnumActionResult.FAIL, stack);
 		}
-		return new ActionResult<>(EnumActionResult.FAIL, stack);
-	}
-
-	@Override
-	@SideOnly(Side.CLIENT)
-	public void getSubItems(final CreativeTabs tab, final NonNullList<ItemStack> subItems) {
-		if (isInCreativeTab(tab)) {
-			for (int i = 0; i <= 6; i++) {
-				subItems.add(new ItemStack(this, 1, i));
+		else if (Mods.EXTRA_UTILITIES_2.isLoaded() && ExtraUtilities.isAngelBlockSelected(stack)) {
+			if (!world.isRemote) {
+				return ExtraUtilities.tryPlaceAngelBlock(stack, player, hand);
+			}
+			else {
+				player.swingArm(hand);
 			}
 		}
-	}
-
-	@Override
-	public boolean getHasSubtypes() {
-		return true;
+		return ActionResult.newResult(EnumActionResult.FAIL, stack);
 	}
 
 	@Override
@@ -235,11 +226,9 @@ public class ItemDankNull extends Item implements IModelHolder {
 
 	@Override
 	public EnumActionResult onItemUse(final EntityPlayer player, final World world, final BlockPos posIn, final EnumHand hand, EnumFacing facing, final float hitX, final float hitY, final float hitZ) {
-
 		final ItemStack stack = player.getHeldItem(hand);
 		final PlayerSlot playerSlot = new PlayerSlot(player.inventory.currentItem, hand == EnumHand.MAIN_HAND ? MAIN : OFF_HAND);
 		final IDankNullHandler dankNullHandler = stack.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
-
 		final ItemStack selectedStack = dankNullHandler.getSelected() > -1 ? dankNullHandler.getFullStackInSlot(dankNullHandler.getSelected()) : ItemStack.EMPTY;
 		final Block selectedBlock = Block.getBlockFromItem(selectedStack.getItem());
 		final boolean isSelectedStackABlock = selectedBlock != null && selectedBlock != Blocks.AIR;
@@ -363,7 +352,6 @@ public class ItemDankNull extends Item implements IModelHolder {
 			if (itemstack.getItem() instanceof ItemSlab && !skipSlab) {
 				slab = (ItemSlab) itemstack.getItem();
 			}
-
 			if (slab != null) {
 				return placeSlab(player, world, pos.offset(facing.getOpposite()), hand, facing, hitX, hitY, hitZ, itemstack, slab);
 			}

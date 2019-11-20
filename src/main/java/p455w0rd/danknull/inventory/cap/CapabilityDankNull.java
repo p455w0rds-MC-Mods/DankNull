@@ -1,5 +1,7 @@
 package p455w0rd.danknull.inventory.cap;
 
+import java.util.Map;
+
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.*;
 import net.minecraft.util.EnumFacing;
@@ -9,6 +11,8 @@ import p455w0rd.danknull.api.DankNullItemModes.ItemExtractionMode;
 import p455w0rd.danknull.api.DankNullItemModes.ItemPlacementMode;
 import p455w0rd.danknull.api.IDankNullHandler;
 import p455w0rd.danknull.init.ModGlobals;
+import p455w0rd.danknull.inventory.DankNullHandler;
+import p455w0rdslib.util.ItemUtils;
 
 /**
  * @author BrockWS
@@ -82,57 +86,97 @@ public class CapabilityDankNull {
 
 			@Override
 			public void readNBT(final Capability<IDankNullHandler> capability, final IDankNullHandler instance, final EnumFacing side, final NBTBase base) {
-				final NBTTagCompound tag = (NBTTagCompound) base;
-				if (tag.hasNoTags()) {
-					return;
-				}
-				if (tag.hasKey(ModGlobals.NBT.DANKNULL_INVENTORY)) {
-					final NBTTagList items = tag.getTagList(ModGlobals.NBT.DANKNULL_INVENTORY, Constants.NBT.TAG_COMPOUND);
-					for (int i = 0; i < items.tagCount(); i++) {
-						final NBTTagCompound item = items.getCompoundTagAt(i);
-						final int slot = item.getInteger("Slot");
-						final int count = item.getInteger("Count");
-						final ItemStack stack = new ItemStack(item);
-						stack.setCount(count);
-						instance.setStackInSlot(slot, stack);
+				if (instance instanceof DankNullHandler) {
+					final DankNullHandler handler = (DankNullHandler) instance;
+					final NBTTagCompound tag = (NBTTagCompound) base;
+					if (tag.hasNoTags()) {
+						return;
 					}
-				}
-				if (tag.hasKey(ModGlobals.NBT.OREDICT_MODES)) {
-					final NBTTagList items = tag.getTagList(ModGlobals.NBT.OREDICT_MODES, Constants.NBT.TAG_COMPOUND);
-					for (int i = 0; i < items.tagCount(); i++) {
-						final NBTTagCompound item = items.getCompoundTagAt(i);
-						final boolean oreDict = item.getBoolean(ModGlobals.NBT.OREDICT);
-						final ItemStack stack = new ItemStack(item.getCompoundTag(ModGlobals.NBT.STACK));
-						instance.setOre(stack, oreDict);
+					if (tag.hasKey(ModGlobals.NBT.DANKNULL_INVENTORY)) {
+						final NBTTagList items = tag.getTagList(ModGlobals.NBT.DANKNULL_INVENTORY, Constants.NBT.TAG_COMPOUND);
+						for (int i = 0; i < items.tagCount(); i++) {
+							final NBTTagCompound item = items.getCompoundTagAt(i);
+							final int slot = item.getInteger("Slot");
+							final int count = item.getInteger("Count");
+							final ItemStack stack = new ItemStack(item);
+							stack.setCount(count);
+							instance.validateSlot(slot);
+							instance.getStackList().set(slot, stack);
+						}
 					}
-				}
-				if (tag.hasKey(ModGlobals.NBT.EXTRACTION_MODES)) {
-					final NBTTagList items = tag.getTagList(ModGlobals.NBT.EXTRACTION_MODES, Constants.NBT.TAG_COMPOUND);
-					for (int i = 0; i < items.tagCount(); i++) {
-						final NBTTagCompound item = items.getCompoundTagAt(i);
-						final int mode = item.getInteger(ModGlobals.NBT.MODE);
-						final ItemStack stack = new ItemStack(item.getCompoundTag(ModGlobals.NBT.STACK));
-						instance.setExtractionMode(stack, ItemExtractionMode.VALUES[mode]);
+					if (tag.hasKey(ModGlobals.NBT.OREDICT_MODES)) {
+						final NBTTagList items = tag.getTagList(ModGlobals.NBT.OREDICT_MODES, Constants.NBT.TAG_COMPOUND);
+						for (int i = 0; i < items.tagCount(); i++) {
+							final NBTTagCompound item = items.getCompoundTagAt(i);
+							final boolean oreDict = item.getBoolean(ModGlobals.NBT.OREDICT);
+							ItemStack stack = new ItemStack(item.getCompoundTag(ModGlobals.NBT.STACK));
+							if (!stack.isEmpty()) {
+								final Map<ItemStack, Boolean> oreStacks = instance.getOres();
+								for (final ItemStack currentStack : oreStacks.keySet()) {
+									if (ItemUtils.areItemStacksEqualIgnoreSize(currentStack, stack)) {
+										oreStacks.put(currentStack, oreDict);
+										break;
+									}
+								}
+								stack = stack.copy();
+								stack.setCount(1);
+								oreStacks.put(stack, oreDict);
+							}
+						}
 					}
-				}
-				if (tag.hasKey(ModGlobals.NBT.PLACEMENT_MODES)) {
-					final NBTTagList items = tag.getTagList(ModGlobals.NBT.PLACEMENT_MODES, Constants.NBT.TAG_COMPOUND);
-					for (int i = 0; i < items.tagCount(); i++) {
-						final NBTTagCompound item = items.getCompoundTagAt(i);
-						final int mode = item.getInteger(ModGlobals.NBT.MODE);
-						final ItemStack stack = new ItemStack(item.getCompoundTag(ModGlobals.NBT.STACK));
-						instance.setPlacementMode(stack, ItemPlacementMode.VALUES[mode]);
+					if (tag.hasKey(ModGlobals.NBT.EXTRACTION_MODES)) {
+						final NBTTagList items = tag.getTagList(ModGlobals.NBT.EXTRACTION_MODES, Constants.NBT.TAG_COMPOUND);
+						for (int i = 0; i < items.tagCount(); i++) {
+							final NBTTagCompound item = items.getCompoundTagAt(i);
+							final ItemExtractionMode mode = ItemExtractionMode.VALUES[item.getInteger(ModGlobals.NBT.MODE)];
+							ItemStack stack = new ItemStack(item.getCompoundTag(ModGlobals.NBT.STACK));
+
+							if (!stack.isEmpty()) {
+								final Map<ItemStack, ItemExtractionMode> extractionStacks = instance.getExtractionModes();
+								for (final ItemStack currentStack : extractionStacks.keySet()) {
+									if (ItemUtils.areItemStacksEqualIgnoreSize(currentStack, stack)) {
+										extractionStacks.put(currentStack, mode);
+										return;
+									}
+								}
+								stack = stack.copy();
+								stack.setCount(1);
+								extractionStacks.put(stack, mode);
+							}
+
+						}
 					}
+					if (tag.hasKey(ModGlobals.NBT.PLACEMENT_MODES)) {
+						final NBTTagList items = tag.getTagList(ModGlobals.NBT.PLACEMENT_MODES, Constants.NBT.TAG_COMPOUND);
+						for (int i = 0; i < items.tagCount(); i++) {
+							final NBTTagCompound item = items.getCompoundTagAt(i);
+							final ItemPlacementMode mode = ItemPlacementMode.VALUES[item.getInteger(ModGlobals.NBT.MODE)];
+							ItemStack stack = new ItemStack(item.getCompoundTag(ModGlobals.NBT.STACK));
+
+							if (!stack.isEmpty()) {
+								final Map<ItemStack, ItemPlacementMode> placementStacks = instance.getPlacementMode();
+								for (final ItemStack currentStack : placementStacks.keySet()) {
+									if (ItemUtils.areItemStacksEqualIgnoreSize(currentStack, stack)) {
+										placementStacks.put(currentStack, mode);
+										return;
+									}
+								}
+								stack = stack.copy();
+								stack.setCount(1);
+								placementStacks.put(stack, mode);
+							}
+						}
+					}
+					if (tag.hasKey(ModGlobals.NBT.SELECTEDINDEX)) {
+						handler.selected = tag.getInteger(ModGlobals.NBT.SELECTEDINDEX);
+					}
+					if (tag.hasKey(ModGlobals.NBT.LOCKED)) {
+						handler.isLocked = tag.getBoolean(ModGlobals.NBT.LOCKED);
+					}
+					//if (tag.hasKey(ModGlobals.NBT.UUID)) {
+					//	instance.setUUID(tag.getString(ModGlobals.NBT.UUID));
+					//}
 				}
-				if (tag.hasKey(ModGlobals.NBT.SELECTEDINDEX)) {
-					instance.setSelected(tag.getInteger(ModGlobals.NBT.SELECTEDINDEX));
-				}
-				if (tag.hasKey(ModGlobals.NBT.LOCKED)) {
-					instance.setLocked(tag.getBoolean(ModGlobals.NBT.LOCKED));
-				}
-				//if (tag.hasKey(ModGlobals.NBT.UUID)) {
-				//	instance.setUUID(tag.getString(ModGlobals.NBT.UUID));
-				//}
 			}
 		}, () -> null);
 	}

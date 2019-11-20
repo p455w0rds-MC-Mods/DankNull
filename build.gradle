@@ -15,6 +15,7 @@ buildscript {
 
 apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/base.gradle'
 apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/thermal.gradle'
+apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/extrautilities.gradle'
 apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/buildcraft.gradle'
 apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/thaumcraft.gradle'
 apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/baubles.gradle'

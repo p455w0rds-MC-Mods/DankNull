@@ -28,8 +28,8 @@ public class DankNullHandler implements IDankNullHandler {
 	private Map<ItemStack, Boolean> oreStacks;
 	private Map<ItemStack, ItemExtractionMode> extractionStacks;
 	private Map<ItemStack, ItemPlacementMode> placementStacks;
-	private int selected;
-	private boolean isLocked;
+	public int selected;
+	public boolean isLocked;
 	//private String uuid;
 
 	public DankNullHandler(final NBTTagCompound nbt) {
@@ -92,6 +92,10 @@ public class DankNullHandler implements IDankNullHandler {
 		validateSlot(slot);
 		getStackList().set(slot, stack);
 		onContentsChanged(slot);
+	}
+
+	public void setStackInSlotNoUpdate(final int slot, @Nonnull final ItemStack stack) {
+
 	}
 
 	@Nonnull
