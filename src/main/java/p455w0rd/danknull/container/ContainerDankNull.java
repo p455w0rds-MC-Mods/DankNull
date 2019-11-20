@@ -117,7 +117,6 @@ public abstract class ContainerDankNull extends Container {
 				if (dragType == 1) {
 					toAdd.setCount(1);
 				}
-
 				final ItemStack leftover = addStack(toAdd);
 				if (dragType == 0) {
 					if (!leftover.isEmpty()) {
@@ -131,8 +130,6 @@ public abstract class ContainerDankNull extends Container {
 					heldStack.shrink(1);
 					inventoryPlayer.setItemStack(heldStack);
 				}
-				inventoryPlayer.markDirty(); // Probably not needed
-
 				if (player instanceof EntityPlayerMP) {
 					((EntityPlayerMP) player).updateHeldItem();
 				}
@@ -144,7 +141,6 @@ public abstract class ContainerDankNull extends Container {
 				}
 				final ItemStack newStack = slot.decrStackSize(amount);
 				inventoryPlayer.setItemStack(newStack);
-				inventoryPlayer.markDirty();
 				if (player instanceof EntityPlayerMP) {
 					((EntityPlayerMP) player).updateHeldItem();
 				}
@@ -170,7 +166,7 @@ public abstract class ContainerDankNull extends Container {
 					final IItemHandler playerHandler = new PlayerMainInvWrapper(player.inventory);
 					final ItemStack notAdded = ItemHandlerHelper.insertItemStacked(playerHandler, slotStack, false);
 					if (notAdded.getCount() < slotStack.getCount()) {
-						getHandler().extractItem(slotIndex, slotStack.getCount() - notAdded.getCount(), false);
+						getHandler().extractItemIngoreExtractionMode(slotIndex, slotStack.getCount() - notAdded.getCount(), false);
 					}
 				}
 			}

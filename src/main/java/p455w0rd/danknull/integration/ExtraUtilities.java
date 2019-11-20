@@ -44,7 +44,10 @@ public class ExtraUtilities {
 	public static boolean isAngelBlockSelected(final ItemStack dankNull) {
 		if (ItemDankNull.isDankNull(dankNull)) {
 			final IDankNullHandler dankNullHandler = dankNull.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
-			return isAngelBlock(dankNullHandler.getFullStackInSlot(dankNullHandler.getSelected()));
+			final int selectedSlot = dankNullHandler.getSelected();
+			if (selectedSlot > -1) {
+				return isAngelBlock(dankNullHandler.getFullStackInSlot(selectedSlot));
+			}
 		}
 		return false;
 	}

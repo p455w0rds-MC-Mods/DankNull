@@ -2,6 +2,7 @@ package p455w0rd.danknull.init;
 
 import java.util.List;
 
+import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
@@ -250,7 +251,8 @@ public class ModEvents {
 		final Minecraft mc = Minecraft.getMinecraft();
 		final World world = mc.world;
 		if (event.isButtonstate() && event.getButton() == 2 && event.getDwheel() == 0) {
-			final IDankNullHandler dankNullHandler = getHandlerFromHeld(player);
+			final Pair<EnumHand, IDankNullHandler> dankNull = getHandlerFromHeld(player);
+			final IDankNullHandler dankNullHandler = dankNull.getRight();
 			if (dankNullHandler == null) {
 				return;
 			}
@@ -264,13 +266,14 @@ public class ModEvents {
 				if (!stackToSelect.isEmpty() && (dankNullHandler.containsItemStack(stackToSelect) || dankNullHandler.isOre(stackToSelect))) {
 					final int newIndex = dankNullHandler.findItemStack(stackToSelect);
 					dankNullHandler.setSelected(newIndex);
-					ModNetworking.getInstance().sendToServer(new PacketChangeMode(PacketChangeMode.ChangeType.SELECTED, newIndex));
+					ModNetworking.getInstance().sendToServer(new PacketChangeMode(PacketChangeMode.ChangeType.SELECTED, newIndex, false, dankNull.getLeft()));
 					event.setCanceled(true);
 				}
 			}
 		}
 		if (ModKeyBindings.isAnyModKeybindPressed() && event.getDwheel() == 0) {
-			final IDankNullHandler dankNullHandler = getHandlerFromHeld(player);
+			final Pair<EnumHand, IDankNullHandler> dankNull = getHandlerFromHeld(player);
+			final IDankNullHandler dankNullHandler = dankNull.getRight();
 			if (dankNullHandler == null) {
 				return;
 			}
@@ -281,18 +284,19 @@ public class ModEvents {
 			}
 			if (ModKeyBindings.getNextItemKeyBind().isPressed()) {
 				dankNullHandler.cycleSelected(true);
-				ModNetworking.getInstance().sendToServer(new PacketChangeMode(PacketChangeMode.ChangeType.SELECTED, dankNullHandler.getSelected()));
+				ModNetworking.getInstance().sendToServer(new PacketChangeMode(PacketChangeMode.ChangeType.SELECTED, dankNullHandler.getSelected(), false, dankNull.getLeft()));
 				event.setCanceled(true);
 			}
 			else if (ModKeyBindings.getPreviousItemKeyBind().isPressed()) {
 				dankNullHandler.cycleSelected(false);
-				ModNetworking.getInstance().sendToServer(new PacketChangeMode(PacketChangeMode.ChangeType.SELECTED, dankNullHandler.getSelected()));
+				ModNetworking.getInstance().sendToServer(new PacketChangeMode(PacketChangeMode.ChangeType.SELECTED, dankNullHandler.getSelected(), false, dankNull.getLeft()));
 				event.setCanceled(true);
 			}
 		}
 		else if (event.getDwheel() != 0 && player.isSneaking()) {
 			// i do this multiple times to avoid constantly firing DankNullUtils#getInventoryFromHeld any time the mouse is used
-			final IDankNullHandler dankNullHandler = getHandlerFromHeld(player);
+			final Pair<EnumHand, IDankNullHandler> dankNull = getHandlerFromHeld(player);
+			final IDankNullHandler dankNullHandler = dankNull.getRight();
 			if (dankNullHandler == null) {
 				return;
 			}
@@ -304,12 +308,12 @@ public class ModEvents {
 			final int scrollForward = event.getDwheel();
 			if (scrollForward < 0) {
 				dankNullHandler.cycleSelected(true);
-				ModNetworking.getInstance().sendToServer(new PacketChangeMode(PacketChangeMode.ChangeType.SELECTED, dankNullHandler.getSelected()));
+				ModNetworking.getInstance().sendToServer(new PacketChangeMode(PacketChangeMode.ChangeType.SELECTED, dankNullHandler.getSelected(), false, dankNull.getLeft()));
 				event.setCanceled(true);
 			}
 			else if (scrollForward > 0) {
 				dankNullHandler.cycleSelected(false);
-				ModNetworking.getInstance().sendToServer(new PacketChangeMode(PacketChangeMode.ChangeType.SELECTED, dankNullHandler.getSelected()));
+				ModNetworking.getInstance().sendToServer(new PacketChangeMode(PacketChangeMode.ChangeType.SELECTED, dankNullHandler.getSelected(), false, dankNull.getLeft()));
 				event.setCanceled(true);
 			}
 		}
@@ -377,15 +381,15 @@ public class ModEvents {
 		}
 	}
 
-	private static IDankNullHandler getHandlerFromHeld(final EntityPlayer player) {
+	private static Pair<EnumHand, IDankNullHandler> getHandlerFromHeld(final EntityPlayer player) {
 		if (player == null) {
 			return null;
 		}
 		if (ItemDankNull.isDankNull(player.getHeldItemMainhand())) {
-			return player.getHeldItemMainhand().getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
+			return Pair.of(EnumHand.MAIN_HAND, player.getHeldItemMainhand().getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null));
 		}
 		else if (ItemDankNull.isDankNull(player.getHeldItemOffhand())) {
-			return player.getHeldItemOffhand().getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
+			return Pair.of(EnumHand.OFF_HAND, player.getHeldItemOffhand().getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null));
 		}
 		else {
 			return null;

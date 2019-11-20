@@ -26,6 +26,14 @@ public interface IDankNullHandler extends IItemHandlerModifiable {
 	NonNullList<ItemStack> getStackList();
 
 	/**
+	 * extracts while ignoring extraction mode..needed for GUI on dock
+	 */
+	@Nonnull
+	default ItemStack extractItemIngoreExtractionMode(final int slot, final int amount, final boolean simulate) {
+		return extractItem(slot, amount, simulate);
+	}
+
+	/**
 	 * Override to implement slot validation
 	 *
 	 * @param slot Slot index

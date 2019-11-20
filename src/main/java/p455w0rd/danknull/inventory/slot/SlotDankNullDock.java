@@ -81,7 +81,7 @@ public class SlotDankNullDock extends SlotDankNull {
 		/*else
 		{
 		    ItemStack remainder = handler.insertItem(cachedIndex, maxAdd, true);
-
+		
 		    int current = currentStack.getCount();
 		    int added = maxInput - remainder.getCount();
 		    return current + added;
@@ -93,7 +93,7 @@ public class SlotDankNullDock extends SlotDankNull {
 	 */
 	@Override
 	public boolean canTakeStack(final EntityPlayer playerIn) {
-		return !getDankNullHandler().extractItem(cachedIndex, 1, true).isEmpty();
+		return !getDankNullHandler().extractItemIngoreExtractionMode(cachedIndex, 1, true).isEmpty();
 	}
 
 	/**
@@ -103,7 +103,7 @@ public class SlotDankNullDock extends SlotDankNull {
 	@Override
 	@Nonnull
 	public ItemStack decrStackSize(final int amount) {
-		return getDankNullHandler().extractItem(cachedIndex, amount, false);
+		return getDankNullHandler().extractItemIngoreExtractionMode(cachedIndex, amount, false);
 	}
 
 }

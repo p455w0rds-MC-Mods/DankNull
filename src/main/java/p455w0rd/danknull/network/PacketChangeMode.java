@@ -1,14 +1,17 @@
 package p455w0rd.danknull.network;
 
 import io.netty.buffer.ByteBuf;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.Container;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.EnumHand;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.*;
 import p455w0rd.danknull.api.DankNullItemModes.ItemExtractionMode;
 import p455w0rd.danknull.api.DankNullItemModes.ItemPlacementMode;
 import p455w0rd.danknull.api.IDankNullHandler;
 import p455w0rd.danknull.container.ContainerDankNull;
+import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
 
 /**
  * @author BrockWS
@@ -17,6 +20,8 @@ public class PacketChangeMode implements IMessage {
 
 	private ChangeType changeType;
 	private int slot = -1;
+	private boolean isGui = true;
+	private boolean mainHand = true;
 	//private String uuid = "";
 
 	public PacketChangeMode() {
@@ -73,8 +78,14 @@ public class PacketChangeMode implements IMessage {
 	}
 
 	public PacketChangeMode(final ChangeType type, final int slot) {
+		this(type, slot, true, EnumHand.MAIN_HAND);
+	}
+
+	public PacketChangeMode(final ChangeType type, final int slot, final boolean isGui, final EnumHand hand) {
 		changeType = type;
 		this.slot = slot;
+		this.isGui = isGui;
+		mainHand = hand == EnumHand.MAIN_HAND;
 	}
 
 	/*public PacketChangeMode(final ChangeType type, final int slot, final String uuid) {
@@ -92,6 +103,10 @@ public class PacketChangeMode implements IMessage {
 	public void fromBytes(final ByteBuf buf) {
 		changeType = ChangeType.VALUES[buf.readInt()];
 		slot = buf.readInt();
+		isGui = buf.readBoolean();
+		if (!isGui) {
+			mainHand = buf.readBoolean();
+		}
 		//uuid = ByteBufUtils.readUTF8String(buf);
 	}
 
@@ -99,38 +114,38 @@ public class PacketChangeMode implements IMessage {
 	public void toBytes(final ByteBuf buf) {
 		buf.writeInt(changeType.ordinal());
 		buf.writeInt(slot);
+		buf.writeBoolean(isGui);
+		if (!isGui) {
+			buf.writeBoolean(mainHand);
+		}
 		//ByteBufUtils.writeUTF8String(buf, uuid);
 	}
 
 	public static class Handler implements IMessageHandler<PacketChangeMode, IMessage> {
 
-		/*private static ItemStack findDankNull(final EntityPlayer player, final String uuid) {
-			final List<PlayerSlot> dankNulls = ItemDankNull.getDankNullsForPlayer(player);
-			for (final PlayerSlot slot : dankNulls) {
-				final ItemStack itemStack = slot.getStackInSlot(player);
-				if (itemStack.hasCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null)) {
-					final IDankNullHandler dankNullHandler = itemStack.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
-					if (dankNullHandler.getUUID().equalsIgnoreCase(uuid)) {
-						return itemStack;
-					}
-				}
+		private static ItemStack findDankNull(final EntityPlayer player, final boolean mainHand) {
+			final ItemStack stack = mainHand ? player.getHeldItemMainhand() : player.getHeldItemOffhand();
+			if (stack.hasCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null)) {
+				return stack;
 			}
-			return null;
-		}*/
+			return ItemStack.EMPTY;
+		}
 
 		@Override
 		public IMessage onMessage(final PacketChangeMode message, final MessageContext ctx) {
 			FMLCommonHandler.instance().getWorldThread(ctx.netHandler).addScheduledTask(() -> {
-				final Container container = ctx.getServerHandler().player.openContainer;
-				if (container instanceof ContainerDankNull) {
-					PacketChangeMode.handleModeUpdate(((ContainerDankNull) container).getHandler(), message.changeType, message.slot);
+				if (message.isGui) {
+					final Container container = ctx.getServerHandler().player.openContainer;
+					if (container instanceof ContainerDankNull) {
+						PacketChangeMode.handleModeUpdate(((ContainerDankNull) container).getHandler(), message.changeType, message.slot);
+					}
 				}
-				/*else if (message.uuid != null && !message.uuid.isEmpty()) {
-					final ItemStack stack = findDankNull(ctx.getServerHandler().player, message.uuid);
-					if (stack != null && stack.hasCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null)) {
+				else {
+					final ItemStack stack = findDankNull(ctx.getServerHandler().player, message.mainHand);
+					if (!stack.isEmpty() && stack.hasCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null)) {
 						PacketChangeMode.handleModeUpdate(stack.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null), message.changeType, message.slot);
 					}
-				}*/
+				}
 			});
 			return null;
 		}

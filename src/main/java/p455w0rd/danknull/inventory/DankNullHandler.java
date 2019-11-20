@@ -490,7 +490,8 @@ public class DankNullHandler implements IDankNullHandler {
 
 	@Override
 	public boolean isItemValid(final int slot, @Nonnull final ItemStack stack) {
-		return !(stack.getItem() instanceof ItemDankNull); // Maybe consider and return based on the current inventory
+		final boolean isSame = ItemStack.areItemsEqual(getFullStackInSlot(slot), stack) && ItemStack.areItemStackTagsEqual(getFullStackInSlot(slot), stack);
+		return !(stack.getItem() instanceof ItemDankNull) && (getFullStackInSlot(slot).isEmpty() || isSame);
 	}
 
 	public void sort() {
