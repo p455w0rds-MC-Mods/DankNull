@@ -252,10 +252,10 @@ public class ModEvents {
 		final World world = mc.world;
 		if (event.isButtonstate() && event.getButton() == 2 && event.getDwheel() == 0) {
 			final Pair<EnumHand, IDankNullHandler> dankNull = getHandlerFromHeld(player);
-			final IDankNullHandler dankNullHandler = dankNull.getRight();
-			if (dankNullHandler == null) {
+			if (dankNull == null) {
 				return;
 			}
+			final IDankNullHandler dankNullHandler = dankNull.getRight();
 			final RayTraceResult target = mc.objectMouseOver;
 			if (target.typeOfHit == RayTraceResult.Type.BLOCK) {
 				final IBlockState state = world.getBlockState(target.getBlockPos());
@@ -273,10 +273,10 @@ public class ModEvents {
 		}
 		if (ModKeyBindings.isAnyModKeybindPressed() && event.getDwheel() == 0) {
 			final Pair<EnumHand, IDankNullHandler> dankNull = getHandlerFromHeld(player);
-			final IDankNullHandler dankNullHandler = dankNull.getRight();
-			if (dankNullHandler == null) {
+			if (dankNull == null) {
 				return;
 			}
+			final IDankNullHandler dankNullHandler = dankNull.getRight();
 			final int currentIndex = dankNullHandler.getSelected();
 			final int totalSize = dankNullHandler.stackCount();
 			if (currentIndex == -1 || totalSize <= 1) {
