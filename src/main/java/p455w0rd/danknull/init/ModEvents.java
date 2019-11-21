@@ -296,10 +296,10 @@ public class ModEvents {
 		else if (event.getDwheel() != 0 && player.isSneaking()) {
 			// i do this multiple times to avoid constantly firing DankNullUtils#getInventoryFromHeld any time the mouse is used
 			final Pair<EnumHand, IDankNullHandler> dankNull = getHandlerFromHeld(player);
-			final IDankNullHandler dankNullHandler = dankNull.getRight();
-			if (dankNullHandler == null) {
+			if (dankNull == null) {
 				return;
 			}
+			final IDankNullHandler dankNullHandler = dankNull.getRight();
 			final int currentIndex = dankNullHandler.getSelected();
 			final int totalSize = dankNullHandler.stackCount();
 			if (currentIndex == -1 || totalSize <= 1) {
