@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import p455w0rd.danknull.api.DankNullItemModes.ItemPlacementMode;
@@ -86,8 +87,8 @@ public class HUDRenderer {
 
 	public static void toggleHUD() {
 		Options.showHUD = !Options.showHUD;
-		ModConfig.CONFIG.get(ModConfig.CLIENT_CAT, "showHUD", true).setValue(Options.showHUD);
-		ModConfig.CONFIG.save();
+		ModConfig.getInstance().get(Configuration.CATEGORY_CLIENT, "showHUD", true).setValue(Options.showHUD);
+		ModConfig.getInstance().save();
 	}
 
 }

@@ -4,6 +4,9 @@ import java.util.*;
 
 import javax.annotation.Nonnull;
 
+import com.google.common.collect.Lists;
+
+import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
@@ -13,6 +16,7 @@ import p455w0rd.danknull.api.DankNullItemModes.ItemExtractionMode;
 import p455w0rd.danknull.api.DankNullItemModes.ItemPlacementMode;
 import p455w0rd.danknull.api.IDankNullHandler;
 import p455w0rd.danknull.init.ModConfig;
+import p455w0rd.danknull.init.ModConfig.Options;
 import p455w0rd.danknull.init.ModGlobals;
 import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
 import p455w0rd.danknull.items.ItemDankNull;
@@ -63,9 +67,7 @@ public class DankNullHandler implements IDankNullHandler {
 					availableStack.setCount(slotStack.getCount() - amountToBeKept);
 					return availableStack;
 				}
-				else {
-					return ItemStack.EMPTY;
-				}
+				return ItemStack.EMPTY;
 			}
 		}
 		return slotStack;
@@ -280,6 +282,44 @@ public class DankNullHandler implements IDankNullHandler {
 
 	@Override
 	public void cycleSelected(final boolean forward) {
+		final List<Integer> blockSlots = getBlockStacksSlots();
+		if (Options.skipNonBlocksOnCycle) {
+			final int numBlockSlots = blockSlots.size();
+			if (numBlockSlots > 0) {
+				if (blockSlots.size() == 1) {
+					if (getSelected() != blockSlots.get(0)) {
+						setSelected(blockSlots.get(0));
+					}
+					return;
+				}
+				else {
+					final int current = getSelected();
+					if (!blockSlots.contains(current)) {
+						setSelected(blockSlots.get(0));
+						return;
+					}
+					final int min = 0;
+					final int max = blockSlots.size() - 1;
+					final int currentIndex = getBlockSlotIndex(current);
+					if (forward) {
+						if (currentIndex != max) {
+							setSelected(blockSlots.get(currentIndex + 1));
+							return;
+						}
+						setSelected(blockSlots.get(0));
+						return;
+					}
+					else {
+						if (currentIndex != min) {
+							setSelected(blockSlots.get(currentIndex - 1));
+							return;
+						}
+						setSelected(blockSlots.get(max));
+						return;
+					}
+				}
+			}
+		}
 		final int current = getSelected();
 		final int stackCount = stackCount();
 		int newIndex = 0;
@@ -301,6 +341,27 @@ public class DankNullHandler implements IDankNullHandler {
 		if (current != newIndex) {
 			setSelected(newIndex);
 		}
+	}
+
+	private int getBlockSlotIndex(final int slot) {
+		for (int i = 0; i < getBlockStacksSlots().size(); i++) {
+			if (getBlockStacksSlots().get(i) == slot) {
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	private List<Integer> getBlockStacksSlots() {
+		final List<Integer> blockStackSlots = Lists.newArrayList();
+		for (int i = 0; i < getSlots(); i++) {
+			final ItemStack fullStack = getFullStackInSlot(i);
+			if (!fullStack.isEmpty() && fullStack.getItem() instanceof ItemBlock) {
+				blockStackSlots.add(i);
+			}
+		}
+		Collections.sort(blockStackSlots);
+		return blockStackSlots;
 	}
 
 	@Override

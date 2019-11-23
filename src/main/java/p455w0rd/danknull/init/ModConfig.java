@@ -1,5 +1,7 @@
 package p455w0rd.danknull.init;
 
+import static net.minecraftforge.common.config.Configuration.CATEGORY_CLIENT;
+
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
@@ -10,7 +12,9 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraftforge.common.config.ConfigElement;
 import net.minecraftforge.common.config.Configuration;
+import net.minecraftforge.fml.client.config.IConfigElement;
 import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -25,9 +29,8 @@ import p455w0rd.danknull.util.WeakHashMapSerializable;
  */
 public class ModConfig {
 
-	public static Configuration CONFIG;
+	private static Configuration CONFIG = null;
 
-	public static final String CLIENT_CAT = "General";
 	public static final String SERVER_CAT = "Server Rules";
 	public static final boolean DEBUG_RESET = false;
 
@@ -38,31 +41,48 @@ public class ModConfig {
 	public static final String NAME_DISABLE_OREDICT = "DisableOreDictMode";
 	public static final String NAME_ENABLE_COLORED_LIGHTING = "EnableColorShaders";
 	public static final String NAME_ALLOW_DOCK_INSERTION = "AllowDockInsertion";
+	public static final String NAME_CALL_IT_DEVNULL = "CallItDevNull";
+	public static final String NAME_SUPERSHINE = "SuperShine";
+	public static final String NAME_ONLY_CYCLE_BLOCKS = "onlyCycleBlocks";
 	static boolean init = false;
 
-	public static void init() {
+	private static Configuration config() {
 		if (CONFIG == null) {
-			final File configFile = new File(ModGlobals.CONFIG_FILE);
-			if (DEBUG_RESET) {
-				configFile.delete();
-			}
-			CONFIG = new Configuration(configFile);
-			CONFIG.load();
-			Options.initDefaults();
+			CONFIG = new Configuration(new File("config/DankNull.cfg"));
 		}
+		return CONFIG;
+	}
 
-		Options.callItDevNull = CONFIG.getBoolean("CallItDevNull", CLIENT_CAT, false, "Call it a /dev/null in-game (Requested by TheMattaBase)");
-		Options.superShine = CONFIG.getBoolean("SuperShine", CLIENT_CAT, false, "Make items ultra shiny!");
-		Options.creativeBlacklist = CONFIG.getString(NAME_CREATIVE_BLACKLIST, SERVER_CAT, "", "A semicolon separated list of items that are not allowed to be placed into the creative /dank/null\nFormat: modid:name:meta (meta optional: modid:name is acceptable) - Example: minecraft:diamond;minecraft:coal:1").trim();
-		Options.creativeWhitelist = CONFIG.getString(NAME_CREATIVE_WHITELIST, SERVER_CAT, "", "A semicolon separated list of items that are allowed to be placed into the creative /dank/null\nSame format as Blacklist and whitelist superceeds blacklist.\nIf whitelist is non-empty, then ONLY whitelisted items can be added to the Creative /dank/null").trim();
-		Options.oreBlacklist = CONFIG.getString(NAME_OREDICT_BLACKLIST, SERVER_CAT, "itemSkull", "A semicolon separated list of Ore Dictionary entries (strings) which WILL NOT be allowed to be used with /dank/null's Ore Dictionary functionality.");
-		Options.oreWhitelist = CONFIG.getString(NAME_OREDICT_WHITELIST, SERVER_CAT, "", "A semicolon separated list of Ore Dictionary entries (strings) which WILL BE allowed to be used with /dank/null's Ore Dictionary functionality. Whitelist superceeds blacklist.\nIf whitelist is non-empty, then ONLY Ore Dictionary items matching the entries will\nbe able to take advantage of /dank/null's Ore Dictionary functionality.");
-		Options.disableOreDictMode = CONFIG.getBoolean(NAME_DISABLE_OREDICT, SERVER_CAT, false, "If set to true, then Ore Dictionary Mode will not be available (overrides Ore Dictionary White/Black lists)");
-		Options.showHUD = CONFIG.getBoolean("showHUD", CLIENT_CAT, true, "Show the /dank/null HUD overlay?");
-		Options.allowDockInserting = CONFIG.getBoolean(NAME_ALLOW_DOCK_INSERTION, SERVER_CAT, true, "If true, you will be able to pipe items into the /dank/null Docking Station");
-		if (CONFIG.hasChanged()) {
-			CONFIG.save();
+	public static Configuration getInstance() {
+		return config();
+	}
+
+	public static void load() {
+		if (DEBUG_RESET) {
+			config().getConfigFile().delete();
 		}
+		sync();
+	}
+
+	public static void sync() {
+		Options.callItDevNull = config().getBoolean(NAME_CALL_IT_DEVNULL, CATEGORY_CLIENT, false, "Call it a /dev/null in-game (Requested by TheMattaBase)");
+		Options.superShine = config().getBoolean(NAME_SUPERSHINE, CATEGORY_CLIENT, false, "Make items ultra shiny!");
+		Options.skipNonBlocksOnCycle = config().getBoolean(NAME_ONLY_CYCLE_BLOCKS, CATEGORY_CLIENT, false, "When cycling selected item with /dank/null in-hand, should it try to only cycle blocks?");
+		Options.creativeBlacklist = config().getString(NAME_CREATIVE_BLACKLIST, SERVER_CAT, "", "A semicolon separated list of items that are not allowed to be placed into the creative /dank/null\nFormat: modid:name:meta (meta optional: modid:name is acceptable) - Example: minecraft:diamond;minecraft:coal:1").trim();
+		Options.creativeWhitelist = config().getString(NAME_CREATIVE_WHITELIST, SERVER_CAT, "", "A semicolon separated list of items that are allowed to be placed into the creative /dank/null\nSame format as Blacklist and whitelist superceeds blacklist.\nIf whitelist is non-empty, then ONLY whitelisted items can be added to the Creative /dank/null").trim();
+		Options.oreBlacklist = config().getString(NAME_OREDICT_BLACKLIST, SERVER_CAT, "itemSkull", "A semicolon separated list of Ore Dictionary entries (strings) which WILL NOT be allowed to be used with /dank/null's Ore Dictionary functionality.");
+		Options.oreWhitelist = config().getString(NAME_OREDICT_WHITELIST, SERVER_CAT, "", "A semicolon separated list of Ore Dictionary entries (strings) which WILL BE allowed to be used with /dank/null's Ore Dictionary functionality. Whitelist superceeds blacklist.\nIf whitelist is non-empty, then ONLY Ore Dictionary items matching the entries will\nbe able to take advantage of /dank/null's Ore Dictionary functionality.");
+		Options.disableOreDictMode = config().getBoolean(NAME_DISABLE_OREDICT, SERVER_CAT, false, "If set to true, then Ore Dictionary Mode will not be available (overrides Ore Dictionary White/Black lists)");
+		Options.showHUD = config().getBoolean("showHUD", CATEGORY_CLIENT, true, "Show the /dank/null HUD overlay?");
+		Options.allowDockInserting = config().getBoolean(NAME_ALLOW_DOCK_INSERTION, SERVER_CAT, true, "If true, you will be able to pipe items into the /dank/null Docking Station");
+		if (config().hasChanged()) {
+			config().save();
+		}
+	}
+
+	@SideOnly(Side.CLIENT)
+	public static List<IConfigElement> getClientConfigElements() {
+		return new ConfigElement(getInstance().getCategory(CATEGORY_CLIENT)).getChildElements();
 	}
 
 	@SideOnly(Side.SERVER)
@@ -153,39 +173,20 @@ public class ModConfig {
 
 		public static boolean callItDevNull = false;
 		public static boolean superShine = false;
-		public static String creativeBlacklist;
-		public static String creativeWhitelist;
-		public static String oreBlacklist;
-		public static String oreWhitelist;
-		public static boolean showHUD;
-		private static NonNullListSerializable<ItemStack> creativeItemBlacklist; // cache it..
+		public static String creativeBlacklist = "";
+		public static String creativeWhitelist = "";
+		public static String oreBlacklist = "";
+		public static String oreWhitelist = "";
+		public static boolean showHUD = true;
+		private static NonNullListSerializable<ItemStack> creativeItemBlacklist;
 		private static NonNullListSerializable<ItemStack> creativeItemWhitelist;
-		private static ArrayList<String> oreStringBlacklist;
-		private static ArrayList<String> oreStringWhitelist;
-		public static Boolean disableOreDictMode;
-		public static boolean allowDockInserting;
-
-		public static void initDefaults() {
-			if (!ModConfig.init) {
-				callItDevNull = false;
-				superShine = false;
-				creativeBlacklist = "";
-				creativeWhitelist = "";
-				oreBlacklist = "";
-				oreWhitelist = "";
-				showHUD = true;
-				creativeItemBlacklist = null; // cache it..
-				creativeItemWhitelist = null;
-				oreStringBlacklist = Lists.<String>newArrayList();
-				oreStringWhitelist = Lists.<String>newArrayList();
-				disableOreDictMode = false;
-				allowDockInserting = true;
-				ModConfig.init = true;
-			}
-		}
+		private static ArrayList<String> oreStringBlacklist = Lists.<String>newArrayList();
+		private static ArrayList<String> oreStringWhitelist = Lists.<String>newArrayList();
+		public static boolean disableOreDictMode = false;
+		public static boolean allowDockInserting = true;
+		public static boolean skipNonBlocksOnCycle = false;
 
 		public static List<String> getOreBlacklist() {
-			initDefaults();
 			String[] tmpList = null;
 			if (oreStringBlacklist.isEmpty() && !oreBlacklist.isEmpty() && getOreWhitelist().isEmpty()) {
 				tmpList = oreBlacklist.split(";");
@@ -201,7 +202,6 @@ public class ModConfig {
 		}
 
 		public static List<String> getOreWhitelist() {
-			initDefaults();
 			String[] tmpList = null;
 			if (oreStringWhitelist.isEmpty() && !oreWhitelist.isEmpty()) {
 				tmpList = oreWhitelist.split(";");
@@ -217,7 +217,6 @@ public class ModConfig {
 		}
 
 		public static NonNullListSerializable<ItemStack> getCreativeBlacklistedItems() throws Exception {
-			initDefaults();
 			if (creativeItemBlacklist == null && getCreativeWhitelistedItems().isEmpty()) {
 				creativeItemBlacklist = (NonNullListSerializable<ItemStack>) NonNullListSerializable.<ItemStack>create();
 				if (!creativeBlacklist.isEmpty()) {
@@ -226,7 +225,7 @@ public class ModConfig {
 						final String[] params = itemString.split(":");
 						final int numColons = params.length - 1;
 						if (numColons > 2 || numColons <= 0) {
-							throw new Exception(new Throwable("Invalid format for item blacklisting, check " + ModGlobals.CONFIG_FILE + " for an example"));
+							throw new Exception(new Throwable("Invalid format for item blacklisting, check " + config().getConfigFile() + " for an example"));
 						}
 						if (numColons == 1) { //no meta
 							final Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(params[0], params[1]));
@@ -265,7 +264,6 @@ public class ModConfig {
 		}
 
 		public static NonNullListSerializable<ItemStack> getCreativeWhitelistedItems() throws Exception {
-			initDefaults();
 			if (creativeItemWhitelist == null) {
 				creativeItemWhitelist = (NonNullListSerializable<ItemStack>) NonNullListSerializable.<ItemStack>create();
 				if (!creativeWhitelist.isEmpty()) {
@@ -274,7 +272,7 @@ public class ModConfig {
 						final String[] params = itemString.split(":");
 						final int numColons = params.length - 1;
 						if (numColons > 2 || numColons <= 0) {
-							throw new Exception(new Throwable("Invalid format for item whitelisting, check " + ModGlobals.CONFIG_FILE + " for an example"));
+							throw new Exception(new Throwable("Invalid format for item whitelisting, check " + config().getConfigFile() + " for an example"));
 						}
 						if (numColons == 1) { //no meta
 							final Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(params[0], params[1]));

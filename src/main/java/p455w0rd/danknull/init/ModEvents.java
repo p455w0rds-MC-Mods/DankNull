@@ -377,7 +377,7 @@ public class ModEvents {
 	@SubscribeEvent
 	public static void onConfigChange(final ConfigChangedEvent.OnConfigChangedEvent event) {
 		if (event.getModID().equals(ModGlobals.MODID)) {
-			ModConfig.init();
+			ModConfig.sync();
 		}
 	}
 

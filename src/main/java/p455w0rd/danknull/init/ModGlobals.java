@@ -12,12 +12,11 @@ public class ModGlobals {
 
 	public static final String MODID_PWLIB = "p455w0rdslib";
 	public static final String MODID = "danknull";
-	public static final String VERSION = "1.7.88";
+	public static final String VERSION = "1.7.89";
 	public static final String NAME = "/dank/null";
 	public static final String SERVER_PROXY = "p455w0rd.danknull.proxy.CommonProxy";
 	public static final String CLIENT_PROXY = "p455w0rd.danknull.proxy.ClientProxy";
 	public static final String GUI_FACTORY = "p455w0rd.danknull.init.ModGuiFactory";
-	public static final String CONFIG_FILE = "config/DankNull.cfg";
 	public static final String DEPENDANCIES = LibGlobals.REQUIRE_DEP + "after:stg;after:jei;after:waila;after:theoneprobe;after:nei";
 	public static boolean GUI_DANKNULL_ISOPEN = false;
 	public static float TIME = 0.0F;

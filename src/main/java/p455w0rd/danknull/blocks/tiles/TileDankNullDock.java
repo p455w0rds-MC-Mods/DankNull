@@ -107,25 +107,29 @@ public class TileDankNullDock extends TileEntity {
 						return ItemStack.EMPTY;
 					}
 					validateSlot(slot);
-					final ItemStack existing = getExtractableStackInSlot(slot);
-					if (existing.isEmpty()) {
+					final ItemStack extractableStack = getExtractableStackInSlot(slot);
+					if (extractableStack.isEmpty()) {
 						return ItemStack.EMPTY;
 					}
+					final int extractableCount = extractableStack.getCount();
 					final int existingCount = getFullStackInSlot(slot).getCount();
-					final int extract = Math.min(amount, existing.getMaxStackSize());
-					if (existingCount <= extract) {
+					final int amountToExtract = Math.min(amount, extractableCount);
+					if (existingCount <= amountToExtract) {
 						if (!simulate) {
 							getStackList().set(slot, ItemStack.EMPTY);
 							onContentsChanged(slot);
 						}
-						return existing;
+						return extractableStack;
 					}
 					else {
+						final ItemStack newStack = ItemHandlerHelper.copyStackWithSize(extractableStack, amountToExtract);
 						if (!simulate) {
-							getStackList().set(slot, ItemHandlerHelper.copyStackWithSize(existing, existingCount - extract));
+							final ItemStack tmpStack = getFullStackInSlot(slot).copy();
+							tmpStack.shrink(amountToExtract);
+							getStackList().set(slot, tmpStack);
 							onContentsChanged(slot);
 						}
-						return ItemHandlerHelper.copyStackWithSize(existing, extract);
+						return newStack;
 					}
 				}
 

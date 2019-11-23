@@ -49,7 +49,6 @@ import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
 import p455w0rd.danknull.inventory.cap.DankNullCapabilityProvider;
 import p455w0rdslib.LibGlobals.Mods;
 import p455w0rdslib.api.client.*;
-import p455w0rdslib.util.TextUtils;
 
 /**
  * @author p455w0rd
@@ -162,7 +161,7 @@ public class ItemDankNull extends Item implements IModelHolder {
 
 	@Override
 	public String getItemStackDisplayName(final ItemStack stack) {
-		String name = TextUtils.translate(getUnlocalizedNameInefficiently(stack) + ".name").trim();
+		String name = super.getItemStackDisplayName(stack);
 		if (Options.callItDevNull) {
 			name = name.replace("/dank/", "/dev/");
 		}

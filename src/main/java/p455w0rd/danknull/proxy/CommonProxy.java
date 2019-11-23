@@ -11,7 +11,7 @@ public class CommonProxy {
 
 	public void preInit(final FMLPreInitializationEvent e) {
 		ModDataFixing.registerWalkers();
-		ModConfig.init();
+		ModConfig.load();
 		ModIntegration.preInit();
 		ModNetworking.registerMessages();
 		CapabilityDankNull.register();

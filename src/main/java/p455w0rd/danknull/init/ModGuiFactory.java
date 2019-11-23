@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraftforge.fml.client.IModGuiFactory;
-import p455w0rd.danknull.client.gui.GuiModConfig;
+import net.minecraftforge.fml.client.config.GuiConfig;
 
 /**
  * @author p455w0rd
@@ -15,8 +15,11 @@ import p455w0rd.danknull.client.gui.GuiModConfig;
  */
 public class ModGuiFactory implements IModGuiFactory {
 
+	private static final String TITLE = ModGlobals.NAME + " Config";
+	GuiConfig configGui = null;
+
 	@Override
-	public void initialize(final Minecraft minecraftInstance) {
+	public void initialize(final Minecraft mc) {
 	}
 
 	@Override
@@ -25,8 +28,11 @@ public class ModGuiFactory implements IModGuiFactory {
 	}
 
 	@Override
-	public GuiScreen createConfigGui(final GuiScreen parentScreen) {
-		return new GuiModConfig(parentScreen);
+	public GuiScreen createConfigGui(final GuiScreen parent) {
+		if (configGui == null) {
+			configGui = new GuiConfig(parent, ModConfig.getClientConfigElements(), ModGlobals.MODID, false, false, TITLE, "");
+		}
+		return configGui;
 	}
 
 	@Nullable
