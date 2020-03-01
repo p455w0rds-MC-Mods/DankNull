@@ -89,7 +89,7 @@ public class CapabilityDankNull {
 				if (instance instanceof DankNullHandler) {
 					final DankNullHandler handler = (DankNullHandler) instance;
 					final NBTTagCompound tag = (NBTTagCompound) base;
-					if (tag.hasNoTags()) {
+					if (tag == null || tag.hasNoTags()) {
 						return;
 					}
 					if (tag.hasKey(ModGlobals.NBT.DANKNULL_INVENTORY)) {
