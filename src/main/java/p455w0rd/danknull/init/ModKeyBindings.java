@@ -25,10 +25,10 @@ public class ModKeyBindings {
 	}
 
 	public static boolean isAnyModKeybindPressed() {
-		return getNextItemKeyBind().isPressed() || //@formatter:off
-				getPreviousItemKeyBind().isPressed() ||
-				getOpenDankNullKeyBind().isPressed() ||
-				getToggleHUDKeyBind().isPressed();//@formatter:on
+		return getNextItemKeyBind().isKeyDown() || //@formatter:off
+				getPreviousItemKeyBind().isKeyDown() ||
+				getOpenDankNullKeyBind().isKeyDown() ||
+				getToggleHUDKeyBind().isKeyDown();//@formatter:on
 	}
 
 	public static KeyBinding getNextItemKeyBind() {

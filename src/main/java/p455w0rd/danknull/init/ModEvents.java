@@ -1,6 +1,7 @@
 package p455w0rd.danknull.init;
 
 import java.util.List;
+import java.util.Objects;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.input.Keyboard;
@@ -162,11 +163,17 @@ public class ModEvents {
 				HUDRenderer.toggleHUD();
 			}
 			final EntityPlayer player = EasyMappings.player();
-			// Open GUI of first /dank/null found in player's inventory
-			if (ModKeyBindings.getOpenDankNullKeyBind().isPressed()) {
-				final List<PlayerSlot> dankNulls = ItemDankNull.getDankNullsForPlayer(player);
-				if (!dankNulls.isEmpty()) {
+			final List<PlayerSlot> dankNulls = ItemDankNull.getDankNullsForPlayer(player);
+			//Only check keybinds if player has DankNulls
+			if (!dankNulls.isEmpty()) {
+				if (ModKeyBindings.getOpenDankNullKeyBind().isPressed()) {
 					ModNetworking.getInstance().sendToServer(new PacketOpenGui(dankNulls.get(0)));
+				}
+				if (ModKeyBindings.getNextItemKeyBind().isPressed() || ModKeyBindings.getPreviousItemKeyBind().isPressed()) {
+					final Pair<EnumHand, IDankNullHandler> dankNull = getHandlerFromHeld(player);
+					if (Objects.nonNull(dankNull)) {
+						dankNull.getRight().cycleSelected(ModKeyBindings.getNextItemKeyBind().isKeyDown());
+					}
 				}
 			}
 		}
