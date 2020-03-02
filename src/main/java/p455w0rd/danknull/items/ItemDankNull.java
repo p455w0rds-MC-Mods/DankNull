@@ -265,7 +265,7 @@ public class ItemDankNull extends Item implements IModelHolder {
 		else if (!block.isReplaceable(world, posIn) && selectedBlock != null && !selectedBlock.isFullBlock(selectedBlock.getStateFromMeta(selectedStack.getMetadata()))) {
 			pos = pos.offset(facing);
 		}
-		if (selectedStack.getCount() > 0 && player.canPlayerEdit(posIn, facing, stack)) {
+		if (selectedStack.getCount() > 0 && player.canPlayerEdit(posIn, facing, stack) && world.isValid(posIn.offset(facing))) {
 			final int meta = selectedStack.getMetadata();
 			if (selectedBlock instanceof BlockStairs || selectedBlock instanceof BlockBanner) {
 				final IBlockState newState = selectedBlock.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, meta, player);
