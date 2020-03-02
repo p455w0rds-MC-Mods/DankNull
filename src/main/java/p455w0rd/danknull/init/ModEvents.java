@@ -173,6 +173,7 @@ public class ModEvents {
 					final Pair<EnumHand, IDankNullHandler> dankNull = getHandlerFromHeld(player);
 					if (Objects.nonNull(dankNull)) {
 						dankNull.getRight().cycleSelected(ModKeyBindings.getNextItemKeyBind().isKeyDown());
+						ModNetworking.getInstance().sendToServer(new PacketChangeMode(PacketChangeMode.ChangeType.SELECTED, dankNull.getRight().getSelected(), false, dankNull.getLeft()));
 					}
 				}
 			}
