@@ -112,15 +112,19 @@ public class CapabilityDankNull {
 							ItemStack stack = new ItemStack(item.getCompoundTag(ModGlobals.NBT.STACK));
 							if (!stack.isEmpty()) {
 								final Map<ItemStack, Boolean> oreStacks = instance.getOres();
+								boolean foundStack = false;
 								for (final ItemStack currentStack : oreStacks.keySet()) {
 									if (ItemUtils.areItemStacksEqualIgnoreSize(currentStack, stack)) {
 										oreStacks.put(currentStack, oreDict);
+										foundStack = true;
 										break;
 									}
 								}
-								stack = stack.copy();
-								stack.setCount(1);
-								oreStacks.put(stack, oreDict);
+								if (!foundStack) {
+									stack = stack.copy();
+									stack.setCount(1);
+									oreStacks.put(stack, oreDict);
+								}
 							}
 						}
 					}
@@ -133,15 +137,19 @@ public class CapabilityDankNull {
 
 							if (!stack.isEmpty()) {
 								final Map<ItemStack, ItemExtractionMode> extractionStacks = instance.getExtractionModes();
+								boolean foundStack = false;
 								for (final ItemStack currentStack : extractionStacks.keySet()) {
 									if (ItemUtils.areItemStacksEqualIgnoreSize(currentStack, stack)) {
 										extractionStacks.put(currentStack, mode);
+										foundStack = true;
 										return;
 									}
 								}
-								stack = stack.copy();
-								stack.setCount(1);
-								extractionStacks.put(stack, mode);
+								if (!foundStack) {
+									stack = stack.copy();
+									stack.setCount(1);
+									extractionStacks.put(stack, mode);
+								}
 							}
 
 						}
