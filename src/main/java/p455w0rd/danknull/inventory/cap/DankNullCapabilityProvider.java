@@ -11,6 +11,8 @@ import p455w0rd.danknull.init.ModGlobals;
 import p455w0rd.danknull.inventory.DankNullHandler;
 import p455w0rdslib.util.CapabilityUtils;
 
+import java.util.Objects;
+
 /**
  * @author BrockWS
  */
@@ -26,13 +28,31 @@ public class DankNullCapabilityProvider implements ICapabilityProvider {
 			@Override
 			protected void onContentsChanged(final int slot) {
 				super.onContentsChanged(slot);
-				stack.setTagCompound((NBTTagCompound) CapabilityDankNull.DANK_NULL_CAPABILITY.writeNBT(this, null));
+				NBTTagCompound oldNBT = stack.getTagCompound();
+				NBTTagCompound newNBT = (NBTTagCompound) CapabilityDankNull.DANK_NULL_CAPABILITY.writeNBT(this, null);
+				if (Objects.nonNull(oldNBT)) {
+					if (Objects.nonNull(newNBT)) {
+						oldNBT.merge(newNBT);
+					}
+				} else {
+					oldNBT = newNBT;
+				}
+				stack.setTagCompound(oldNBT);
 			}
 
 			@Override
 			protected void onSettingsChanged() {
 				super.onSettingsChanged();
-				stack.setTagCompound((NBTTagCompound) CapabilityDankNull.DANK_NULL_CAPABILITY.writeNBT(this, null));
+				NBTTagCompound oldNBT = stack.getTagCompound();
+				NBTTagCompound newNBT = (NBTTagCompound) CapabilityDankNull.DANK_NULL_CAPABILITY.writeNBT(this, null);
+				if (Objects.nonNull(oldNBT)) {
+					if (Objects.nonNull(newNBT)) {
+						oldNBT.merge(newNBT);
+					}
+				} else {
+					oldNBT = newNBT;
+				}
+				stack.setTagCompound(oldNBT);
 			}
 		};
 		if (stack.hasTagCompound()) {
