@@ -1,7 +1,6 @@
 package p455w0rd.danknull.init;
 
 import java.util.List;
-import java.util.Objects;
 
 import org.apache.commons.lang3.tuple.Pair;
 import org.lwjgl.input.Keyboard;
@@ -171,7 +170,7 @@ public class ModEvents {
 				}
 				if (ModKeyBindings.getNextItemKeyBind().isPressed() || ModKeyBindings.getPreviousItemKeyBind().isPressed()) {
 					final Pair<EnumHand, IDankNullHandler> dankNull = getHandlerFromHeld(player);
-					if (Objects.nonNull(dankNull)) {
+                    if (dankNull != null) {
 						dankNull.getRight().cycleSelected(ModKeyBindings.getNextItemKeyBind().isKeyDown());
 						ModNetworking.getInstance().sendToServer(new PacketChangeMode(PacketChangeMode.ChangeType.SELECTED, dankNull.getRight().getSelected(), false, dankNull.getLeft()));
 					}

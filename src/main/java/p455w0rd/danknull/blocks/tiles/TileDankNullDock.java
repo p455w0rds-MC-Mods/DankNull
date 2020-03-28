@@ -24,8 +24,6 @@ import p455w0rd.danknull.inventory.DankNullHandler;
 import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
 import p455w0rd.danknull.items.ItemDankNull;
 
-import java.util.Objects;
-
 /**
  * @author p455w0rd
  *
@@ -210,8 +208,8 @@ public class TileDankNullDock extends TileEntity {
 		if (dankNullHandler != null) {
 			NBTTagCompound oldNBT = dankNull.getTagCompound();
 			NBTTagCompound newNBT = (NBTTagCompound) CapabilityDankNull.DANK_NULL_CAPABILITY.writeNBT(dankNullHandler, null);
-			if (Objects.nonNull(oldNBT)) {
-				if (Objects.nonNull(newNBT)) {
+            if (oldNBT != null) {
+                if (newNBT != null) {
 					oldNBT.merge(newNBT);
 				}
 			} else {
