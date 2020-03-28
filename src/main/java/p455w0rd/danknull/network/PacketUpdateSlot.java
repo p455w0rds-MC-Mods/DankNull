@@ -40,11 +40,16 @@ public class PacketUpdateSlot implements IMessage {
         buf.writeInt(this.stack.getCount());
     }
 
+    // TODO This method doesn't need to exist. Can use minecraft's built in one.
     public static class Handler implements IMessageHandler<PacketUpdateSlot, IMessage> {
 
         @Override
         public IMessage onMessage(PacketUpdateSlot message, MessageContext ctx) {
             FMLCommonHandler.instance().getWorldThread(ctx.netHandler).addScheduledTask(() -> {
+                // Defensive fix for now
+                if (Minecraft.getMinecraft().player.openContainer.inventorySlots.size() <= message.slot) {
+                    return;
+                }
                 Minecraft.getMinecraft().player.openContainer.putStackInSlot(message.slot, message.stack);
             });
             return null;
