@@ -30,7 +30,6 @@ public class ModNetworking {
 		getInstance().registerMessage(PacketConfigSync.Handler.class, PacketConfigSync.class, nextID(), Side.CLIENT);
 		getInstance().registerMessage(PacketEmptyDock.Handler.class, PacketEmptyDock.class, nextID(), Side.CLIENT);
 		getInstance().registerMessage(PacketSetDankNullInDock.Handler.class, PacketSetDankNullInDock.class, nextID(), Side.CLIENT);
-		getInstance().registerMessage(PacketUpdateSlot.Handler.class, PacketUpdateSlot.class, nextID(), Side.CLIENT);
 		getInstance().registerMessage(PacketOpenGui.class, PacketOpenGui.class, nextID(), Side.SERVER);
 	}
 
