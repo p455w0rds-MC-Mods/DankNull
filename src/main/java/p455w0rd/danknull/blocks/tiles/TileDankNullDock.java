@@ -36,7 +36,12 @@ public class TileDankNullDock extends TileEntity {
 
 	@Override
 	public boolean hasCapability(final Capability<?> capability, final EnumFacing facing) {
-		return !getDankNull().isEmpty() && (capability == CapabilityDankNull.DANK_NULL_CAPABILITY || capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY || super.hasCapability(capability, facing));
+        if (!getDankNull().isEmpty()) {
+            if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY || capability == CapabilityDankNull.DANK_NULL_CAPABILITY) {
+                return true;
+            }
+        }
+        return super.hasCapability(capability, facing);
 	}
 
 	@Override
