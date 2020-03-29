@@ -17,6 +17,7 @@ import net.minecraft.util.math.*;
 import net.minecraft.world.IBlockAccess;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.client.registry.ClientRegistry;
+import net.minecraftforge.fml.common.network.NetworkRegistry;
 import net.minecraftforge.fml.common.registry.GameRegistry;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -92,14 +93,16 @@ public class BlockDankNullDock extends BlockContainer implements IModelHolder {
 	}
 
 	private TileDankNullDock getTE(final IBlockAccess worldIn, final BlockPos pos) {
-		if (worldIn.getTileEntity(pos) != null && worldIn.getTileEntity(pos) instanceof TileDankNullDock) {
-			return (TileDankNullDock) worldIn.getTileEntity(pos);
+        TileEntity te = worldIn.getTileEntity(pos);
+		if (te instanceof TileDankNullDock) {
+			return (TileDankNullDock) te;
 		}
 		return null;
 	}
 
 	private boolean isEmpty(final IBlockAccess world, final BlockPos pos) {
-		return getTE(world, pos) != null && getTE(world, pos).getDankNull().isEmpty();
+        TileDankNullDock te = getTE(world, pos);
+		return te != null && te.getDankNull().isEmpty();
 	}
 
 	@Override
@@ -118,7 +121,7 @@ public class BlockDankNullDock extends BlockContainer implements IModelHolder {
 				if (ItemDankNull.isDankNull(stack)) {
 					dankDock.setDankNull(stack);
 					player.setHeldItem(hand, ItemStack.EMPTY);
-					ModNetworking.getInstance().sendToDimension(new PacketSetDankNullInDock(dankDock, stack), world.provider.getDimension());
+					ModNetworking.getInstance().sendToAllTracking(new PacketSetDankNullInDock(dankDock, stack), new NetworkRegistry.TargetPoint(world.provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), 128));
 					return true;
 				}
 			}
