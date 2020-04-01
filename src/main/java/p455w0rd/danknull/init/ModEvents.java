@@ -141,8 +141,8 @@ public class ModEvents {
 	@SubscribeEvent
 	public static void updateMappings(final RegistryEvent.MissingMappings<Item> event) {
 		for (final Mapping<Item> mapping : event.getAllMappings()) {
-			final String modId = mapping.key.getResourceDomain();
-			final String regPath = mapping.key.getResourcePath();
+			final String modId = mapping.key.getNamespace();
+			final String regPath = mapping.key.getPath();
 			if (modId.equals(ModGlobals.MODID)) {
 				if (regPath.equals("dank_null")) {
 					mapping.remap(ModItems.REDSTONE_DANKNULL);

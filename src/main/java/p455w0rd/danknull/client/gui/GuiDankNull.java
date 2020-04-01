@@ -542,7 +542,7 @@ public class GuiDankNull extends GuiModular {
 		final List<String> list = stack.isEmpty() ? Lists.newArrayList() : stack.getTooltip(EasyMappings.player(), mc.gameSettings.advancedItemTooltips ? ITooltipFlag.TooltipFlags.ADVANCED : ITooltipFlag.TooltipFlags.NORMAL);
 		for (int i = 0; i < list.size(); ++i) {
 			if (i == 0) {
-				list.set(i, stack.getItem().getForgeRarity(stack).getColor() + list.get(i));
+				list.set(i, stack.getItem().getRarity(stack).color + list.get(i));
 			}
 			else {
 				list.set(i, TextFormatting.GRAY + list.get(i));

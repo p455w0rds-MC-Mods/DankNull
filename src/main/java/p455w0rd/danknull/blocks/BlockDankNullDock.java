@@ -4,6 +4,7 @@ import static net.minecraft.util.EnumHand.MAIN_HAND;
 
 import javax.annotation.Nullable;
 
+import com.google.common.collect.HashBasedTable;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -42,7 +43,7 @@ public class BlockDankNullDock extends BlockContainer implements IModelHolder {
 
 	public BlockDankNullDock() {
 		super(Material.IRON);
-		setUnlocalizedName(REGISTRY_NAME.getResourcePath());
+		setTranslationKey(REGISTRY_NAME.getPath());
 		setRegistryName(REGISTRY_NAME);
 		setResistance(6000000.0F);
 		setHardness(10.0F);
@@ -170,11 +171,11 @@ public class BlockDankNullDock extends BlockContainer implements IModelHolder {
 		return true;
 	}
 
-	@SideOnly(Side.CLIENT)
-	@Override
-	public BlockRenderLayer getBlockLayer() {
-		return BlockRenderLayer.SOLID;
-	}
+    @Override
+    @SideOnly(Side.CLIENT)
+    public BlockRenderLayer getRenderLayer() {
+        return BlockRenderLayer.SOLID;
+    }
 
 	@Override
 	@SideOnly(Side.CLIENT)

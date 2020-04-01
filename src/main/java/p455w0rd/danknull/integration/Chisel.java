@@ -40,7 +40,7 @@ public class Chisel {
 	public static String getVariantName(final ItemStack stack) {
 		if (isBlockChiseled(stack)) {
 			final VariationData variationData = getCarvable(Block.getBlockFromItem(stack.getItem())).getVariationData(stack.getItemDamage());
-			return TextUtils.translate(stack.getUnlocalizedName() + "." + variationData.name + ".desc.1");
+			return TextUtils.translate(stack.getTranslationKey() + "." + variationData.name + ".desc.1");
 		}
 		return "";
 	}

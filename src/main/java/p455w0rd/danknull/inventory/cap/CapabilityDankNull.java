@@ -60,16 +60,16 @@ public class CapabilityDankNull {
 					placementTag.setTag(ModGlobals.NBT.STACK, stack.serializeNBT());
 					placementModes.appendTag(placementTag);
 				});
-				if (!items.hasNoTags()) {
+				if (!items.isEmpty()) {
 					tag.setTag(ModGlobals.NBT.DANKNULL_INVENTORY, items);
 				}
-				if (!ores.hasNoTags()) {
+				if (!ores.isEmpty()) {
 					tag.setTag(ModGlobals.NBT.OREDICT_MODES, ores);
 				}
-				if (!extractionModes.hasNoTags()) {
+				if (!extractionModes.isEmpty()) {
 					tag.setTag(ModGlobals.NBT.EXTRACTION_MODES, extractionModes);
 				}
-				if (!placementModes.hasNoTags()) {
+				if (!placementModes.isEmpty()) {
 					tag.setTag(ModGlobals.NBT.PLACEMENT_MODES, placementModes);
 				}
 				if (instance.getSelected() > -1) {
@@ -89,7 +89,7 @@ public class CapabilityDankNull {
 				if (instance instanceof DankNullHandler) {
 					final DankNullHandler handler = (DankNullHandler) instance;
 					final NBTTagCompound tag = (NBTTagCompound) base;
-					if (tag == null || tag.hasNoTags()) {
+					if (tag == null || tag.isEmpty()) {
 						return;
 					}
 					if (tag.hasKey(ModGlobals.NBT.DANKNULL_INVENTORY)) {

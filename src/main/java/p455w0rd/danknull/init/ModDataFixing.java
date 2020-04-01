@@ -60,7 +60,7 @@ public class ModDataFixing {
 					final NBTTagCompound lvlNBT = nbt.getCompoundTag("Level");
 					if (lvlNBT.hasKey("Entities", Constants.NBT.TAG_LIST)) {
 						final NBTTagList entityList = lvlNBT.getTagList("Entities", 0);
-						if (!entityList.hasNoTags()) {
+						if (!entityList.isEmpty()) {
 							System.out.println(entityList);
 						}
 					}

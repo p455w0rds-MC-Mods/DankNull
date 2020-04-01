@@ -31,7 +31,7 @@ public class ItemBlockDankNullDock extends ItemBlock implements IModelHolder {
 		ItemStack dockedDank = ItemStack.EMPTY;
 		if (dankDock.hasTagCompound() && dankDock.getTagCompound().hasKey(NBT.BLOCKENTITYTAG, Constants.NBT.TAG_COMPOUND)) {
 			final NBTTagCompound nbt = dankDock.getTagCompound().getCompoundTag(NBT.BLOCKENTITYTAG);
-			if (!nbt.hasNoTags()) {
+			if (!nbt.isEmpty()) {
 				dockedDank = new ItemStack(nbt.getCompoundTag(NBT.DOCKEDSTACK));
 			}
 		}
@@ -44,7 +44,7 @@ public class ItemBlockDankNullDock extends ItemBlock implements IModelHolder {
 
 	@Override
 	public String getItemStackDisplayName(final ItemStack stack) {
-		String name = TextUtils.translate(getUnlocalizedName() + ".name").trim();
+		String name = TextUtils.translate(getTranslationKey() + ".name").trim();
 		if (Options.callItDevNull) {
 			name = name.replace("/dank/", "/dev/");
 		}

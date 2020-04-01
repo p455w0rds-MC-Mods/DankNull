@@ -22,7 +22,7 @@ public class ModCreativeTab extends CreativeTabs {
 	}
 
 	@Override
-	public ItemStack getTabIconItem() {
+	public ItemStack createIcon() {
 		return new ItemStack(ModItems.CREATIVE_DANKNULL);
 	}
 

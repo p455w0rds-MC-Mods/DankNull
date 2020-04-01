@@ -13,16 +13,83 @@ buildscript {
     }
 }
 
-apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/base.gradle'
-apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/thermal.gradle'
-apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/extrautilities.gradle'
-apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/buildcraft.gradle'
-apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/thaumcraft.gradle'
-apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/baubles.gradle'
-apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/nei.gradle'
-apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/ftb.gradle'
-apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/chisel.gradle'
-apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/itemscroller.gradle'
-apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/buildinggadgets.gradle'
-apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/enderio.gradle'
-apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/demagnetize.gradle'
+plugins {
+    id "com.wynprice.cursemaven" version "2.1.1"
+}
+
+apply plugin: 'net.minecraftforge.gradle.forge'
+apply plugin: 'maven'
+apply plugin: 'java'
+apply plugin: 'idea'
+
+repositories {
+    flatDir {
+        dirs 'lib'
+    }
+}
+//apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/repos.gradle'
+
+idea{
+    module{
+        inheritOutputDirs = false
+        outputDir = compileJava.destinationDir
+        testOutputDir = compileTestJava.destinationDir
+    }
+}
+
+sourceCompatibility = targetCompatibility = "1.8"
+
+version = "1.12.2-1.7.90"
+group = "p455w0rd.danknull"
+archivesBaseName = "DankNull"
+
+minecraft {
+    version = "1.12.2-14.23.5.2846"
+    mappings = "snapshot_20180814"
+    runDir = "run"
+
+    replace '@FINGERPRINT@', project.findProperty('signSHA1')
+    serverJvmArgs += "-Dfml.doNotBackup=true"
+    serverJvmArgs += "-Dfml.queryResult=confirm"
+    clientJvmArgs += "-Dfml.doNotBackup=true"
+}
+
+dependencies {
+    deobfCompile "curse.maven:p455w0rds-library:2830265"
+
+    deobfProvided "curse.maven:the-one-probe:2667280"
+    deobfProvided "curse.maven:jei:2803400"
+    deobfProvided "curse.maven:hwyla:2568753"
+    deobfProvided "curse.maven:chisel:2915375"
+    deobfProvided "curse.maven:ctm:2915363"
+    deobfProvided "curse.maven:extra-utilities:2678374"
+    deobfProvided "curse.maven:not-enough-items:2755792"
+    deobfProvided "curse.maven:codechicken:2779848"
+    deobfProvided "curse.maven:item-scroller:2581199"
+}
+
+task signJar(type: SignJar, dependsOn: reobfJar) {
+    onlyIf {
+        project.hasProperty('keyStore')
+    }
+
+    keyStore = project.findProperty('keyStore')
+    alias = project.findProperty('keyStoreAlias')
+    storePass = project.findProperty('keyStorePass')
+    keyPass = project.findProperty('keyStoreKeyPass')
+    inputFile = jar.archivePath
+    outputFile = jar.archivePath
+}
+
+processResources {
+    inputs.property "version", project.version
+    inputs.property "mcversion", project.minecraft.version
+    from(sourceSets.main.resources.srcDirs) {
+        include "mcmod.info"
+        expand "version": project.version, "mcversion": project.minecraft.version
+    }
+    from(sourceSets.main.resources.srcDirs) {
+        exclude "mcmod.info"
+    }
+    rename '(.+_at.cfg)', 'META-INF/$1'
+}
