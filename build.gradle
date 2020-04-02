@@ -22,13 +22,6 @@ apply plugin: 'maven'
 apply plugin: 'java'
 apply plugin: 'idea'
 
-repositories {
-    flatDir {
-        dirs 'lib'
-    }
-}
-//apply from : 'https://github.com/p455w0rd/buildscripts/raw/master/repos.gradle'
-
 idea{
     module{
         inheritOutputDirs = false
