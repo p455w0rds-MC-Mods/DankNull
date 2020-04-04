@@ -32,7 +32,7 @@ idea{
 
 sourceCompatibility = targetCompatibility = "1.8"
 
-version = "1.12.2-1.7.90"
+version = "1.12.2-1.7.91"
 group = "p455w0rd.danknull"
 archivesBaseName = "DankNull"
 
@@ -73,6 +73,8 @@ task signJar(type: SignJar, dependsOn: reobfJar) {
     inputFile = jar.archivePath
     outputFile = jar.archivePath
 }
+
+reobfJar.finalizedBy(signJar)
 
 processResources {
     inputs.property "version", project.version
