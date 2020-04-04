@@ -32,7 +32,7 @@ idea{
 
 sourceCompatibility = targetCompatibility = "1.8"
 
-version = "1.12.2-1.7.91"
+version = "1.12.2-" + project.modVersion
 group = "p455w0rd.danknull"
 archivesBaseName = "DankNull"
 
@@ -41,6 +41,7 @@ minecraft {
     mappings = "snapshot_20180814"
     runDir = "run"
 
+    replace '@VERSION@', project.modVersion
     replace '@FINGERPRINT@', project.findProperty('signSHA1')
     serverJvmArgs += "-Dfml.doNotBackup=true"
     serverJvmArgs += "-Dfml.queryResult=confirm"
