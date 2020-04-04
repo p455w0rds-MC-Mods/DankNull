@@ -241,7 +241,7 @@ public class ItemDankNull extends Item implements IModelHolder {
         BlockPos placePosition = posIn;
         if (isBucket(selectedStack)) {
             if (tryUseBucket(world, player, selectedStack) == EnumActionResult.SUCCESS) {
-                dankNullHandler.extractItem(dankNullHandler.getSelected(), 1, false);
+                dankNullHandler.extractItem(dankNullHandler.getSelected(), 1, player.capabilities.isCreativeMode);
                 return EnumActionResult.SUCCESS;
             }
             return EnumActionResult.FAIL;
@@ -267,7 +267,7 @@ public class ItemDankNull extends Item implements IModelHolder {
                 iblockstate1 = world.getBlockState(placePosition);
                 SoundType soundtype = iblockstate1.getBlock().getSoundType(iblockstate1, world, placePosition, player);
                 world.playSound(player, placePosition, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
-                dankNullHandler.extractItem(dankNullHandler.getSelected(), 1, false);
+                dankNullHandler.extractItem(dankNullHandler.getSelected(), 1, player.capabilities.isCreativeMode);
             }
             return EnumActionResult.SUCCESS;
         }
