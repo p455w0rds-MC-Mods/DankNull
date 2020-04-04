@@ -20,6 +20,7 @@ import mezz.jei.startup.StackHelper;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.*;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.text.translation.I18n;
 import p455w0rd.danknull.container.ContainerDankNullItem;
 import p455w0rd.danknull.init.*;
 import p455w0rd.danknull.integration.jei.DankNullUpgradeWrapper;
@@ -156,7 +157,7 @@ public class JEI implements IModPlugin {
 		@Override
 		public IRecipeTransferError transferRecipe(final ContainerWorkbench container, final IRecipeLayout recipeLayout, final EntityPlayer player, final boolean maxTransfer, final boolean doTransfer) {
 			if (!ServerInfo.isJeiOnServer()) {
-				final String tooltipMessage = TextUtils.translate("jei.tooltip.error.recipe.transfer.no.server");
+				final String tooltipMessage = I18n.translateToLocal("jei.tooltip.error.recipe.transfer.no.server");
 				return handlerHelper.createUserErrorWithTooltip(tooltipMessage);
 			}
 
@@ -218,7 +219,7 @@ public class JEI implements IModPlugin {
 
 			// check if we have enough inventory space to shuffle items around to their final locations
 			if (filledCraftSlotCount - inputCount > emptySlotCount) {
-				final String message = TextUtils.translate("jei.tooltip.error.recipe.transfer.inventory.full");
+				final String message = I18n.translateToLocal("jei.tooltip.error.recipe.transfer.inventory.full");
 				return handlerHelper.createUserErrorWithTooltip(message);
 			}
 
@@ -254,7 +255,7 @@ public class JEI implements IModPlugin {
 					}
 				}
 				if (!foundInDankNull) {
-					final String message = TextUtils.translate("jei.tooltip.error.recipe.transfer.missing");
+					final String message = I18n.translateToLocal("jei.tooltip.error.recipe.transfer.missing");
 					return handlerHelper.createUserErrorForSlots(message, matchingItemsResult.missingItems);
 				}
 			}

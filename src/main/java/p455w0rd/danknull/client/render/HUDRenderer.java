@@ -9,6 +9,7 @@ import net.minecraft.client.renderer.RenderHelper;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ResourceLocation;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.common.config.Configuration;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -60,17 +61,17 @@ public class HUDRenderer {
 					selectedStackName = selectedStackName.substring(0, 14).trim() + "...";
 				}
 				final ItemPlacementMode placementMode = dankNullHandler.getPlacementMode(selectedStack);
-				mc.fontRenderer.drawStringWithShadow(TextUtils.translate("dn.selected_item.desc") + ": " + selectedStackName, scaledRes.getScaledWidth() * 2 - 212 + 45, scaledRes.getScaledHeight() * 2 - 72, 16777215);
-				mc.fontRenderer.drawStringWithShadow(TextUtils.translate("dn.count.desc") + ": " + (ItemDankNull.getTier(currentItem) == DankNullTier.CREATIVE ? "Infinite" : selectedStack.getCount()), scaledRes.getScaledWidth() * 2 - 212 + 45, scaledRes.getScaledHeight() * 2 - 61, 16777215);
-				mc.fontRenderer.drawStringWithShadow(TextUtils.translate("dn.place.desc") + ": " + placementMode.getTooltip().replace(TextUtils.translate("dn.extract.desc").toLowerCase(Locale.ENGLISH), TextUtils.translate("dn.place.desc").toLowerCase(Locale.ENGLISH)).replace(TextUtils.translate("dn.extract.desc"), TextUtils.translate("dn.place.desc")), scaledRes.getScaledWidth() * 2 - 212 + 45, scaledRes.getScaledHeight() * 2 - 50, 16777215);
-				mc.fontRenderer.drawStringWithShadow(TextUtils.translate("dn.extract.desc") + ": " + dankNullHandler.getExtractionMode(selectedStack).getTooltip(), scaledRes.getScaledWidth() * 2 - 212 + 45, scaledRes.getScaledHeight() * 2 - 40, 16777215);
+				mc.fontRenderer.drawStringWithShadow(I18n.translateToLocal("dn.selected_item.desc") + ": " + selectedStackName, scaledRes.getScaledWidth() * 2 - 212 + 45, scaledRes.getScaledHeight() * 2 - 72, 16777215);
+				mc.fontRenderer.drawStringWithShadow(I18n.translateToLocal("dn.count.desc") + ": " + (ItemDankNull.getTier(currentItem) == DankNullTier.CREATIVE ? "Infinite" : selectedStack.getCount()), scaledRes.getScaledWidth() * 2 - 212 + 45, scaledRes.getScaledHeight() * 2 - 61, 16777215);
+				mc.fontRenderer.drawStringWithShadow(I18n.translateToLocal("dn.place.desc") + ": " + placementMode.getTooltip().replace(I18n.translateToLocal("dn.extract.desc").toLowerCase(Locale.ENGLISH), I18n.translateToLocal("dn.place.desc").toLowerCase(Locale.ENGLISH)).replace(I18n.translateToLocal("dn.extract.desc"), I18n.translateToLocal("dn.place.desc")), scaledRes.getScaledWidth() * 2 - 212 + 45, scaledRes.getScaledHeight() * 2 - 50, 16777215);
+				mc.fontRenderer.drawStringWithShadow(I18n.translateToLocal("dn.extract.desc") + ": " + dankNullHandler.getExtractionMode(selectedStack).getTooltip(), scaledRes.getScaledWidth() * 2 - 212 + 45, scaledRes.getScaledHeight() * 2 - 40, 16777215);
 
 				final String keyBind = ModKeyBindings.getOpenDankNullKeyBind().getDisplayName();
-				mc.fontRenderer.drawStringWithShadow(keyBind.equalsIgnoreCase("none") ? TextUtils.translate("dn.no_open_keybind.desc") : TextUtils.translate("dn.open_with.desc") + " " + keyBind, scaledRes.getScaledWidth() * 2 - 212 + 45, scaledRes.getScaledHeight() * 2 - 29, 16777215);
-				String oreDictMode = TextUtils.translate("dn.ore_dictionary.desc") + ": " + (dankNullHandler.isOre(selectedStack) ? TextUtils.translate("dn.enabled.desc") : TextUtils.translate("dn.disabled.desc"));
+				mc.fontRenderer.drawStringWithShadow(keyBind.equalsIgnoreCase("none") ? I18n.translateToLocal("dn.no_open_keybind.desc") : I18n.translateToLocal("dn.open_with.desc") + " " + keyBind, scaledRes.getScaledWidth() * 2 - 212 + 45, scaledRes.getScaledHeight() * 2 - 29, 16777215);
+				String oreDictMode = I18n.translateToLocal("dn.ore_dictionary.desc") + ": " + (dankNullHandler.isOre(selectedStack) ? I18n.translateToLocal("dn.enabled.desc") : I18n.translateToLocal("dn.disabled.desc"));
 				final boolean isOreDicted = DankNullHandler.getOreNames(selectedStack).size() > 0;
 				if (!isOreDicted) {
-					oreDictMode = TextUtils.translate("dn.not_oredicted.desc");
+					oreDictMode = I18n.translateToLocal("dn.not_oredicted.desc");
 				}
 
 				mc.fontRenderer.drawStringWithShadow(oreDictMode, scaledRes.getScaledWidth() * 2 - 212 + 45, scaledRes.getScaledHeight() * 2 - 18, 16777215);

@@ -49,7 +49,9 @@ import p455w0rd.danknull.inventory.PlayerSlot.EnumInvCategory;
 import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
 import p455w0rd.danknull.inventory.cap.DankNullCapabilityProvider;
 import p455w0rdslib.LibGlobals.Mods;
-import p455w0rdslib.api.client.*;
+import p455w0rdslib.api.client.ICustomItemRenderer;
+import p455w0rdslib.api.client.IModelHolder;
+import p455w0rdslib.api.client.ItemLayerWrapper;
 
 /**
  * @author p455w0rd

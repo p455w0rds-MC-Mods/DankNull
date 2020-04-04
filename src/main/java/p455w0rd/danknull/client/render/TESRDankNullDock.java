@@ -1,13 +1,11 @@
 package p455w0rd.danknull.client.render;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.annotation.Nonnull;
-
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.*;
+import net.minecraft.client.renderer.BlockRendererDispatcher;
+import net.minecraft.client.renderer.BufferBuilder;
+import net.minecraft.client.renderer.GlStateManager;
+import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms;
 import net.minecraft.client.renderer.block.model.ItemCameraTransforms.TransformType;
 import net.minecraft.client.renderer.tileentity.TileEntityItemStackRenderer;
@@ -23,7 +21,10 @@ import p455w0rd.danknull.init.ModBlocks;
 import p455w0rd.danknull.init.ModGlobals.NBT;
 import p455w0rdslib.api.client.ICustomItemRenderer;
 import p455w0rdslib.api.client.ItemLayerWrapper;
-import p455w0rdslib.util.EasyMappings;
+
+import javax.annotation.Nonnull;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author p455w0rd
@@ -61,7 +62,7 @@ public class TESRDankNullDock extends TileEntitySpecialRenderer<TileDankNullDock
 			GlStateManager.pushMatrix();
 			GlStateManager.translate(x + 0.5, y + 0.4, z + 0.5);
 			GlStateManager.scale(0.5D, 0.5D, 0.5D);
-			Minecraft.getMinecraft().getItemRenderer().renderItem(EasyMappings.player(), stack, ItemCameraTransforms.TransformType.NONE);
+			Minecraft.getMinecraft().getItemRenderer().renderItem(Minecraft.getMinecraft().player, stack, ItemCameraTransforms.TransformType.NONE);
 			GlStateManager.translate(-x, -y, -z);
 			GlStateManager.popMatrix();
 		}

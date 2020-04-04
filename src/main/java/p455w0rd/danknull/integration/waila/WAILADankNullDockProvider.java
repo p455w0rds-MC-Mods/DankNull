@@ -9,6 +9,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraft.world.World;
 import p455w0rd.danknull.api.IDankNullHandler;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
@@ -58,9 +59,9 @@ public class WAILADankNullDockProvider implements IWailaDataProvider {
 				}
 				final ItemStack selectedStack = dankNullHandler.getFullStackInSlot(dankNullHandler.getSelected());
 				if (!selectedStack.isEmpty()) {
-					currenttip.add(selectedStack.getDisplayName() + " " + TextUtils.translate("dn.selected.desc"));
-					currenttip.add(TextUtils.translate("dn.count.desc") + ": " + (ItemDankNull.getTier(dockedDankNull) == DankNullTier.CREATIVE ? TextUtils.translate("dn.infinite.desc") : selectedStack.getCount()));
-					currenttip.add(TextUtils.translate("dn.extract_mode.desc") + ": " + dankNullHandler.getExtractionMode(selectedStack).getTooltip());
+					currenttip.add(selectedStack.getDisplayName() + " " + I18n.translateToLocal("dn.selected.desc"));
+					currenttip.add(I18n.translateToLocal("dn.count.desc") + ": " + (ItemDankNull.getTier(dockedDankNull) == DankNullTier.CREATIVE ? I18n.translateToLocal("dn.infinite.desc") : selectedStack.getCount()));
+					currenttip.add(I18n.translateToLocal("dn.extract_mode.desc") + ": " + dankNullHandler.getExtractionMode(selectedStack).getTooltip());
 				}
 				currenttip.add(WAILA.toolTipEnclose);
 			}

@@ -51,7 +51,6 @@ import p455w0rd.danknull.inventory.slot.SlotDankNull;
 import p455w0rd.danknull.items.ItemDankNull;
 import p455w0rd.danknull.network.*;
 import p455w0rdslib.LibGlobals.Mods;
-import p455w0rdslib.util.EasyMappings;
 import p455w0rdslib.util.ItemUtils;
 
 /**
@@ -161,7 +160,7 @@ public class ModEvents {
 			if (ModKeyBindings.getToggleHUDKeyBind().isPressed()) {
 				HUDRenderer.toggleHUD();
 			}
-			final EntityPlayer player = EasyMappings.player();
+			final EntityPlayer player = Minecraft.getMinecraft().player;
 			final List<PlayerSlot> dankNulls = ItemDankNull.getDankNullsForPlayer(player);
 			//Only check keybinds if player has DankNulls
 			if (!dankNulls.isEmpty()) {
@@ -253,7 +252,7 @@ public class ModEvents {
 	@SideOnly(Side.CLIENT)
 	@SubscribeEvent(priority = EventPriority.HIGHEST)
 	public static void onMouseEvent(final MouseEvent event) {
-		final EntityPlayer player = EasyMappings.player();
+		final EntityPlayer player = Minecraft.getMinecraft().player;
 
 		final Minecraft mc = Minecraft.getMinecraft();
 		final World world = mc.world;

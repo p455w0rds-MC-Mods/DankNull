@@ -7,6 +7,7 @@ import java.util.*;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+import net.minecraft.util.text.translation.I18n;
 import org.apache.commons.lang3.StringUtils;
 
 import mcjty.theoneprobe.TheOneProbe;
@@ -89,12 +90,12 @@ public class TOP {
 					final TileDankNullDock te = (TileDankNullDock) tile;
 					stack.setTagInfo(NBT.BLOCKENTITYTAG, te.writeToNBT(new NBTTagCompound()));
 					final String dankNull = "/d" + (Options.callItDevNull ? "ev" : "ank") + "/null";
-					final String msg = TextUtils.translate("dn.right_click_with.desc") + (te.getDankNull().isEmpty() ? " " + dankNull : " " + TextUtils.translate("dn.empty_hand_open.desc"));
+					final String msg = I18n.translateToLocal("dn.right_click_with.desc") + (te.getDankNull().isEmpty() ? " " + dankNull : " " + I18n.translateToLocal("dn.empty_hand_open.desc"));
 					final ItemStack dockedDankNull = te.getDankNull().isEmpty() ? ItemStack.EMPTY : te.getDankNull();
 					final IProbeInfo topTip = probeInfo.horizontal().item(stack).vertical().itemLabel(stack);
 					if (!dockedDankNull.isEmpty()) {
 						final IDankNullHandler dankNullHandler = dankDock.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
-						final String dockedMsg = ModGlobals.Rarities.getRarityFromMeta(ItemDankNull.getTier(dockedDankNull).ordinal()).color + "" + dockedDankNull.getDisplayName() + "" + TextFormatting.WHITE + " " + TextUtils.translate("dn.docked.desc");
+						final String dockedMsg = ModGlobals.Rarities.getRarityFromMeta(ItemDankNull.getTier(dockedDankNull).ordinal()).color + "" + dockedDankNull.getDisplayName() + "" + TextFormatting.WHITE + " " + I18n.translateToLocal("dn.docked.desc");
 						topTip.text(dockedMsg);
 						if (dankNullHandler.getSelected() < 0) {
 							return;
@@ -102,7 +103,7 @@ public class TOP {
 						final ItemStack selectedStack = dankNullHandler.getFullStackInSlot(dankNullHandler.getSelected());
 						if (!selectedStack.isEmpty()) {
 							topTip.horizontal(new LayoutStyle().alignment(ElementAlignment.ALIGN_TOPLEFT).borderColor(0xFFFF0000).spacing(-1)).item(selectedStack);
-							topTip.text(TextUtils.translate("dn.extract_mode.desc") + ": " + dankNullHandler.getExtractionMode(selectedStack).getTooltip());
+							topTip.text(I18n.translateToLocal("dn.extract_mode.desc") + ": " + dankNullHandler.getExtractionMode(selectedStack).getTooltip());
 						}
 					}
 					else {

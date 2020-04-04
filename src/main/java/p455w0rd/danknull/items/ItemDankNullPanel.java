@@ -3,13 +3,15 @@ package p455w0rd.danknull.items;
 import net.minecraft.item.EnumRarity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import p455w0rd.danknull.client.render.DankNullPanelRenderer;
 import p455w0rd.danknull.init.ModGlobals.DankNullTier;
-import p455w0rdslib.api.client.*;
-import p455w0rdslib.util.TextUtils;
+import p455w0rdslib.api.client.ICustomItemRenderer;
+import p455w0rdslib.api.client.IModelHolder;
+import p455w0rdslib.api.client.ItemLayerWrapper;
 
 /**
  * @author p455w0rd
@@ -65,7 +67,7 @@ public class ItemDankNullPanel extends Item implements IModelHolder {
 	@Override
 	@SideOnly(Side.CLIENT)
 	public String getItemStackDisplayName(final ItemStack stack) {
-		return TextUtils.translate(stack.getItem().getTranslationKey() + ".name").trim();
+		return I18n.translateToLocal(stack.getItem().getTranslationKey() + ".name").trim();
 	}
 
 	@Override

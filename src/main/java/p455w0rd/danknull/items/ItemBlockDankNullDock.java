@@ -3,6 +3,7 @@ package p455w0rd.danknull.items;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.fml.relauncher.Side;
@@ -44,7 +45,7 @@ public class ItemBlockDankNullDock extends ItemBlock implements IModelHolder {
 
 	@Override
 	public String getItemStackDisplayName(final ItemStack stack) {
-		String name = TextUtils.translate(getTranslationKey() + ".name").trim();
+		String name = I18n.translateToLocal(getTranslationKey() + ".name").trim();
 		if (Options.callItDevNull) {
 			name = name.replace("/dank/", "/dev/");
 		}

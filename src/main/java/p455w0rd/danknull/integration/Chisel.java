@@ -1,14 +1,14 @@
 package p455w0rd.danknull.integration;
 
-import javax.annotation.Nonnull;
-
 import net.minecraft.block.Block;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
+import net.minecraft.util.text.translation.I18n;
 import p455w0rdslib.LibGlobals.Mods;
-import p455w0rdslib.util.TextUtils;
 import team.chisel.api.block.ICarvable;
 import team.chisel.api.block.VariationData;
+
+import javax.annotation.Nonnull;
 
 /**
  * @author p455w0rd
@@ -40,7 +40,7 @@ public class Chisel {
 	public static String getVariantName(final ItemStack stack) {
 		if (isBlockChiseled(stack)) {
 			final VariationData variationData = getCarvable(Block.getBlockFromItem(stack.getItem())).getVariationData(stack.getItemDamage());
-			return TextUtils.translate(stack.getTranslationKey() + "." + variationData.name + ".desc.1");
+			return I18n.translateToLocal(stack.getTranslationKey() + "." + variationData.name + ".desc.1");
 		}
 		return "";
 	}

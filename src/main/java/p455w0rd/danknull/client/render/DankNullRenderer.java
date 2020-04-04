@@ -1,10 +1,5 @@
 package p455w0rd.danknull.client.render;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import javax.annotation.Nonnull;
-
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockTorch;
 import net.minecraft.client.Minecraft;
@@ -28,8 +23,13 @@ import p455w0rd.danknull.init.ModGlobals;
 import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
 import p455w0rd.danknull.items.ItemDankNull;
 import p455w0rd.danknull.items.ItemDankNullPanel;
-import p455w0rdslib.api.client.*;
-import p455w0rdslib.util.EasyMappings;
+import p455w0rdslib.api.client.ICustomItemRenderer;
+import p455w0rdslib.api.client.IModelHolder;
+import p455w0rdslib.api.client.ItemLayerWrapper;
+
+import javax.annotation.Nonnull;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author p455w0rd
@@ -190,7 +190,7 @@ public class DankNullRenderer extends TileEntityItemStackRenderer implements ICu
 					final String modID = registryName[0];
 					if (modID.equalsIgnoreCase("danknull") || modID.equalsIgnoreCase("minecraft")) {
 						if (containedStack.getItem() instanceof ItemBucket || containedStack.getItem() instanceof ItemBucketMilk) {
-							renderItem(containedStack, Minecraft.getMinecraft().getRenderItem().getItemModelWithOverrides(containedStack, EasyMappings.player().getEntityWorld(), EasyMappings.player()));
+							renderItem(containedStack, Minecraft.getMinecraft().getRenderItem().getItemModelWithOverrides(containedStack, Minecraft.getMinecraft().player.getEntityWorld(), Minecraft.getMinecraft().player));
 						}
 						else {
 							renderItem(containedStack, containedItemModel);
@@ -198,7 +198,7 @@ public class DankNullRenderer extends TileEntityItemStackRenderer implements ICu
 						}
 					}
 					else {
-						renderItem(containedStack, Minecraft.getMinecraft().getRenderItem().getItemModelWithOverrides(containedStack, EasyMappings.player().getEntityWorld(), EasyMappings.player()));
+						renderItem(containedStack, Minecraft.getMinecraft().getRenderItem().getItemModelWithOverrides(containedStack, Minecraft.getMinecraft().player.getEntityWorld(), Minecraft.getMinecraft().player));
 					}
 					GlStateManager.popMatrix();
 				}
@@ -216,7 +216,7 @@ public class DankNullRenderer extends TileEntityItemStackRenderer implements ICu
 	}
 
 	private boolean isStackInHand(final ItemStack itemStackIn) {
-		final EntityPlayer player = EasyMappings.player();
+		final EntityPlayer player = Minecraft.getMinecraft().player;
 		if (player.getHeldItemMainhand() == itemStackIn || player.getHeldItemOffhand() == itemStackIn) {
 			return true;
 		}
@@ -230,7 +230,7 @@ public class DankNullRenderer extends TileEntityItemStackRenderer implements ICu
 	private static void renderItem(final ItemStack stack, final IBakedModel model, final boolean disableGlint) {
 		if (!stack.isEmpty() && model != null) {
 			if (model.isBuiltInRenderer() && !(stack.getItem() instanceof ItemDankNull)) {
-				Minecraft.getMinecraft().getItemRenderer().renderItem(EasyMappings.player(), stack, ItemCameraTransforms.TransformType.NONE);
+				Minecraft.getMinecraft().getItemRenderer().renderItem(Minecraft.getMinecraft().player, stack, ItemCameraTransforms.TransformType.NONE);
 			}
 			else {
 				RenderModel.render(model, stack);
