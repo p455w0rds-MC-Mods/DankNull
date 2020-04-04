@@ -12,26 +12,26 @@ import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
  */
 public class ContainerDankNullItem extends ContainerDankNull {
 
-	private final PlayerSlot playerSlot;
-	private final IDankNullHandler handler;
+    private final PlayerSlot playerSlot;
+    private final IDankNullHandler handler;
 
-	public ContainerDankNullItem(final EntityPlayer player, final PlayerSlot slot) {
-		super(player);
-		playerSlot = slot;
-		final InventoryPlayer playerInv = player.inventory;
-		final ItemStack dankNull = playerInv.getStackInSlot(slot.getCatIndex() == 2 ? 40 : slot.getSlotIndex());
-		handler = dankNull.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
-		init();
-	}
+    public ContainerDankNullItem(final EntityPlayer player, final PlayerSlot slot) {
+        super(player);
+        playerSlot = slot;
+        final InventoryPlayer playerInv = player.inventory;
+        final ItemStack dankNull = playerInv.getStackInSlot(slot.getCatIndex() == 2 ? 40 : slot.getSlotIndex());
+        handler = dankNull.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
+        init();
+    }
 
-	@Override
-	public IDankNullHandler getHandler() {
-		return handler;
-	}
+    @Override
+    public IDankNullHandler getHandler() {
+        return handler;
+    }
 
-	@Override
-	public ItemStack getDankNullStack() {
-		return player.inventory.getStackInSlot(playerSlot.getSlotIndex());
-	}
+    @Override
+    public ItemStack getDankNullStack() {
+        return player.inventory.getStackInSlot(playerSlot.getSlotIndex());
+    }
 
 }

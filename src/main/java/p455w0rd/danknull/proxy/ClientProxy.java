@@ -13,32 +13,32 @@ import p455w0rd.danknull.init.ModKeyBindings;
 
 public class ClientProxy extends CommonProxy {
 
-	@Override
-	public void preInit(final FMLPreInitializationEvent e) {
-		super.preInit(e);
-		ModItems.registerCustomRenderedItems();
-		ModCreativeTab.init();
-		ModKeyBindings.register();
-	}
-
-	@Override
-	public void init(final FMLInitializationEvent e) {
-		super.init(e);
-	}
-
-	@Override
-	public void postInit(final FMLPostInitializationEvent e) {
-		super.postInit(e);
-		ModIntegration.postInit();
-	}
-
-	@Override
-	public void serverStarting(final FMLServerStartingEvent e) {
-		super.serverStarting(e);
-	}
+    @Override
+    public void preInit(final FMLPreInitializationEvent e) {
+        super.preInit(e);
+        ModItems.registerCustomRenderedItems();
+        ModCreativeTab.init();
+        ModKeyBindings.register();
+    }
 
     @Override
-	public World getWorld() {
-		return Minecraft.getMinecraft().world;
-	}
+    public void init(final FMLInitializationEvent e) {
+        super.init(e);
+    }
+
+    @Override
+    public void postInit(final FMLPostInitializationEvent e) {
+        super.postInit(e);
+        ModIntegration.postInit();
+    }
+
+    @Override
+    public void serverStarting(final FMLServerStartingEvent e) {
+        super.serverStarting(e);
+    }
+
+    @Override
+    public World getWorld() {
+        return Minecraft.getMinecraft().world;
+    }
 }

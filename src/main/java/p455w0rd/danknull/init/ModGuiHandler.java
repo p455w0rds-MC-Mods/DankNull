@@ -1,8 +1,5 @@
 package p455w0rd.danknull.init;
 
-import static p455w0rd.danknull.inventory.PlayerSlot.EnumInvCategory.MAIN;
-import static p455w0rd.danknull.inventory.PlayerSlot.EnumInvCategory.OFF_HAND;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
@@ -19,96 +16,97 @@ import p455w0rd.danknull.container.ContainerDankNullItem;
 import p455w0rd.danknull.inventory.PlayerSlot;
 import p455w0rd.danknull.items.ItemDankNull;
 
+import static p455w0rd.danknull.inventory.PlayerSlot.EnumInvCategory.MAIN;
+import static p455w0rd.danknull.inventory.PlayerSlot.EnumInvCategory.OFF_HAND;
+
 /**
  * @author p455w0rd
- *
  */
 public class ModGuiHandler implements IGuiHandler {
 
-	public static void init() {
+    public static void init() {
         DankNull.LOGGER.info("Registering GUI Handler");
         NetworkRegistry.INSTANCE.registerGuiHandler(ModGlobals.MODID, new ModGuiHandler());
-	}
+    }
 
-	@Override
-	public Object getServerGuiElement(final int id, final EntityPlayer player, final World world, final int x, final int y, final int z) {
-		switch (GUIType.VALUES[id]) {
-		case DANKNULL:
-			final PlayerSlot dankNull = getDankNullSlot(player);
-			if (dankNull == null) {
-				return null;
-			}
-			return new ContainerDankNullItem(player, dankNull);
-		case DANKNULL_TE:
-			final TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
-			if (te instanceof TileDankNullDock) {
-				final TileDankNullDock dankDock = (TileDankNullDock) te;
-				if (!dankDock.getDankNull().isEmpty()) {
-					return new ContainerDankNullDock(player, dankDock);
-				}
-			}
-		default:
-			break;
-		}
-		return null;
-	}
+    public static void launchGui(final GUIType type, final EntityPlayer player, final World world, final BlockPos pos) {
+        if (!world.isRemote) {
+            player.openGui(DankNull.INSTANCE, type.ordinal(), world, pos.getX(), pos.getY(), pos.getZ());
+        }
+    }
 
-	@Override
-	public Object getClientGuiElement(final int id, final EntityPlayer player, final World world, final int x, final int y, final int z) {
-		switch (GUIType.VALUES[id]) {
-		case DANKNULL_TE:
-			final TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
-			if (te instanceof TileDankNullDock) {
-				final TileDankNullDock dankDock = (TileDankNullDock) te;
-				if (!dankDock.getDankNull().isEmpty()) {
-					return new GuiDankNull(new ContainerDankNullDock(player, dankDock));
-				}
-			}
-		case DANKNULL:
-			final PlayerSlot dankNull = getDankNullSlot(player);
-			if (dankNull == null) {
-				return null;
-			}
-			return new GuiDankNull(new ContainerDankNullItem(player, dankNull));
-		default:
-			break;
-		}
-		return null;
-	}
+    private static PlayerSlot getDankNullSlot(final EntityPlayer player) {
+        final InventoryPlayer playerInv = player.inventory;
+        final ItemStack mainHand = player.getHeldItemMainhand();
+        final ItemStack offHand = player.getHeldItemOffhand();
 
-	public static void launchGui(final GUIType type, final EntityPlayer player, final World world, final BlockPos pos) {
-		if (!world.isRemote) {
-			player.openGui(DankNull.INSTANCE, type.ordinal(), world, pos.getX(), pos.getY(), pos.getZ());
-		}
-	}
+        if (mainHand.getItem() instanceof ItemDankNull) {
+            return new PlayerSlot(playerInv.currentItem, MAIN);
+        } else if (offHand.getItem() instanceof ItemDankNull) {
+            return new PlayerSlot(0, OFF_HAND);
+        }
 
-	private static PlayerSlot getDankNullSlot(final EntityPlayer player) {
-		final InventoryPlayer playerInv = player.inventory;
-		final ItemStack mainHand = player.getHeldItemMainhand();
-		final ItemStack offHand = player.getHeldItemOffhand();
+        for (int i = 0; i < playerInv.mainInventory.size(); i++) {
+            final ItemStack stack = playerInv.mainInventory.get(i);
+            if (stack.getItem() instanceof ItemDankNull) {
+                return new PlayerSlot(i, MAIN);
+            }
+        }
+        return null;
+    }
 
-		if (mainHand.getItem() instanceof ItemDankNull) {
-			return new PlayerSlot(playerInv.currentItem, MAIN);
-		}
-		else if (offHand.getItem() instanceof ItemDankNull) {
-			return new PlayerSlot(0, OFF_HAND);
-		}
+    @Override
+    public Object getServerGuiElement(final int id, final EntityPlayer player, final World world, final int x, final int y, final int z) {
+        switch (GUIType.VALUES[id]) {
+            case DANKNULL:
+                final PlayerSlot dankNull = getDankNullSlot(player);
+                if (dankNull == null) {
+                    return null;
+                }
+                return new ContainerDankNullItem(player, dankNull);
+            case DANKNULL_TE:
+                final TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
+                if (te instanceof TileDankNullDock) {
+                    final TileDankNullDock dankDock = (TileDankNullDock) te;
+                    if (!dankDock.getDankNull().isEmpty()) {
+                        return new ContainerDankNullDock(player, dankDock);
+                    }
+                }
+            default:
+                break;
+        }
+        return null;
+    }
 
-		for (int i = 0; i < playerInv.mainInventory.size(); i++) {
-			final ItemStack stack = playerInv.mainInventory.get(i);
-			if (stack.getItem() instanceof ItemDankNull) {
-				return new PlayerSlot(i, MAIN);
-			}
-		}
-		return null;
-	}
+    @Override
+    public Object getClientGuiElement(final int id, final EntityPlayer player, final World world, final int x, final int y, final int z) {
+        switch (GUIType.VALUES[id]) {
+            case DANKNULL_TE:
+                final TileEntity te = world.getTileEntity(new BlockPos(x, y, z));
+                if (te instanceof TileDankNullDock) {
+                    final TileDankNullDock dankDock = (TileDankNullDock) te;
+                    if (!dankDock.getDankNull().isEmpty()) {
+                        return new GuiDankNull(new ContainerDankNullDock(player, dankDock));
+                    }
+                }
+            case DANKNULL:
+                final PlayerSlot dankNull = getDankNullSlot(player);
+                if (dankNull == null) {
+                    return null;
+                }
+                return new GuiDankNull(new ContainerDankNullItem(player, dankNull));
+            default:
+                break;
+        }
+        return null;
+    }
 
-	public enum GUIType {
+    public enum GUIType {
 
-			DANKNULL, DANKNULL_TE;
+        DANKNULL, DANKNULL_TE;
 
-		public static final GUIType[] VALUES = values();
+        public static final GUIType[] VALUES = values();
 
-	}
+    }
 
 }

@@ -10,20 +10,19 @@ import p455w0rdslib.LibGlobals.Mods;
 
 /**
  * @author p455w0rd
- *
  */
 public class WAILA {
 
-	public static String toolTipEnclose = TextFormatting.BOLD + "" + TextFormatting.GREEN + "=====================";
+    public static String toolTipEnclose = TextFormatting.BOLD + "" + TextFormatting.GREEN + "=====================";
 
-	public static void init() {
+    public static void init() {
         DankNull.LOGGER.info("Waila Integation: Enabled");
         FMLInterModComms.sendMessage(Mods.WAILA.getId(), "register", WAILA.class.getName() + ".callbackRegister");
-	}
+    }
 
-	public static void callbackRegister(final IWailaRegistrar registrar) {
-		registrar.registerBodyProvider(new WAILADankNullDockProvider(), TileDankNullDock.class);
-		registrar.registerStackProvider(new WAILADankNullDockProvider(), TileDankNullDock.class);
-	}
+    public static void callbackRegister(final IWailaRegistrar registrar) {
+        registrar.registerBodyProvider(new WAILADankNullDockProvider(), TileDankNullDock.class);
+        registrar.registerStackProvider(new WAILADankNullDockProvider(), TileDankNullDock.class);
+    }
 
 }

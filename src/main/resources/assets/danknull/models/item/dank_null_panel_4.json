@@ -1,6 +1,6 @@
 {
-    "parent": "danknull:item/dank_null_panel_new",
-    "textures": {
-        "1": "danknull:items/danknull/glass_diamond"
-    }
+  "parent": "danknull:item/dank_null_panel_new",
+  "textures": {
+    "1": "danknull:items/danknull/glass_diamond"
+  }
 }

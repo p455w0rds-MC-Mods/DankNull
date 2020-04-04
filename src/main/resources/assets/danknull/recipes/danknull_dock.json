@@ -1,22 +1,22 @@
 {
-	"type": "forge:ore_shaped",
-	"pattern": [
-		"aba",
-		"bcb",
-		"aba"
-	],
-	"key": {
-		"a": {
-			"item": "minecraft:emerald"
-		},
-		"b": {
-			"item": "minecraft:redstone"
-		},
-		"c": {
-			"item": "minecraft:obsidian"
-		}
-	},
-	"result": {
-		"item": "danknull:danknull_dock"
-	}
+  "type": "forge:ore_shaped",
+  "pattern": [
+    "aba",
+    "bcb",
+    "aba"
+  ],
+  "key": {
+    "a": {
+      "item": "minecraft:emerald"
+    },
+    "b": {
+      "item": "minecraft:redstone"
+    },
+    "c": {
+      "item": "minecraft:obsidian"
+    }
+  },
+  "result": {
+    "item": "danknull:danknull_dock"
+  }
 }

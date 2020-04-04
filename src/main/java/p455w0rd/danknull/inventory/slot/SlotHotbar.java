@@ -6,20 +6,19 @@ import net.minecraft.inventory.Slot;
 
 /**
  * @author p455w0rd
- *
  */
 public class SlotHotbar extends Slot {
 
-	private final boolean locked;
+    private final boolean locked;
 
     public SlotHotbar(IInventory inventoryIn, int index, int xPosition, int yPosition, boolean shouldLock) {
-		super(inventoryIn, index, xPosition, yPosition);
-		locked = shouldLock;
-	}
+        super(inventoryIn, index, xPosition, yPosition);
+        locked = shouldLock;
+    }
 
-	@Override
-	public boolean canTakeStack(EntityPlayer playerIn) {
-		return !locked;
-	}
+    @Override
+    public boolean canTakeStack(EntityPlayer playerIn) {
+        return !locked;
+    }
 
 }

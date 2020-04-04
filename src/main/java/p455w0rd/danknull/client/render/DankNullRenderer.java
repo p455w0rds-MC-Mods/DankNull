@@ -33,224 +33,203 @@ import java.util.Map;
 
 /**
  * @author p455w0rd
- *
  */
 public class DankNullRenderer extends TileEntityItemStackRenderer implements ICustomItemRenderer {
 
-	public ItemLayerWrapper model;
-	public static TransformType transformType;
-	boolean isGUI = false;
-	private static final Map<Item, DankNullRenderer> CACHE = new HashMap<>();
+    private static final Map<Item, DankNullRenderer> CACHE = new HashMap<>();
+    public static TransformType transformType;
+    public ItemLayerWrapper model;
+    boolean isGUI = false;
 
-	private DankNullRenderer(@Nonnull final Item item) {
-		registerRenderer(item, this);
-	}
+    private DankNullRenderer(@Nonnull final Item item) {
+        registerRenderer(item, this);
+    }
 
-	private static void registerRenderer(final Item item, final DankNullRenderer instance) {
-		CACHE.put(item, instance);
-	}
+    private static void registerRenderer(final Item item, final DankNullRenderer instance) {
+        CACHE.put(item, instance);
+    }
 
-	public static DankNullRenderer getRendererForItem(final Item item) {
-		if (!CACHE.containsKey(item)) {
-			new DankNullRenderer(item);
-		}
-		return CACHE.get(item);
-	}
+    public static DankNullRenderer getRendererForItem(final Item item) {
+        if (!CACHE.containsKey(item)) {
+            new DankNullRenderer(item);
+        }
+        return CACHE.get(item);
+    }
 
-	@SuppressWarnings("deprecation")
-	@Override
-	public void renderByItem(final ItemStack item, final float partialTicks) {
-		if (item.getItem() instanceof ItemDankNull) {
-			final RenderManager rm = Minecraft.getMinecraft().getRenderManager();
-			if (rm == null) {
-				return;
-			}
-			if (model == null) {
-				final IBakedModel baseModel = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel(item);
-				if (baseModel == null) {
-					return;
-				}
-				final ItemLayerWrapper wrapper = new ItemLayerWrapper(baseModel).setRenderer(this);
-				final Item it = item.getItem();
-				if (it instanceof IModelHolder) {
-					((IModelHolder) it).setWrappedModel(wrapper);
-				}
-				model = wrapper;
-			}
+    private static void renderItem(final ItemStack stack, final IBakedModel model) {
+        renderItem(stack, model, false);
+    }
 
-			final GameSettings options = rm.options;
-			if (options == null) {
-				return;
-			}
-			final int view = options.thirdPersonView;
-			final IDankNullHandler dankNullHandler = item.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
-			final int index = dankNullHandler.getSelected();
-			final ItemStack containedStack = index > -1 ? dankNullHandler.getFullStackInSlot(index) : ItemStack.EMPTY;
+    private static void renderItem(final ItemStack stack, final IBakedModel model, final boolean disableGlint) {
+        if (!stack.isEmpty() && model != null) {
+            if (model.isBuiltInRenderer() && !(stack.getItem() instanceof ItemDankNull)) {
+                Minecraft.getMinecraft().getItemRenderer().renderItem(Minecraft.getMinecraft().player, stack, ItemCameraTransforms.TransformType.NONE);
+            } else {
+                RenderModel.render(model, stack);
+                if (stack.hasEffect() && !disableGlint) {
+                    if (stack.getItem() instanceof ItemDankNull) {
+                        final int meta = ((ItemDankNull) stack.getItem()).getTier().ordinal();
+                        if (!Options.superShine) {
+                            GlintEffectRenderer.apply(model, meta);
+                        } else {
+                            GlintEffectRenderer.apply2(model, ItemDankNull.getTier(stack).getHexColor(false));
+                        }
+                    } else {
+                        GlintEffectRenderer.apply(model, -1);
+                    }
+                }
+            }
+        }
+    }
 
-			final float pbx = OpenGlHelper.lastBrightnessX;
-			final float pby = OpenGlHelper.lastBrightnessY;
-			if (getTransformType() == TransformType.FIRST_PERSON_LEFT_HAND || getTransformType() == TransformType.FIRST_PERSON_RIGHT_HAND) {
-				renderItem(item, model);
-			}
-			if (!containedStack.isEmpty()) {
-				IBakedModel containedItemModel = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel(containedStack);
+    @SuppressWarnings("deprecation")
+    @Override
+    public void renderByItem(final ItemStack item, final float partialTicks) {
+        if (item.getItem() instanceof ItemDankNull) {
+            final RenderManager rm = Minecraft.getMinecraft().getRenderManager();
+            if (rm == null) {
+                return;
+            }
+            if (model == null) {
+                final IBakedModel baseModel = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel(item);
+                if (baseModel == null) {
+                    return;
+                }
+                final ItemLayerWrapper wrapper = new ItemLayerWrapper(baseModel).setRenderer(this);
+                final Item it = item.getItem();
+                if (it instanceof IModelHolder) {
+                    ((IModelHolder) it).setWrappedModel(wrapper);
+                }
+                model = wrapper;
+            }
 
-				if (containedItemModel != null) {
+            final GameSettings options = rm.options;
+            if (options == null) {
+                return;
+            }
+            final int view = options.thirdPersonView;
+            final IDankNullHandler dankNullHandler = item.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
+            final int index = dankNullHandler.getSelected();
+            final ItemStack containedStack = index > -1 ? dankNullHandler.getFullStackInSlot(index) : ItemStack.EMPTY;
 
-					GlStateManager.pushMatrix();
-					if (containedStack.getItem() instanceof ItemBlock && !(Block.getBlockFromItem(containedStack.getItem()) instanceof BlockTorch)) {
-						GlStateManager.scale(0.4D, 0.4D, 0.4D);
-						if (containedItemModel.isBuiltInRenderer()) {
-							if (view > 0 || !isStackInHand(item)) {
-								GlStateManager.scale(1.1D, 1.1D, 1.1D);
-								GlStateManager.translate(1.25D, 1.4D, 1.25D);
-							}
-							else {
-								GlStateManager.translate(1.25D, 2.0D, 1.25D);
-							}
-						}
-						else if (view > 0 || !isStackInHand(item)) {
-							GlStateManager.translate(0.75D, 0.9D, 0.75D);
-						}
-						else {
-							GlStateManager.translate(0.75D, 1.5D, 0.75D);
-						}
-					}
-					else {
-						GlStateManager.scale(0.5D, 0.5D, 0.5D);
-						if (containedItemModel.isBuiltInRenderer()) {
-							if (view > 0 || !isStackInHand(item)) {
-								if (containedStack.getItem() instanceof ItemSkull) {
-									if (containedStack.getItemDamage() == 5) {
-										GlStateManager.scale(0.65D, 0.65D, 0.65D);
-										GlStateManager.translate(1.5D, 3.0D, 1.5D);
-									}
-									else {
-										GlStateManager.translate(0.75D, 2.25D, 1.1D);
-									}
-								}
-								else {
-									GlStateManager.scale(1.1D, 1.1D, 1.1D);
-									GlStateManager.translate(0.95D, 1.4D, 0.9D);
-								}
-							}
-							else if (containedStack.getItem() instanceof ItemSkull) {
-								if (containedStack.getItemDamage() == 5) {
-									GlStateManager.scale(0.65D, 0.65D, 0.65D);
-									GlStateManager.translate(1.5D, 3.0D, 1.5D);
-								}
-								else {
-									GlStateManager.translate(0.75D, 2.25D, 1.1D);
-								}
-							}
-							else {
-								GlStateManager.translate(0.75D, 2.0D, 1.0D);
-							}
-						}
-						else if (view > 0 || !isStackInHand(item)) {
-							GlStateManager.translate(0.5D, 0.9D, 0.5D);
-						}
-						else {
-							GlStateManager.translate(0.5D, 1.5D, 0.5D);
-						}
-					}
-					if (item.isOnItemFrame()) {
-						GlStateManager.scale(1.25D, 1.25D, 1.25D);
-						GlStateManager.translate(-0.2D, -0.2D, -0.5D);
-					}
-					if (containedItemModel.isBuiltInRenderer()) {
-						if (containedStack.getItem() == Item.getItemFromBlock(ModBlocks.DANKNULL_DOCK)) {
-							GlStateManager.translate(0.0D, 1.0D, 0.0D);
-							GlStateManager.rotate(ModGlobals.TIME, 1.0F, ModGlobals.TIME, 1.0F);
-						}
-						else if (containedStack.getItem() instanceof ItemDankNullPanel) {
-							GlStateManager.rotate(ModGlobals.TIME, 1.0F, ModGlobals.TIME, 1.0F);
-						}
-						else if (containedStack.getItem() == Items.BANNER) {
-							GlStateManager.rotate(ModGlobals.TIME, 1.0F, ModGlobals.TIME, 1.0F);
-						}
-						else {
-							GlStateManager.translate(-0.1D, 0.0D, -0.1D);
-							GlStateManager.rotate(ModGlobals.TIME, 1.0F, ModGlobals.TIME, 1.0F);
-						}
-					}
-					else {
-						GlStateManager.rotate(ModGlobals.TIME, 1.0F, 1.0F, 1.0F);
-					}
-					if (containedItemModel.getItemCameraTransforms() != null) {
-						containedItemModel = ForgeHooksClient.handleCameraTransforms(containedItemModel, ItemCameraTransforms.TransformType.NONE, false);
-					}
-					final String[] registryName = containedStack.getItem().getRegistryName().toString().split(":");
-					final String modID = registryName[0];
-					if (modID.equalsIgnoreCase("danknull") || modID.equalsIgnoreCase("minecraft")) {
-						if (containedStack.getItem() instanceof ItemBucket || containedStack.getItem() instanceof ItemBucketMilk) {
-							renderItem(containedStack, Minecraft.getMinecraft().getRenderItem().getItemModelWithOverrides(containedStack, Minecraft.getMinecraft().player.getEntityWorld(), Minecraft.getMinecraft().player));
-						}
-						else {
-							renderItem(containedStack, containedItemModel);
-							GlStateManager.enableBlend();
-						}
-					}
-					else {
-						renderItem(containedStack, Minecraft.getMinecraft().getRenderItem().getItemModelWithOverrides(containedStack, Minecraft.getMinecraft().player.getEntityWorld(), Minecraft.getMinecraft().player));
-					}
-					GlStateManager.popMatrix();
-				}
-			}
-			if (item.hasEffect()) {
-				OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240F, 240F);
-			}
-			renderItem(item, model);
+            final float pbx = OpenGlHelper.lastBrightnessX;
+            final float pby = OpenGlHelper.lastBrightnessY;
+            if (getTransformType() == TransformType.FIRST_PERSON_LEFT_HAND || getTransformType() == TransformType.FIRST_PERSON_RIGHT_HAND) {
+                renderItem(item, model);
+            }
+            if (!containedStack.isEmpty()) {
+                IBakedModel containedItemModel = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel(containedStack);
 
-			if (item.hasEffect()) {
-				OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, pbx, pby);
-			}
-			Minecraft.getMinecraft().getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, true);
-		}
-	}
+                if (containedItemModel != null) {
 
-	private boolean isStackInHand(final ItemStack itemStackIn) {
-		final EntityPlayer player = Minecraft.getMinecraft().player;
+                    GlStateManager.pushMatrix();
+                    if (containedStack.getItem() instanceof ItemBlock && !(Block.getBlockFromItem(containedStack.getItem()) instanceof BlockTorch)) {
+                        GlStateManager.scale(0.4D, 0.4D, 0.4D);
+                        if (containedItemModel.isBuiltInRenderer()) {
+                            if (view > 0 || !isStackInHand(item)) {
+                                GlStateManager.scale(1.1D, 1.1D, 1.1D);
+                                GlStateManager.translate(1.25D, 1.4D, 1.25D);
+                            } else {
+                                GlStateManager.translate(1.25D, 2.0D, 1.25D);
+                            }
+                        } else if (view > 0 || !isStackInHand(item)) {
+                            GlStateManager.translate(0.75D, 0.9D, 0.75D);
+                        } else {
+                            GlStateManager.translate(0.75D, 1.5D, 0.75D);
+                        }
+                    } else {
+                        GlStateManager.scale(0.5D, 0.5D, 0.5D);
+                        if (containedItemModel.isBuiltInRenderer()) {
+                            if (view > 0 || !isStackInHand(item)) {
+                                if (containedStack.getItem() instanceof ItemSkull) {
+                                    if (containedStack.getItemDamage() == 5) {
+                                        GlStateManager.scale(0.65D, 0.65D, 0.65D);
+                                        GlStateManager.translate(1.5D, 3.0D, 1.5D);
+                                    } else {
+                                        GlStateManager.translate(0.75D, 2.25D, 1.1D);
+                                    }
+                                } else {
+                                    GlStateManager.scale(1.1D, 1.1D, 1.1D);
+                                    GlStateManager.translate(0.95D, 1.4D, 0.9D);
+                                }
+                            } else if (containedStack.getItem() instanceof ItemSkull) {
+                                if (containedStack.getItemDamage() == 5) {
+                                    GlStateManager.scale(0.65D, 0.65D, 0.65D);
+                                    GlStateManager.translate(1.5D, 3.0D, 1.5D);
+                                } else {
+                                    GlStateManager.translate(0.75D, 2.25D, 1.1D);
+                                }
+                            } else {
+                                GlStateManager.translate(0.75D, 2.0D, 1.0D);
+                            }
+                        } else if (view > 0 || !isStackInHand(item)) {
+                            GlStateManager.translate(0.5D, 0.9D, 0.5D);
+                        } else {
+                            GlStateManager.translate(0.5D, 1.5D, 0.5D);
+                        }
+                    }
+                    if (item.isOnItemFrame()) {
+                        GlStateManager.scale(1.25D, 1.25D, 1.25D);
+                        GlStateManager.translate(-0.2D, -0.2D, -0.5D);
+                    }
+                    if (containedItemModel.isBuiltInRenderer()) {
+                        if (containedStack.getItem() == Item.getItemFromBlock(ModBlocks.DANKNULL_DOCK)) {
+                            GlStateManager.translate(0.0D, 1.0D, 0.0D);
+                            GlStateManager.rotate(ModGlobals.TIME, 1.0F, ModGlobals.TIME, 1.0F);
+                        } else if (containedStack.getItem() instanceof ItemDankNullPanel) {
+                            GlStateManager.rotate(ModGlobals.TIME, 1.0F, ModGlobals.TIME, 1.0F);
+                        } else if (containedStack.getItem() == Items.BANNER) {
+                            GlStateManager.rotate(ModGlobals.TIME, 1.0F, ModGlobals.TIME, 1.0F);
+                        } else {
+                            GlStateManager.translate(-0.1D, 0.0D, -0.1D);
+                            GlStateManager.rotate(ModGlobals.TIME, 1.0F, ModGlobals.TIME, 1.0F);
+                        }
+                    } else {
+                        GlStateManager.rotate(ModGlobals.TIME, 1.0F, 1.0F, 1.0F);
+                    }
+                    if (containedItemModel.getItemCameraTransforms() != null) {
+                        containedItemModel = ForgeHooksClient.handleCameraTransforms(containedItemModel, ItemCameraTransforms.TransformType.NONE, false);
+                    }
+                    final String[] registryName = containedStack.getItem().getRegistryName().toString().split(":");
+                    final String modID = registryName[0];
+                    if (modID.equalsIgnoreCase("danknull") || modID.equalsIgnoreCase("minecraft")) {
+                        if (containedStack.getItem() instanceof ItemBucket || containedStack.getItem() instanceof ItemBucketMilk) {
+                            renderItem(containedStack, Minecraft.getMinecraft().getRenderItem().getItemModelWithOverrides(containedStack, Minecraft.getMinecraft().player.getEntityWorld(), Minecraft.getMinecraft().player));
+                        } else {
+                            renderItem(containedStack, containedItemModel);
+                            GlStateManager.enableBlend();
+                        }
+                    } else {
+                        renderItem(containedStack, Minecraft.getMinecraft().getRenderItem().getItemModelWithOverrides(containedStack, Minecraft.getMinecraft().player.getEntityWorld(), Minecraft.getMinecraft().player));
+                    }
+                    GlStateManager.popMatrix();
+                }
+            }
+            if (item.hasEffect()) {
+                OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240F, 240F);
+            }
+            renderItem(item, model);
+
+            if (item.hasEffect()) {
+                OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, pbx, pby);
+            }
+            Minecraft.getMinecraft().getTextureManager().getTexture(TextureMap.LOCATION_BLOCKS_TEXTURE).setBlurMipmap(false, true);
+        }
+    }
+
+    private boolean isStackInHand(final ItemStack itemStackIn) {
+        final EntityPlayer player = Minecraft.getMinecraft().player;
         return player.getHeldItemMainhand() == itemStackIn || player.getHeldItemOffhand() == itemStackIn;
     }
 
-	private static void renderItem(final ItemStack stack, final IBakedModel model) {
-		renderItem(stack, model, false);
-	}
+    @Override
+    public TransformType getTransformType() {
+        return transformType;
+    }
 
-	private static void renderItem(final ItemStack stack, final IBakedModel model, final boolean disableGlint) {
-		if (!stack.isEmpty() && model != null) {
-			if (model.isBuiltInRenderer() && !(stack.getItem() instanceof ItemDankNull)) {
-				Minecraft.getMinecraft().getItemRenderer().renderItem(Minecraft.getMinecraft().player, stack, ItemCameraTransforms.TransformType.NONE);
-			}
-			else {
-				RenderModel.render(model, stack);
-				if (stack.hasEffect() && !disableGlint) {
-					if (stack.getItem() instanceof ItemDankNull) {
-						final int meta = ((ItemDankNull) stack.getItem()).getTier().ordinal();
-						if (!Options.superShine) {
-							GlintEffectRenderer.apply(model, meta);
-						}
-						else {
-							GlintEffectRenderer.apply2(model, ItemDankNull.getTier(stack).getHexColor(false));
-						}
-					}
-					else {
-						GlintEffectRenderer.apply(model, -1);
-					}
-				}
-			}
-		}
-	}
-
-	@Override
-	public TransformType getTransformType() {
-		return transformType;
-	}
-
-	@Override
-	public void setTransformType(final TransformType type) {
-		transformType = type;
-	}
+    @Override
+    public void setTransformType(final TransformType type) {
+        transformType = type;
+    }
 
 }

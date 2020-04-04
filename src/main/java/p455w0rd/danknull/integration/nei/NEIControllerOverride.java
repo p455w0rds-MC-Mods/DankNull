@@ -6,17 +6,16 @@ import p455w0rd.danknull.client.gui.GuiDankNull;
 
 /**
  * @author p455w0rd
- *
  */
 public class NEIControllerOverride extends NEIController {
 
-	@Override
-	public boolean mouseClicked(GuiScreen screen, int mouseX, int mouseY, int button) {
+    @Override
+    public boolean mouseClicked(GuiScreen screen, int mouseX, int mouseY, int button) {
 
-		if (screen instanceof GuiDankNull) {
-			return false;
-		}
-		return super.mouseClicked(screen, mouseX, mouseY, button);
-	}
+        if (screen instanceof GuiDankNull) {
+            return false;
+        }
+        return super.mouseClicked(screen, mouseX, mouseY, button);
+    }
 
 }

@@ -7,22 +7,21 @@ import p455w0rd.danknull.recipes.RecipeDankNullUpgrade;
 
 /**
  * @author p455w0rd
- *
  */
 public class DankNullUpgradeWrapper extends ShapelessRecipeWrapper<RecipeDankNullUpgrade> implements IShapedCraftingRecipeWrapper {
 
-	public DankNullUpgradeWrapper(IJeiHelpers jeiHelpers, RecipeDankNullUpgrade recipe) {
-		super(jeiHelpers, recipe);
-	}
+    public DankNullUpgradeWrapper(IJeiHelpers jeiHelpers, RecipeDankNullUpgrade recipe) {
+        super(jeiHelpers, recipe);
+    }
 
-	@Override
-	public int getWidth() {
-		return 3;
-	}
+    @Override
+    public int getWidth() {
+        return 3;
+    }
 
-	@Override
-	public int getHeight() {
-		return 3;
-	}
+    @Override
+    public int getHeight() {
+        return 3;
+    }
 
 }

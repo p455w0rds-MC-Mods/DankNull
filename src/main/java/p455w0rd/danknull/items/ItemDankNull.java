@@ -1,35 +1,34 @@
 package p455w0rd.danknull.items;
 
-import static p455w0rd.danknull.inventory.PlayerSlot.EnumInvCategory.MAIN;
-import static p455w0rd.danknull.inventory.PlayerSlot.EnumInvCategory.OFF_HAND;
-
-import java.util.List;
-
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import com.google.common.collect.Lists;
-
 import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.block.*;
+import net.minecraft.block.Block;
+import net.minecraft.block.BlockSlab;
+import net.minecraft.block.SoundType;
 import net.minecraft.block.properties.IProperty;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.*;
+import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.*;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.*;
-import net.minecraft.util.math.*;
+import net.minecraft.util.math.AxisAlignedBB;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.MathHelper;
+import net.minecraft.util.math.RayTraceResult;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.client.model.ModelLoader;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
-import net.minecraftforge.fluids.*;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidUtil;
+import net.minecraftforge.fluids.UniversalBucket;
 import net.minecraftforge.fluids.capability.CapabilityFluidHandler;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
@@ -50,6 +49,13 @@ import p455w0rdslib.api.client.ICustomItemRenderer;
 import p455w0rdslib.api.client.IModelHolder;
 import p455w0rdslib.api.client.ItemLayerWrapper;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.List;
+
+import static p455w0rd.danknull.inventory.PlayerSlot.EnumInvCategory.MAIN;
+import static p455w0rd.danknull.inventory.PlayerSlot.EnumInvCategory.OFF_HAND;
+
 /**
  * @author p455w0rd
  */
@@ -68,14 +74,6 @@ public class ItemDankNull extends Item implements IModelHolder {
         setTranslationKey(tier.getUnlocalizedNameForDankNull());
         setMaxStackSize(1);
         setMaxDamage(0);
-    }
-
-    @Override
-    @SideOnly(Side.CLIENT)
-    public void addInformation(final ItemStack stack, @Nullable final World world, final List<String> tooltip, final ITooltipFlag advanced) {
-        tooltip.add(I18n.format("dn.number_of_slots.desc") + ": " + getTier(stack).getNumRows() * 9);
-        final String maxMsg = getTier(stack) == DankNullTier.CREATIVE ? "" + TextFormatting.DARK_PURPLE + I18n.format("dn.infinite.desc") + TextFormatting.GRAY : "" + getTier(stack).getMaxStackSize();
-        tooltip.add(maxMsg + " " + I18n.format("dn.items_per_slot.desc"));
     }
 
     public static List<PlayerSlot> getDankNullsForPlayer(final EntityPlayer player) {
@@ -110,6 +108,14 @@ public class ItemDankNull extends Item implements IModelHolder {
 
     public static boolean isDankNull(final ItemStack stack) {
         return !stack.isEmpty() && stack.hasCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
+    }
+
+    @Override
+    @SideOnly(Side.CLIENT)
+    public void addInformation(final ItemStack stack, @Nullable final World world, final List<String> tooltip, final ITooltipFlag advanced) {
+        tooltip.add(I18n.format("dn.number_of_slots.desc") + ": " + getTier(stack).getNumRows() * 9);
+        final String maxMsg = getTier(stack) == DankNullTier.CREATIVE ? "" + TextFormatting.DARK_PURPLE + I18n.format("dn.infinite.desc") + TextFormatting.GRAY : "" + getTier(stack).getMaxStackSize();
+        tooltip.add(maxMsg + " " + I18n.format("dn.items_per_slot.desc"));
     }
 
     public DankNullTier getTier() {
@@ -238,12 +244,11 @@ public class ItemDankNull extends Item implements IModelHolder {
             return EnumActionResult.FAIL;
         }
 
-        if (!block.isReplaceable(world, placePosition))
-        {
+        if (!block.isReplaceable(world, placePosition)) {
             placePosition = placePosition.offset(facing);
         }
 
-        if(!player.canPlayerEdit(placePosition, facing, selectedStack) ||
+        if (!player.canPlayerEdit(placePosition, facing, selectedStack) ||
                 !world.mayPlace(selectedBlock, placePosition, false, facing, player) ||
                 dankNullHandler.extractItem(dankNullHandler.getSelected(), 1, true).isEmpty()) {
             return EnumActionResult.FAIL;
@@ -253,8 +258,7 @@ public class ItemDankNull extends Item implements IModelHolder {
             int i = selectedStack.getItem().getMetadata(selectedStack.getMetadata());
             IBlockState iblockstate1 = selectedBlock.getStateForPlacement(world, placePosition, facing, hitX, hitY, hitZ, i, player, hand);
 
-            if (((ItemBlock) selectedStack.getItem()).placeBlockAt(selectedStack, player, world, placePosition, facing, hitX, hitY, hitZ, iblockstate1))
-            {
+            if (((ItemBlock) selectedStack.getItem()).placeBlockAt(selectedStack, player, world, placePosition, facing, hitX, hitY, hitZ, iblockstate1)) {
                 iblockstate1 = world.getBlockState(placePosition);
                 SoundType soundtype = iblockstate1.getBlock().getSoundType(iblockstate1, world, placePosition, player);
                 world.playSound(player, placePosition, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);

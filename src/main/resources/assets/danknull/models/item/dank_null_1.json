@@ -1,7 +1,7 @@
 {
-    "__comment": "Model generated using MrCrayfish's Model Creator (http://mrcrayfish.com/modelcreator/)",
-	"parent": "danknull:item/dank_null",
-    "textures": {
-        "1": "danknull:items/danknull/glass_lapis"
-    }
+  "__comment": "Model generated using MrCrayfish's Model Creator (http://mrcrayfish.com/modelcreator/)",
+  "parent": "danknull:item/dank_null",
+  "textures": {
+    "1": "danknull:items/danknull/glass_lapis"
+  }
 }
