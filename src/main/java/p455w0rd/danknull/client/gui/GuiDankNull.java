@@ -26,7 +26,6 @@ import p455w0rd.danknull.api.DankNullItemModes.ItemExtractionMode;
 import p455w0rd.danknull.api.DankNullItemModes.ItemPlacementMode;
 import p455w0rd.danknull.api.IDankNullHandler;
 import p455w0rd.danknull.container.ContainerDankNull;
-import p455w0rd.danknull.container.ContainerDankNullDock;
 import p455w0rd.danknull.init.ModConfig;
 import p455w0rd.danknull.init.ModConfig.Options;
 import p455w0rd.danknull.init.ModGlobals;
@@ -40,7 +39,6 @@ import p455w0rdslib.LibGlobals.Mods;
 import p455w0rdslib.client.gui.GuiModular;
 import p455w0rdslib.integration.Thaumcraft;
 import p455w0rdslib.util.GuiUtils;
-import p455w0rdslib.util.MathUtils;
 import p455w0rdslib.util.ReadableNumberConverter;
 import p455w0rdslib.util.RenderUtils;
 import yalter.mousetweaks.api.MouseTweaksIgnore;
@@ -58,11 +56,6 @@ public class GuiDankNull extends GuiModular {
     private final DankNullTier tier;
     protected int xSize = 210;
     private Slot theSlot;
-    private Slot returningStackDestSlot;
-    private long returningStackTime;
-    private ItemStack returningStack = ItemStack.EMPTY;
-    private int touchUpX;
-    private int touchUpY;
 
     public GuiDankNull(final ContainerDankNull c) {
         super(c);
@@ -104,10 +97,6 @@ public class GuiDankNull extends GuiModular {
             }
             ModNetworking.getInstance().sendToServer(new PacketChangeMode(isLocked ? PacketChangeMode.ChangeType.LOCK : PacketChangeMode.ChangeType.UNLOCK));
         }
-    }
-
-    public boolean isTile() {
-        return inventorySlots instanceof ContainerDankNullDock;
     }
 
     @Override
@@ -235,7 +224,7 @@ public class GuiDankNull extends GuiModular {
             String s = null;
             if (!draggedStack.isEmpty() && isRightMouseClick) {
                 itemstack = itemstack.copy();
-                itemstack.setCount(MathUtils.ceil(itemstack.getCount() / 2.0F));
+                itemstack.setCount((int)Math.ceil(itemstack.getCount() / 2.0F));
             } else if (dragSplitting && dragSplittingSlots.size() > 1) {
                 itemstack = itemstack.copy();
                 itemstack.setCount(dragSplittingRemnant);
@@ -244,18 +233,6 @@ public class GuiDankNull extends GuiModular {
                 }
             }
             drawStack(itemstack, mouseX - i - j2, mouseY - j - k2, s);
-        }
-        if (!returningStack.isEmpty()) {
-            float f = (Minecraft.getSystemTime() - returningStackTime) / 100.0F;
-            if (f >= 1.0F) {
-                f = 1.0F;
-                returningStack = ItemStack.EMPTY;
-            }
-            final int l2 = returningStackDestSlot.xPos - touchUpX;
-            final int i3 = returningStackDestSlot.yPos - touchUpY;
-            final int l1 = touchUpX + (int) (l2 * f);
-            final int i2 = touchUpY + (int) (i3 * f);
-            drawStack(returningStack, l1, i2, null);
         }
         GlStateManager.popMatrix();
         if (inventoryplayer.getItemStack().isEmpty() && theSlot != null) {
