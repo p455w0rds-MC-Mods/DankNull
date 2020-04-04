@@ -23,6 +23,7 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.*;
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.tileentity.TileEntity;
 import net.minecraft.tileentity.TileEntityBanner;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
@@ -232,67 +233,45 @@ public class ItemDankNull extends Item implements IModelHolder {
             return EnumActionResult.SUCCESS;
         }
         final ItemPlacementMode placementMode = dankNullHandler.getPlacementMode(selectedStack);
-        if (placementMode == ItemPlacementMode.KEEP_ALL && !player.capabilities.isCreativeMode) {
+        if (placementMode.getNumberToKeep() >= selectedStack.getCount() && !player.capabilities.isCreativeMode || selectedStack.isEmpty()) {
             return EnumActionResult.FAIL;
-        }
-        if (placementMode != ItemPlacementMode.KEEP_NONE) {
-            final int count = selectedStack.getCount();
-            final int amountToKeep = placementMode.getNumberToKeep();
-            if (count <= amountToKeep && !player.capabilities.isCreativeMode) {
-                return EnumActionResult.FAIL;
-            }
         }
         final IBlockState state = world.getBlockState(posIn);
         final Block block = state.getBlock();
-        BlockPos pos = posIn;
+        BlockPos placePosition = posIn;
         if (isBucket(selectedStack)) {
             if (tryUseBucket(world, player, selectedStack) == EnumActionResult.SUCCESS) {
                 dankNullHandler.extractItem(dankNullHandler.getSelected(), 1, false);
                 return EnumActionResult.SUCCESS;
             }
+            return EnumActionResult.FAIL;
         }
-        if (selectedStack.isEmpty() || !(selectedStack.getItem() instanceof ItemBlock) && !(selectedStack.getItem() instanceof ItemBlockSpecial)) { //TODO I do have an idea
-            //return EnumActionResult.PASS;
-        }
-        if (!block.isReplaceable(world, posIn) && block == Blocks.SNOW_LAYER) {
-            facing = EnumFacing.UP;
-        } else if (!block.isReplaceable(world, posIn) && selectedBlock != null && !selectedBlock.isFullBlock(selectedBlock.getStateFromMeta(selectedStack.getMetadata()))) {
-            pos = pos.offset(facing);
-        }
-        if (selectedStack.getCount() > 0 && player.canPlayerEdit(posIn, facing, stack) && world.mayPlace(selectedBlock, posIn.offset(facing), false, facing, player)) {
-            final int meta = selectedStack.getMetadata();
-            if (selectedBlock instanceof BlockStairs || selectedBlock instanceof BlockBanner) {
-                final IBlockState newState = selectedBlock.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, meta, player);
-                final EnumActionResult result = placeBlock(newState, world, pos);
-                if (world.getTileEntity(pos) != null && world.getTileEntity(pos) instanceof TileEntityBanner) {
-                    if (facing == EnumFacing.UP) {
-                        final int i = MathHelper.floor((player.rotationYaw + 180.0F) * 16.0F / 360.0F + 0.5D) & 15;
-                        world.setBlockState(pos, Blocks.STANDING_BANNER.getDefaultState().withProperty(BlockStandingSign.ROTATION, Integer.valueOf(i)), 3);
-                    } else {
-                        world.setBlockState(pos, Blocks.WALL_BANNER.getDefaultState().withProperty(BlockWallSign.FACING, facing), 3);
-                    }
-                    ((TileEntityBanner) world.getTileEntity(pos)).setItemValues(selectedStack, false);
-                }
-                if (result != EnumActionResult.FAIL) {
-                    final SoundType soundType = block.getSoundType(newState, world, pos, player);
-                    world.playSound((EntityPlayer) null, player.getPosition(), soundType.getPlaceSound(), SoundCategory.BLOCKS, 1.0F, 0.5F * ((world.rand.nextFloat() - world.rand.nextFloat()) * 0.7F + 2F));
-                }
-                if (!player.capabilities.isCreativeMode) {
-                    dankNullHandler.extractItem(dankNullHandler.getSelected(), 1, false);
-                }
-                return EnumActionResult.SUCCESS;
-            } else if (selectedStack.getItem() instanceof ItemSnowball || selectedStack.getItem() instanceof ItemEnderPearl || selectedStack.getItem() instanceof ItemEgg) {
-                //TODO soon!
-            } else {
-                final EnumActionResult result = placeItemIntoWorld(selectedStack.copy(), player, world, pos, facing, hitX, hitY, hitZ, hand);
 
-                if (result == EnumActionResult.SUCCESS && !player.capabilities.isCreativeMode && !dankNullHandler.getTier().isCreative()) {
-                    dankNullHandler.extractItem(dankNullHandler.getSelected(), 1, false);
-                }
-                return EnumActionResult.SUCCESS;
-            }
+        if (!block.isReplaceable(world, placePosition))
+        {
+            placePosition = placePosition.offset(facing);
         }
-        return EnumActionResult.SUCCESS;
+
+        if(!player.canPlayerEdit(placePosition, facing, selectedStack) ||
+                !world.mayPlace(selectedBlock, placePosition, false, facing, player) ||
+                dankNullHandler.extractItem(dankNullHandler.getSelected(), 1, true).isEmpty()) {
+            return EnumActionResult.FAIL;
+        }
+
+        if (selectedStack.getItem() instanceof ItemBlock) {
+            int i = selectedStack.getItem().getMetadata(selectedStack.getMetadata());
+            IBlockState iblockstate1 = selectedBlock.getStateForPlacement(world, placePosition, facing, hitX, hitY, hitZ, i, player, hand);
+
+            if (((ItemBlock) selectedStack.getItem()).placeBlockAt(selectedStack, player, world, placePosition, facing, hitX, hitY, hitZ, iblockstate1))
+            {
+                iblockstate1 = world.getBlockState(placePosition);
+                SoundType soundtype = iblockstate1.getBlock().getSoundType(iblockstate1, world, placePosition, player);
+                world.playSound(player, placePosition, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
+                dankNullHandler.extractItem(dankNullHandler.getSelected(), 1, false);
+            }
+            return EnumActionResult.SUCCESS;
+        }
+        return EnumActionResult.FAIL;
     }
 
     private boolean isBucket(final ItemStack stack) {
