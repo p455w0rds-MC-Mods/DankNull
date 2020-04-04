@@ -78,9 +78,6 @@ public class CapabilityDankNull {
 				if (instance.isLocked()) {
 					tag.setBoolean(ModGlobals.NBT.LOCKED, instance.isLocked());
 				}
-				//if (!instance.getUUID().isEmpty()) {
-				//	tag.setString(ModGlobals.NBT.UUID, instance.getUUID());
-				//}
 				return tag;
 			}
 
@@ -137,20 +134,16 @@ public class CapabilityDankNull {
 
 							if (!stack.isEmpty()) {
 								final Map<ItemStack, ItemExtractionMode> extractionStacks = instance.getExtractionModes();
-								boolean foundStack = false;
-								for (final ItemStack currentStack : extractionStacks.keySet()) {
+                                for (final ItemStack currentStack : extractionStacks.keySet()) {
 									if (ItemUtils.areItemStacksEqualIgnoreSize(currentStack, stack)) {
 										extractionStacks.put(currentStack, mode);
-										foundStack = true;
-										return;
+                                        return;
 									}
 								}
-								if (!foundStack) {
-									stack = stack.copy();
-									stack.setCount(1);
-									extractionStacks.put(stack, mode);
-								}
-							}
+                                stack = stack.copy();
+                                stack.setCount(1);
+                                extractionStacks.put(stack, mode);
+                            }
 
 						}
 					}
@@ -181,9 +174,6 @@ public class CapabilityDankNull {
 					if (tag.hasKey(ModGlobals.NBT.LOCKED)) {
 						handler.isLocked = tag.getBoolean(ModGlobals.NBT.LOCKED);
 					}
-					//if (tag.hasKey(ModGlobals.NBT.UUID)) {
-					//	instance.setUUID(tag.getString(ModGlobals.NBT.UUID));
-					//}
 				}
 			}
 		}, () -> null);

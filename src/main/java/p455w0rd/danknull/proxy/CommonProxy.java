@@ -37,8 +37,4 @@ public class CommonProxy {
 	public World getWorld() {
 		return null;
 	}
-
-	public World getWorld(final int dimension) {
-		return FMLCommonHandler.instance().getMinecraftServerInstance().getWorld(dimension);
-	}
 }

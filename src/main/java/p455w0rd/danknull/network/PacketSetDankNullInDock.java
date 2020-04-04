@@ -53,7 +53,7 @@ public class PacketSetDankNullInDock implements IMessage {
 			FMLCommonHandler.instance().getWorldThread(ctx.netHandler).addScheduledTask(() -> {
 				final World world = DankNull.PROXY.getWorld();
 				final TileEntity te = world.getTileEntity(message.pos);
-				if (te != null && te instanceof TileDankNullDock) {
+				if (te instanceof TileDankNullDock) {
 					final TileDankNullDock dankDock = (TileDankNullDock) te;
 					dankDock.setDankNull(message.dankNull);
 				}

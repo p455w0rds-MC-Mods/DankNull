@@ -3,8 +3,6 @@ package p455w0rd.danknull.init;
 import static p455w0rd.danknull.inventory.PlayerSlot.EnumInvCategory.MAIN;
 import static p455w0rd.danknull.inventory.PlayerSlot.EnumInvCategory.OFF_HAND;
 
-import javax.annotation.Nullable;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
@@ -28,8 +26,8 @@ import p455w0rd.danknull.items.ItemDankNull;
 public class ModGuiHandler implements IGuiHandler {
 
 	public static void init() {
-		ModLogger.info("Registering GUI Handler");
-		NetworkRegistry.INSTANCE.registerGuiHandler(ModGlobals.MODID, new ModGuiHandler());
+        DankNull.LOGGER.info("Registering GUI Handler");
+        NetworkRegistry.INSTANCE.registerGuiHandler(ModGlobals.MODID, new ModGuiHandler());
 	}
 
 	@Override
@@ -78,7 +76,7 @@ public class ModGuiHandler implements IGuiHandler {
 		return null;
 	}
 
-	public static void launchGui(final GUIType type, final EntityPlayer player, final World world, final BlockPos pos, @Nullable final PlayerSlot playerSlot) {
+	public static void launchGui(final GUIType type, final EntityPlayer player, final World world, final BlockPos pos) {
 		if (!world.isRemote) {
 			player.openGui(DankNull.INSTANCE, type.ordinal(), world, pos.getX(), pos.getY(), pos.getZ());
 		}
@@ -105,7 +103,7 @@ public class ModGuiHandler implements IGuiHandler {
 		return null;
 	}
 
-	public static enum GUIType {
+	public enum GUIType {
 
 			DANKNULL, DANKNULL_TE;
 

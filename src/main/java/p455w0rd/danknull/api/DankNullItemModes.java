@@ -8,7 +8,7 @@ import net.minecraft.util.text.translation.I18n;
  */
 public class DankNullItemModes {
 
-	public static enum ItemExtractionMode {
+	public enum ItemExtractionMode {
 
 			KEEP_ALL(Integer.MAX_VALUE, I18n.translateToLocal("dn.not_extract.desc")),
 			KEEP_1(1, I18n.translateToLocal("dn.extract_all_but.desc") + " 1"),
@@ -42,7 +42,7 @@ public class DankNullItemModes {
 
 	}
 
-	public static enum ItemPlacementMode {
+	public enum ItemPlacementMode {
 
 			KEEP_ALL(Integer.MAX_VALUE, I18n.translateToLocal("dn.not_place.desc")),
 			KEEP_1(1, I18n.translateToLocal("dn.place_all_but.desc") + " 1"),

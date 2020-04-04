@@ -10,13 +10,9 @@ import net.minecraft.inventory.Slot;
  */
 public class SlotHotbar extends Slot {
 
-	boolean locked = false;
+	private final boolean locked;
 
-	public SlotHotbar(IInventory inventoryIn, int index, int xPosition, int yPosition) {
-		this(inventoryIn, index, xPosition, yPosition, false);
-	}
-
-	public SlotHotbar(IInventory inventoryIn, int index, int xPosition, int yPosition, boolean shouldLock) {
+    public SlotHotbar(IInventory inventoryIn, int index, int xPosition, int yPosition, boolean shouldLock) {
 		super(inventoryIn, index, xPosition, yPosition);
 		locked = shouldLock;
 	}

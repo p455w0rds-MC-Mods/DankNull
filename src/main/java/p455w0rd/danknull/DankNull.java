@@ -6,6 +6,8 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.SidedProxy;
 import net.minecraftforge.fml.common.event.*;
 import net.minecraftforge.oredict.OreDictionary;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import p455w0rd.danknull.init.ModGlobals;
 import p455w0rd.danknull.proxy.CommonProxy;
 
@@ -18,7 +20,9 @@ public class DankNull {
 	@Mod.Instance(ModGlobals.MODID)
 	public static DankNull INSTANCE;
 
-	@Mod.EventHandler
+    public static Logger LOGGER = LogManager.getLogger(ModGlobals.NAME);
+
+    @Mod.EventHandler
 	public void preInit(final FMLPreInitializationEvent event) {
 		PROXY.preInit(event);
 		OreDictionary.registerOre("railBed", new ItemStack(Blocks.LOG, 1, OreDictionary.WILDCARD_VALUE));

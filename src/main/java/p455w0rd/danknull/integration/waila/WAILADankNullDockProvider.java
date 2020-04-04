@@ -31,7 +31,7 @@ public class WAILADankNullDockProvider implements IWailaDataProvider {
 	public ItemStack getWailaStack(final IWailaDataAccessor accessor, final IWailaConfigHandler config) {
 		final ItemStack stack = new ItemStack(ModBlocks.DANKNULL_DOCK);
 		final TileEntity tile = accessor.getTileEntity();
-		if (tile != null && tile instanceof TileDankNullDock) {
+		if (tile instanceof TileDankNullDock) {
 			final TileDankNullDock te = (TileDankNullDock) tile;
 			final NBTTagCompound nbttagcompound = new NBTTagCompound();
 			te.writeToNBT(nbttagcompound);

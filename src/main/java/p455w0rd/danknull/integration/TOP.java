@@ -31,6 +31,7 @@ import net.minecraft.util.text.TextFormatting;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.event.FMLInterModComms;
 import net.minecraftforge.items.ItemHandlerHelper;
+import p455w0rd.danknull.DankNull;
 import p455w0rd.danknull.api.DankNullItemModes.ItemExtractionMode;
 import p455w0rd.danknull.api.IDankNullHandler;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
@@ -40,7 +41,6 @@ import p455w0rd.danknull.init.ModGlobals.NBT;
 import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
 import p455w0rd.danknull.items.ItemDankNull;
 import p455w0rdslib.LibGlobals.Mods;
-import p455w0rdslib.util.TextUtils;
 
 /**
  * @author p455w0rd
@@ -54,8 +54,8 @@ public class TOP {
 		if (registered) {
 			return;
 		}
-		ModLogger.info(Mods.TOP.getName() + " Integation: Enabled");
-		registered = true;
+        DankNull.LOGGER.info(Mods.TOP.getName() + " Integation: Enabled");
+        registered = true;
 		FMLInterModComms.sendFunctionMessage("theoneprobe", "getTheOneProbe", "p455w0rd.danknull.integration.TOP$GetTheOneProbe");
 	}
 
@@ -86,7 +86,7 @@ public class TOP {
 			if (tile instanceof TileDankNullDock) {
 				final TileDankNullDock dankDock = (TileDankNullDock) tile;
 				final ItemStack stack = new ItemStack(ModBlocks.DANKNULL_DOCK);
-				if (tile != null && tile instanceof TileDankNullDock) {
+				if (tile instanceof TileDankNullDock) {
 					final TileDankNullDock te = (TileDankNullDock) tile;
 					stack.setTagInfo(NBT.BLOCKENTITYTAG, te.writeToNBT(new NBTTagCompound()));
 					final String dankNull = "/d" + (Options.callItDevNull ? "ev" : "ank") + "/null";
@@ -123,10 +123,10 @@ public class TOP {
 						probeInfo.horizontal().item(new ItemStack(Items.REDSTONE), probeInfo.defaultItemStyle().width(14).height(14)).text(LABEL + "Power: " + INFO + power);
 					}
 				}
-				DockInfoTools.showDockInfo(mode, probeInfo, world, pos, config);
+				DockInfoTools.showDockInfo(mode, probeInfo, world, pos);
 			}
 			else {
-				DEFAULT_PROVIDER.addProbeInfo(mode, probeInfo, player, world, blockState, data);;
+				DEFAULT_PROVIDER.addProbeInfo(mode, probeInfo, player, world, blockState, data);
 			}
 		}
 
@@ -223,11 +223,11 @@ public class TOP {
 
 	public static class DockInfoTools {
 
-		static void showDockInfo(final ProbeMode mode, final IProbeInfo probeInfo, final World world, final BlockPos pos, final IProbeConfig config) {
+		static void showDockInfo(final ProbeMode mode, final IProbeInfo probeInfo, final World world, final BlockPos pos) {
 			if (world.getTileEntity(pos) instanceof TileDankNullDock && !((TileDankNullDock) world.getTileEntity(pos)).getDankNull().isEmpty()) {
 				final List<ItemStack> stacks = getDockContents(world, pos);
 				if (!stacks.isEmpty()) {
-					final boolean showDetailed = Tools.show(mode, ConfigMode.EXTENDED);// && stacks.size() <= Config.showItemDetailThresshold;
+					final boolean showDetailed = Tools.show(mode, ConfigMode.EXTENDED);
 					showDockContents(((TileDankNullDock) world.getTileEntity(pos)).getDankNull(), probeInfo, stacks, showDetailed);
 				}
 			}

@@ -30,8 +30,7 @@ public class ModRecipes {
 
 	public static IRecipe addDankNullUpgradeRecipe(final String recipeName, final Object... params) {
 		final ShapedPrimer primer = CraftingHelper.parseShaped(params);
-		final IRecipe recipe = new RecipeDankNullUpgrade(primer.input).setRegistryName(new ResourceLocation(ModGlobals.MODID, recipeName));
-		return recipe;
+        return new RecipeDankNullUpgrade(primer.input).setRegistryName(new ResourceLocation(ModGlobals.MODID, recipeName));
 	}
 
 	public static void register(final RegistryEvent.Register<IRecipe> event) {

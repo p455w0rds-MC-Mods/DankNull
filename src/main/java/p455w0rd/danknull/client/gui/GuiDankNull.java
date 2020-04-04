@@ -1,19 +1,12 @@
 package p455w0rd.danknull.client.gui;
 
-import java.io.IOException;
-import java.util.*;
-
-import javax.annotation.Nonnull;
-
-import net.minecraft.util.text.translation.I18n;
-import org.apache.commons.lang3.tuple.Pair;
-import org.lwjgl.opengl.GL11;
-
 import com.google.common.collect.Lists;
-
 import net.minecraft.block.Block;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.*;
+import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.Gui;
+import net.minecraft.client.gui.GuiButton;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.*;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -21,18 +14,24 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
 import net.minecraft.client.util.ITooltipFlag;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.init.Blocks;
-import net.minecraft.inventory.*;
+import net.minecraft.inventory.ClickType;
+import net.minecraft.inventory.Container;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.TextFormatting;
+import net.minecraft.util.text.translation.I18n;
 import net.minecraftforge.oredict.OreDictionary;
+import org.lwjgl.opengl.GL11;
 import p455w0rd.danknull.api.DankNullItemModes.ItemExtractionMode;
 import p455w0rd.danknull.api.DankNullItemModes.ItemPlacementMode;
 import p455w0rd.danknull.api.IDankNullHandler;
 import p455w0rd.danknull.container.ContainerDankNull;
 import p455w0rd.danknull.container.ContainerDankNullDock;
-import p455w0rd.danknull.init.*;
+import p455w0rd.danknull.init.ModConfig;
 import p455w0rd.danknull.init.ModConfig.Options;
+import p455w0rd.danknull.init.ModGlobals;
 import p455w0rd.danknull.init.ModGlobals.DankNullTier;
+import p455w0rd.danknull.init.ModNetworking;
 import p455w0rd.danknull.integration.Chisel;
 import p455w0rd.danknull.inventory.DankNullHandler;
 import p455w0rd.danknull.inventory.slot.SlotDankNull;
@@ -46,21 +45,23 @@ import p455w0rdslib.util.ReadableNumberConverter;
 import p455w0rdslib.util.RenderUtils;
 import yalter.mousetweaks.api.MouseTweaksIgnore;
 
+import javax.annotation.Nonnull;
+import java.util.List;
+import java.util.Locale;
+
 /**
  * @author p455w0rd
  */
 @MouseTweaksIgnore
 public class GuiDankNull extends GuiModular {
 
-	private final List<Slot> slots = new LinkedList<>();
-	private Slot theSlot;
+    private Slot theSlot;
 	private Slot returningStackDestSlot;
 	private long returningStackTime;
 	private ItemStack returningStack = ItemStack.EMPTY;
 	private int touchUpX;
 	private int touchUpY;
 	protected int xSize = 210;
-	protected int ySize = 140;
 	private final DankNullTier tier;
 
 	public GuiDankNull(final ContainerDankNull c) {
@@ -134,11 +135,7 @@ public class GuiDankNull extends GuiModular {
 		GlStateManager.enableLighting();
 	}
 
-	protected List<Slot> getSlots() {
-		return slots;
-	}
-
-	private void drawSelectionBox(final int x) {
+    private void drawSelectionBox(final int x) {
 		final int selectedBoxColor = getDankNullHandler().getTier().ordinal() == 0 ? 0xFFFFFF00 : -1140916224;
 		drawGradientRect(x - 75, 4, x - 66, 5, selectedBoxColor, selectedBoxColor);
 		drawGradientRect(x - 75, 4, x - 74, 14, selectedBoxColor, selectedBoxColor);
@@ -263,7 +260,7 @@ public class GuiDankNull extends GuiModular {
             final int i3 = returningStackDestSlot.yPos - touchUpY;
 			final int l1 = touchUpX + (int) (l2 * f);
 			final int i2 = touchUpY + (int) (i3 * f);
-			drawStack(returningStack, l1, i2, (String) null);
+			drawStack(returningStack, l1, i2, null);
 		}
 		GlStateManager.popMatrix();
 		if (inventoryplayer.getItemStack().isEmpty() && theSlot != null) {
@@ -292,11 +289,7 @@ public class GuiDankNull extends GuiModular {
 		return isPointInRegion(slot.xPos, slot.yPos, 16, 16, x, y);
 	}
 
-	public Pair<Integer, Integer> getPosFromSlot(final Slot slot) {
-		return Pair.of(slot.xPos, slot.yPos);
-	}
-
-	public Slot getSlotByIndex(final int index) {
+    public Slot getSlotByIndex(final int index) {
 		final List<Slot> slots = inventorySlots.inventorySlots;
 		return slots.get(index + 36);
 	}
@@ -453,7 +446,7 @@ public class GuiDankNull extends GuiModular {
 	}
 
 	@Override
-	protected void keyTyped(final char typedChar, final int keyCode) throws IOException {
+	protected void keyTyped(final char typedChar, final int keyCode) {
 		if (keyCode == 1 || mc.gameSettings.keyBindInventory.isActiveAndMatches(keyCode)) {
 			mc.player.closeScreen();
 		}
@@ -466,74 +459,6 @@ public class GuiDankNull extends GuiModular {
 			}
 		}
 	}
-
-	@Override
-	public void handleMouseInput() throws IOException {
-		super.handleMouseInput();
-		//TODO
-		/*
-		final int i = Mouse.getEventDWheel();
-		if (i != 0 && isShiftKeyDown()) {
-			final int x = Mouse.getEventX() * width / mc.displayWidth;
-			final int y = height - Mouse.getEventY() * height / mc.displayHeight - 1;
-			mouseWheelEvent(x, y, (int) (Math.abs(i) / 12 * 0.1 * (i > 0 ? 1 : -1)));
-		}
-		*/
-	}
-
-	/*private void mouseWheelEvent(final int x, final int y, final int wheel) {
-		final Slot slot = getSlotAtPos(x, y);
-		if (slot instanceof SlotDankNull || slot instanceof SlotDankNullDock) {
-			final ItemStack item = slot.getStack();
-			final int times = Math.abs(wheel);
-			for (int i = 0; i < times; i++) {
-				final Slot s = inventorySlots.inventorySlots.get(36 + slot.getSlotIndex());
-				if (s instanceof SlotDankNull || s instanceof SlotDankNullDock) {
-
-					if (wheel < 0) { //add
-
-						final ItemStack mouseStack = mc.player.inventory.getItemStack();
-						final ItemStack slotStack = s.getStack();
-						final InventoryDankNull tmpInv = DankNullUtils.getNewDankNullInventory(getDankNull());
-						if (mouseStack.isEmpty()) {
-							final ItemStack tmpStack = slotStack.copy();
-							DankNullUtils.decrDankNullStackSize(tmpInv, slotStack, 1);
-							tmpStack.setCount(1);
-							mc.player.inventory.setItemStack(tmpStack);
-						}
-						else {
-							if (ItemUtils.areItemStacksEqualIgnoreSize(slotStack, mouseStack)) {
-								DankNullUtils.decrDankNullStackSize(tmpInv, slotStack, 1);
-								mouseStack.grow(1);
-							}
-						}
-						if (isTile()) {
-							ModNetworking.getInstance().sendToServer(new PacketSyncDankNullDock(((ContainerDankNullDock) inventorySlots).getTile(), tmpInv.getDankNull()));
-						}
-					}
-					else { //subtract
-						final ItemStack mouseStack = mc.player.inventory.getItemStack();
-						final ItemStack slotStack = s.getStack();
-						if (!mouseStack.isEmpty()) {
-							if (DankNullUtils.isFiltered(getDankNull(), mouseStack)) {
-								final InventoryDankNull tmpInv = DankNullUtils.getNewDankNullInventory(getDankNull());
-								final ItemStack tmpStack = mouseStack.copy();
-								tmpStack.setCount(1);
-								if (addStack(tmpInv, tmpStack)) {
-									//DankNullUtils.setSelectedIndexApplicable(tmpInv);
-									if (isTile()) {
-										ModNetworking.getInstance().sendToServer(new PacketSyncDankNullDock(((ContainerDankNullDock) inventorySlots).getTile(), tmpInv.getDankNull()));
-									}
-									mouseStack.shrink(1);
-								}
-							}
-						}
-					}
-				}
-				ModNetworking.getInstance().sendToServer(new PacketMouseWheel(wheel, slot.getSlotIndex()));
-			}
-		}
-	}*/
 
 	@Override
 	protected void mouseReleased(final int mouseX, final int mouseY, final int state) {
@@ -554,7 +479,7 @@ public class GuiDankNull extends GuiModular {
 		}
 		final Slot s = getSlotAtPos(x, y);
 		final IDankNullHandler dankNullHandler = getDankNullHandler();
-		if (s != null && s instanceof SlotDankNull && s.getHasStack()) {
+		if (s instanceof SlotDankNull && s.getHasStack()) {
 			final boolean showOreDictMessage = ModConfig.isOreDictBlacklistEnabled() && !ModConfig.isItemOreDictBlacklisted(s.getStack()) || ModConfig.isOreDictWhitelistEnabled() && ModConfig.isItemOreDictWhitelisted(s.getStack()) || !ModConfig.isOreDictBlacklistEnabled() && !ModConfig.isOreDictWhitelistEnabled();
 			final ItemExtractionMode extractMode = dankNullHandler.getExtractionMode(s.getStack());
 			final ItemPlacementMode placementMode = dankNullHandler.getPlacementMode(s.getStack());

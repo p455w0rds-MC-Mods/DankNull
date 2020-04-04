@@ -100,7 +100,7 @@ public class ModEvents {
 	public static void onItemPickUp(final EntityItemPickupEvent event) {
 		final EntityPlayer player = event.getEntityPlayer();
 		final ItemStack entityStack = event.getItem().getItem();
-		if (entityStack.isEmpty() || player == null || !(player instanceof EntityPlayerMP)) {
+		if (entityStack.isEmpty() || !(player instanceof EntityPlayerMP)) {
 			return;
 		}
 		// Demagnetize integration
@@ -375,7 +375,7 @@ public class ModEvents {
 	@SubscribeEvent
 	@SideOnly(Side.SERVER)
 	public static void onPlayerLoggedIn(final PlayerEvent.PlayerLoggedInEvent event) {
-		if (event.player != null && event.player instanceof EntityPlayerMP) {
+		if (event.player instanceof EntityPlayerMP) {
 			ModConfig.sendConfigsToClient((EntityPlayerMP) event.player);
 		}
 	}

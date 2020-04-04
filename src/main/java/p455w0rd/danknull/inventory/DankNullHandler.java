@@ -8,7 +8,6 @@ import com.google.common.collect.Lists;
 
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.oredict.OreDictionary;
@@ -18,7 +17,6 @@ import p455w0rd.danknull.api.IDankNullHandler;
 import p455w0rd.danknull.init.ModConfig;
 import p455w0rd.danknull.init.ModConfig.Options;
 import p455w0rd.danknull.init.ModGlobals;
-import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
 import p455w0rd.danknull.items.ItemDankNull;
 import p455w0rdslib.util.ItemUtils;
 
@@ -34,13 +32,8 @@ public class DankNullHandler implements IDankNullHandler {
 	private Map<ItemStack, ItemPlacementMode> placementStacks;
 	public int selected;
 	public boolean isLocked;
-	//private String uuid;
 
-	public DankNullHandler(final NBTTagCompound nbt) {
-		CapabilityDankNull.DANK_NULL_CAPABILITY.readNBT(this, null, nbt);
-	}
-
-	public DankNullHandler(final ModGlobals.DankNullTier tier) {
+    public DankNullHandler(final ModGlobals.DankNullTier tier) {
 		this.tier = tier;
 		stacks = NonNullList.withSize(this.tier.getNumRows() * 9, ItemStack.EMPTY);
 		oreStacks = new HashMap<>();
@@ -48,7 +41,6 @@ public class DankNullHandler implements IDankNullHandler {
 		placementStacks = new HashMap<>();
 		selected = -1;
 		isLocked = false;
-		//uuid = UUID.randomUUID().toString();
 	}
 
 	@Nonnull
@@ -96,11 +88,7 @@ public class DankNullHandler implements IDankNullHandler {
 		onContentsChanged(slot);
 	}
 
-	public void setStackInSlotNoUpdate(final int slot, @Nonnull final ItemStack stack) {
-
-	}
-
-	@Nonnull
+    @Nonnull
 	@Override
 	public ItemStack insertItem(int slot, @Nonnull ItemStack stack, final boolean simulate) {
 		if (stack.isEmpty()) {
@@ -307,17 +295,16 @@ public class DankNullHandler implements IDankNullHandler {
 							return;
 						}
 						setSelected(blockSlots.get(0));
-						return;
-					}
+                    }
 					else {
 						if (currentIndex != min) {
 							setSelected(blockSlots.get(currentIndex - 1));
 							return;
 						}
 						setSelected(blockSlots.get(max));
-						return;
-					}
-				}
+                    }
+                    return;
+                }
 			}
 		}
 		final int current = getSelected();

@@ -4,7 +4,6 @@ import static net.minecraft.util.EnumHand.MAIN_HAND;
 
 import javax.annotation.Nullable;
 
-import com.google.common.collect.HashBasedTable;
 import net.minecraft.block.BlockContainer;
 import net.minecraft.block.material.Material;
 import net.minecraft.block.state.IBlockState;
@@ -28,7 +27,6 @@ import p455w0rd.danknull.init.*;
 import p455w0rd.danknull.init.ModGlobals.NBT;
 import p455w0rd.danknull.init.ModGuiHandler.GUIType;
 import p455w0rd.danknull.inventory.PlayerSlot;
-import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
 import p455w0rd.danknull.items.ItemDankNull;
 import p455w0rd.danknull.network.PacketSetDankNullInDock;
 import p455w0rdslib.api.client.IModelHolder;
@@ -128,7 +126,7 @@ public class BlockDankNullDock extends BlockContainer implements IModelHolder {
 			}
 			if (!player.isSneaking() && hand == MAIN_HAND) {
 				if (!dankDock.getDankNull().isEmpty()) {
-					ModGuiHandler.launchGui(GUIType.DANKNULL_TE, player, world, pos, null);
+					ModGuiHandler.launchGui(GUIType.DANKNULL_TE, player, world, pos);
 					return true;
 				}
 			}
@@ -194,16 +192,4 @@ public class BlockDankNullDock extends BlockContainer implements IModelHolder {
 	public boolean isOpaqueCube(final IBlockState blockState) {
 		return false;
 	}
-
-	public static ItemStack getDockedDankNull(final TileEntity dankDock) {
-		if (isDankNullDock(dankDock)) {
-			return ((TileDankNullDock) dankDock).getDankNull();
-		}
-		return ItemStack.EMPTY;
-	}
-
-	public static boolean isDankNullDock(final TileEntity tile) {
-		return tile.hasCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
-	}
-
 }

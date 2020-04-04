@@ -22,13 +22,7 @@ public class PacketMouseWheel implements IMessage {
 
 	}
 
-	public PacketMouseWheel(final int wheelDir, final int slot) {
-		values = new int[] {
-				wheelDir == -1 ? 0 : 1, slot
-		};
-	}
-
-	@Override
+    @Override
 	public void fromBytes(final ByteBuf buf) {
 		values = new int[] {
 				buf.readInt(), buf.readInt()
@@ -47,7 +41,6 @@ public class PacketMouseWheel implements IMessage {
 			FMLCommonHandler.instance().getWorldThread(ctx.netHandler).addScheduledTask(() -> {
 				final EntityPlayer player = ctx.getServerHandler().player;
 				if (player.openContainer instanceof ContainerDankNullItem || player.openContainer instanceof ContainerDankNullDock) {
-					//final ItemStack dankNull = player.openContainer instanceof ContainerDankNull ? ((ContainerDankNull) player.openContainer).getDankNullInPlayerSlot() : ((ContainerDankNullDock) player.openContainer).getDankNull();
 					final Slot s = player.openContainer.inventorySlots.get(36 + message.values[1]);
 					if (s instanceof SlotDankNull) {
 						if (message.values[0] == 0) { //add
@@ -56,7 +49,6 @@ public class PacketMouseWheel implements IMessage {
 							final ItemStack tmpStack = slotStack.copy();
 							tmpStack.setCount(mouseStack.getCount() + 1);
 							player.inventory.setItemStack(tmpStack);
-							//DankNullUtils.decrDankNullStackSize(DankNullUtils.getNewDankNullInventory(dankNull), slotStack, 1);
 							player.inventory.markDirty();
 						}
 						else { //subtract
@@ -64,9 +56,6 @@ public class PacketMouseWheel implements IMessage {
 							if (!mouseStack.isEmpty()) {
 								final ItemStack tmpStack = mouseStack.copy();
 								tmpStack.setCount(1);
-								//if (s instanceof SlotDankNullDock) {
-									//((ContainerDankNullDock) player.openContainer).addStack(DankNullUtils.getNewDankNullInventory(dankNull), tmpStack);
-								//}
 								final ItemStack tmpStack2 = mouseStack.copy();
 								tmpStack2.shrink(1);
 								player.inventory.setItemStack(tmpStack2);

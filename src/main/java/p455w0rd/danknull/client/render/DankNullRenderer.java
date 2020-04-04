@@ -90,13 +90,7 @@ public class DankNullRenderer extends TileEntityItemStackRenderer implements ICu
 			final float pbx = OpenGlHelper.lastBrightnessX;
 			final float pby = OpenGlHelper.lastBrightnessY;
 			if (getTransformType() == TransformType.FIRST_PERSON_LEFT_HAND || getTransformType() == TransformType.FIRST_PERSON_RIGHT_HAND) {
-				if (item.hasEffect()) {
-					//OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, 240F, 240F);
-				}
 				renderItem(item, model);
-				if (item.hasEffect()) {
-					//OpenGlHelper.setLightmapTextureCoords(OpenGlHelper.lightmapTexUnit, pbx, pby);
-				}
 			}
 			if (!containedStack.isEmpty()) {
 				IBakedModel containedItemModel = Minecraft.getMinecraft().getRenderItem().getItemModelMesher().getItemModel(containedStack);
@@ -217,11 +211,8 @@ public class DankNullRenderer extends TileEntityItemStackRenderer implements ICu
 
 	private boolean isStackInHand(final ItemStack itemStackIn) {
 		final EntityPlayer player = Minecraft.getMinecraft().player;
-		if (player.getHeldItemMainhand() == itemStackIn || player.getHeldItemOffhand() == itemStackIn) {
-			return true;
-		}
-		return false;
-	}
+        return player.getHeldItemMainhand() == itemStackIn || player.getHeldItemOffhand() == itemStackIn;
+    }
 
 	private static void renderItem(final ItemStack stack, final IBakedModel model) {
 		renderItem(stack, model, false);

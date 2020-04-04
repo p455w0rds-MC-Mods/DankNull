@@ -77,15 +77,6 @@ public class SlotDankNullDock extends SlotDankNull {
 		final ItemStack remainder = getDankNullHandler().insertItem(cachedIndex, maxAdd, true);
 		getDankNullHandler().setStackInSlot(cachedIndex, currentStack);
 		return maxInput - remainder.getCount();
-
-		/*else
-		{
-		    ItemStack remainder = handler.insertItem(cachedIndex, maxAdd, true);
-		
-		    int current = currentStack.getCount();
-		    int added = maxInput - remainder.getCount();
-		    return current + added;
-		}*/
 	}
 
 	/**

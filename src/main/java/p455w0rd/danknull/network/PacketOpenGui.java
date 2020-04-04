@@ -27,7 +27,7 @@ public class PacketOpenGui implements IMessage, IMessageHandler<PacketOpenGui, I
 	public IMessage onMessage(final PacketOpenGui message, final MessageContext ctx) {
 		FMLCommonHandler.instance().getWorldThread(ctx.netHandler).addScheduledTask(() -> {
 			final EntityPlayer player = ctx.getServerHandler().player;
-			ModGuiHandler.launchGui(GUIType.DANKNULL, player, player.getEntityWorld(), player.getPosition(), message.slot);
+			ModGuiHandler.launchGui(GUIType.DANKNULL, player, player.getEntityWorld(), player.getPosition());
 		});
 		return null;
 	}

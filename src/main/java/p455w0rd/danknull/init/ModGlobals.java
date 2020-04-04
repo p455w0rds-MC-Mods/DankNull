@@ -11,8 +11,7 @@ import p455w0rdslib.LibGlobals;
 
 public class ModGlobals {
 
-	public static final String MODID_PWLIB = "p455w0rdslib";
-	public static final String MODID = "danknull";
+    public static final String MODID = "danknull";
 	public static final String VERSION = "@VERSION@";
 	public static final String NAME = "/dank/null";
 	public static final String SERVER_PROXY = "p455w0rd.danknull.proxy.CommonProxy";
@@ -44,19 +43,12 @@ public class ModGlobals {
 
 	}
 
-	public static class Textures {
-
-		public static final ResourceLocation DOCK_TEXTURE = new ResourceLocation(ModGlobals.MODID, "textures/models/danknull_dock.png");
-
-	}
-
-	public static class NBT {
+    public static class NBT {
 
 		// Vanilla
 		public static final String ID = "id";
 		public static final String DAMAGE = "Damage";
 		public static final String BLOCKENTITYTAG = "BlockEntityTag";
-		public static final String SLOT = "Slot";
 
 		// Custom
 		public static final String DANKNULL_INVENTORY = "danknull-inventory";
@@ -65,8 +57,6 @@ public class ModGlobals {
 		public static final String STACK = "Stack";
 		public static final String OREDICT = "OreDict";
 		public static final String SELECTEDINDEX = "selectedIndex";
-		public static final String REALCOUNT = "RealCount";
-		public static final String UUID = "UUID";
 		public static final String EXTRACTION_MODES = "ExtractionModes";
 		public static final String PLACEMENT_MODES = "PlacementModes";
 		public static final String OREDICT_MODES = "OreDictModes";
@@ -74,7 +64,7 @@ public class ModGlobals {
 
 	}
 
-	public static enum DankNullTier {
+	public enum DankNullTier {
 
 			REDSTONE, LAPIS, IRON, GOLD, DIAMOND, EMERALD, CREATIVE, NONE;
 

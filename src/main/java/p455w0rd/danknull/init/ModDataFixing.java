@@ -9,6 +9,7 @@ import net.minecraft.util.datafix.IFixableData;
 import net.minecraft.util.datafix.walkers.ItemStackDataLists;
 import net.minecraftforge.common.util.*;
 import net.minecraftforge.fml.common.FMLCommonHandler;
+import p455w0rd.danknull.DankNull;
 import p455w0rd.danknull.blocks.tiles.TileDankNullDock;
 import p455w0rd.danknull.init.ModGlobals.NBT;
 import p455w0rd.danknull.items.ItemBlockDankNullDock;
@@ -22,9 +23,7 @@ public class ModDataFixing {
 	private static final int DANKNULL_FIXES_VERSION = 101;
 
 	public static void registerWalkers() {
-		FMLCommonHandler.instance().getDataFixer().registerVanillaWalker(FixTypes.BLOCK_ENTITY, new ItemStackDataLists(TileDankNullDock.class, new String[] {
-				NBT.DANKNULL_INVENTORY
-		}));
+		FMLCommonHandler.instance().getDataFixer().registerVanillaWalker(FixTypes.BLOCK_ENTITY, new ItemStackDataLists(TileDankNullDock.class, NBT.DANKNULL_INVENTORY));
 	}
 
 	public static void registerFixes() {
@@ -134,18 +133,18 @@ public class ModDataFixing {
 			final String newName = regName.equals(oldDankNull) ? getNewDNRegName(dmg) : getNewPanelRegName(dmg);
 			dankNullNBT.setString(NBT.ID, newName);
 			dankNullNBT.setShort(NBT.DAMAGE, (short) 0);
-			ModLogger.debug("Item with id {}:{} found. Updated to {}:0", regName.toString(), dmg, newName);
-			return dankNullNBT;
+            DankNull.LOGGER.debug(String.format("Item with id {}:{} found. Updated to {}:0", regName.toString(), dmg, newName));
+            return dankNullNBT;
 		}
 
 		private boolean isDankNullDock(final NBTTagCompound nbt) {
 			final ResourceLocation regName = new ResourceLocation(nbt.getString(NBT.ID));
-			return regName != null && regName.equals(new ResourceLocation(ModGlobals.MODID, "danknull_dock"));
+			return regName.equals(new ResourceLocation(ModGlobals.MODID, "danknull_dock"));
 		}
 
 		private boolean isDankNullItem(final NBTTagCompound nbt) {
 			final ResourceLocation regName = new ResourceLocation(nbt.getString(NBT.ID));
-			return regName != null && (regName.equals(oldDankNull) || regName.equals(oldDankNullPanel));
+			return regName.equals(oldDankNull) || regName.equals(oldDankNullPanel);
 		}
 
 		private String getNewDNRegName(final int oldMeta) {

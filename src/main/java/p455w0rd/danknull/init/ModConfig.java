@@ -19,6 +19,7 @@ import net.minecraftforge.fml.common.registry.ForgeRegistries;
 import net.minecraftforge.fml.relauncher.Side;
 import net.minecraftforge.fml.relauncher.SideOnly;
 import net.minecraftforge.oredict.OreDictionary;
+import p455w0rd.danknull.DankNull;
 import p455w0rd.danknull.network.PacketConfigSync;
 import p455w0rd.danknull.util.NonNullListSerializable;
 import p455w0rd.danknull.util.WeakHashMapSerializable;
@@ -39,14 +40,12 @@ public class ModConfig {
 	public static final String NAME_OREDICT_BLACKLIST = "OreDictBlacklist";
 	public static final String NAME_OREDICT_WHITELIST = "OreDictWhitelist";
 	public static final String NAME_DISABLE_OREDICT = "DisableOreDictMode";
-	public static final String NAME_ENABLE_COLORED_LIGHTING = "EnableColorShaders";
-	public static final String NAME_ALLOW_DOCK_INSERTION = "AllowDockInsertion";
+    public static final String NAME_ALLOW_DOCK_INSERTION = "AllowDockInsertion";
 	public static final String NAME_CALL_IT_DEVNULL = "CallItDevNull";
 	public static final String NAME_SUPERSHINE = "SuperShine";
 	public static final String NAME_ONLY_CYCLE_BLOCKS = "onlyCycleBlocks";
-	static boolean init = false;
 
-	private static Configuration config() {
+    private static Configuration config() {
 		if (CONFIG == null) {
 			CONFIG = new Configuration(new File("config/DankNull.cfg"));
 		}
@@ -180,8 +179,8 @@ public class ModConfig {
 		public static boolean showHUD = true;
 		private static NonNullListSerializable<ItemStack> creativeItemBlacklist;
 		private static NonNullListSerializable<ItemStack> creativeItemWhitelist;
-		private static ArrayList<String> oreStringBlacklist = Lists.<String>newArrayList();
-		private static ArrayList<String> oreStringWhitelist = Lists.<String>newArrayList();
+		private static ArrayList<String> oreStringBlacklist = Lists.newArrayList();
+		private static ArrayList<String> oreStringWhitelist = Lists.newArrayList();
 		public static boolean disableOreDictMode = false;
 		public static boolean allowDockInserting = true;
 		public static boolean skipNonBlocksOnCycle = false;
@@ -230,8 +229,8 @@ public class ModConfig {
 						if (numColons == 1) { //no meta
 							final Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(params[0], params[1]));
 							if (item == null) {
-								ModLogger.warn("Item \"" + params[0] + ":" + params[1] + "\" not found");
-							}
+                                DankNull.LOGGER.warn("Item \"" + params[0] + ":" + params[1] + "\" not found");
+                            }
 							else {
 								creativeItemBlacklist.add(new ItemStack(item));
 							}
@@ -239,8 +238,8 @@ public class ModConfig {
 						else if (numColons == 2) {
 							final Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(params[0], params[1]));
 							if (item == null) {
-								ModLogger.warn("Item \"" + params[0] + ":" + params[1] + "\" not found");
-							}
+                                DankNull.LOGGER.warn("Item \"" + params[0] + ":" + params[1] + "\" not found");
+                            }
 							else {
 								int meta = -1;
 								try {
@@ -250,8 +249,8 @@ public class ModConfig {
 									meta = -1;
 								}
 								if (meta < 0) {
-									ModLogger.warn("Invalid metadata for item \"" + params[0] + ":" + params[1] + "\" (" + params[2] + ")");
-								}
+                                    DankNull.LOGGER.warn("Invalid metadata for item \"" + params[0] + ":" + params[1] + "\" (" + params[2] + ")");
+                                }
 								else {
 									creativeItemWhitelist.add(new ItemStack(item, 1, meta));
 								}
@@ -277,8 +276,8 @@ public class ModConfig {
 						if (numColons == 1) { //no meta
 							final Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(params[0], params[1]));
 							if (item == null) {
-								ModLogger.warn("Item \"" + params[0] + ":" + params[1] + "\" not found");
-							}
+                                DankNull.LOGGER.warn("Item \"" + params[0] + ":" + params[1] + "\" not found");
+                            }
 							else {
 								creativeItemWhitelist.add(new ItemStack(item));
 							}
@@ -286,8 +285,8 @@ public class ModConfig {
 						else if (numColons == 2) {
 							final Item item = ForgeRegistries.ITEMS.getValue(new ResourceLocation(params[0], params[1]));
 							if (item == null) {
-								ModLogger.warn("Item \"" + params[0] + ":" + params[1] + "\" not found");
-							}
+                                DankNull.LOGGER.warn("Item \"" + params[0] + ":" + params[1] + "\" not found");
+                            }
 							else {
 								int meta = -1;
 								try {
@@ -297,8 +296,8 @@ public class ModConfig {
 									meta = -1;
 								}
 								if (meta < 0) {
-									ModLogger.warn("Invalid metadata for item \"" + params[0] + ":" + params[1] + "\" (" + params[2] + ")");
-								}
+                                    DankNull.LOGGER.warn("Invalid metadata for item \"" + params[0] + ":" + params[1] + "\" (" + params[2] + ")");
+                                }
 								else {
 									creativeItemWhitelist.add(new ItemStack(item, 1, meta));
 								}

@@ -22,7 +22,6 @@ public class PacketChangeMode implements IMessage {
 	private int slot = -1;
 	private boolean isGui = true;
 	private boolean mainHand = true;
-	//private String uuid = "";
 
 	public PacketChangeMode() {
 	}
@@ -88,17 +87,6 @@ public class PacketChangeMode implements IMessage {
 		mainHand = hand == EnumHand.MAIN_HAND;
 	}
 
-	/*public PacketChangeMode(final ChangeType type, final int slot, final String uuid) {
-		changeType = type;
-		this.slot = slot;
-		this.uuid = uuid;
-	}
-	
-	public PacketChangeMode(final ChangeType type, final String uuid) {
-		changeType = type;
-		this.uuid = uuid;
-	}*/
-
 	@Override
 	public void fromBytes(final ByteBuf buf) {
 		changeType = ChangeType.VALUES[buf.readInt()];
@@ -107,7 +95,6 @@ public class PacketChangeMode implements IMessage {
 		if (!isGui) {
 			mainHand = buf.readBoolean();
 		}
-		//uuid = ByteBufUtils.readUTF8String(buf);
 	}
 
 	@Override
@@ -118,7 +105,6 @@ public class PacketChangeMode implements IMessage {
 		if (!isGui) {
 			buf.writeBoolean(mainHand);
 		}
-		//ByteBufUtils.writeUTF8String(buf, uuid);
 	}
 
 	public static class Handler implements IMessageHandler<PacketChangeMode, IMessage> {

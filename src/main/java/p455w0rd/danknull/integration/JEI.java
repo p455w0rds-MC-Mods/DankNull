@@ -21,6 +21,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.*;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.text.translation.I18n;
+import p455w0rd.danknull.DankNull;
 import p455w0rd.danknull.container.ContainerDankNullItem;
 import p455w0rd.danknull.init.*;
 import p455w0rd.danknull.integration.jei.DankNullUpgradeWrapper;
@@ -29,7 +30,6 @@ import p455w0rd.danknull.inventory.PlayerSlot;
 import p455w0rd.danknull.items.ItemDankNull;
 import p455w0rd.danknull.recipes.RecipeDankNullUpgrade;
 import p455w0rdslib.LibGlobals.Mods;
-import p455w0rdslib.util.TextUtils;
 
 /**
  * @author p455w0rd
@@ -187,8 +187,8 @@ public class JEI implements IModPlugin {
 			}
 
 			if (inputCount > craftingSlots.size()) {
-				ModLogger.error(String.format("Error transferring recipe for container {}", container.getClass()));
-				return handlerHelper.createInternalError();
+                DankNull.LOGGER.error(String.format("Error transferring recipe for container {%s}", container.getClass()));
+                return handlerHelper.createInternalError();
 			}
 
 			final Map<Integer, ItemStack> availableItemStacks = new HashMap<>();
@@ -199,8 +199,8 @@ public class JEI implements IModPlugin {
 				final ItemStack stack = slot.getStack();
 				if (!stack.isEmpty()) {
 					if (!slot.canTakeStack(player)) {
-						ModLogger.error(String.format("Error transferring recipe for container {}. Player can't move item out of Crafting Slot number {}", container.getClass(), slot.slotNumber));
-						return handlerHelper.createInternalError();
+                        DankNull.LOGGER.error(String.format("Error transferring recipe for container {%s}. Player can't move item out of Crafting Slot number {%d}", container.getClass(), slot.slotNumber));
+                        return handlerHelper.createInternalError();
 					}
 					filledCraftSlotCount++;
 					availableItemStacks.put(slot.slotNumber, stack.copy());
@@ -230,30 +230,12 @@ public class JEI implements IModPlugin {
 				final int slotNum = (int) itemStackGroup.getGuiIngredients().keySet().toArray()[i];
 				recipe.put(slotNum, itemStackGroup.getGuiIngredients().get(slotNum).getDisplayedIngredient());
 			}
-			final int matchingDankNulls = 0;
-			for (final IGuiIngredient<ItemStack> ingredient : itemStackGroup.getGuiIngredients().values()) {
-				if (ingredient.getDisplayedIngredient() == null || ingredient.getDisplayedIngredient().isEmpty()) {
-					continue;
-				}
-				for (final ItemStack dankNull : dankNullStacks) {
-					//					if (DankNullUtils.isFilteredOreDict(DankNullUtils.getNewDankNullInventory(dankNull), ingredient.getDisplayedIngredient())) {
-					//						matchingDankNulls++;
-					//					}
-				}
-			}
-			final boolean foundInDankNull = false;
-			if (matchingItemsResult.missingItems.size() > 0 || matchingDankNulls > 0) {
+            final int matchingDankNulls = 0;
+            final boolean foundInDankNull = false;
+			if (matchingItemsResult.missingItems.size() > 0) {
 				for (final IGuiIngredient<ItemStack> filteredIngredient : itemStackGroup.getGuiIngredients().values()) {
 					final ItemStack filteredStack = filteredIngredient.getDisplayedIngredient();
-					if (filteredStack == null || filteredStack.isEmpty()) {
-						continue;
-					}
-					for (final ItemStack dankNull : dankNullStacks) {
-						//						if (DankNullUtils.isFilteredOreDict(DankNullUtils.getNewDankNullInventory(dankNull), filteredStack)) {
-						//							foundInDankNull = true;
-						//						}
-					}
-				}
+                }
 				if (!foundInDankNull) {
 					final String message = I18n.translateToLocal("jei.tooltip.error.recipe.transfer.missing");
 					return handlerHelper.createUserErrorForSlots(message, matchingItemsResult.missingItems);
@@ -271,8 +253,8 @@ public class JEI implements IModPlugin {
 				final int craftNumber = entry.getKey();
 				final int slotNumber = craftingSlotIndexes.get(craftNumber);
 				if (slotNumber < 0 || slotNumber >= container.inventorySlots.size()) {
-					ModLogger.error(String.format("Slot {} outside of the inventory's size {}", slotNumber, container.inventorySlots.size()));
-					return handlerHelper.createInternalError();
+                    DankNull.LOGGER.error(String.format("Slot {%d} outside of the inventory's size {%d}", slotNumber, container.inventorySlots.size()));
+                    return handlerHelper.createInternalError();
 				}
 			}
 
@@ -383,7 +365,7 @@ public class JEI implements IModPlugin {
 				}
 			}
 			if (container instanceof ContainerDankNullItem) {
-				((ContainerDankNullItem) container).detectAndSendChanges();
+				container.detectAndSendChanges();
 			}
 		}
 

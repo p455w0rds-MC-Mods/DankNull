@@ -23,8 +23,6 @@ import net.minecraft.init.Blocks;
 import net.minecraft.init.Items;
 import net.minecraft.item.*;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.tileentity.TileEntityBanner;
 import net.minecraft.util.*;
 import net.minecraft.util.math.*;
 import net.minecraft.util.text.TextFormatting;
@@ -45,7 +43,6 @@ import p455w0rd.danknull.init.ModGuiHandler;
 import p455w0rd.danknull.init.ModGuiHandler.GUIType;
 import p455w0rd.danknull.integration.ExtraUtilities;
 import p455w0rd.danknull.inventory.PlayerSlot;
-import p455w0rd.danknull.inventory.PlayerSlot.EnumInvCategory;
 import p455w0rd.danknull.inventory.cap.CapabilityDankNull;
 import p455w0rd.danknull.inventory.cap.DankNullCapabilityProvider;
 import p455w0rdslib.LibGlobals.Mods;
@@ -174,8 +171,8 @@ public class ItemDankNull extends Item implements IModelHolder {
         //if (ItemNBTUtils.getString(stack, NBT.UUID).isEmpty() && !world.isRemote) {
         //	ItemNBTUtils.setString(stack, NBT.UUID, UUID.randomUUID().toString());
         //}
-        if (player.isSneaking() && getBlockUnderPlayer(player) != Blocks.AIR && !world.isRemote) {
-            ModGuiHandler.launchGui(GUIType.DANKNULL, player, world, player.getPosition(), new PlayerSlot(player.inventory.currentItem, EnumInvCategory.MAIN));
+        if (player.isSneaking() && getBlockUnderPlayer(player).getBlock() != Blocks.AIR && !world.isRemote) {
+            ModGuiHandler.launchGui(GUIType.DANKNULL, player, world, player.getPosition());
             return ActionResult.newResult(EnumActionResult.FAIL, stack);
         } else if (Mods.EXTRA_UTILITIES_2.isLoaded() && ExtraUtilities.isAngelBlockSelected(stack)) {
             if (!world.isRemote) {
@@ -214,24 +211,16 @@ public class ItemDankNull extends Item implements IModelHolder {
         return player.getEntityWorld().getBlockState(new BlockPos(blockX, blockY, blockZ));
     }
 
-    public RayTraceResult rayTrace(final EntityPlayer player, final double blockReachDistance, final float partialTicks) {
-        final Vec3d vec3d = player.getPositionEyes(partialTicks);
-        final Vec3d vec3d1 = player.getLook(partialTicks);
-        final Vec3d vec3d2 = vec3d.add(vec3d1.x * blockReachDistance, vec3d1.y * blockReachDistance, vec3d1.z * blockReachDistance);
-        return player.world.rayTraceBlocks(vec3d, vec3d2, false, false, true);
-    }
-
     @Override
     public EnumActionResult onItemUse(final EntityPlayer player, final World world, final BlockPos posIn, final EnumHand hand, EnumFacing facing, final float hitX, final float hitY, final float hitZ) {
         final ItemStack stack = player.getHeldItem(hand);
-        final PlayerSlot playerSlot = new PlayerSlot(player.inventory.currentItem, hand == EnumHand.MAIN_HAND ? MAIN : OFF_HAND);
         final IDankNullHandler dankNullHandler = stack.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
         final ItemStack selectedStack = dankNullHandler.getSelected() > -1 ? dankNullHandler.getFullStackInSlot(dankNullHandler.getSelected()) : ItemStack.EMPTY;
         final Block selectedBlock = Block.getBlockFromItem(selectedStack.getItem());
         final boolean isSelectedStackABlock = selectedBlock != null && selectedBlock != Blocks.AIR;
         final Block blockUnderPlayer = getBlockUnderPlayer(player).getBlock();
         if (player.isSneaking() && blockUnderPlayer != Blocks.AIR && isSelectedStackABlock && blockUnderPlayer != selectedBlock) {
-            ModGuiHandler.launchGui(GUIType.DANKNULL, player, world, player.getPosition(), playerSlot);
+            ModGuiHandler.launchGui(GUIType.DANKNULL, player, world, player.getPosition());
             return EnumActionResult.SUCCESS;
         }
         final ItemPlacementMode placementMode = dankNullHandler.getPlacementMode(selectedStack);
@@ -308,14 +297,6 @@ public class ItemDankNull extends Item implements IModelHolder {
         return null;
     }
 
-    public static EnumActionResult placeBlock(@Nonnull final IBlockState state, final World world, final BlockPos pos) {
-        return world.setBlockState(pos, state, 2) ? EnumActionResult.SUCCESS : EnumActionResult.FAIL;
-    }
-
-    public EnumActionResult placeItemIntoWorld(@Nonnull final ItemStack itemstack, @Nonnull final EntityPlayer player, @Nonnull final World world, @Nonnull final BlockPos pos, @Nonnull final EnumFacing facing, final float hitX, final float hitY, final float hitZ, @Nonnull final EnumHand hand) {
-        return placeItemIntoWorld(itemstack, player, world, pos, facing, hitX, hitY, hitZ, hand, false);
-    }
-
     public EnumActionResult placeItemIntoWorld(@Nonnull final ItemStack itemstack, @Nonnull final EntityPlayer player, @Nonnull final World world, @Nonnull BlockPos pos, @Nonnull final EnumFacing facing, final float hitX, final float hitY, final float hitZ, @Nonnull final EnumHand hand, final boolean skipSlab) {
         if (itemstack.getItem() instanceof ItemBlock) {
             final Block block = Block.getBlockFromItem(itemstack.getItem());
@@ -329,14 +310,14 @@ public class ItemDankNull extends Item implements IModelHolder {
             if (!block.isReplaceable(world, pos)) {
                 pos = pos.offset(facing);
             }
-            if (!itemstack.isEmpty() && player.canPlayerEdit(pos, facing, itemstack) && world.mayPlace(block, pos, false, facing, (Entity) null)) {
+            if (!itemstack.isEmpty() && player.canPlayerEdit(pos, facing, itemstack) && world.mayPlace(block, pos, false, facing, null)) {
                 IBlockState iblockstate1 = block.getStateForPlacement(world, pos, facing, hitX, hitY, hitZ, itemstack.getItemDamage(), player, hand);
 
                 if (placeBlockAt(itemstack, player, world, pos, facing, hitX, hitY, hitZ, iblockstate1, block)) {
                     iblockstate1 = world.getBlockState(pos);
                     final SoundType soundtype = iblockstate1.getBlock().getSoundType(iblockstate1, world, pos, player);
                     //world.playSound(player, pos, soundtype.getPlaceSound(), SoundCategory.BLOCKS, (soundtype.getVolume() + 1.0F) / 2.0F, soundtype.getPitch() * 0.8F);
-                    world.playSound((EntityPlayer) null, player.getPosition(), soundtype.getPlaceSound(), SoundCategory.BLOCKS, 1.0F, 0.5F * ((world.rand.nextFloat() - world.rand.nextFloat()) * 0.7F + 2F));
+                    world.playSound(null, player.getPosition(), soundtype.getPlaceSound(), SoundCategory.BLOCKS, 1.0F, 0.5F * ((world.rand.nextFloat() - world.rand.nextFloat()) * 0.7F + 2F));
                 }
                 return EnumActionResult.SUCCESS;
             }

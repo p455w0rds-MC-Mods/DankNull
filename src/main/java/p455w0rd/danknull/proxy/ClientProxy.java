@@ -1,7 +1,6 @@
 package p455w0rd.danknull.proxy;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.world.World;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.event.FMLPostInitializationEvent;
@@ -41,10 +40,5 @@ public class ClientProxy extends CommonProxy {
     @Override
 	public World getWorld() {
 		return Minecraft.getMinecraft().world;
-	}
-
-	@Override
-	public World getWorld(final int dimension) {
-		return getWorld();
 	}
 }

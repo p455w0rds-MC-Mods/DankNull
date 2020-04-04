@@ -39,48 +39,12 @@ public class PlayerSlot {
 		return category.getIndex();
 	}
 
-	public static PlayerSlot fromIndexes(final int slotIndex, final int catIndex) {
-		final EnumInvCategory category = EnumInvCategory.fromIndex(catIndex);
-		return new PlayerSlot(slotIndex, category);
-	}
-
-	@Override
+    @Override
 	public String toString() {
 		return category.getIndex() + ":" + slot;
 	}
 
-	public static PlayerSlot fromString(final String slot) {
-		try {
-			return new PlayerSlot(Integer.parseInt(slot.substring(slot.indexOf(":") + 1)), EnumInvCategory.fromIndex(Integer.parseInt(slot.substring(0, slot.indexOf(":")))));
-		}
-		catch (final Exception e) {
-			e.printStackTrace();
-			return new PlayerSlot(0, EnumInvCategory.MAIN);
-		}
-	}
-
-	public void setStackInSlot(final EntityPlayer player, final ItemStack stack) {
-		if (category == EnumInvCategory.ARMOR) {
-			if (slot < 0 || slot >= player.inventory.armorInventory.size()) {
-				return;
-			}
-			player.inventory.armorInventory.set(slot, stack);
-		}
-		else if (category == EnumInvCategory.MAIN) {
-			if (slot < 0 || slot >= player.inventory.mainInventory.size()) {
-				return;
-			}
-			player.inventory.mainInventory.set(slot, stack);
-		}
-		else if (category == EnumInvCategory.OFF_HAND) {
-			if (slot < 0 || slot >= player.inventory.offHandInventory.size()) {
-				return;
-			}
-			player.inventory.offHandInventory.set(slot, stack);
-		}
-	}
-
-	public ItemStack getStackInSlot(final EntityPlayer player) {
+    public ItemStack getStackInSlot(final EntityPlayer player) {
 		if (category == EnumInvCategory.ARMOR) {
 			return player.inventory.armorInventory.get(slot);
 		}
