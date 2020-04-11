@@ -146,6 +146,7 @@ public abstract class ContainerDankNull extends Container {
                     final ItemStack notAdded = ItemHandlerHelper.insertItemStacked(playerHandler, slotStack, false);
                     if (notAdded.getCount() < slotStack.getCount()) {
                         getHandler().extractItemIngoreExtractionMode(slotIndex, slotStack.getCount() - notAdded.getCount(), false);
+                        clickSlot.onSlotChanged();
                     }
                 }
             }
