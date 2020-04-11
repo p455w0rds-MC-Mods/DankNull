@@ -1,6 +1,8 @@
 package p455w0rd.danknull.network;
 
 import io.netty.buffer.ByteBuf;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.math.BlockPos;
@@ -48,7 +50,7 @@ public class PacketEmptyDock implements IMessage {
         @Override
         public IMessage onMessage(final PacketEmptyDock message, final MessageContext ctx) {
             FMLCommonHandler.instance().getWorldThread(ctx.netHandler).addScheduledTask(() -> {
-                final EntityPlayer player = DankNull.PROXY.getPlayer();
+                EntityPlayerSP player = Minecraft.getMinecraft().player;
                 if (player.openContainer instanceof ContainerDankNullItem) {
                     player.closeScreen();
                 }

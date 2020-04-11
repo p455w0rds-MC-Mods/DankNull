@@ -39,8 +39,8 @@ public class DankNullCapabilityProvider implements ICapabilityProvider {
             }
 
             @Override
-            protected void onSettingsChanged() {
-                super.onSettingsChanged();
+            protected void onDataChanged() {
+                super.onDataChanged();
                 NBTTagCompound oldNBT = stack.getTagCompound();
                 NBTTagCompound newNBT = (NBTTagCompound) CapabilityDankNull.DANK_NULL_CAPABILITY.writeNBT(this, null);
                 if (oldNBT != null) {
@@ -66,13 +66,13 @@ public class DankNullCapabilityProvider implements ICapabilityProvider {
             needsInitialNBT = false;
             CapabilityDankNull.DANK_NULL_CAPABILITY.readNBT(dankNullHandler, null, stack.getTagCompound());
         }
-        return capability == CapabilityDankNull.DANK_NULL_CAPABILITY || CapabilityUtils.isItemHandler(capability);
+        return capability == CapabilityDankNull.DANK_NULL_CAPABILITY || capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
     }
 
     @Override
     public <T> T getCapability(final Capability<T> capability, final EnumFacing facing) {
         if (hasCapability(capability, facing)) {
-            if (CapabilityUtils.isItemHandler(capability)) {
+            if (capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY) {
                 return CapabilityItemHandler.ITEM_HANDLER_CAPABILITY.cast(dankNullHandler);
             } else if (capability == CapabilityDankNull.DANK_NULL_CAPABILITY) {
                 return CapabilityDankNull.DANK_NULL_CAPABILITY.cast(dankNullHandler);

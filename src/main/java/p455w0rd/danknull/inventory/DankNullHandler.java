@@ -103,53 +103,39 @@ public class DankNullHandler implements IDankNullHandler {
     @Nonnull
     @Override
     public ItemStack insertItem(int slot, @Nonnull ItemStack stack, final boolean simulate) {
-        if (stack.isEmpty()) {
-            return ItemStack.EMPTY;
+        if (stack.isEmpty() || !isItemValid(slot, stack)) {
+            return stack;
         }
 
         stack = convertOreDict(stack);
+        ItemStack existingStack = getStackList().get(slot);
 
-        slot = -1;
-        // Check for existing stacks
-        for (int i = 0; i < getStackList().size(); i++) {
-            if (getStackList().get(i).isEmpty() || !ItemHandlerHelper.canItemStacksStack(stack, getStackList().get(i))) {
-                continue;
+        if(existingStack.isEmpty()) {
+            if (!simulate) {
+                getStackList().set(slot, stack.copy());
+                onContentsChanged(slot);
             }
-            slot = i;
-            break;
-        }
-        if (slot == -1) { // Before checking for an empty slot
-            for (int i = 0; i < getStackList().size(); i++) {
-                if (!getStackList().get(i).isEmpty()) {
-                    continue;
-                }
-                slot = i;
-                break;
-            }
-        }
-        if (slot < 0 || slot >= getSlots()) {
-            return stack;
+            return ItemStack.EMPTY;
         }
 
-        final ItemStack existing = getStackList().get(slot);
-        if (existing.isEmpty() || !ItemHandlerHelper.canItemStacksStack(stack, existing)) {
-            return stack;
+        if (!ItemHandlerHelper.canItemStacksStack(stack, existingStack)) {
+           return stack;
         }
+
+        int newInternalCount = Math.min(existingStack.getCount() + stack.getCount(), tier.getMaxStackSize());
+        int returnCount = existingStack.getCount() + stack.getCount() - newInternalCount;
 
         if (!simulate) {
-            if (existing.isEmpty()) {
-                getStackList().set(slot, stack.copy());
-            } else {
-                existing.grow(stack.getCount());
-            }
-            final ItemStack slotStack = getStackList().get(slot);
-            if (slotStack.getCount() > getSlotLimit(slot)) {
-                slotStack.setCount(getSlotLimit(slot));
-            }
+            existingStack.setCount(newInternalCount);
             onContentsChanged(slot);
         }
 
-        return ItemStack.EMPTY;
+        if (returnCount == 0) {
+            return ItemStack.EMPTY;
+        }
+        ItemStack returnStack = stack.copy();
+        returnStack.setCount(returnCount);
+        return returnStack;
     }
 
     @Override
@@ -260,7 +246,7 @@ public class DankNullHandler implements IDankNullHandler {
     @Override
     public void setSelected(final int slot) {
         selected = slot;
-        onSettingsChanged();
+        onDataChanged();
     }
 
     @Override
@@ -350,7 +336,7 @@ public class DankNullHandler implements IDankNullHandler {
     @Override
     public void setLocked(final boolean lock) {
         isLocked = lock;
-        onSettingsChanged();
+        onDataChanged();
     }
 
     @Override
@@ -366,14 +352,14 @@ public class DankNullHandler implements IDankNullHandler {
         for (final ItemStack currentStack : oreStacks.keySet()) {
             if (ItemUtils.areItemStacksEqualIgnoreSize(currentStack, stack)) {
                 oreStacks.put(currentStack, ore);
-                onSettingsChanged();
+                onDataChanged();
                 return;
             }
         }
         stack = stack.copy();
         stack.setCount(1);
         oreStacks.put(stack, ore);
-        onSettingsChanged();
+        onDataChanged();
     }
 
     @Override
@@ -405,14 +391,14 @@ public class DankNullHandler implements IDankNullHandler {
         for (final ItemStack currentStack : extractionStacks.keySet()) {
             if (ItemUtils.areItemStacksEqualIgnoreSize(currentStack, stack)) {
                 extractionStacks.put(currentStack, mode);
-                onSettingsChanged();
+                onDataChanged();
                 return;
             }
         }
         stack = stack.copy();
         stack.setCount(1);
         extractionStacks.put(stack, mode);
-        onSettingsChanged();
+        onDataChanged();
     }
 
     @Override
@@ -460,14 +446,14 @@ public class DankNullHandler implements IDankNullHandler {
         for (final ItemStack currentStack : placementStacks.keySet()) {
             if (ItemUtils.areItemStacksEqualIgnoreSize(currentStack, stack)) {
                 placementStacks.put(currentStack, mode);
-                onSettingsChanged();
+                onDataChanged();
                 return;
             }
         }
         stack = stack.copy();
         stack.setCount(1);
         placementStacks.put(stack, mode);
-        onSettingsChanged();
+        onDataChanged();
     }
 
     @Override
@@ -564,11 +550,13 @@ public class DankNullHandler implements IDankNullHandler {
     }
 
     protected void onContentsChanged(final int slot) {
-        sort();
-        updateSelectedSlot();
+        //sort();
+//        updateSelectedSlot();
+        onDataChanged();
     }
 
-    protected void onSettingsChanged() {
+
+    protected void onDataChanged() {
     }
 
 }
