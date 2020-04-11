@@ -112,7 +112,8 @@ public class ModEvents {
         final PlayerSlot dankNull = getDankNullForStack(player, entityStack);
         if (dankNull != null) {
             final IDankNullHandler dankNullHandler = dankNull.getStackInSlot(player).getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
-            final ItemStack leftover = dankNullHandler.insertItem(0, entityStack, false);
+
+            final ItemStack leftover = dankNullHandler.insertItem(dankNullHandler.findItemStack(entityStack), entityStack, false);
             if (entityStack.getCount() != leftover.getCount()) {
                 entityStack.setCount(leftover.getCount());
                 if (leftover.isEmpty()) { // Only play if its empty to prevent duplicate playback
