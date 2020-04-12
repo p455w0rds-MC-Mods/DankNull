@@ -1,5 +1,6 @@
 package p455w0rd.danknull.inventory;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
@@ -219,6 +220,17 @@ public class DankNullHandler implements IDankNullHandler {
             }
         }
         return -1;
+    }
+
+    @Override
+    public ImmutableList<Integer> findItemStacks(@Nonnull ItemStack stack) {
+        ImmutableList.Builder<Integer> results = ImmutableList.builder();
+        for (int i = 0; i < getStackList().size(); i++) {
+            if (ItemUtils.areItemStacksEqualIgnoreSize(getStackList().get(i), stack)) {
+                results.add(i);
+            }
+        }
+        return results.build();
     }
 
     @Override

@@ -1,5 +1,6 @@
 package p455w0rd.danknull.init;
 
+import com.google.common.collect.ImmutableList;
 import net.minecraft.block.Block;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.client.Minecraft;
@@ -109,38 +110,44 @@ public class ModEvents {
         if (event.getItem().getEntityData().hasKey("PreventRemoteMovement")) {
             return;
         }
-        final PlayerSlot dankNull = getDankNullForStack(player, entityStack);
-        if (dankNull != null) {
+        ItemStack inProgress = entityStack;
+        final ImmutableList<PlayerSlot> dankNulls = getDankNullForStack(player, entityStack);
+        for (PlayerSlot dankNull: dankNulls) {
             final IDankNullHandler dankNullHandler = dankNull.getStackInSlot(player).getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
 
-            if (dankNullHandler.findItemStack(entityStack) < 0) {
+            ImmutableList<Integer> positions = dankNullHandler.findItemStacks(entityStack);
+            if (positions.isEmpty()) {
                 return;
             }
-            final ItemStack leftover = dankNullHandler.insertItem(dankNullHandler.findItemStack(entityStack), entityStack, false);
-            if (entityStack.getCount() != leftover.getCount()) {
-                entityStack.setCount(leftover.getCount());
-                if (leftover.isEmpty()) { // Only play if its empty to prevent duplicate playback
-                    player.getEntityWorld().playSound(null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_ITEM_PICKUP, player.getSoundCategory(), 0.2F, ((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7F + 1.0F) * 2.0F);
-                }
+
+            for(int position : positions) {
+                inProgress = dankNullHandler.insertItem(position, inProgress, false);
+            }
+        }
+        if (entityStack.getCount() != inProgress.getCount()) {
+            entityStack.setCount(inProgress.getCount());
+            if (inProgress.isEmpty()) { // Only play if its empty to prevent duplicate playback
+                player.getEntityWorld().playSound(null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_ITEM_PICKUP, player.getSoundCategory(), 0.2F, ((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7F + 1.0F) * 2.0F);
             }
         }
     }
 
-    private static PlayerSlot getDankNullForStack(final EntityPlayer player, final ItemStack stack) {
+    private static ImmutableList<PlayerSlot> getDankNullForStack(final EntityPlayer player, final ItemStack stack) {
         final List<PlayerSlot> dankNulls = ItemDankNull.getDankNullsForPlayer(player);
+        ImmutableList.Builder<PlayerSlot> validDankNulls = ImmutableList.builder();
         for (final PlayerSlot slot : dankNulls) {
             final ItemStack itemStack = slot.getStackInSlot(player);
             if (itemStack.hasCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null)) {
                 final IDankNullHandler dankNullHandler = itemStack.getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
                 if (dankNullHandler.containsItemStack(stack)) {
-                    return slot;
+                    validDankNulls.add(slot);
                 }
                 if (dankNullHandler.isOreDictFiltered(stack)) {
-                    return slot;
+                    validDankNulls.add(slot);
                 }
             }
         }
-        return null;
+        return validDankNulls.build();
     }
 
     @SubscribeEvent

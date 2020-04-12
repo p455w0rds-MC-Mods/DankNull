@@ -1,5 +1,6 @@
 package p455w0rd.danknull.api;
 
+import com.google.common.collect.ImmutableList;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
 import net.minecraftforge.items.IItemHandlerModifiable;
@@ -96,6 +97,14 @@ public interface IDankNullHandler extends IItemHandlerModifiable {
      * @return Slot the Stack is in
      */
     int findItemStack(@Nonnull ItemStack stack);
+
+    /**
+     * Searches the inventory and returns all positions of stacks that are of the same item type.
+     *
+     * @param stack to search for
+     * @return the slots that match the given stack
+     */
+    ImmutableList<Integer> findItemStacks(@Nonnull ItemStack stack);
 
     /**
      * Calculates the amount of stacks in the inventory
