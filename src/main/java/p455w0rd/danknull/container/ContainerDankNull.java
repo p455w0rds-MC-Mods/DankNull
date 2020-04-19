@@ -179,10 +179,10 @@ public abstract class ContainerDankNull extends Container {
         return leftover;
     }
 
-    @Override
     /**
      * Needed due to item stacks having a network limitation of size count byte
      */
+    @Override
     public void detectAndSendChanges() {
         //I'll take this, thanks
         for (int i = 0; i < inventorySlots.size(); ++i) {
