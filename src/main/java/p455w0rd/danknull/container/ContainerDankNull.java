@@ -5,17 +5,20 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.ClickType;
 import net.minecraft.inventory.Container;
+import net.minecraft.inventory.IContainerListener;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.wrapper.PlayerMainInvWrapper;
 import p455w0rd.danknull.api.IDankNullHandler;
+import p455w0rd.danknull.init.ModNetworking;
 import p455w0rd.danknull.inventory.DankNullHandler;
 import p455w0rd.danknull.inventory.slot.SlotDankNull;
 import p455w0rd.danknull.inventory.slot.SlotDankNullDock;
 import p455w0rd.danknull.inventory.slot.SlotHotbar;
 import p455w0rd.danknull.items.ItemDankNull;
+import p455w0rd.danknull.network.PacketUpdateSlot;
 
 /**
  * @author BrockWS
@@ -174,6 +177,30 @@ public abstract class ContainerDankNull extends Container {
         }
 
         return leftover;
+    }
+
+    @Override
+    /**
+     * Needed due to item stacks having a network limitation of size count byte
+     */
+    public void detectAndSendChanges() {
+        //I'll take this, thanks
+        for (int i = 0; i < inventorySlots.size(); ++i) {
+            final ItemStack slotStack = inventorySlots.get(i).getStack();
+            ItemStack clientStack = inventoryItemStacks.get(i);
+            if (!ItemStack.areItemStacksEqual(clientStack, slotStack)) {
+                if (ItemStack.areItemStacksEqualUsingNBTShareTag(clientStack, slotStack)) {
+                    continue;
+                }
+                clientStack = slotStack.isEmpty() ? ItemStack.EMPTY : slotStack.copy();
+                inventoryItemStacks.set(i, clientStack);
+                for (final IContainerListener listener : listeners) {
+                    if (listener instanceof EntityPlayerMP) {
+                        ModNetworking.getInstance().sendTo(new PacketUpdateSlot(i, clientStack), (EntityPlayerMP) listener);
+                    }
+                }
+            }
+        }
     }
 
 }
