@@ -47,6 +47,7 @@ minecraft {
     serverJvmArgs += "-Dfml.doNotBackup=true"
     serverJvmArgs += "-Dfml.queryResult=confirm"
     clientJvmArgs += "-Dfml.doNotBackup=true"
+    clientRunArgs += "-username=Dev"
 }
 
 dependencies {
