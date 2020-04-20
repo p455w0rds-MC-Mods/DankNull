@@ -7,6 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
+import p455w0rd.danknull.api.DankNullItemModes;
 import p455w0rd.danknull.init.ModGlobals;
 
 import static org.junit.Assert.assertEquals;
@@ -25,8 +26,9 @@ public class DankNullHandlerTest {
 
 
     @Test
-    public void insertItem() {
+    public void normalInteractions() {
         ItemStack itemStack = new ItemStack(new Item(), 64);
+        dankNull.setExtractionMode(itemStack, DankNullItemModes.ItemExtractionMode.KEEP_NONE);
 
         assertTrue(dankNull.insertItem(0, itemStack, false).isEmpty());
         assertTrue(dankNull.insertItem(0, itemStack, false).isEmpty());
@@ -38,5 +40,14 @@ public class DankNullHandlerTest {
         assertEquals(dankNull.extractItem(0, 64, false).getCount(), 64);
         assertEquals(dankNull.extractItem(0, 64, false).getCount(), 64);
         assertEquals(dankNull.extractItem(0, 64, false).getCount(), 0);
+    }
+
+    @Test
+    public void extractItemLimited() {
+        ItemStack itemStack = new ItemStack(new Item(), 64);
+        dankNull.setExtractionMode(itemStack, DankNullItemModes.ItemExtractionMode.KEEP_16);
+
+        assertTrue(dankNull.insertItem(0, itemStack, false).isEmpty());
+        assertEquals(dankNull.extractItem(0, 64, false).getCount(), 48);
     }
 }
