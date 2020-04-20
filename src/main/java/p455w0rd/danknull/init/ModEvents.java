@@ -30,6 +30,7 @@ import net.minecraftforge.event.world.WorldEvent;
 import net.minecraftforge.fml.client.event.ConfigChangedEvent;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.Mod.EventBusSubscriber;
+import net.minecraftforge.fml.common.eventhandler.Event;
 import net.minecraftforge.fml.common.eventhandler.EventPriority;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.InputEvent.KeyInputEvent;
@@ -110,25 +111,27 @@ public class ModEvents {
         if (event.getItem().getEntityData().hasKey("PreventRemoteMovement")) {
             return;
         }
-        ItemStack inProgress = entityStack;
         final ImmutableList<PlayerSlot> dankNulls = getDankNullForStack(player, entityStack);
+        if(dankNulls.isEmpty()) {
+            return;
+        }
+        ItemStack inProgress = entityStack;
+        boolean someInteraction = false;
         for (PlayerSlot dankNull: dankNulls) {
             final IDankNullHandler dankNullHandler = dankNull.getStackInSlot(player).getCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null);
 
             ImmutableList<Integer> positions = dankNullHandler.findItemStacks(entityStack);
-            if (positions.isEmpty()) {
-                return;
-            }
-
             for(int position : positions) {
+                someInteraction = true;
                 inProgress = dankNullHandler.insertItem(position, inProgress, false);
             }
         }
-        if (entityStack.getCount() != inProgress.getCount()) {
-            entityStack.setCount(inProgress.getCount());
-            if (inProgress.isEmpty()) { // Only play if its empty to prevent duplicate playback
-                player.getEntityWorld().playSound(null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_ITEM_PICKUP, player.getSoundCategory(), 0.2F, ((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7F + 1.0F) * 2.0F);
-            }
+        if (someInteraction) {
+            entityStack.setCount(0);
+            event.setResult(Event.Result.ALLOW);
+//            if (inProgress.isEmpty()) { // Only play if its empty to prevent duplicate playback
+//                player.getEntityWorld().playSound(null, player.posX, player.posY, player.posZ, SoundEvents.ENTITY_ITEM_PICKUP, player.getSoundCategory(), 0.2F, ((player.getRNG().nextFloat() - player.getRNG().nextFloat()) * 0.7F + 1.0F) * 2.0F);
+//            }
         }
     }
 
