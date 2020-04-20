@@ -197,7 +197,11 @@ public class DankNullHandler implements IDankNullHandler {
         }
 
         final int existingCount = existing.getCount();
-        final int extract = Math.min(amount, existing.getMaxStackSize());
+        int requiredToKeep = getExtractionMode(existing).getNumberToKeep();
+        final int extract = Math.min(Math.min(amount, existing.getMaxStackSize()), existingCount - requiredToKeep);
+        if (extract < 1) {
+           return ItemStack.EMPTY;
+        }
         if (existingCount <= extract) {
             if (!simulate) {
                 getStackList().set(slot, ItemStack.EMPTY);
