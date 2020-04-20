@@ -13,7 +13,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.items.CapabilityItemHandler;
-import net.minecraftforge.items.ItemHandlerHelper;
 import p455w0rd.danknull.api.IDankNullHandler;
 import p455w0rd.danknull.init.ModDataFixing.DankNullFixer;
 import p455w0rd.danknull.init.ModGlobals.NBT;
@@ -23,6 +22,8 @@ import p455w0rd.danknull.items.ItemDankNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+
+import static p455w0rd.danknull.inventory.cap.DankNullCapabilityProvider.DANK_NULL_CAP_TAG;
 
 /**
  * @author p455w0rd
@@ -69,7 +70,7 @@ public class TileDankNullDock extends TileEntity {
     }
 
     public void setDankNull(final ItemStack dankNull) {
-        this.dankNull = new ItemStack(fixer.fixTagCompound(dankNull.serializeNBT()));
+        this.dankNull = dankNull.copy();
         if (!this.dankNull.isEmpty()) {
             dankNullHandler = new DankNullHandler(ItemDankNull.getTier(this.dankNull)) {
 
@@ -79,9 +80,10 @@ public class TileDankNullDock extends TileEntity {
                     return getExtractableStackInSlot(slot);
                 }
 
-                @Override
                 protected void onContentsChanged(final int slot) {
-                    super.onContentsChanged(slot);
+                    //sort();
+//        updateSelectedSlot();
+                    onDataChanged();
                     TileDankNullDock.this.markDirty();
                 }
 
@@ -91,7 +93,7 @@ public class TileDankNullDock extends TileEntity {
                     TileDankNullDock.this.markDirty();
                 }
             };
-            CapabilityDankNull.DANK_NULL_CAPABILITY.readNBT(dankNullHandler, null, this.dankNull.getTagCompound());
+            CapabilityDankNull.DANK_NULL_CAPABILITY.readNBT(dankNullHandler, null, this.dankNull.getTagCompound().getCompoundTag(DANK_NULL_CAP_TAG));
         }
         markDirty();
     }
@@ -136,8 +138,8 @@ public class TileDankNullDock extends TileEntity {
             final NBTTagCompound dockedTag = nbt.getCompoundTag(NBT.DOCKEDSTACK);
             final ItemStack dankNull = new ItemStack(dockedTag);
             setDankNull(dankNull);
-            if (!dankNull.isEmpty() && dankNull.hasTagCompound()) {
-                CapabilityDankNull.DANK_NULL_CAPABILITY.readNBT(dankNullHandler, null, dankNull.getTagCompound());
+            if (!dankNull.isEmpty() && dankNull.hasTagCompound() && dankNull.getTagCompound().hasKey(DANK_NULL_CAP_TAG)) {
+                CapabilityDankNull.DANK_NULL_CAPABILITY.readNBT(dankNullHandler, null, dankNull.getTagCompound().getCompoundTag(DANK_NULL_CAP_TAG));
             }
         }
     }
@@ -148,16 +150,7 @@ public class TileDankNullDock extends TileEntity {
         compound = super.writeToNBT(compound);
         final ItemStack dankNull = getDankNull();
         if (dankNullHandler != null) {
-            NBTTagCompound oldNBT = dankNull.getTagCompound();
-            NBTTagCompound newNBT = (NBTTagCompound) CapabilityDankNull.DANK_NULL_CAPABILITY.writeNBT(dankNullHandler, null);
-            if (oldNBT != null) {
-                if (newNBT != null) {
-                    oldNBT.merge(newNBT);
-                }
-            } else {
-                oldNBT = newNBT;
-            }
-            dankNull.setTagCompound(oldNBT);
+            dankNull.getTagCompound().setTag(DANK_NULL_CAP_TAG, CapabilityDankNull.DANK_NULL_CAPABILITY.writeNBT(dankNullHandler, null));
         }
         compound.setTag(NBT.DOCKEDSTACK, dankNull.serializeNBT());
         return compound;

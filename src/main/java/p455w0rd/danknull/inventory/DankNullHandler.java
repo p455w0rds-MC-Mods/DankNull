@@ -98,7 +98,9 @@ public class DankNullHandler implements IDankNullHandler {
     public void setStackInSlot(final int slot, @Nonnull final ItemStack stack) {
         validateSlot(slot);
         getStackList().set(slot, stack);
-        onContentsChanged(slot);
+        //sort();
+//        updateSelectedSlot();
+        onDataChanged();
     }
 
     @Nonnull
@@ -114,7 +116,9 @@ public class DankNullHandler implements IDankNullHandler {
         if(existingStack.isEmpty()) {
             if (!simulate) {
                 getStackList().set(slot, stack.copy());
-                onContentsChanged(slot);
+                //sort();
+//        updateSelectedSlot();
+                onDataChanged();
             }
             return ItemStack.EMPTY;
         }
@@ -128,7 +132,9 @@ public class DankNullHandler implements IDankNullHandler {
 
         if (!simulate) {
             existingStack.setCount(newInternalCount);
-            onContentsChanged(slot);
+            //sort();
+//        updateSelectedSlot();
+            onDataChanged();
         }
 
         if (returnCount == 0) {
@@ -195,13 +201,17 @@ public class DankNullHandler implements IDankNullHandler {
         if (existingCount <= extract) {
             if (!simulate) {
                 getStackList().set(slot, ItemStack.EMPTY);
-                onContentsChanged(slot);
+                //sort();
+//        updateSelectedSlot();
+                onDataChanged();
             }
             return existing;
         } else {
             if (!simulate) {
                 getStackList().set(slot, ItemHandlerHelper.copyStackWithSize(existing, existingCount - extract));
-                onContentsChanged(slot);
+                //sort();
+//        updateSelectedSlot();
+                onDataChanged();
             }
             return ItemHandlerHelper.copyStackWithSize(existing, extract);
         }
@@ -560,13 +570,6 @@ public class DankNullHandler implements IDankNullHandler {
 
         setSelected(newSelected);
     }
-
-    protected void onContentsChanged(final int slot) {
-        //sort();
-//        updateSelectedSlot();
-        onDataChanged();
-    }
-
 
     protected void onDataChanged() {
     }

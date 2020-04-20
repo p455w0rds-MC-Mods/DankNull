@@ -33,14 +33,17 @@ public class CapabilityDankNull {
                 final NBTTagCompound tag = new NBTTagCompound();
                 final NBTTagList items = new NBTTagList();
                 for (int i = 0; i < instance.getSlots(); i++) {
-                    final ItemStack stack = instance.getFullStackInSlot(i);
+                    final ItemStack originalStack = instance.getFullStackInSlot(i);
+                    ItemStack stack = originalStack.copy();
                     if (stack.isEmpty()) {
                         continue;
                     }
                     final NBTTagCompound item = new NBTTagCompound();
+                    // Prevent issues with casting to byte
+                    stack.setCount(1);
                     stack.writeToNBT(item);
                     item.setInteger("Slot", i);
-                    item.setInteger("Count", stack.getCount());
+                    item.setInteger("Count", originalStack.getCount());
                     items.appendTag(item);
                 }
                 final NBTTagList ores = new NBTTagList();

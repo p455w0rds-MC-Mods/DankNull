@@ -1,7 +1,6 @@
 package p455w0rd.danknull.inventory.cap;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
@@ -9,12 +8,13 @@ import net.minecraftforge.items.CapabilityItemHandler;
 import p455w0rd.danknull.api.IDankNullHandler;
 import p455w0rd.danknull.init.ModGlobals;
 import p455w0rd.danknull.inventory.DankNullHandler;
-import p455w0rdslib.util.CapabilityUtils;
 
 /**
  * @author BrockWS
  */
 public class DankNullCapabilityProvider implements ICapabilityProvider {
+
+    public static final String DANK_NULL_CAP_TAG = "DankNullCap";
 
     private final ItemStack stack;
     private final IDankNullHandler dankNullHandler;
@@ -24,37 +24,14 @@ public class DankNullCapabilityProvider implements ICapabilityProvider {
         this.stack = stack;
         dankNullHandler = new DankNullHandler(tier) {
             @Override
-            protected void onContentsChanged(final int slot) {
-                super.onContentsChanged(slot);
-                NBTTagCompound oldNBT = stack.getTagCompound();
-                NBTTagCompound newNBT = (NBTTagCompound) CapabilityDankNull.DANK_NULL_CAPABILITY.writeNBT(this, null);
-                if (oldNBT != null) {
-                    if (newNBT != null) {
-                        oldNBT.merge(newNBT);
-                    }
-                } else {
-                    oldNBT = newNBT;
-                }
-                stack.setTagCompound(oldNBT);
-            }
-
-            @Override
             protected void onDataChanged() {
                 super.onDataChanged();
-                NBTTagCompound oldNBT = stack.getTagCompound();
-                NBTTagCompound newNBT = (NBTTagCompound) CapabilityDankNull.DANK_NULL_CAPABILITY.writeNBT(this, null);
-                if (oldNBT != null) {
-                    if (newNBT != null) {
-                        oldNBT.merge(newNBT);
-                    }
-                } else {
-                    oldNBT = newNBT;
-                }
-                stack.setTagCompound(oldNBT);
+
+                stack.getTagCompound().setTag(DANK_NULL_CAP_TAG, CapabilityDankNull.DANK_NULL_CAPABILITY.writeNBT(this, null));
             }
         };
-        if (stack.hasTagCompound()) {
-            CapabilityDankNull.DANK_NULL_CAPABILITY.readNBT(dankNullHandler, null, stack.getTagCompound());
+        if (stack.hasTagCompound() && stack.getTagCompound().hasKey(DANK_NULL_CAP_TAG)) {
+            CapabilityDankNull.DANK_NULL_CAPABILITY.readNBT(dankNullHandler, null, stack.getTagCompound().getCompoundTag(DANK_NULL_CAP_TAG));
         } else {
             needsInitialNBT = true;
         }
@@ -62,9 +39,9 @@ public class DankNullCapabilityProvider implements ICapabilityProvider {
 
     @Override
     public boolean hasCapability(final Capability<?> capability, final EnumFacing facing) {
-        if (needsInitialNBT && stack.hasTagCompound()) {
+        if (needsInitialNBT && stack.hasTagCompound() && stack.getTagCompound().hasKey(DANK_NULL_CAP_TAG)) {
             needsInitialNBT = false;
-            CapabilityDankNull.DANK_NULL_CAPABILITY.readNBT(dankNullHandler, null, stack.getTagCompound());
+            CapabilityDankNull.DANK_NULL_CAPABILITY.readNBT(dankNullHandler, null, stack.getTagCompound().getCompoundTag(DANK_NULL_CAP_TAG));
         }
         return capability == CapabilityDankNull.DANK_NULL_CAPABILITY || capability == CapabilityItemHandler.ITEM_HANDLER_CAPABILITY;
     }

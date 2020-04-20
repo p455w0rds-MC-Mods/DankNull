@@ -36,7 +36,10 @@ public class PacketUpdateSlot implements IMessage {
     @Override
     public void toBytes(ByteBuf buf) {
         buf.writeInt(this.slot);
-        ByteBufUtils.writeItemStack(buf, this.stack);
+        ItemStack tempStack = this.stack.copy();
+        // count is casted to a byte so can truncate unexpectedly
+        tempStack.setCount(1);
+        ByteBufUtils.writeItemStack(buf, tempStack);
         buf.writeInt(this.stack.getCount());
     }
 
