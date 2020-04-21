@@ -111,7 +111,6 @@ def curseRelations = {
     requiredDependency 'p455w0rds-library'
 }
 
-
 curseforge {
     if (project.hasProperty('curseForgeAPIKey')) {
         apiKey = project.findProperty('curseForgeAPIKey')
