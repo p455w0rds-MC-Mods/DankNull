@@ -1,3 +1,9 @@
+** Version 1.7.97 (Beta) **
+
+* Change default extraction mode to keep 1 instead of keep all
+
+--------------------------------------------------------------------------------
+
 ** Version 1.7.96 (Beta) **
 
 * Add a defensive check for #284 (crash on opening dank null) 
