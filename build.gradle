@@ -14,6 +14,7 @@ buildscript {
 	dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
         classpath "com.wynprice.cursemaven:CurseMaven:2.1.1"
+        classpath group: 'gradle.plugin.com.matthewprenger', name: 'CurseGradle', version: "1.+"
     }
 }
 
@@ -22,6 +23,7 @@ apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'maven'
 apply plugin: 'java'
 apply plugin: 'idea'
+apply plugin: 'com.matthewprenger.cursegradle'
 
 idea{
     module{
@@ -93,4 +95,32 @@ processResources {
         exclude "mcmod.info"
     }
     rename '(.+_at.cfg)', 'META-INF/$1'
+}
+
+def curseRelations = {
+    optionalDependency 'better-builders-wands'
+    optionalDependency 'exchangers'
+    optionalDependency 'swingthroughgrass'
+    optionalDependency 'the-one-probe'
+    optionalDependency 'hwyla'
+    optionalDependency 'building-gadgets'
+    optionalDependency 'chisel'
+    optionalDependency 'jei'
+    optionalDependency 'waila'
+
+    requiredDependency 'p455w0rds-library'
+}
+
+
+curseforge {
+    if (project.hasProperty('curseForgeAPIKey')) {
+        apiKey = project.findProperty('curseForgeAPIKey')
+    }
+    project {
+        id = '272514'
+        changelog = file('CHANGELOG.md')
+        changelogType = 'markdown'
+        releaseType = 'beta'
+        relations curseRelations
+    }
 }

@@ -16,6 +16,7 @@
 # Other Files.
 !LICENSE
 !README.md
+!CHANGELOG.md
 
 # Include git important files
 !.gitmodules
