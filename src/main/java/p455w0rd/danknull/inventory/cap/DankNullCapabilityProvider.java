@@ -1,6 +1,7 @@
 package p455w0rd.danknull.inventory.cap;
 
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumFacing;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
@@ -26,6 +27,10 @@ public class DankNullCapabilityProvider implements ICapabilityProvider {
             @Override
             protected void onDataChanged() {
                 super.onDataChanged();
+
+                if(!stack.hasTagCompound()) {
+                    stack.setTagCompound(new NBTTagCompound());
+                }
 
                 stack.getTagCompound().setTag(DANK_NULL_CAP_TAG, CapabilityDankNull.DANK_NULL_CAPABILITY.writeNBT(this, null));
             }
