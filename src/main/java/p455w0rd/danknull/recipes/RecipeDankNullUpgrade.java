@@ -74,8 +74,8 @@ public class RecipeDankNullUpgrade extends IForgeRegistryEntry.Impl<IRecipe> imp
      */
     @Override
     public boolean matches(final InventoryCrafting inv, final World worldIn) {
-        for (int i = 0; i <= 3; ++i) {
-            for (int j = 0; j <= 3; ++j) {
+        for (int i = 0; i <= inv.getWidth() - this.getRecipeWidth(); ++i) {
+            for (int j = 0; j <= inv.getHeight() - this.getRecipeHeight(); ++j) {
                 if (checkMatch(inv, i, j, true)) {
                     return true;
                 }
@@ -93,8 +93,8 @@ public class RecipeDankNullUpgrade extends IForgeRegistryEntry.Impl<IRecipe> imp
      * Checks if the region of a crafting inventory is match for the recipe.
      */
     private boolean checkMatch(final InventoryCrafting p_77573_1_, final int p_77573_2_, final int p_77573_3_, final boolean p_77573_4_) {
-        for (int i = 0; i < 3; ++i) {
-            for (int j = 0; j < 3; ++j) {
+        for (int i = 0; i < p_77573_1_.getWidth(); ++i) {
+            for (int j = 0; j < p_77573_1_.getHeight(); ++j) {
                 final int k = i - p_77573_2_;
                 final int l = j - p_77573_3_;
                 Ingredient ingredient = Ingredient.EMPTY;
