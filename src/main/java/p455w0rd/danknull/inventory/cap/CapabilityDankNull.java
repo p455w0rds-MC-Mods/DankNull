@@ -176,7 +176,7 @@ public class CapabilityDankNull {
                         }
                     }
                     if (tag.hasKey(ModGlobals.NBT.SELECTEDINDEX)) {
-                        handler.selected = tag.getInteger(ModGlobals.NBT.SELECTEDINDEX);
+                        handler.setSelected(tag.getInteger(ModGlobals.NBT.SELECTEDINDEX));
                     }
                     if (tag.hasKey(ModGlobals.NBT.LOCKED)) {
                         handler.isLocked = tag.getBoolean(ModGlobals.NBT.LOCKED);

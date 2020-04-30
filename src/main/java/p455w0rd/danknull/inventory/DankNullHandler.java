@@ -2,6 +2,8 @@ package p455w0rd.danknull.inventory;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.google.common.primitives.Ints;
+import io.netty.util.internal.MathUtil;
 import net.minecraft.item.ItemBlock;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.NonNullList;
@@ -205,8 +207,6 @@ public class DankNullHandler implements IDankNullHandler {
         if (existingCount <= extract) {
             if (!simulate) {
                 getStackList().set(slot, ItemStack.EMPTY);
-                //sort();
-//        updateSelectedSlot();
                 onDataChanged();
             }
             return existing;
@@ -214,7 +214,6 @@ public class DankNullHandler implements IDankNullHandler {
             if (!simulate) {
                 getStackList().set(slot, ItemHandlerHelper.copyStackWithSize(existing, existingCount - extract));
                 //sort();
-//        updateSelectedSlot();
                 onDataChanged();
             }
             return ItemHandlerHelper.copyStackWithSize(existing, extract);
@@ -271,7 +270,7 @@ public class DankNullHandler implements IDankNullHandler {
 
     @Override
     public void setSelected(final int slot) {
-        selected = slot;
+        selected = Ints.constrainToRange(slot,-1,stacks.size() - 1);
         onDataChanged();
     }
 

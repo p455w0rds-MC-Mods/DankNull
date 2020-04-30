@@ -80,13 +80,6 @@ public class TileDankNullDock extends TileEntity {
                     return getExtractableStackInSlot(slot);
                 }
 
-                protected void onContentsChanged(final int slot) {
-                    //sort();
-//        updateSelectedSlot();
-                    onDataChanged();
-                    TileDankNullDock.this.markDirty();
-                }
-
                 @Override
                 protected void onDataChanged() {
                     super.onDataChanged();
