@@ -1,6 +1,7 @@
 ** Version 1.7.97 (Beta) **
 
 * Change default extraction mode to keep 1 instead of keep all
+* Fix a bug with stack selection
 
 --------------------------------------------------------------------------------
 
