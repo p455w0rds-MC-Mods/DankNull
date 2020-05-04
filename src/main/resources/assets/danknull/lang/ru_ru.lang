@@ -1,0 +1,77 @@
+//dank/null US English Localizations
+
+//Creative Tab
+itemGroup.danknull=/dank/null
+
+//Items
+item.dank_null_0.name=/dank/null/
+item.dank_null_1.name=/dank/null/MK II
+item.dank_null_2.name=/dank/null/MK III
+item.dank_null_3.name=/dank/null/MK IV
+item.dank_null_4.name=/dank/null/MK V
+item.dank_null_5.name=/dank/null/MK VI
+item.dank_null_6.name=/dank/null/Творческая
+item.dank_null_panel.name=Редстоуновая панель /dank/null
+item.dank_null_panel_0.name=Редстоуновая панель /dank/null
+item.dank_null_panel_1.name=Лазуритовая панель /dank/null
+item.dank_null_panel_2.name=Железная панель /dank/null
+item.dank_null_panel_3.name=Золотая панель /dank/null
+item.dank_null_panel_4.name=Алмазная панель /dank/null
+item.dank_null_panel_5.name=Изумрудная панель /dank/null
+
+//Blocks
+tile.danknull_dock.name=Док-станция /dank/null
+
+//JEI INTEGRATION
+jei.danknull.desc=/dank/null является духовным преемником и обновленной версией /dev/null/ из OpenBlocks.
+jei.danknull.desc0=\n§4§lРедстоуновый§r /dank/null (MK I) - это самый низкий уровень с 9 слотами и до 2 стеков в каждом слоте.
+jei.danknull.desc1=\n§9§lЛазуритовый§r /dank/null (MK II) - это 2-й уровень с 18 слотами и до 4 стеков в каждом слоте.
+jei.danknull.desc2=\n§8§lЖелезный§r /dank/null (MK III) - это 3-й уровень с 27 слотами и до 8 стеками в каждом слоте.
+jei.danknull.desc3=\n§6§lЗолотой§r /dank/null (MK IV) - это 4-й уровень с 36 слотами и до 16 стеками в каждом слоте.
+jei.danknull.desc4=\n§b§lАлмазный§r /dank/null (MK IV) - это 5-й уровень с 45 слотами и до 32 стеков в каждом слоте.
+jei.danknull.desc5=§2§lИзумрудный§r /dank/null (MK VI) - это высший уровень с 54 слотами и до 2,14 миллиарда предметов на слот.
+jei.danknull_dock.desc=-ПКМ с /dank/null в руке, чтобы разместить /dank/null в док-станции\n-Предметы могут быть извлечены только из /dank/null, а не вставлены-снизу.\n-Скорость определяется блоком, который тянет из дока.
+
+//KeyBindings
+key.categories.danknull=/dank/null
+key.next_item.desc=Цикл к след. предмету в /dank/null
+key.previous_item.desc=Цикл к пред. предмету в /dank/null
+key.open_danknull.desc=Открыть ближайший /dank/null
+key.togglehud.desc=Переключить видимость HUD
+
+//Misc
+dn.selected_item.desc=Выбранный предмет
+dn.count.desc=Количество
+dn.extract.desc=Извлечь
+dn.place.desc=Разместить
+dn.extract_mode.desc=Режим извлечения
+dn.placement_mode.desc=Режим размещения
+dn.infinite.desc=Бесконечный
+dn.no_open_keybind.desc=Не установлена клавиша открытия
+dn.open_with.desc=Открыть с
+dn.ore_dictionary.desc=Словарь руды
+dn.enabled.desc=Включено
+dn.disabled.desc=Отключено
+dn.not_oredicted.desc=Предметы нет в рудном словаре
+dn.ctrl_click_change.desc=Ctrl+Click, чтобы изменить режим извлечения
+dn.o_click_toggle.desc=O+Click, чтобы переключить режим словаря руды
+dn.p_click_toggle.desc=P+Click, чтобы изменить режим размещения
+dn.alt_click_set.desc=Alt+Click, чтобы установить как выбранный предмет
+dn.selected.desc=Выбранный
+dn.will.desc=Будет
+dn.from_slot.desc=из этого слота
+dn.do.desc=Делать
+dn.not_extract.desc=не извлекать
+dn.extract_all_but.desc=извлекать все, кроме
+dn.extract_all.desc=извлекать все
+dn.not_place.desc=не размещать
+dn.place_all_but.desc=размещать все, кроме
+dn.place_all.desc=размещать все
+dn.right_click_with.desc=ПКС с
+dn.empty_hand_open.desc=пустая рука, чтобы открыть GUI
+dn.docked.desc=Пристыкован
+dn.chisel_varient.desc=Вариант
+dn.lock.desc=Блокировка
+dn.unlock.desc=разблокировка
+dn.items_per_slot.desc=предметов на слот
+dn.number_of_slots.desc=Количество слотов
