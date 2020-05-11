@@ -72,6 +72,9 @@ public class TileDankNullDock extends TileEntity {
     public void setDankNull(final ItemStack dankNull) {
         this.dankNull = dankNull.copy();
         if (!this.dankNull.isEmpty()) {
+            if(this.dankNull.getTagCompound() == null) {
+                this.dankNull.setTagCompound(new NBTTagCompound());
+            }
             dankNullHandler = new DankNullHandler(ItemDankNull.getTier(this.dankNull)) {
 
                 @Override

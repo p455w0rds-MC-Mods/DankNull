@@ -1,3 +1,9 @@
+** Version 1.7.99 (Beta) **
+
+* Fix dupe with non-initialized dank null (#303)
+
+--------------------------------------------------------------------------------
+
 ** Version 1.7.98 (Beta) **
 
 * Fix canceling a non-canceling event
