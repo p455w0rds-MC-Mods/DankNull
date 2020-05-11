@@ -1,8 +1,8 @@
 ---
 name: Bug report
-about: Something not working use this to report it
+about: Something not working correctly? Use this to report it.
 title: ''
-labels: ''
+labels: bug
 assignees: ''
 
 ---
@@ -17,3 +17,5 @@ Steps To Reproduce:
 3.
 
 Was this tested on Single Player or Server (or Both)?
+
+Was this tested with just Dank Null installed?
