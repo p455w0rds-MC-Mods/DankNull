@@ -74,13 +74,13 @@ public class RecipeDankNullUpgrade extends IForgeRegistryEntry.Impl<IRecipe> imp
      */
     @Override
     public boolean matches(final InventoryCrafting inv, final World worldIn) {
-        for (int i = 0; i <= 3; ++i) {
-            for (int j = 0; j <= 3; ++j) {
-                if (checkMatch(inv, i, j, true)) {
+        for (int widthIndex = 0; widthIndex <= inv.getWidth() - this.getRecipeWidth(); ++widthIndex) {
+            for (int heightIndex = 0; heightIndex <= inv.getHeight() - this.getRecipeHeight(); ++heightIndex) {
+                if (checkMatch(inv, widthIndex, heightIndex)) {
                     return true;
                 }
 
-                if (checkMatch(inv, i, j, false)) {
+                if (checkMatch(inv, widthIndex, heightIndex)) {
                     return true;
                 }
             }
@@ -92,22 +92,18 @@ public class RecipeDankNullUpgrade extends IForgeRegistryEntry.Impl<IRecipe> imp
     /**
      * Checks if the region of a crafting inventory is match for the recipe.
      */
-    private boolean checkMatch(final InventoryCrafting p_77573_1_, final int p_77573_2_, final int p_77573_3_, final boolean p_77573_4_) {
-        for (int i = 0; i < 3; ++i) {
-            for (int j = 0; j < 3; ++j) {
-                final int k = i - p_77573_2_;
-                final int l = j - p_77573_3_;
+    private boolean checkMatch(final InventoryCrafting inventory, final int widthIndexStart, final int heightIndexStart) {
+        for (int column = 0; column < 3; ++column) {
+            for (int row = 0; row < 3; ++row) {
+                final int recipeColumn = column - widthIndexStart;
+                final int recipeRow = row - heightIndexStart;
                 Ingredient ingredient = Ingredient.EMPTY;
 
-                if (k >= 0 && l >= 0 && k < 3 && l < 3) {
-                    if (p_77573_4_) {
-                        ingredient = recipeItems.get(3 - k - 1 + l * 3);
-                    } else {
-                        ingredient = recipeItems.get(k + l * 3);
-                    }
+                if (recipeColumn >= 0 && recipeRow >= 0 && recipeColumn < 3 && recipeRow < 3) {
+                    ingredient = recipeItems.get(recipeColumn + recipeRow * 3);
                 }
 
-                if (!ingredient.apply(p_77573_1_.getStackInRowAndColumn(i, j))) {
+                if (!ingredient.apply(inventory.getStackInRowAndColumn(column, row))) {
                     return false;
                 }
             }
