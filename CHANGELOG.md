@@ -1,7 +1,7 @@
 ** Version 1.7.98 (Beta) **
 
 * Fix canceling a non-canceling event
-* Fix Crafting Due with non vanilla tables
+* Fix Crafting Dupe with non vanilla tables
 
 --------------------------------------------------------------------------------
 
