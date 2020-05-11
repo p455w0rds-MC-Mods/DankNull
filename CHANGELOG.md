@@ -1,3 +1,9 @@
+** Version 1.7.98 (Beta) **
+
+* Fix canceling a non-canceling event
+
+--------------------------------------------------------------------------------
+
 ** Version 1.7.97 (Beta) **
 
 * Change default extraction mode to keep 1 instead of keep all
