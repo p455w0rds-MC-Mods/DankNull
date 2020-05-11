@@ -88,7 +88,7 @@ public class ModEvents {
     @SideOnly(Side.CLIENT)
     @SubscribeEvent
     public static void renderOverlayEvent(final RenderGameOverlayEvent event) {
-        if (ModGlobals.GUI_DANKNULL_ISOPEN && (//@formatter:off
+        if (ModGlobals.GUI_DANKNULL_ISOPEN && event.isCancelable() && (//@formatter:off
                 event.getType() == RenderGameOverlayEvent.ElementType.HOTBAR ||
                         event.getType() == RenderGameOverlayEvent.ElementType.CROSSHAIRS ||
                         event.getType() == RenderGameOverlayEvent.ElementType.EXPERIENCE ||
