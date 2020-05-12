@@ -28,6 +28,7 @@ import p455w0rd.danknull.init.ModGuiHandler.GUIType;
 import p455w0rd.danknull.init.ModNetworking;
 import p455w0rd.danknull.inventory.PlayerSlot;
 import p455w0rd.danknull.items.ItemDankNull;
+import p455w0rd.danknull.network.PacketEmptyDock;
 import p455w0rd.danknull.network.PacketSetDankNullInDock;
 import p455w0rdslib.api.client.IModelHolder;
 
@@ -116,6 +117,7 @@ public class BlockDankNullDock extends BlockContainer implements IModelHolder {
             return false;
         }
         final TileDankNullDock dankDock = getTE(world, pos);
+        // TODO Clean up this logic
         if (dankDock != null) {
             final PlayerSlot slot = PlayerSlot.getHand(player, hand);
             final ItemStack stack = slot.getStackInSlot(player);
@@ -126,14 +128,19 @@ public class BlockDankNullDock extends BlockContainer implements IModelHolder {
                     ModNetworking.getInstance().sendToAllTracking(new PacketSetDankNullInDock(dankDock, stack), new NetworkRegistry.TargetPoint(world.provider.getDimension(), pos.getX(), pos.getY(), pos.getZ(), 128));
                     return true;
                 }
-            }
-            if (!player.isSneaking() && hand == MAIN_HAND) {
-                if (!dankDock.getDankNull().isEmpty()) {
+            } else {
+                if (stack.isEmpty() && player.isSneaking()) {
+                    player.setHeldItem(hand, dankDock.getDankNull().copy());
+                    dankDock.removeDankNull();
+                    ModNetworking.getInstance().sendToAll(new PacketEmptyDock(dankDock.getPos()));
+                    dankDock.markDirty();
+                    return true;
+                }
+                if (!player.isSneaking() && hand == MAIN_HAND) {
                     ModGuiHandler.launchGui(GUIType.DANKNULL_TE, player, world, pos);
                     return true;
                 }
             }
-
         }
         return false;
     }

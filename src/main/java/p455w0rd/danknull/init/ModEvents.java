@@ -335,36 +335,6 @@ public class ModEvents {
     }
 
     @SubscribeEvent
-    public static void onRightClickBlock(final PlayerInteractEvent.RightClickBlock event) {
-        final EntityPlayer player = event.getEntityPlayer();
-        final World world = player.getEntityWorld();
-        if (world.isRemote) {
-            return;
-        }
-        final BlockPos pos = event.getPos();
-        final EnumHand hand = event.getHand();
-        TileDankNullDock dankDock = null;
-        if (world.getTileEntity(pos) != null && world.getTileEntity(pos) instanceof TileDankNullDock) {
-            dankDock = (TileDankNullDock) world.getTileEntity(pos);
-        }
-        if (dankDock != null) {
-            if (player.getServer().isBlockProtected(world, pos, player)) {
-                return;
-            }
-            if (player.getHeldItem(hand).isEmpty()) {
-                if (player.isSneaking()) {
-                    if (!dankDock.getDankNull().isEmpty()) {
-                        player.setHeldItem(hand, dankDock.getDankNull().copy());
-                        dankDock.removeDankNull();
-                        ModNetworking.getInstance().sendToAll(new PacketEmptyDock(dankDock.getPos()));
-                        dankDock.markDirty();
-                    }
-                }
-            }
-        }
-    }
-
-    @SubscribeEvent
     @SideOnly(Side.CLIENT)
     public static void onPostRenderOverlay(final RenderGameOverlayEvent.Post event) {
         if (event.getType() == ElementType.HOTBAR) {

@@ -1,3 +1,9 @@
+** Version 1.7.100 (Beta) **
+
+* Re-work remove dank-null from dock. Prevents sync issues. (And simplify code)
+
+--------------------------------------------------------------------------------
+
 ** Version 1.7.99 (Beta) **
 
 * Fix dupe with non-initialized dank null (#303)
