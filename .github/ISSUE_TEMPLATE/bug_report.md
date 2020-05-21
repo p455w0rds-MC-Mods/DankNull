@@ -18,4 +18,4 @@ Steps To Reproduce:
 
 Was this tested on Single Player or Server (or Both)?
 
-Was this tested with just Dank Null installed?
+Was this tested with just Dank Null installed, if not what is the minimal set of mods to cause the issue?
