@@ -65,6 +65,8 @@ dependencies {
     deobfProvided "curse.maven:codechicken:2779848"
     deobfProvided "curse.maven:item-scroller:2581199"
 
+    deobfProvided "curse.maven:overloaded:2875265"
+
     testCompile 'junit:junit:4.12'
     testCompile "com.google.truth:truth:+"
 }

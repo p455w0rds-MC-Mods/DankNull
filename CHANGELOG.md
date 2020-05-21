@@ -1,3 +1,9 @@
+** Version 1.7.101 (Beta) **
+
+* Fix dupe bug when dank null leaves inventory (Fixes #308)
+
+--------------------------------------------------------------------------------
+
 ** Version 1.7.100 (Beta) **
 
 * Re-work remove dank-null from dock. Prevents sync issues. (And simplify code)

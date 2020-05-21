@@ -21,7 +21,9 @@ public class ContainerDankNullDock extends ContainerDankNull {
 
     @Override
     public boolean canInteractWith(final EntityPlayer player) {
-        return tile.hasCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null) && super.canInteractWith(player);
+        return tile.hasCapability(CapabilityDankNull.DANK_NULL_CAPABILITY, null) &&
+            (player.getDistanceSq((double)tile.getPos().getX() + 0.5D, (double)this.tile.getPos().getY() + 0.5D, (double)this.tile.getPos().getZ() + 0.5D) <= 64.0D) &&
+            super.canInteractWith(player);
     }
 
     @Override
