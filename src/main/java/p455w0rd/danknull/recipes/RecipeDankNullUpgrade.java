@@ -79,10 +79,6 @@ public class RecipeDankNullUpgrade extends IForgeRegistryEntry.Impl<IRecipe> imp
                 if (checkMatch(inv, widthIndex, heightIndex)) {
                     return true;
                 }
-
-                if (checkMatch(inv, widthIndex, heightIndex)) {
-                    return true;
-                }
             }
         }
 
@@ -108,7 +104,6 @@ public class RecipeDankNullUpgrade extends IForgeRegistryEntry.Impl<IRecipe> imp
                 }
             }
         }
-
         return true;
     }
 
