@@ -39,6 +39,7 @@ public class ModConfig {
     public static final String NAME_CALL_IT_DEVNULL = "CallItDevNull";
     public static final String NAME_SUPERSHINE = "SuperShine";
     public static final String NAME_ONLY_CYCLE_BLOCKS = "onlyCycleBlocks";
+    public static final String NAME_DEFAULT_EXTRACTION_MODE = "defaultExtractionMode";
     private static Configuration CONFIG = null;
 
     private static Configuration config() {
@@ -70,6 +71,7 @@ public class ModConfig {
         Options.disableOreDictMode = config().getBoolean(NAME_DISABLE_OREDICT, SERVER_CAT, false, "If set to true, then Ore Dictionary Mode will not be available (overrides Ore Dictionary White/Black lists)");
         Options.showHUD = config().getBoolean("showHUD", CATEGORY_CLIENT, true, "Show the /dank/null HUD overlay?");
         Options.allowDockInserting = config().getBoolean(NAME_ALLOW_DOCK_INSERTION, SERVER_CAT, true, "If true, you will be able to pipe items into the /dank/null Docking Station");
+        Options.defaultExtractionMode = config().getInt(NAME_DEFAULT_EXTRACTION_MODE, CATEGORY_CLIENT, 1, 0, Integer.MAX_VALUE, "Sets the default mode to extract items from dank/null");
         if (config().hasChanged()) {
             config().save();
         }
@@ -176,6 +178,7 @@ public class ModConfig {
         public static boolean disableOreDictMode = false;
         public static boolean allowDockInserting = true;
         public static boolean skipNonBlocksOnCycle = false;
+        public static Integer defaultExtractionMode = 1;
         private static NonNullListSerializable<ItemStack> creativeItemBlacklist;
         private static NonNullListSerializable<ItemStack> creativeItemWhitelist;
         private static ArrayList<String> oreStringBlacklist = Lists.newArrayList();
