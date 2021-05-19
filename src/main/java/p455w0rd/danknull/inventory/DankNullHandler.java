@@ -454,7 +454,13 @@ public class DankNullHandler implements IDankNullHandler {
                 return extractionStacks.get(currentStack);
             }
         }
-        return ItemExtractionMode.KEEP_1;
+        switch (Options.defaultExtractionMode) {
+            case 0: return ItemExtractionMode.KEEP_NONE;
+            case 16: return ItemExtractionMode.KEEP_16;
+            case 64: return ItemExtractionMode.KEEP_64;
+            case Integer.MAX_VALUE: return ItemExtractionMode.KEEP_ALL;
+            default: return ItemExtractionMode.KEEP_1;
+        }
     }
 
     @Nonnull
