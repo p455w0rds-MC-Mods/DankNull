@@ -1,7 +1,5 @@
 buildscript {
     repositories {
-        jcenter()
-		mavenLocal()
         mavenCentral()
         maven {
             name = "forge"
@@ -13,12 +11,10 @@ buildscript {
     }
 	dependencies {
         classpath 'net.minecraftforge.gradle:ForgeGradle:2.3-SNAPSHOT'
-        classpath "com.wynprice.cursemaven:CurseMaven:2.1.1"
-        classpath group: 'gradle.plugin.com.matthewprenger', name: 'CurseGradle', version: "1.+"
+        classpath 'gradle.plugin.com.matthewprenger:CurseGradle:1.4.0'
     }
 }
 
-apply plugin: "com.wynprice.cursemaven"
 apply plugin: 'net.minecraftforge.gradle.forge'
 apply plugin: 'maven'
 apply plugin: 'java'
@@ -52,20 +48,24 @@ minecraft {
     clientRunArgs += "-username=Dev"
 }
 
+repositories {
+    maven { url 'https://cursemaven.com' }
+}
+
 dependencies {
-    deobfCompile "curse.maven:p455w0rds-library:2830265"
+    deobfCompile "curse.maven:p455w0rds-library-255232:2830265"
 
-    deobfProvided "curse.maven:the-one-probe:2667280"
-    deobfProvided "curse.maven:jei:2803400"
-    deobfProvided "curse.maven:hwyla:2568753"
-    deobfProvided "curse.maven:chisel:2915375"
-    deobfProvided "curse.maven:ctm:2915363"
-    deobfProvided "curse.maven:extra-utilities:2678374"
-    deobfProvided "curse.maven:not-enough-items:2755792"
-    deobfProvided "curse.maven:codechicken:2779848"
-    deobfProvided "curse.maven:item-scroller:2581199"
+    deobfProvided "curse.maven:the-one-probe-245211:2667280"
+    deobfProvided "curse.maven:jei-238222:2803400"
+    deobfProvided "curse.maven:hwyla-253449:2568753"
+    deobfProvided "curse.maven:chisel-235279:2915375"
+    deobfProvided "curse.maven:ctm-267602:2915363"
+    deobfProvided "curse.maven:extra-utilities-225561:2678374"
+    deobfProvided "curse.maven:not-enough-items-247694:2755792"
+    deobfProvided "curse.maven:codechicken-242818:2779848"
+    deobfProvided "curse.maven:item-scroller-242064:2581199"
 
-    deobfProvided "curse.maven:overloaded:2875265"
+    deobfProvided "curse.maven:overloaded-264601:2875265"
 
     testCompile 'junit:junit:4.12'
     testCompile "com.google.truth:truth:+"
@@ -97,33 +97,6 @@ processResources {
         exclude "mcmod.info"
     }
     rename '(.+_at.cfg)', 'META-INF/$1'
-}
-
-def curseRelations = {
-    optionalDependency 'better-builders-wands'
-    optionalDependency 'exchangers'
-    optionalDependency 'swingthroughgrass'
-    optionalDependency 'the-one-probe'
-    optionalDependency 'hwyla'
-    optionalDependency 'building-gadgets'
-    optionalDependency 'chisel'
-    optionalDependency 'jei'
-    optionalDependency 'waila'
-
-    requiredDependency 'p455w0rds-library'
-}
-
-curseforge {
-    if (project.hasProperty('curseForgeAPIKey')) {
-        apiKey = project.findProperty('curseForgeAPIKey')
-    }
-    project {
-        id = '272514'
-        changelog = file('CHANGELOG.md')
-        changelogType = 'markdown'
-        releaseType = 'beta'
-        relations curseRelations
-    }
 }
 
 // Make Gradle not Cache these so they always run
