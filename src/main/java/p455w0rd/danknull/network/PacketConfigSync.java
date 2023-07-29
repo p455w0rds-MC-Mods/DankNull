@@ -1,6 +1,7 @@
 package p455w0rd.danknull.network;
 
 import io.netty.buffer.ByteBuf;
+import net.minecraft.network.PacketBuffer;
 import net.minecraftforge.fml.common.FMLCommonHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessage;
 import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
@@ -8,61 +9,35 @@ import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import p455w0rd.danknull.init.ModConfig;
 import p455w0rd.danknull.init.ModConfig.Options;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.GZIPOutputStream;
 
 /**
  * @author p455w0rd
  */
 public class PacketConfigSync implements IMessage {
 
-    public transient Map<String, Object> values;
+    public Map<String, Object> values = new HashMap<>();
+    public PacketConfigSync() {}
 
-    public PacketConfigSync() {
-    }
-
-    public PacketConfigSync(final Map<String, Object> valuesIn) {
-        values = valuesIn;
-    }
-
-    @SuppressWarnings("unchecked")
     @Override
     public void fromBytes(final ByteBuf buf) {
-        final short len = buf.readShort();
-        final byte[] compressedBody = new byte[len];
-
-        for (short i = 0; i < len; i++) {
-            compressedBody[i] = buf.readByte();
-        }
-
-        try {
-            final ObjectInputStream obj = new ObjectInputStream(new GZIPInputStream(new ByteArrayInputStream(compressedBody)));
-            values = (Map<String, Object>) obj.readObject();
-            obj.close();
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
+        final PacketBuffer packetBuf = new PacketBuffer(buf);
+        values.put(ModConfig.NAME_CREATIVE_BLACKLIST, packetBuf.readString(Short.MAX_VALUE));
+        values.put(ModConfig.NAME_CREATIVE_WHITELIST, packetBuf.readString(Short.MAX_VALUE));
+        values.put(ModConfig.NAME_OREDICT_BLACKLIST, packetBuf.readString(Short.MAX_VALUE));
+        values.put(ModConfig.NAME_OREDICT_WHITELIST, packetBuf.readString(Short.MAX_VALUE));
+        values.put(ModConfig.NAME_DISABLE_OREDICT, buf.readBoolean());
     }
 
     @Override
     public void toBytes(final ByteBuf buf) {
-        final ByteArrayOutputStream obj = new ByteArrayOutputStream();
-
-        try {
-            final GZIPOutputStream gzip = new GZIPOutputStream(obj);
-            final ObjectOutputStream objStream = new ObjectOutputStream(gzip);
-            objStream.writeObject(values);
-            objStream.close();
-        } catch (final Exception e) {
-            throw new RuntimeException(e);
-        }
-        buf.writeShort(obj.size());
-        buf.writeBytes(obj.toByteArray());
+        final PacketBuffer packetBuf = new PacketBuffer(buf);
+        packetBuf.writeString(Options.creativeBlacklist);
+        packetBuf.writeString(Options.creativeWhitelist);
+        packetBuf.writeString(Options.oreBlacklist);
+        packetBuf.writeString(Options.oreWhitelist);
+        buf.writeBoolean(Options.disableOreDictMode);
     }
 
     public static class Handler implements IMessageHandler<PacketConfigSync, IMessage> {

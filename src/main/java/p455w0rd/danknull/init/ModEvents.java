@@ -352,7 +352,6 @@ public class ModEvents {
     }
 
     @SubscribeEvent
-    @SideOnly(Side.SERVER)
     public static void onPlayerLoggedIn(final PlayerEvent.PlayerLoggedInEvent event) {
         if (event.player instanceof EntityPlayerMP) {
             ModConfig.sendConfigsToClient((EntityPlayerMP) event.player);
